@@ -1,0 +1,9 @@
+Run these with 
+
+    cmsRun top_skim_cfg.py
+
+or 
+
+    crab submit -c crab_top_skim_cfg.py
+
+These will make some slimmed files. 
