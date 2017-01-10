@@ -16,7 +16,7 @@ https://github.com/cmsb2g/B2GDAS
 
 `cd CMSSW_8_0_20/src`
 
-`git clone https://github.com/mattbellis/Top_BNV.git Analysis/Top_BNV`
+`git clone git@github.com:mattbellis/Top_BNV.git Analysis/Top_BNV`
 
 
 # Building everything
