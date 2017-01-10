@@ -1,10 +1,10 @@
 # Top_BNV
 CMS analysis tools for searches for baryon-number violating decays of the top quark. 
 
-*Taken from B2GDAS*
 
-CMS Data Analysis School (CMSDAS) exercise for the
-Beyond Two Generations Physics Analysis Group (B2G PAG)
+# The first time you are checking out/cloning this directory
+*Taken from B2GDAS...*
+
 
 To run :
 
@@ -16,7 +16,7 @@ To run :
 
 `cd CMSSW_8_0_20/src`
 
-`git clone https://github.com/cmsb2g/B2GDAS.git Analysis/B2GDAS`
+`git clone https://github.com/mattbellis/Top_BNV.git Analysis/Top_BNV`
 
 `cd Analysis/B2GDAS`
 
