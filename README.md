@@ -5,8 +5,8 @@ CMS analysis tools for searches for baryon-number violating decays of the top qu
 # The first time you are checking out/cloning this directory
 *Taken from B2GDAS...*
 
+https://github.com/cmsb2g/B2GDAS
 
-To run :
 
 `export SCRAM_ARCH=slc6_amd64_gcc530` *if using BASH*
 
@@ -18,12 +18,21 @@ To run :
 
 `git clone https://github.com/mattbellis/Top_BNV.git Analysis/Top_BNV`
 
-`cd Analysis/B2GDAS`
+
+# Building everything
+
+`cd ~/CMSSW_8_0_20/src/Analysis/B2GDAS`
 
 `scram b -j 10`
 
-`cd test`
+# Running the code
+
+`cd ~/CMSSW_8_0_20/src/Analysis/B2GDAS/test`
+
+`source /cvmfs/cms.cern.ch/crab3/crab.csh`
 
 `voms-proxy-init`
+
+This next part will change at some point. 
 
 `python b2gdas_fwlite.py --input=inputfiles/rsgluon_ttbar_2TeV.txt --output=rsgluon_ttbar_2TeV.root --maxevents 10000 --trigProc=HLT2`
