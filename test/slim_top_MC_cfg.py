@@ -16,7 +16,7 @@ process.source = cms.Source("PoolSource",
 
 
 process.out = cms.OutputModule("PoolOutputModule",
-        fileName = cms.untracked.string('top_slimmmed_files_MC_SOMESORTOFTAGHERE.root'),
+        fileName = cms.untracked.string('top_slimmmed_files_MC_ttbar.root'),
         #outputCommands = cms.untracked.vstring(['drop *', 'keep *_slimmedMuons__*', 'keep *_slimmedElectrons__*', 'keep *_slimmedJets__*', 'keep *_slimmedMETs__*'])
         outputCommands = cms.untracked.vstring(['drop *', \
                 'keep *_slimmedMuons__*', \
@@ -24,7 +24,7 @@ process.out = cms.OutputModule("PoolOutputModule",
                 'keep *_slimmedPhotons__*', \
                 'keep *_slimmedJets__*', \
                 'keep *_slimmedJetsPuppi__*', \
-                #'keep *_slimmedJetsAK8__*', # This is for top-tagged (boosted?) I think\
+                'keep *_slimmedJetsAK8__*', # This is for top-tagged (boosted?) I think\
                 'keep *_slimmedMETs__*', \
                 'keep *_slimmedTaus__*', \
                 'keep *_slimmedAddPileupInfo__*', \
