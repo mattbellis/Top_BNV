@@ -300,6 +300,12 @@ def b2gdas_fwlite(argv):
             TreeSemiLept.Branch(name, tmp, '%s/L' % name)
             return tmp
 
+        ##### OUR STUFF #####################
+        nmuon = array('i', [-1])
+        TreeSemiLept.Branch('nmuon', nmuon, 'nmuon/I')
+        muonpt = array('f', 16*[-1.])
+        TreeSemiLept.Branch('muonpt', muonpt, 'muonpt[nmuon]/F')
+
         # Event weights
         GenWeight             = bookFloatBranch('GenWeight', 0.)
         PUWeight              = bookFloatBranch('PUWeight', 0.)
@@ -357,6 +363,9 @@ def b2gdas_fwlite(argv):
         SemiLeptEventNum      = bookLongIntBranch('SemiLeptEventNum', -1)
         SemiLeptLumiNum       = bookIntBranch('SemiLeptLumiNum', -1)
         SemiLeptRunNum        = bookIntBranch('SemiLeptRunNum', -1)
+
+        ###### OUR STUFF #######
+        #muonpt = bookFloatBranch('muonpt',-999)
 
 
 
@@ -452,11 +461,6 @@ def b2gdas_fwlite(argv):
 
         muonTrkSFFile = ROOT.TFile('general_tracks_and_early_general_tracks_corr_ratio.root', 'READ')
         muonTrk_SFs = muonTrkSFFile.Get('mutrksfptg10')
-
-
-
-
-
 
 
     #################################################################################
@@ -656,6 +660,11 @@ def b2gdas_fwlite(argv):
                     if options.verbose:
                         print "muon %2d: pt %4.1f, eta %+5.3f phi %+5.3f dz(PV) %+5.3f, POG loose id %d, tight id %d." % (
                             i, muon.pt(), muon.eta(), muon.phi(), muon.muonBestTrack().dz(PV.position()), muon.isLooseMuon(), muon.isTightMuon(PV))
+
+        nmuon[0] = len(goodmuons)
+        for i,m in enumerate(goodmuons):
+            if i<16:
+                muonpt[i] = m.pt()
 
         '''
         # Select tight good electrons
