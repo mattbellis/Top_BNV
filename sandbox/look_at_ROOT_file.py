@@ -9,7 +9,8 @@ f = ROOT.TFile(sys.argv[1])
 
 tree = f.Get("TreeSemiLept")
 
-#t.Print()
+t.Print()
+exit()
 
 nentries = tree.GetEntries()
 
