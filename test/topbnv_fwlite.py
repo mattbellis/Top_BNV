@@ -232,7 +232,7 @@ def getInputFiles(options):
 
 
 #####################################################################################
-def b2gdas_fwlite(argv):
+def topbnv_fwlite(argv):
     ## _____________      __.____    .__  __             _________ __          _____  _____
     ## \_   _____/  \    /  \    |   |__|/  |_  ____    /   _____//  |_ __ ___/ ____\/ ____\
     ##  |    __) \   \/\/   /    |   |  \   __\/ __ \   \_____  \\   __\  |  \   __\\   __\
@@ -301,10 +301,80 @@ def b2gdas_fwlite(argv):
             return tmp
 
         ##### OUR STUFF #####################
+        #'''
+
+        # Muons
         nmuon = array('i', [-1])
         TreeSemiLept.Branch('nmuon', nmuon, 'nmuon/I')
         muonpt = array('f', 16*[-1.])
         TreeSemiLept.Branch('muonpt', muonpt, 'muonpt[nmuon]/F')
+        muoneta = array('f', 16*[-1.])
+        TreeSemiLept.Branch('muoneta', muoneta, 'muoneta[nmuon]/F')
+        muonphi = array('f', 16*[-1.])
+        TreeSemiLept.Branch('muonphi', muonphi, 'muonphi[nmuon]/F')
+        muonpx = array('f', 16*[-1.])
+        TreeSemiLept.Branch('muonpx', muonpx, 'muonpx[nmuon]/F')
+        muonpy = array('f', 16*[-1.])
+        TreeSemiLept.Branch('muonpy', muonpy, 'muonpy[nmuon]/F')
+        muonpz = array('f', 16*[-1.])
+        TreeSemiLept.Branch('muonpz', muonpz, 'muonpz[nmuon]/F')
+        muone = array('f', 16*[-1.])
+        TreeSemiLept.Branch('muone', muone, 'muone[nmuon]/F')
+
+        # Jets
+        njet = array('i', [-1])
+        TreeSemiLept.Branch('njet', njet, 'njet/I')
+        jetpt = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetpt', jetpt, 'jetpt[njet]/F')
+        jeteta = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jeteta', jeteta, 'jeteta[njet]/F')
+        jetphi = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetphi', jetphi, 'jetphi[njet]/F')
+        jetpx = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetpx', jetpx, 'jetpx[njet]/F')
+        jetpy = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetpy', jetpy, 'jetpy[njet]/F')
+        jetpz = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetpz', jetpz, 'jetpz[njet]/F')
+        jete = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jete', jete, 'jete[njet]/F')
+        #'''
+
+        '''
+        pats = ["muon"]
+        attributes = ["n","pt","eta","phi","px","py","pz","e"]
+        nmuon = array('i',[-1])
+        muonpt = array('f',16*[-1])
+        muoneta = array('f',16*[-1])
+        muonphi = array('f',16*[-1])
+        muonpx = array('f',16*[-1])
+        muonpy = array('f',16*[-1])
+        muonpz = array('f',16*[-1])
+        muone = array('f',16*[-1])
+        elements = [nmuon,muonpt,muoneta,muonphi,muonpx,muonpy,muonpz,muone] 
+        for i,pat in enumerate(pats):
+            numbername = 0
+            for j,(element,attribute) in enumerate(zip(elements,attributes)):
+                if j==0:
+                    numbername = "%s%s" % (attribute,pat)
+                    branchID = "%s/I" % (numbername)
+                    element = array('i',[-1])
+                    TreeSemiLept.Branch(numbername, element, branchID)
+                else:
+                    branchname = "%s%s" % (pat,attribute)
+                    branchID = "%s[%s]/F" % (branchname,numbername)
+                    element = array('f',16*[-1])
+                    TreeSemiLept.Branch(branchname, element, branchID)
+
+        for e in elements:
+            print(e,type(e))
+        '''
+
+
+
+
+
+        
 
         # Event weights
         GenWeight             = bookFloatBranch('GenWeight', 0.)
@@ -515,7 +585,8 @@ def b2gdas_fwlite(argv):
                     if options.verbose:
                         print "Trigger ", trigName,  " PASSED "
                     passTrig = True
-                    print "itrigToRun: ",itrigToRun
+                    if options.verbose:
+                        print "itrigToRun: ",itrigToRun
                     SemiLeptTrig[itrigToRun] = True
 
 
@@ -665,6 +736,12 @@ def b2gdas_fwlite(argv):
         for i,m in enumerate(goodmuons):
             if i<16:
                 muonpt[i] = m.pt()
+                muoneta[i] = m.eta()
+                muonphi[i] = m.phi()
+                muone[i] = m.energy()
+                muonpx[i] = m.px()
+                muonpy[i] = m.py()
+                muonpz[i] = m.pz()
 
         '''
         # Select tight good electrons
@@ -802,6 +879,7 @@ def b2gdas_fwlite(argv):
         ############################################
         # Get the AK4 jet nearest the lepton:
         ############################################
+        njets2write = 0
         for i,jet in enumerate(jets.product()):
             # Get the jet p4
             jetP4Raw = ROOT.TLorentzVector( jet.px(), jet.py(), jet.pz(), jet.energy() )
@@ -823,6 +901,19 @@ def b2gdas_fwlite(argv):
               cef < 0.99 and \
               nconstituents > 1 and \
               nch > 0
+
+            if goodJet:
+                if njets2write<16:
+                    i = njets2write
+                    jetpt[i] = jet.pt()
+                    jeteta[i] = jet.eta()
+                    jetphi[i] = jet.phi()
+                    jete[i] = jet.energy()
+                    jetpx[i] = jet.px()
+                    jetpy[i] = jet.py()
+                    jetpz[i] = jet.pz()
+                    njets2write += 1
+
 
             if not goodJet:
                 if options.verbose:
@@ -921,6 +1012,8 @@ def b2gdas_fwlite(argv):
                 nearestJetP4 = jetP4
                 dRMin = dR
 
+        # OUR STUFF
+        njet[0] = njets2write
 
         ############################################
         # Require at least one leptonic-side jet, and 2d isolation cut
@@ -1219,6 +1312,6 @@ def b2gdas_fwlite(argv):
 
 #####################################################################################
 if __name__ == "__main__":
-    b2gdas_fwlite(sys.argv)
+    topbnv_fwlite(sys.argv)
 
 
