@@ -23,6 +23,7 @@ tree = f.Get("TreeSemiLept")
 nentries = tree.GetEntries()
 
 values = []
+valuesjet = []
 
 for nentry in range(nentries):
 
@@ -30,15 +31,23 @@ for nentry in range(nentries):
     tree.GetEntry(nentry)
 
     nmuon = tree.nmuon
+    njet = tree.njet
 
     for i in range(nmuon):
         v = tree.muonpx[i]
         print(v)
         values.append(v)
 
+    for i in range(njet):
+        v = tree.jetpx[i]
+        print(v)
+        valuesjet.append(v)
+
 plt.figure()
-#plt.hist(values)
 lch.hist_err(values)
+
+plt.figure()
+lch.hist_err(valuesjet)
 
 plt.show()
 
