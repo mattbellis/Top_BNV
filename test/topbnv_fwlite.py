@@ -303,6 +303,12 @@ def topbnv_fwlite(argv):
         ##### OUR STUFF #####################
         #'''
 
+        # MET
+        metpt = array('f', [-1])
+        TreeSemiLept.Branch('metpt', metpt, 'muonpt/F')
+        metphi = array('f', [-1])
+        TreeSemiLept.Branch('metphi', metphi, 'muonphi/F')
+
         # Muons
         nmuon = array('i', [-1])
         TreeSemiLept.Branch('nmuon', nmuon, 'nmuon/I')
@@ -320,6 +326,24 @@ def topbnv_fwlite(argv):
         TreeSemiLept.Branch('muonpz', muonpz, 'muonpz[nmuon]/F')
         muone = array('f', 16*[-1.])
         TreeSemiLept.Branch('muone', muone, 'muone[nmuon]/F')
+
+        # Electrons
+        nelectron = array('i', [-1])
+        TreeSemiLept.Branch('nelectron', nelectron, 'nelectron/I')
+        electronpt = array('f', 16*[-1.])
+        TreeSemiLept.Branch('electronpt', electronpt, 'electronpt[nelectron]/F')
+        electroneta = array('f', 16*[-1.])
+        TreeSemiLept.Branch('electroneta', electroneta, 'electroneta[nelectron]/F')
+        electronphi = array('f', 16*[-1.])
+        TreeSemiLept.Branch('electronphi', electronphi, 'electronphi[nelectron]/F')
+        electronpx = array('f', 16*[-1.])
+        TreeSemiLept.Branch('electronpx', electronpx, 'electronpx[nelectron]/F')
+        electronpy = array('f', 16*[-1.])
+        TreeSemiLept.Branch('electronpy', electronpy, 'electronpy[nelectron]/F')
+        electronpz = array('f', 16*[-1.])
+        TreeSemiLept.Branch('electronpz', electronpz, 'electronpz[nelectron]/F')
+        electrone = array('f', 16*[-1.])
+        TreeSemiLept.Branch('electrone', electrone, 'electrone[nelectron]/F')
 
         # Jets
         njet = array('i', [-1])
@@ -748,6 +772,8 @@ def topbnv_fwlite(argv):
         goodelectrons = []
         if len(electrons.product()) > 0:
             for i,electron in enumerate( electrons.product() ):
+                print type(electron),"\n",electron
+                print type(event),"\n",event
                 passTight = selectElectron( electron, event )
                 if electron.pt() > options.minElectronPt and abs(electron.eta()) < options.maxElectronEta \
                     and passTight:
@@ -755,6 +781,17 @@ def topbnv_fwlite(argv):
                     if options.verbose:
                         print "elec %2d: pt %4.1f, supercluster eta %+5.3f, phi %+5.3f sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d" % \
                             ( i, electron.pt(), electron.superCluster().eta(), electron.phi(), electron.sigmaIetaIeta(), electron.full5x5_sigmaIetaIeta(), electron.passConversionVeto())
+        
+        nelectron[0] = len(goodelectrons)
+        for i,m in enumerate(goodelectrons):
+            if i<16:
+                electronpt[i] = m.pt()
+                electroneta[i] = m.eta()
+                electronphi[i] = m.phi()
+                electrone[i] = m.energy()
+                electronpx[i] = m.px()
+                electronpy[i] = m.py()
+                electronpz[i] = m.pz()
         '''
 
         # Veto on dilepton events
@@ -1024,6 +1061,8 @@ def topbnv_fwlite(argv):
         # Finally get the METs
         event.getByLabel( metLabel, mets )
         met = mets.product()[0]
+        metpt = met.pt()
+        metphi = met.phi()
 
         theLepJet = nearestJetP4
         theLepJetBDisc = nearestJet.bDiscriminator( options.bdisc )

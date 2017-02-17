@@ -32,10 +32,10 @@ process.out = cms.OutputModule("PoolOutputModule",
                 'keep *_slimmedTaus__*', \
                 'keep *_slimmedAddPileupInfo__*', \
                 'keep *_offlineSlimmedPrimaryVertices__*', \
-                'keep *_prunedGenParticles__*', \
-                'keep *_generator__*', \
+                'keep *_prunedGenParticles__*', \ # This will be Feynman-level particles. Not jets.
+                'keep *_generator__*', \ # Used for event weights
                 'keep *_TriggerResults__*', \
-                'keep *_fixedGridRhoAll__*', \
+                'keep *_fixedGridRhoAll__*', \ # Needed for isolation
 
                 ])
         )
