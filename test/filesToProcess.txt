@@ -1,1 +1,1 @@
-top_slimmmed_files_MC_SOMESORTOFTAGHERE.root
+top_slimmmed_files_MC_ttbar.root

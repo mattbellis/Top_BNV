@@ -305,9 +305,9 @@ def topbnv_fwlite(argv):
 
         # MET
         metpt = array('f', [-1])
-        TreeSemiLept.Branch('metpt', metpt, 'muonpt/F')
+        TreeSemiLept.Branch('metpt', metpt, 'metpt/F')
         metphi = array('f', [-1])
-        TreeSemiLept.Branch('metphi', metphi, 'muonphi/F')
+        TreeSemiLept.Branch('metphi', metphi, 'metphi/F')
 
         # Muons
         nmuon = array('i', [-1])
@@ -602,6 +602,7 @@ def topbnv_fwlite(argv):
             if triggerBits.product().accept(itrig):
                 firedTrigs.append( itrig )
 
+        passTrig = True # THIS IS PROBABLY NOT RIGHT AND SHOULD BE FIXED!!!!!!!!
         for trig in firedTrigs:
             trigName = names.triggerName(trig)
             for itrigToRun in xrange(0,len(trigsToRun)):
@@ -634,9 +635,11 @@ def topbnv_fwlite(argv):
             if options.verbose:
                 print "MET Filter ", names2.triggerName(itrig),  ": ", ("PASS" if metfiltBits.product().accept(itrig) else "fail (or not run)")
 
+        passFilters = True ######### NOT RIGHT!!!!!!!!!!!!!!!!!!!
         if not passFilters:
             return
 
+        passTrig = Tru ############# NOT RIGHT!!!!!!!!!!!!!!!!!!!!!!!
         if not passTrig:
             return
 
@@ -750,7 +753,8 @@ def topbnv_fwlite(argv):
         goodmuons = []
         if len(muons.product()) > 0:
             for i,muon in enumerate( muons.product() ):
-                if muon.pt() > options.minMuonPt and abs(muon.eta()) < options.maxMuonEta and muon.muonBestTrack().dz(PV.position()) < 5.0 and muon.isTightMuon(PV):
+                #if muon.pt() > options.minMuonPt and abs(muon.eta()) < options.maxMuonEta and muon.muonBestTrack().dz(PV.position()) < 5.0 and muon.isTightMuon(PV):
+                if muon.pt() > options.minMuonPt and abs(muon.eta()) < options.maxMuonEta: 
                     goodmuons.append( muon )
                     if options.verbose:
                         print "muon %2d: pt %4.1f, eta %+5.3f phi %+5.3f dz(PV) %+5.3f, POG loose id %d, tight id %d." % (
@@ -767,7 +771,7 @@ def topbnv_fwlite(argv):
                 muonpy[i] = m.py()
                 muonpz[i] = m.pz()
 
-        '''
+        #'''
         # Select tight good electrons
         goodelectrons = []
         if len(electrons.product()) > 0:
@@ -792,7 +796,7 @@ def topbnv_fwlite(argv):
                 electronpx[i] = m.px()
                 electronpy[i] = m.py()
                 electronpz[i] = m.pz()
-        '''
+        #'''
 
         # Veto on dilepton events
         # Also keep track of the PF index of the lepton
@@ -1060,9 +1064,11 @@ def topbnv_fwlite(argv):
 
         # Finally get the METs
         event.getByLabel( metLabel, mets )
-        met = mets.product()[0]
-        metpt = met.pt()
-        metphi = met.phi()
+        #met = mets.product()[0]
+        met = mets.product().front()
+        metpt[0] = met.pt()
+        metphi[0] = met.phi()
+        print("MET pt/phi: %f %f" % (metpt[0],metphi[0]))
 
         theLepJet = nearestJetP4
         theLepJetBDisc = nearestJet.bDiscriminator( options.bdisc )

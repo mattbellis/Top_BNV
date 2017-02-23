@@ -1,3 +1,4 @@
 python topbnv_fwlite.py --input filesToProcess.txt --trigProc HLT
 python topbnv_fwlite.py --input filesToProcess.txt --trigProc HLT --localInputFiles --verbose --disablePileup
 python topbnv_fwlite.py --input filesToProcess.txt --trigProc HLT --localInputFiles --verbose --disablePileup
+python topbnv_fwlite.py --input filesToProcess_DATA.txt --trigProc HLT --localInputFiles --verbose --disablePileup --trigProcMETFilters RECO --isData
