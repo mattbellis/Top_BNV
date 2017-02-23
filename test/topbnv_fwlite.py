@@ -639,7 +639,7 @@ def topbnv_fwlite(argv):
         if not passFilters:
             return
 
-        passTrig = Tru ############# NOT RIGHT!!!!!!!!!!!!!!!!!!!!!!!
+        passTrig = True ############# NOT RIGHT!!!!!!!!!!!!!!!!!!!!!!!
         if not passTrig:
             return
 
