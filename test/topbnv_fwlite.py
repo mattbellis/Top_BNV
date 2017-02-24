@@ -656,8 +656,14 @@ def topbnv_fwlite(argv):
                 topQuark = None
                 antitopQuark = None
                 for igen,gen in enumerate( gens.product() ):
-                    #if options.verbose:
-                    #    print 'GEN id=%.1f, pt=%+5.3f' % ( gen.pdgId(), gen.pt() )
+                    ##### WHEN LOOPING OVER CHECK THE HARD SCATTERING FLAG 
+                    ##### TO MAKE SURE WE DON'T WORRY ABOUT TOPS THAT ARE JUST
+                    ##### PROPAGATING FROM THEMSELVES
+                    if options.verbose:
+                        print 'GEN id=%.1f, pt=%+5.3f, status=%d, ndau: %d' % \
+                                ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters() )
+                        for ndau in range(0,gen.numberOfDaughters()):
+                            print("daughter: %d" % (gen.daughter(ndau).pdgId()))
                     if gen.pdgId() == 6:
                         topQuark = gen
                     elif gen.pdgId() == -6:
@@ -935,6 +941,9 @@ def topbnv_fwlite(argv):
             cef = jet.chargedEmEnergy() / jetP4Raw.E()
             nconstituents = jet.numberOfDaughters()
             nch = jet.chargedMultiplicity()
+
+            # Is this the b-jet tagging?
+            print("B-tagging...: %f " % (jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")))
             goodJet = \
               nhf < 0.99 and \
               nef < 0.99 and \
