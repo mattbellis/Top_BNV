@@ -586,7 +586,8 @@ def topbnv_fwlite(argv):
         event.getByLabel(metfiltBitLabel, metfiltBits)
         runnumber = event.eventAuxiliary().run()
 
-        if options.verbose:
+        #if options.verbose:
+        if 1:
             print "\nProcessing %d: run %6d, lumi %4d, event %12d" % \
                   (iev,event.eventAuxiliary().run(), \
                   event.eventAuxiliary().luminosityBlock(), \
@@ -635,14 +636,17 @@ def topbnv_fwlite(argv):
             if options.verbose:
                 print "MET Filter ", names2.triggerName(itrig),  ": ", ("PASS" if metfiltBits.product().accept(itrig) else "fail (or not run)")
 
+        print("A")
         passFilters = True ######### NOT RIGHT!!!!!!!!!!!!!!!!!!!
         if not passFilters:
             return
 
+        print("B")
         passTrig = True ############# NOT RIGHT!!!!!!!!!!!!!!!!!!!!!!!
         if not passTrig:
             return
 
+        print("C")
         ##   ________                __________.__          __
         ##  /  _____/  ____   ____   \______   \  |   _____/  |_  ______
         ## /   \  ____/ __ \ /    \   |     ___/  |  /  _ \   __\/  ___/
@@ -689,11 +693,14 @@ def topbnv_fwlite(argv):
 
 
 
+        print("D")
+
         event.getByLabel(vertexLabel, vertices)
         # Vertices
         NPV = len(vertices.product())
         if len(vertices.product()) == 0 or vertices.product()[0].ndof() < 4:
-            if options.verbose:
+            #if options.verbose:
+            if 1:
                 print "Event has no good primary vertex."
             return
         else:
@@ -731,6 +738,7 @@ def topbnv_fwlite(argv):
         ##  |    |   \   Y  (  <_> )   \     /  / __ \|  |_|  |  /\  ___/
         ##  |____|_  /___|  /\____/     \___/  (____  /____/____/  \___  >
         ##         \/     \/                        \/                 \/
+        print("E")
         event.getByLabel(rhoLabel, rhos)
         # Rhos
         if len(rhos.product()) == 0:
@@ -742,6 +750,7 @@ def topbnv_fwlite(argv):
                 print 'rho = {0:6.2f}'.format( rho )
 
 
+        print("F")
 
         ## .____                  __                    _________      .__                 __  .__
         ## |    |    ____ _______/  |_  ____   ____    /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____
@@ -750,17 +759,22 @@ def topbnv_fwlite(argv):
         ## |_______ \___  >   __/|__|  \____/|___|  / /_______  /\___  >____/\___  >\___  >__| |__|\____/|___|  /
         ##         \/   \/|__|                    \/          \/     \/          \/     \/                    \/
 
+        print("G")
         event.getByLabel( muonLabel, muons )
         event.getByLabel( electronLabel, electrons )
 
+        print("H")
 
 
+        print("I")
         # Select tight good muons
         goodmuons = []
+        print("NUMBER OF MUONS: %d" % (len(muons.product())))
         if len(muons.product()) > 0:
             for i,muon in enumerate( muons.product() ):
                 #if muon.pt() > options.minMuonPt and abs(muon.eta()) < options.maxMuonEta and muon.muonBestTrack().dz(PV.position()) < 5.0 and muon.isTightMuon(PV):
-                if muon.pt() > options.minMuonPt and abs(muon.eta()) < options.maxMuonEta: 
+                #if muon.pt() > options.minMuonPt and abs(muon.eta()) < options.maxMuonEta: 
+                if 1:
                     goodmuons.append( muon )
                     if options.verbose:
                         print "muon %2d: pt %4.1f, eta %+5.3f phi %+5.3f dz(PV) %+5.3f, POG loose id %d, tight id %d." % (
@@ -777,13 +791,14 @@ def topbnv_fwlite(argv):
                 muonpy[i] = m.py()
                 muonpz[i] = m.pz()
 
+        print("J")
         #'''
         # Select tight good electrons
         goodelectrons = []
         if len(electrons.product()) > 0:
             for i,electron in enumerate( electrons.product() ):
-                print type(electron),"\n",electron
-                print type(event),"\n",event
+                #print type(electron),"\n",electron
+                #print type(event),"\n",event
                 passTight = selectElectron( electron, event )
                 if electron.pt() > options.minElectronPt and abs(electron.eta()) < options.maxElectronEta \
                     and passTight:
@@ -792,6 +807,7 @@ def topbnv_fwlite(argv):
                         print "elec %2d: pt %4.1f, supercluster eta %+5.3f, phi %+5.3f sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d" % \
                             ( i, electron.pt(), electron.superCluster().eta(), electron.phi(), electron.sigmaIetaIeta(), electron.full5x5_sigmaIetaIeta(), electron.passConversionVeto())
         
+        print("K")
         nelectron[0] = len(goodelectrons)
         for i,m in enumerate(goodelectrons):
             if i<16:
@@ -810,7 +826,10 @@ def topbnv_fwlite(argv):
         theLeptonObjKey = -1
 
         #if len(goodmuons) + len(goodelectrons) != 1:
-        if len(goodmuons) != 1: 
+        #if len(goodmuons) != 1: 
+        print("NNNNN")
+        print(len(goodmuons))
+        if len(goodmuons) == 0: 
             return
         elif len(goodmuons) > 0:
             theLeptonCand = goodmuons[0]
@@ -844,6 +863,8 @@ def topbnv_fwlite(argv):
                 MuTrkWeightUnc = muonTrk_SFs.GetBinError( muonTrk_SFs.GetXaxis().FindBin( eta ))
                 evWeight *= MuTrkWeight
 
+        print("A")
+        print("NNNNN")
         '''
         else:
             theLeptonCand = goodelectrons[0]
@@ -877,6 +898,7 @@ def topbnv_fwlite(argv):
             footprint.add(theLeptonCand.sourceCandidatePtr(i).key()) # the key is the index in the pf collection
 
 
+        print("B")
         ##      ____.       __      _________      .__                 __  .__
         ##     |    | _____/  |_   /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____
         ##     |    |/ __ \   __\  \_____  \_/ __ \|  | _/ __ \_/ ___\   __\  |/  _ \ /    \
@@ -943,7 +965,7 @@ def topbnv_fwlite(argv):
             nch = jet.chargedMultiplicity()
 
             # Is this the b-jet tagging?
-            print("B-tagging...: %f " % (jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")))
+            #print("B-tagging...: %f " % (jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")))
             goodJet = \
               nhf < 0.99 and \
               nef < 0.99 and \
@@ -1043,7 +1065,9 @@ def topbnv_fwlite(argv):
             jetP4 = jetP4Raw * newJEC * ptsmear
 
             # Now perform jet kinematic cuts
+            print(jetP4.Perp())
             if jetP4.Perp() < options.minAK4Pt or abs(jetP4.Rapidity()) > options.maxAK4Rapidity:
+                print("JETCONTINUE")
                 continue
 
             # Get the jet nearest the lepton
@@ -1069,6 +1093,7 @@ def topbnv_fwlite(argv):
         # Require at least one leptonic-side jet, and 2d isolation cut
         ############################################
         if nearestJet == None:
+            print "RETURNINGNEARESTJET"
             return
 
         # Finally get the METs
@@ -1077,7 +1102,7 @@ def topbnv_fwlite(argv):
         met = mets.product().front()
         metpt[0] = met.pt()
         metphi[0] = met.phi()
-        print("MET pt/phi: %f %f" % (metpt[0],metphi[0]))
+        #print("MET pt/phi: %f %f" % (metpt[0],metphi[0]))
 
         theLepJet = nearestJetP4
         theLepJetBDisc = nearestJet.bDiscriminator( options.bdisc )
@@ -1101,6 +1126,7 @@ def topbnv_fwlite(argv):
         if options.verbose:
             print '2d cut : dRMin = {0:6.2f}, ptRel = {1:6.2f}, pass = {2:6d}'.format( dRMin, ptRel, pass2D )
         if not pass2D:
+            print("NOPASS2D") # This seems to cut out about 20% of the events
             return
 
         ############################################
@@ -1129,6 +1155,7 @@ def topbnv_fwlite(argv):
               nch > 0
 
             if not goodJet:
+                print("NOGOODAK8JET")
                 return
 
             if options.isData:
@@ -1188,12 +1215,19 @@ def topbnv_fwlite(argv):
         ############################################
         # Investigate the b-tagging and t-tagging
         ############################################
+        '''
         if len(ak4JetsGoodP4) < 1 or len(ak8JetsGoodP4) < 1:
+            print("LENJETS") # CUTS OUT 50% of ttbar events
+            return
+        '''
+        if len(ak4JetsGoodP4)<1:
+            print("LENJETS") 
             return
 
 
         tJets = []
 
+        '''
         for ijet,jet in enumerate(ak8JetsGood):
             if jet.pt() < options.minAK8Pt:
                 continue
@@ -1220,6 +1254,7 @@ def topbnv_fwlite(argv):
 
 
             tJets.append( jet )
+        '''
 
         ## ___________.__.__  .__    ___________
         ## \_   _____/|__|  | |  |   \__    ___/______   ____   ____
@@ -1230,6 +1265,7 @@ def topbnv_fwlite(argv):
         if not options.disableTree:
             candToPlot = 0
 
+            '''
             # Make sure there are top tags if we want to plot them
             tagInfoLabels = ak8JetsGood[candToPlot].tagInfoLabels()
             # Get n-subjettiness "tau" variables
@@ -1248,7 +1284,7 @@ def topbnv_fwlite(argv):
                 h_tau32AK8.Fill( tau32, evWeight )
             else:
                 h_tau32AK8.Fill( -1.0, evWeight )
-
+            '''
             # Get the subjets from the modified mass drop algorithm
             # aka softdrop with beta=0.
             # The heaviest should correspond to the W and the lightest
@@ -1276,21 +1312,21 @@ def topbnv_fwlite(argv):
             MuonTrkWeight       [0] = MuTrkWeight
             MuonTrkWeightUnc    [0] = MuTrkWeightUnc
             GenWeight           [0] = genWeight
-            FatJetPt            [0] = ak8JetsGoodP4[candToPlot].Perp()
-            FatJetEta           [0] = ak8JetsGoodP4[candToPlot].Eta()
-            FatJetPhi           [0] = ak8JetsGoodP4[candToPlot].Phi()
-            FatJetRap           [0] = ak8JetsGoodP4[candToPlot].Rapidity()
-            FatJetEnergy        [0] = ak8JetsGoodP4[candToPlot].Energy()
-            FatJetMass          [0] = ak8JetsGoodP4[candToPlot].M()
-            FatJetBDisc         [0] = ak8JetsGood[candToPlot].bDiscriminator(options.bdisc)
-            if ( ak8JetsGood[candToPlot].hasUserFloat('ak8PFJetsCHSSoftDropMass') ): FatJetMassSoftDrop  [0] = ak8JetsGood[candToPlot].userFloat('ak8PFJetsCHSSoftDropMass')
-            FatJetTau32         [0] = tau32
-            FatJetTau21         [0] = tau21
-            FatJetJECUpSys      [0] = ak8JetsGoodSysts[candToPlot][0]
-            FatJetJECDnSys      [0] = ak8JetsGoodSysts[candToPlot][1]
-            FatJetJERUpSys      [0] = ak8JetsGoodSysts[candToPlot][2]
-            FatJetJERDnSys      [0] = ak8JetsGoodSysts[candToPlot][3]
-            FatJetDeltaPhiLep   [0] = ak8JetsGoodP4[candToPlot].DeltaR(theLepton)
+            #FatJetPt            [0] = ak8JetsGoodP4[candToPlot].Perp()
+            #FatJetEta           [0] = ak8JetsGoodP4[candToPlot].Eta()
+            #FatJetPhi           [0] = ak8JetsGoodP4[candToPlot].Phi()
+            #FatJetRap           [0] = ak8JetsGoodP4[candToPlot].Rapidity()
+            #FatJetEnergy        [0] = ak8JetsGoodP4[candToPlot].Energy()
+            #FatJetMass          [0] = ak8JetsGoodP4[candToPlot].M()
+            #FatJetBDisc         [0] = ak8JetsGood[candToPlot].bDiscriminator(options.bdisc)
+            #if ( ak8JetsGood[candToPlot].hasUserFloat('ak8PFJetsCHSSoftDropMass') ): FatJetMassSoftDrop  [0] = ak8JetsGood[candToPlot].userFloat('ak8PFJetsCHSSoftDropMass')
+            #FatJetTau32         [0] = tau32
+            #FatJetTau21         [0] = tau21
+            #FatJetJECUpSys      [0] = ak8JetsGoodSysts[candToPlot][0]
+            #FatJetJECDnSys      [0] = ak8JetsGoodSysts[candToPlot][1]
+            #FatJetJERUpSys      [0] = ak8JetsGoodSysts[candToPlot][2]
+            #FatJetJERDnSys      [0] = ak8JetsGoodSysts[candToPlot][3]
+            #FatJetDeltaPhiLep   [0] = ak8JetsGoodP4[candToPlot].DeltaR(theLepton)
             if subjetW != None and subjetW != -999:
                 FatJetSDBDiscW      [0] = subjetW.bDiscriminator(options.bdisc)
                 FatJetSDBDiscB      [0] = subjetB.bDiscriminator(options.bdisc)
@@ -1321,6 +1357,7 @@ def topbnv_fwlite(argv):
             SemiLeptLumiNum     [0] = event.object().luminosityBlock()
             SemiLeptEventNum    [0] = event.object().id().event()
 
+            print("I got to the end of the event loop!!!!")
             TreeSemiLept.Fill()
 
 
@@ -1349,7 +1386,8 @@ def topbnv_fwlite(argv):
                 break
             nevents += 1
 
-            if nevents % 1000 == 0:
+            #if nevents % 1000 == 0:
+            if nevents % 10 == 0:
                 print '==============================================='
                 print '    ---> Event ' + str(nevents)
             elif options.verbose:
