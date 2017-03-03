@@ -572,6 +572,10 @@ def topbnv_fwlite(argv):
     #################################################################################
     def processEvent(iev, event):
 
+        genOut = "Event %d\n" % (iev)
+        print "GGGEEENNNNOUT...."
+        print genOut
+
         evWeight = 1.0 # Event weight
         puWeight = 1.0 # Pileup weight
         genWeight = 1.0 # ?
@@ -664,10 +668,10 @@ def topbnv_fwlite(argv):
                     ##### TO MAKE SURE WE DON'T WORRY ABOUT TOPS THAT ARE JUST
                     ##### PROPAGATING FROM THEMSELVES
                     if options.verbose:
-                        print 'GEN id=%.1f, pt=%+5.3f, status=%d, ndau: %d' % \
+                        genOut += 'GEN pdg id=%d pt=%+5.3f status=%d ndau: %d\n' % \
                                 ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters() )
                         for ndau in range(0,gen.numberOfDaughters()):
-                            print("daughter: %d" % (gen.daughter(ndau).pdgId()))
+                            genOut += "daughter pdgid: %d\n" % (gen.daughter(ndau).pdgId())
                     if gen.pdgId() == 6:
                         topQuark = gen
                     elif gen.pdgId() == -6:
@@ -1360,17 +1364,14 @@ def topbnv_fwlite(argv):
             print("I got to the end of the event loop!!!!")
             TreeSemiLept.Fill()
 
-
-
-
-
-
+        return genOut
 
 
 
     #########################################
     # Main event loop
 
+    genoutputfile = open("generator_information.dat",'w')
     nevents = 0
     maxevents = int(options.maxevents)
     for ifile in getInputFiles(options):
@@ -1393,12 +1394,18 @@ def topbnv_fwlite(argv):
             elif options.verbose:
                 print '    ---> Event ' + str(nevents)
 
-            processEvent(iev, events)
+            genOut = processEvent(iev, events)
+            print type(genOut)
+            print genOut
+            if genOut is not None:
+                genoutputfile.write(genOut)
 
     # Close the output ROOT file
     f.cd()
     f.Write()
     f.Close()
+
+    genoutputfile.close()
     
 
 
