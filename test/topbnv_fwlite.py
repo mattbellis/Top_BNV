@@ -548,9 +548,9 @@ def topbnv_fwlite(argv):
         muonSFFile = ROOT.TFile('MuonID_Z_RunBCD_prompt80X_7p65.root', 'READ')
         muon_SFs = muonSFFile.Get('MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio')
 
-        print "THIS IS MUONSFS"
-        print type(muon_SFs)
-        print muon_SFs.GetBinContent(1,1)
+        #print "THIS IS MUONSFS"
+        #print type(muon_SFs)
+        #print muon_SFs.GetBinContent(1,1)
         #exit()
 
         muonTrkSFFile = ROOT.TFile('general_tracks_and_early_general_tracks_corr_ratio.root', 'READ')
@@ -573,8 +573,8 @@ def topbnv_fwlite(argv):
     def processEvent(iev, event):
 
         genOut = "Event %d\n" % (iev)
-        print "GGGEEENNNNOUT...."
-        print genOut
+        #print "GGGEEENNNNOUT...."
+        #print genOut
 
         evWeight = 1.0 # Event weight
         puWeight = 1.0 # Pileup weight
@@ -592,11 +592,11 @@ def topbnv_fwlite(argv):
 
         #if options.verbose:
         if 1:
-            print "\nProcessing %d: run %6d, lumi %4d, event %12d" % \
+            #print "\nProcessing %d: run %6d, lumi %4d, event %12d" % \
                   (iev,event.eventAuxiliary().run(), \
                   event.eventAuxiliary().luminosityBlock(), \
                   event.eventAuxiliary().event())
-            print "\n === TRIGGER PATHS ==="
+            #print "\n === TRIGGER PATHS ==="
 
         # Check the names of the triggers to see if any of "our" trigger fired
         names = event.object().triggerNames(triggerBits.product())
@@ -640,17 +640,17 @@ def topbnv_fwlite(argv):
             if options.verbose:
                 print "MET Filter ", names2.triggerName(itrig),  ": ", ("PASS" if metfiltBits.product().accept(itrig) else "fail (or not run)")
 
-        print("A")
+        #print("A")
         passFilters = True ######### NOT RIGHT!!!!!!!!!!!!!!!!!!!
         if not passFilters:
             return
 
-        print("B")
+        #print("B")
         passTrig = True ############# NOT RIGHT!!!!!!!!!!!!!!!!!!!!!!!
         if not passTrig:
             return
 
-        print("C")
+        #print("C")
         ##   ________                __________.__          __
         ##  /  _____/  ____   ____   \______   \  |   _____/  |_  ______
         ## /   \  ____/ __ \ /    \   |     ___/  |  /  _ \   __\/  ___/
@@ -697,14 +697,14 @@ def topbnv_fwlite(argv):
 
 
 
-        print("D")
+        #print("D")
 
         event.getByLabel(vertexLabel, vertices)
         # Vertices
         NPV = len(vertices.product())
         if len(vertices.product()) == 0 or vertices.product()[0].ndof() < 4:
-            #if options.verbose:
-            if 1:
+            if options.verbose:
+            #if 1:
                 print "Event has no good primary vertex."
             return
         else:
@@ -742,7 +742,7 @@ def topbnv_fwlite(argv):
         ##  |    |   \   Y  (  <_> )   \     /  / __ \|  |_|  |  /\  ___/
         ##  |____|_  /___|  /\____/     \___/  (____  /____/____/  \___  >
         ##         \/     \/                        \/                 \/
-        print("E")
+        #print("E")
         event.getByLabel(rhoLabel, rhos)
         # Rhos
         if len(rhos.product()) == 0:
@@ -754,7 +754,7 @@ def topbnv_fwlite(argv):
                 print 'rho = {0:6.2f}'.format( rho )
 
 
-        print("F")
+        #print("F")
 
         ## .____                  __                    _________      .__                 __  .__
         ## |    |    ____ _______/  |_  ____   ____    /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____
@@ -763,17 +763,17 @@ def topbnv_fwlite(argv):
         ## |_______ \___  >   __/|__|  \____/|___|  / /_______  /\___  >____/\___  >\___  >__| |__|\____/|___|  /
         ##         \/   \/|__|                    \/          \/     \/          \/     \/                    \/
 
-        print("G")
+        #print("G")
         event.getByLabel( muonLabel, muons )
         event.getByLabel( electronLabel, electrons )
 
-        print("H")
+        #print("H")
 
 
-        print("I")
+        #print("I")
         # Select tight good muons
         goodmuons = []
-        print("NUMBER OF MUONS: %d" % (len(muons.product())))
+        #print("NUMBER OF MUONS: %d" % (len(muons.product())))
         if len(muons.product()) > 0:
             for i,muon in enumerate( muons.product() ):
                 #if muon.pt() > options.minMuonPt and abs(muon.eta()) < options.maxMuonEta and muon.muonBestTrack().dz(PV.position()) < 5.0 and muon.isTightMuon(PV):
@@ -795,7 +795,7 @@ def topbnv_fwlite(argv):
                 muonpy[i] = m.py()
                 muonpz[i] = m.pz()
 
-        print("J")
+        #print("J")
         #'''
         # Select tight good electrons
         goodelectrons = []
@@ -811,7 +811,7 @@ def topbnv_fwlite(argv):
                         print "elec %2d: pt %4.1f, supercluster eta %+5.3f, phi %+5.3f sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d" % \
                             ( i, electron.pt(), electron.superCluster().eta(), electron.phi(), electron.sigmaIetaIeta(), electron.full5x5_sigmaIetaIeta(), electron.passConversionVeto())
         
-        print("K")
+        #print("K")
         nelectron[0] = len(goodelectrons)
         for i,m in enumerate(goodelectrons):
             if i<16:
@@ -831,8 +831,8 @@ def topbnv_fwlite(argv):
 
         #if len(goodmuons) + len(goodelectrons) != 1:
         #if len(goodmuons) != 1: 
-        print("NNNNN")
-        print(len(goodmuons))
+        #print("NNNNN")
+        #print(len(goodmuons))
         if len(goodmuons) == 0: 
             return
         elif len(goodmuons) > 0:
@@ -867,8 +867,8 @@ def topbnv_fwlite(argv):
                 MuTrkWeightUnc = muonTrk_SFs.GetBinError( muonTrk_SFs.GetXaxis().FindBin( eta ))
                 evWeight *= MuTrkWeight
 
-        print("A")
-        print("NNNNN")
+        #print("A")
+        #print("NNNNN")
         '''
         else:
             theLeptonCand = goodelectrons[0]
@@ -902,7 +902,7 @@ def topbnv_fwlite(argv):
             footprint.add(theLeptonCand.sourceCandidatePtr(i).key()) # the key is the index in the pf collection
 
 
-        print("B")
+        #print("B")
         ##      ____.       __      _________      .__                 __  .__
         ##     |    | _____/  |_   /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____
         ##     |    |/ __ \   __\  \_____  \_/ __ \|  | _/ __ \_/ ___\   __\  |/  _ \ /    \
@@ -1069,7 +1069,7 @@ def topbnv_fwlite(argv):
             jetP4 = jetP4Raw * newJEC * ptsmear
 
             # Now perform jet kinematic cuts
-            print(jetP4.Perp())
+            ##print(jetP4.Perp())
             if jetP4.Perp() < options.minAK4Pt or abs(jetP4.Rapidity()) > options.maxAK4Rapidity:
                 print("JETCONTINUE")
                 continue
