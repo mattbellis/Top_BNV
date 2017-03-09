@@ -51,23 +51,30 @@ for nentry in range(nentries):
         valueselectron.append(v)
 
     for i in range(nmuon):
-        v = tree.muonpx[i]
+        v = tree.muonpt[i]
         #print(v)
         values.append(v)
 
     for i in range(njet):
-        v = tree.jetpx[i]
+        v = tree.jetpt[i]
         #print(v)
         valuesjet.append(v)
 
-plt.figure()
-lch.hist_err(values)
+values = np.array(values)
+valuesjet = np.array(valuesjet)
+valueselectron = np.array(valueselectron)
 
 plt.figure()
-lch.hist_err(valuesjet)
+lch.hist_err(values[values<200])
+plt.xlabel(r'$p_T \mu$')
 
 plt.figure()
-lch.hist_err(valueselectron)
+lch.hist_err(valuesjet[valuesjet<200])
+plt.xlabel(r'$p_T {\rm jets}$')
+
+plt.figure()
+lch.hist_err(valueselectron[valueselectron<200])
+plt.xlabel(r'$p_T e$')
 
 plt.figure()
 plt.subplot(1,2,1)
