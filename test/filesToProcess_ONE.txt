@@ -1,10 +1,1 @@
 /uscms/home/mbellis/eos_store/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/crab_bellis_top_slim_MC/170307_162028/0000/top_slimmmed_files_MC_ttbar_10.root
-/uscms/home/mbellis/eos_store/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/crab_bellis_top_slim_MC/170307_162028/0000/top_slimmmed_files_MC_ttbar_105.root
-/uscms/home/mbellis/eos_store/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/crab_bellis_top_slim_MC/170307_162028/0000/top_slimmmed_files_MC_ttbar_107.root
-/uscms/home/mbellis/eos_store/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/crab_bellis_top_slim_MC/170307_162028/0000/top_slimmmed_files_MC_ttbar_108.root
-/uscms/home/mbellis/eos_store/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/crab_bellis_top_slim_MC/170307_162028/0000/top_slimmmed_files_MC_ttbar_109.root
-/uscms/home/mbellis/eos_store/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/crab_bellis_top_slim_MC/170307_162028/0000/top_slimmmed_files_MC_ttbar_110.root
-/uscms/home/mbellis/eos_store/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/crab_bellis_top_slim_MC/170307_162028/0000/top_slimmmed_files_MC_ttbar_112.root
-/uscms/home/mbellis/eos_store/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/crab_bellis_top_slim_MC/170307_162028/0000/top_slimmmed_files_MC_ttbar_113.root
-/uscms/home/mbellis/eos_store/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/crab_bellis_top_slim_MC/170307_162028/0000/top_slimmmed_files_MC_ttbar_116.root
-/uscms/home/mbellis/eos_store/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/crab_bellis_top_slim_MC/170307_162028/0000/top_slimmmed_files_MC_ttbar_118.root
