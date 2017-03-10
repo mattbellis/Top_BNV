@@ -658,24 +658,67 @@ def topbnv_fwlite(argv):
         ##  \______  /\___  >___|  /  |____|   |____/\____/|__| /____  >
         ##         \/     \/     \/                                  \/
         if not options.isData:
+            top = []
+            antitop = []
+            Wp = []
+            bq = []
+            Wm = []
+            antibq = []
             haveGenSolution = False
             isGenPresent = event.getByLabel( genLabel, gens )
             if isGenPresent:
                 topQuark = None
                 antitopQuark = None
+                found_top = False
+                found_antitop = False
                 for igen,gen in enumerate( gens.product() ):
                     ##### WHEN LOOPING OVER CHECK THE HARD SCATTERING FLAG 
                     ##### TO MAKE SURE WE DON'T WORRY ABOUT TOPS THAT ARE JUST
                     ##### PROPAGATING FROM THEMSELVES
-                    if options.verbose:
+                    #if options.verbose:
+                    if 1:
                         genOut += 'GEN pdg id=%d pt=%+5.3f status=%d ndau: %d\n' % \
                                 ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters() )
                         for ndau in range(0,gen.numberOfDaughters()):
-                            genOut += "daughter pdgid: %d\n" % (gen.daughter(ndau).pdgId())
+                            genOut += "daughter pdgid: %d   pt: %f  %f\n" % (gen.daughter(ndau).pdgId(), gen.daughter(ndau).pt(), gen.daughter(ndau).mother().pt())
                     if gen.pdgId() == 6:
                         topQuark = gen
+                        if found_top is False:
+                            top = [topQuark.energy(),topQuark.pt(),topQuark.eta(),topQuark.phi()]
+                            found_top = True
+                        if topQuark.numberOfDaughters()==2:
+                            d0 = gen.daughter(0)
+                            d1 = gen.daughter(1)
+                            if d0.pdgId()==24:
+                                Wp = [d0.energy(),d0.pt(),d0.eta(),d0.phi()]
+                                bq = [d1.energy(),d1.pt(),d1.eta(),d1.phi()]
+                            elif d1.pdgId()==24:
+                                Wp = [d1.energy(),d1.pt(),d1.eta(),d1.phi()]
+                                bq = [d0.energy(),d0.pt(),d0.eta(),d0.phi()]
+
                     elif gen.pdgId() == -6:
                         antitopQuark = gen
+                        if found_antitop is False:
+                            antitop = [antitopQuark.energy(),antitopQuark.pt(),antitopQuark.eta(),antitopQuark.phi()]
+                            found_antitop  = True
+
+                    elif gen.pdgId() == 24 and gen.mother().pdgId()==6:
+                        Wboson = gen
+                        if Wboson.numberOfDaughters()==2:
+                            d0 = gen.daughter(0)
+                            d1 = gen.daughter(1)
+                            if d0.pdgId() in [1,2,3,4]
+                                qfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
+                                qbarfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
+                            elif d0.pdgId() in [-1,-2,-3,-4]
+                                qfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
+                                qbarfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
+                            elif d0.pdgId() in [11, 13, 15]:
+                                aclfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
+                                neutfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
+                            elif d0.pdgId() in [12, 14, 16]:
+                                aclfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
+                                neutfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
 
                 if topQuark != None and antitopQuark != None:
                     ttbarCandP4 = topQuark.p4() + antitopQuark.p4()
@@ -1395,8 +1438,8 @@ def topbnv_fwlite(argv):
                 print '    ---> Event ' + str(nevents)
 
             genOut = processEvent(iev, events)
-            print type(genOut)
-            print genOut
+            #print type(genOut)
+            #print genOut
             if genOut is not None:
                 genoutputfile.write(genOut)
 
