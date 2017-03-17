@@ -740,11 +740,11 @@ def topbnv_fwlite(argv):
                             elif d0.pdgId() in [-1,-2,-3,-4]:
                                 qfromWm = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
                                 qbarfromWm = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
-                            elif d0.pdgId() in [11, 13, 15]:
-                                aclfromWm = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
+                            elif d0.pdgId() in [-11, -13, -15]: # Is this right??? Positive leptons?
+                                clfromWm = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
                                 neutfromWm = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
                             elif d0.pdgId() in [12, 14, 16]:
-                                aclfromWm = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
+                                clfromWm = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
                                 neutfromWm = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
 
                 if topQuark != None and antitopQuark != None:
