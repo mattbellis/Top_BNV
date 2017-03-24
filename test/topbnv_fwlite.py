@@ -303,6 +303,39 @@ def topbnv_fwlite(argv):
         ##### OUR STUFF #####################
         #'''
 
+        # Generated MC
+        gendecayflag = array('i', [-1])
+        TreeSemiLept.Branch('gendecayflag', gendecayflag, 'gendecayflag/I')
+        # 0    t    --> hadronic    
+        # 1    t    --> leptonic    
+        # 10*0 tbar --> hadronic    
+        # 10*1 tbar --> leptonic    
+
+        # Generated MC 4-momentum
+        ngen = array('i', [-1])
+        TreeSemiLept.Branch('ngen', ngen, 'ngen/I')
+        genpt = array('f', [-1.])
+        TreeSemiLept.Branch('genpt', genpt, 'genpt[ngen]/F')
+        geneta = array('f', 16*[-1.])
+        TreeSemiLept.Branch('geneta', geneta, 'geneta[ngen]/F')
+        genphi = array('f', 16*[-1.])
+        TreeSemiLept.Branch('genphi', genphi, 'genphi[ngen]/F')
+        gene = array('f', 16*[-1.])
+        TreeSemiLept.Branch('gene', gene, 'gene[ngen]/F')
+        genpdg = array('i', 16*[-1.])
+        TreeSemiLept.Branch('genpdg', genpdg, 'genpdg[ngen]/I')
+        # 0 - top quark
+        # 1 - b from top quark
+        # 2 - W+ from top quark
+        # 3 - child1 from W+ (top)
+        # 4 - child2 from W+ (top)
+
+        # 5 - anti-top quark
+        # 6 - b+ from anti-top quark
+        # 7 - W- from anti-top quark
+        # 8 - child1 from W- (anti-top)
+        # 9 - child2 from W- (anti-top)
+
         # MET
         metpt = array('f', [-1])
         TreeSemiLept.Branch('metpt', metpt, 'metpt/F')
@@ -667,6 +700,11 @@ def topbnv_fwlite(argv):
             haveGenSolution = False
             isGenPresent = event.getByLabel( genLabel, gens )
             if isGenPresent:
+                ngen = 10
+                gendecayflag = 0
+                tdecayflag = -1
+                tbardecayflag = -1
+
                 topQuark = None
                 antitopQuark = None
                 found_top = False
@@ -685,16 +723,51 @@ def topbnv_fwlite(argv):
                         topQuark = gen
                         if found_top is False:
                             top = [topQuark.energy(),topQuark.pt(),topQuark.eta(),topQuark.phi()]
+
+                            gene[0] = gen.energy()
+                            genpt[0] = gen.pt()
+                            geneta[0] = gen.eta()
+                            genphi[0] = gen.phi()
+                            genpdg[0] = gen.pdgId()
+
                             found_top = True
+
                         if topQuark.numberOfDaughters()==2:
                             d0 = gen.daughter(0)
                             d1 = gen.daughter(1)
                             if d0.pdgId()==24:
                                 Wp = [d0.energy(),d0.pt(),d0.eta(),d0.phi()]
                                 bq = [d1.energy(),d1.pt(),d1.eta(),d1.phi()]
+
+                                # b
+                                gene[1] = d1.energy()
+                                genpt[1] = d1.pt()
+                                geneta[1] = d1.eta()
+                                genphi[1] = d1.phi()
+                                genpdg[1] = d1.pdgId()
+                                # W
+                                gene[2] = d0.energy()
+                                genpt[2] = d0.pt()
+                                geneta[2] = d0.eta()
+                                genphi[2] = d0.phi()
+                                genpdg[2] = d0.pdgId()
+
                             elif d1.pdgId()==24:
                                 Wp = [d1.energy(),d1.pt(),d1.eta(),d1.phi()]
                                 bq = [d0.energy(),d0.pt(),d0.eta(),d0.phi()]
+
+                                # b
+                                gene[1] = d0.energy()
+                                genpt[1] = d0.pt()
+                                geneta[1] = d0.eta()
+                                genphi[1] = d0.phi()
+                                genpdg[1] = d0.pdgId()
+                                # W
+                                gene[2] = d1.energy()
+                                genpt[2] = d1.pt()
+                                geneta[2] = d1.eta()
+                                genphi[2] = d1.phi()
+                                genpdg[2] = d1.pdgId()
 
                     elif gen.pdgId() == -6:
                         antitopQuark = gen
@@ -702,28 +775,124 @@ def topbnv_fwlite(argv):
                             antitop = [antitopQuark.energy(),antitopQuark.pt(),antitopQuark.eta(),antitopQuark.phi()]
                             found_antitop  = True
 
+                            # tbar
+                            gene[5] = gen.energy()
+                            genpt[5] = gen.pt()
+                            geneta[5] = gen.eta()
+                            genphi[5] = gen.phi()
+                            genpdg[5] = gen.pdgId()
+
+                        if antitopQuark.numberOfDaughters()==2:
+                            d0 = gen.daughter(0)
+                            d1 = gen.daughter(1)
+                            if d0.pdgId()==-24:
+
+                                # b
+                                gene[6] = d1.energy()
+                                genpt[6] = d1.pt()
+                                geneta[6] = d1.eta()
+                                genphi[6] = d1.phi()
+                                genpdg[6] = d1.pdgId()
+                                # W
+                                gene[7] = d0.energy()
+                                genpt[7] = d0.pt()
+                                geneta[7] = d0.eta()
+                                genphi[7] = d0.phi()
+                                genpdg[7] = d0.pdgId()
+
+                            elif d1.pdgId()==-24:
+
+                                # b
+                                gene[6] = d0.energy()
+                                genpt[6] = d0.pt()
+                                geneta[6] = d0.eta()
+                                genphi[6] = d0.phi()
+                                genpdg[6] = d0.pdgId()
+                                # W
+                                gene[7] = d1.energy()
+                                genpt[7] = d1.pt()
+                                geneta[7] = d1.eta()
+                                genphi[7] = d1.phi()
+                                genpdg[7] = d1.pdgId()
+
+
                     elif gen.pdgId() == 24 and gen.mother().pdgId()==6:
                         Wboson = gen
                         if Wboson.numberOfDaughters()==2:
                             d0 = gen.daughter(0)
                             d1 = gen.daughter(1)
+
+                            # W children 1
+                            gene[3] = d0.energy()
+                            genpt[3] = d0.pt()
+                            geneta[3] = d0.eta()
+                            genphi[3] = d0.phi()
+                            genpdg[3] = d0.pdgId()
+                            # W children 2
+                            gene[4] = d1.energy()
+                            genpt[4] = d1.pt()
+                            geneta[4] = d1.eta()
+                            genphi[4] = d1.phi()
+                            genpdg[4] = d1.pdgId()
+
                             if d0.pdgId() in [1,2,3,4]
                                 qfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
                                 qbarfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
+                                tdecayflag = 0
                             elif d0.pdgId() in [-1,-2,-3,-4]
                                 qfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
                                 qbarfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
+                                tdecayflag = 0
                             elif d0.pdgId() in [11, 13, 15]:
                                 aclfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
                                 neutfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
+                                tdecayflag = 1
                             elif d0.pdgId() in [12, 14, 16]:
                                 aclfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
                                 neutfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
+                                tdecayflag = 1
+
+                    elif gen.pdgId() == -24 and gen.mother().pdgId()==-6:
+                        Wboson = gen
+                        if Wboson.numberOfDaughters()==2:
+                            d0 = gen.daughter(0)
+                            d1 = gen.daughter(1)
+
+                            # W children 1
+                            gene[8] = d0.energy()
+                            genpt[8] = d0.pt()
+                            geneta[8] = d0.eta()
+                            genphi[8] = d0.phi()
+                            genpdg[8] = d0.pdgId()
+                            # W children 2
+                            gene[9] = d1.energy()
+                            genpt[9] = d1.pt()
+                            geneta[9] = d1.eta()
+                            genphi[9] = d1.phi()
+                            genpdg[9] = d1.pdgId()
+
+                            if d0.pdgId() in [1,2,3,4]
+                                qfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
+                                qbarfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
+                                tbardecayflag = 0
+                            elif d0.pdgId() in [-1,-2,-3,-4]
+                                qfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
+                                qbarfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
+                                tbardecayflag = 0
+                            elif d0.pdgId() in [11, 13, 15]:
+                                aclfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
+                                neutfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
+                                tbardecayflag = 1
+                            elif d0.pdgId() in [12, 14, 16]:
+                                aclfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
+                                neutfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
+                                tbardecayflag = 1
 
                 if topQuark != None and antitopQuark != None:
                     ttbarCandP4 = topQuark.p4() + antitopQuark.p4()
                     h_mttbar_true.Fill( ttbarCandP4.mass() )
                     haveGenSolution = True
+                    gendecayflag = 10*tbardecayflag + tdecayflag
                 else:
                     if options.verbose:
                         print 'No top quarks, not filling mttbar'
