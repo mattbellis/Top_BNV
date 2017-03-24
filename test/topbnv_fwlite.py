@@ -199,9 +199,9 @@ def getUserOptions(argv):
     (options, args) = parser.parse_args(argv)
     argv = []
 
-    print '===== Command line options ====='
-    print options
-    print '================================'
+    print ('===== Command line options =====')
+    print (options)
+    print ('================================')
     return options
 
 
@@ -222,7 +222,7 @@ def getInputFiles(options):
                 else:
                     #pfn = 'root://cmsxrootd-site.fnal.gov/' + lfn
                     pfn = 'root://xrootd-cms.infn.it/' + lfn
-                print 'Adding ' + pfn
+                print ('Adding ' + pfn)
                 result.append(pfn)
     return result
 #####################################################################################
@@ -314,7 +314,7 @@ def topbnv_fwlite(argv):
         # Generated MC 4-momentum
         ngen = array('i', [-1])
         TreeSemiLept.Branch('ngen', ngen, 'ngen/I')
-        genpt = array('f', [-1.])
+        genpt = array('f', 16*[-1.])
         TreeSemiLept.Branch('genpt', genpt, 'genpt[ngen]/F')
         geneta = array('f', 16*[-1.])
         TreeSemiLept.Branch('geneta', geneta, 'geneta[ngen]/F')
@@ -322,7 +322,7 @@ def topbnv_fwlite(argv):
         TreeSemiLept.Branch('genphi', genphi, 'genphi[ngen]/F')
         gene = array('f', 16*[-1.])
         TreeSemiLept.Branch('gene', gene, 'gene[ngen]/F')
-        genpdg = array('i', 16*[-1.])
+        genpdg = array('i', 16*[-1])
         TreeSemiLept.Branch('genpdg', genpdg, 'genpdg[ngen]/I')
         # 0 - top quark
         # 1 - b from top quark
@@ -646,15 +646,15 @@ def topbnv_fwlite(argv):
             for itrigToRun in xrange(0,len(trigsToRun)):
                 if trigsToRun[itrigToRun] in trigName:
                     if options.verbose:
-                        print "Trigger ", trigName,  " PASSED "
+                        print ("Trigger ", trigName,  " PASSED ")
                     passTrig = True
                     if options.verbose:
-                        print "itrigToRun: ",itrigToRun
+                        print ("itrigToRun: ",itrigToRun)
                     SemiLeptTrig[itrigToRun] = True
 
 
         if options.verbose:
-            print "\n === MET FILTER PATHS ==="
+            print ("\n === MET FILTER PATHS ===")
         names2 = event.object().triggerNames(metfiltBits.product())
         passFilters = True
         for itrig in xrange(metfiltBits.product().size()):
@@ -671,7 +671,7 @@ def topbnv_fwlite(argv):
             if names2.triggerName(itrig) == "Flag_eeBadScFilter" and not metfiltBits.product().accept(itrig):
                 passFilters = False
             if options.verbose:
-                print "MET Filter ", names2.triggerName(itrig),  ": ", ("PASS" if metfiltBits.product().accept(itrig) else "fail (or not run)")
+                print ("MET Filter ", names2.triggerName(itrig),  ": ", ("PASS" if metfiltBits.product().accept(itrig) else "fail (or not run)"))
 
         #print("A")
         passFilters = True ######### NOT RIGHT!!!!!!!!!!!!!!!!!!!
@@ -691,16 +691,10 @@ def topbnv_fwlite(argv):
         ##  \______  /\___  >___|  /  |____|   |____/\____/|__| /____  >
         ##         \/     \/     \/                                  \/
         if not options.isData:
-            top = []
-            antitop = []
-            Wp = []
-            bq = []
-            Wm = []
-            antibq = []
             haveGenSolution = False
             isGenPresent = event.getByLabel( genLabel, gens )
             if isGenPresent:
-                ngen = 10
+                ngen[0] = 10
                 gendecayflag = 0
                 tdecayflag = -1
                 tbardecayflag = -1
@@ -722,7 +716,6 @@ def topbnv_fwlite(argv):
                     if gen.pdgId() == 6:
                         topQuark = gen
                         if found_top is False:
-                            top = [topQuark.energy(),topQuark.pt(),topQuark.eta(),topQuark.phi()]
 
                             gene[0] = gen.energy()
                             genpt[0] = gen.pt()
@@ -736,8 +729,6 @@ def topbnv_fwlite(argv):
                             d0 = gen.daughter(0)
                             d1 = gen.daughter(1)
                             if d0.pdgId()==24:
-                                Wp = [d0.energy(),d0.pt(),d0.eta(),d0.phi()]
-                                bq = [d1.energy(),d1.pt(),d1.eta(),d1.phi()]
 
                                 # b
                                 gene[1] = d1.energy()
@@ -753,8 +744,6 @@ def topbnv_fwlite(argv):
                                 genpdg[2] = d0.pdgId()
 
                             elif d1.pdgId()==24:
-                                Wp = [d1.energy(),d1.pt(),d1.eta(),d1.phi()]
-                                bq = [d0.energy(),d0.pt(),d0.eta(),d0.phi()]
 
                                 # b
                                 gene[1] = d0.energy()
@@ -772,7 +761,6 @@ def topbnv_fwlite(argv):
                     elif gen.pdgId() == -6:
                         antitopQuark = gen
                         if found_antitop is False:
-                            antitop = [antitopQuark.energy(),antitopQuark.pt(),antitopQuark.eta(),antitopQuark.phi()]
                             found_antitop  = True
 
                             # tbar
@@ -817,10 +805,7 @@ def topbnv_fwlite(argv):
 
 
                     elif gen.pdgId() == 24 and gen.mother().pdgId()==6:
-                        Wboson = gen
-                        if Wboson.numberOfDaughters()==2:
-                            d0 = gen.daughter(0)
-                            d1 = gen.daughter(1)
+                        if gen.numberOfDaughters()==2:
 
                             # W children 1
                             gene[3] = d0.energy()
@@ -835,26 +820,13 @@ def topbnv_fwlite(argv):
                             genphi[4] = d1.phi()
                             genpdg[4] = d1.pdgId()
 
-                            if d0.pdgId() in [1,2,3,4]
-                                qfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
-                                qbarfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
+                            if d0.pdgId() in [1,2,3,4, -1, -2, -3, -4]:
                                 tdecayflag = 0
-                            elif d0.pdgId() in [-1,-2,-3,-4]
-                                qfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
-                                qbarfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
-                                tdecayflag = 0
-                            elif d0.pdgId() in [11, 13, 15]:
-                                aclfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
-                                neutfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
-                                tdecayflag = 1
-                            elif d0.pdgId() in [12, 14, 16]:
-                                aclfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
-                                neutfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
+                            elif d0.pdgId() in [11, 13, 15, 12, 14, 16]:
                                 tdecayflag = 1
 
                     elif gen.pdgId() == -24 and gen.mother().pdgId()==-6:
-                        Wboson = gen
-                        if Wboson.numberOfDaughters()==2:
+                        if gen.numberOfDaughters()==2:
                             d0 = gen.daughter(0)
                             d1 = gen.daughter(1)
 
@@ -871,31 +843,19 @@ def topbnv_fwlite(argv):
                             genphi[9] = d1.phi()
                             genpdg[9] = d1.pdgId()
 
-                            if d0.pdgId() in [1,2,3,4]
-                                qfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
-                                qbarfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
+                            if d0.pdgId() in [1,2,3,4,-1,-2,-3,-4]:
                                 tbardecayflag = 0
-                            elif d0.pdgId() in [-1,-2,-3,-4]
-                                qfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
-                                qbarfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
-                                tbardecayflag = 0
-                            elif d0.pdgId() in [11, 13, 15]:
-                                aclfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
-                                neutfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
+                            elif d0.pdgId() in [11, 13, 15, 12, 14, 16]:
                                 tbardecayflag = 1
-                            elif d0.pdgId() in [12, 14, 16]:
-                                aclfromWp = [d1.energy(),d1.pt(),d1.eta(),d1.phi(),d1.pdgId()]
-                                neutfromWp = [d0.energy(),d0.pt(),d0.eta(),d0.phi(),d0.pdgId()]
-                                tbardecayflag = 1
-
+                    
                 if topQuark != None and antitopQuark != None:
                     ttbarCandP4 = topQuark.p4() + antitopQuark.p4()
                     h_mttbar_true.Fill( ttbarCandP4.mass() )
                     haveGenSolution = True
-                    gendecayflag = 10*tbardecayflag + tdecayflag
+                    gendecayflag[0] = 10*tbardecayflag + tdecayflag
                 else:
                     if options.verbose:
-                        print 'No top quarks, not filling mttbar'
+                        print ('No top quarks, not filling mttbar')
             event.getByLabel( genInfoLabel, genInfo )
             genWeight = genInfo.product().weight()
             evWeight *= genWeight
@@ -917,12 +877,12 @@ def topbnv_fwlite(argv):
         if len(vertices.product()) == 0 or vertices.product()[0].ndof() < 4:
             if options.verbose:
             #if 1:
-                print "Event has no good primary vertex."
+                print ("Event has no good primary vertex.")
             return
         else:
             PV = vertices.product()[0]
             if options.verbose:
-                print "PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (PV.x(), PV.y(), PV.z(), PV.ndof())
+                print ("PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (PV.x(), PV.y(), PV.z(), PV.ndof()))
 
         ##   __________.__.__                        __________                     .__       .__     __  .__
         ##   \______   \__|  |   ____  __ ________   \______   \ ______  _  __ ____ |__| ____ |  |___/  |_|__| ____    ____
@@ -958,12 +918,12 @@ def topbnv_fwlite(argv):
         event.getByLabel(rhoLabel, rhos)
         # Rhos
         if len(rhos.product()) == 0:
-            print "Event has no rho values."
+            print ("Event has no rho values.")
             return
         else:
             rho = rhos.product()[0]
             if options.verbose:
-                print 'rho = {0:6.2f}'.format( rho )
+                print ('rho = {0:6.2f}'.format( rho ))
 
 
         #print("F")
@@ -993,8 +953,8 @@ def topbnv_fwlite(argv):
                 if 1:
                     goodmuons.append( muon )
                     if options.verbose:
-                        print "muon %2d: pt %4.1f, eta %+5.3f phi %+5.3f dz(PV) %+5.3f, POG loose id %d, tight id %d." % (
-                            i, muon.pt(), muon.eta(), muon.phi(), muon.muonBestTrack().dz(PV.position()), muon.isLooseMuon(), muon.isTightMuon(PV))
+                        print ("muon %2d: pt %4.1f, eta %+5.3f phi %+5.3f dz(PV) %+5.3f, POG loose id %d, tight id %d." % (
+                            i, muon.pt(), muon.eta(), muon.phi(), muon.muonBestTrack().dz(PV.position()), muon.isLooseMuon(), muon.isTightMuon(PV)))
 
         nmuon[0] = len(goodmuons)
         for i,m in enumerate(goodmuons):
@@ -1020,8 +980,8 @@ def topbnv_fwlite(argv):
                     and passTight:
                     goodelectrons.append( electron )
                     if options.verbose:
-                        print "elec %2d: pt %4.1f, supercluster eta %+5.3f, phi %+5.3f sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d" % \
-                            ( i, electron.pt(), electron.superCluster().eta(), electron.phi(), electron.sigmaIetaIeta(), electron.full5x5_sigmaIetaIeta(), electron.passConversionVeto())
+                        print ("elec %2d: pt %4.1f, supercluster eta %+5.3f, phi %+5.3f sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d" % \
+                            ( i, electron.pt(), electron.superCluster().eta(), electron.phi(), electron.sigmaIetaIeta(), electron.full5x5_sigmaIetaIeta(), electron.passConversionVeto()))
         
         #print("K")
         nelectron[0] = len(goodelectrons)
@@ -1205,17 +1165,17 @@ def topbnv_fwlite(argv):
 
             if not goodJet:
                 if options.verbose:
-                    print 'bad jet pt = {0:6.2f}, y = {1:6.2f}, phi = {2:6.2f}, m = {3:6.2f}, bdisc = {4:6.2f}'.format (
+                    print ('bad jet pt = {0:6.2f}, y = {1:6.2f}, phi = {2:6.2f}, m = {3:6.2f}, bdisc = {4:6.2f}'.format (
                         jetP4Raw.Perp(), jetP4Raw.Rapidity(), jetP4Raw.Phi(), jetP4Raw.M(), jet.bDiscriminator( options.bdisc )
-                        )
+                        ))
                 continue
 
 
 
             if options.verbose:
-                print 'raw jet pt = {0:6.2f}, y = {1:6.2f}, phi = {2:6.2f}, m = {3:6.2f}, bdisc = {4:6.2f}'.format (
+                print ('raw jet pt = {0:6.2f}, y = {1:6.2f}, phi = {2:6.2f}, m = {3:6.2f}, bdisc = {4:6.2f}'.format (
                     jetP4Raw.Perp(), jetP4Raw.Rapidity(), jetP4Raw.Phi(), jetP4Raw.M(), jet.bDiscriminator( options.bdisc )
-                    )
+                    ))
 
 
             # Remove the lepton from the list of constituents for lepton/jet cleaning
@@ -1229,9 +1189,9 @@ def topbnv_fwlite(argv):
                     # If any of the jet daughters matches the good lepton, remove the lepton p4 from the jet p4
                     if pf.key() in footprint:
                         if options.verbose:
-                            print 'REMOVING LEPTON, pt/eta/phi = {0:6.2f},{1:6.2f},{2:6.2f}'.format(
+                            print ('REMOVING LEPTON, pt/eta/phi = {0:6.2f},{1:6.2f},{2:6.2f}'.format(
                                 theLepton.Perp(), theLepton.Eta(), theLepton.Phi()
-                                )
+                                ))
                         if jetP4Raw.Energy() > theLepton.Energy():
                             jetP4Raw -= theLepton
                         else:
@@ -1283,7 +1243,7 @@ def topbnv_fwlite(argv):
             # Now perform jet kinematic cuts
             ##print(jetP4.Perp())
             if jetP4.Perp() < options.minAK4Pt or abs(jetP4.Rapidity()) > options.maxAK4Rapidity:
-                print("JETCONTINUE")
+                #print("JETCONTINUE")
                 continue
 
             # Get the jet nearest the lepton
@@ -1292,9 +1252,9 @@ def topbnv_fwlite(argv):
             ak4JetsGoodP4.append( jetP4 )
             ak4JetsGoodSysts.append( [corrUp, corrDn, ptsmearUp, ptsmearDn] )
             if options.verbose:
-                print 'corrjet pt = {0:6.2f}, y = {1:6.2f}, phi = {2:6.2f}, m = {3:6.2f}, bdisc = {4:6.2f}'.format (
+                print ('corrjet pt = {0:6.2f}, y = {1:6.2f}, phi = {2:6.2f}, m = {3:6.2f}, bdisc = {4:6.2f}'.format (
                     jetP4.Perp(), jetP4.Rapidity(), jetP4.Phi(), jetP4.M(), jet.bDiscriminator( options.bdisc )
-                    )
+                    ))
 
             if dR < dRMin:
                 inearestJet = ijet
@@ -1309,7 +1269,7 @@ def topbnv_fwlite(argv):
         # Require at least one leptonic-side jet, and 2d isolation cut
         ############################################
         if nearestJet == None:
-            print "RETURNINGNEARESTJET"
+            print ("RETURNINGNEARESTJET")
             return
 
         # Finally get the METs
@@ -1340,9 +1300,9 @@ def topbnv_fwlite(argv):
         h_2DCut.Fill( dRMin, ptRel, evWeight )
         pass2D = ptRel > 20.0 or dRMin > 0.4
         if options.verbose:
-            print '2d cut : dRMin = {0:6.2f}, ptRel = {1:6.2f}, pass = {2:6d}'.format( dRMin, ptRel, pass2D )
+            print ('2d cut : dRMin = {0:6.2f}, ptRel = {1:6.2f}, pass = {2:6d}'.format( dRMin, ptRel, pass2D ))
         if not pass2D:
-            print("NOPASS2D") # This seems to cut out about 20% of the events
+            #print("NOPASS2D") # This seems to cut out about 20% of the events
             return
 
         ############################################
@@ -1573,7 +1533,7 @@ def topbnv_fwlite(argv):
             SemiLeptLumiNum     [0] = event.object().luminosityBlock()
             SemiLeptEventNum    [0] = event.object().id().event()
 
-            print("I got to the end of the event loop!!!!")
+            #print("I got to the end of the event loop!!!!")
             TreeSemiLept.Fill()
 
         return genOut
@@ -1583,11 +1543,11 @@ def topbnv_fwlite(argv):
     #########################################
     # Main event loop
 
-    genoutputfile = open("generator_information.dat",'w')
+    #genoutputfile = open("generator_information.dat",'w')
     nevents = 0
     maxevents = int(options.maxevents)
     for ifile in getInputFiles(options):
-        print 'Processing file ' + ifile
+        print ('Processing file ' + ifile)
         events = Events (ifile)
         if maxevents > 0 and nevents > maxevents:
             break
@@ -1601,23 +1561,23 @@ def topbnv_fwlite(argv):
 
             #if nevents % 1000 == 0:
             if nevents % 10 == 0:
-                print '==============================================='
-                print '    ---> Event ' + str(nevents)
+                print ('===============================================')
+                print ('    ---> Event ' + str(nevents))
             elif options.verbose:
-                print '    ---> Event ' + str(nevents)
+                print ('    ---> Event ' + str(nevents))
 
             genOut = processEvent(iev, events)
             #print type(genOut)
             #print genOut
-            if genOut is not None:
-                genoutputfile.write(genOut)
+            #if genOut is not None:
+                #genoutputfile.write(genOut)
 
     # Close the output ROOT file
     f.cd()
     f.Write()
     f.Close()
 
-    genoutputfile.close()
+    #genoutputfile.close()
     
 
 
