@@ -352,6 +352,8 @@ def topbnv_fwlite(argv):
         muonphi = array('f', 16*[-1.])
         TreeSemiLept.Branch('muonphi', muonphi, 'muonphi[nmuon]/F')
         muonpx = array('f', 16*[-1.])
+        muonq = array('f', 16*[-1.])
+        TreeSemiLept.Branch('muonq', muonq, 'muonq[nelectron]/F')
         TreeSemiLept.Branch('muonpx', muonpx, 'muonpx[nmuon]/F')
         muonpy = array('f', 16*[-1.])
         TreeSemiLept.Branch('muonpy', muonpy, 'muonpy[nmuon]/F')
@@ -369,6 +371,8 @@ def topbnv_fwlite(argv):
         TreeSemiLept.Branch('electroneta', electroneta, 'electroneta[nelectron]/F')
         electronphi = array('f', 16*[-1.])
         TreeSemiLept.Branch('electronphi', electronphi, 'electronphi[nelectron]/F')
+        electronq = array('f', 16*[-1.])
+        TreeSemiLept.Branch('electronq', electronq, 'electronq[nelectron]/F')
         electronpx = array('f', 16*[-1.])
         TreeSemiLept.Branch('electronpx', electronpx, 'electronpx[nelectron]/F')
         electronpy = array('f', 16*[-1.])
@@ -377,6 +381,18 @@ def topbnv_fwlite(argv):
         TreeSemiLept.Branch('electronpz', electronpz, 'electronpz[nelectron]/F')
         electrone = array('f', 16*[-1.])
         TreeSemiLept.Branch('electrone', electrone, 'electrone[nelectron]/F')
+
+        # Electrons before corrections are applied
+        #nprecorrelectron = array('i', [-1])
+        #TreeSemiLept.Branch('nprecorrelectron', nprecorrelectron, 'nprecorrelectron/I')
+        #precorrelectronpt = array('f', 16*[-1.])
+        #TreeSemiLept.Branch('precorrelectronpt', precorrelectronpt, 'precorrelectronpt[nprecorrelectron]/F')
+        #precorrelectroneta = array('f', 16*[-1.])
+        #TreeSemiLept.Branch('precorrelectroneta', precorrelectroneta, 'precorrelectroneta[nprecorrelectron]/F')
+        #precorrelectronphi = array('f', 16*[-1.])
+        #TreeSemiLept.Branch('precorrelectronphi', precorrelectronphi, 'precorrelectronphi[nprecorrelectron]/F')
+        #precorrelectrone = array('f', 16*[-1.])
+        #TreeSemiLept.Branch('precorrelectrone', precorrelectrone, 'precorrelectrone[nprecorrelectron]/F')
 
         # Jets
         njet = array('i', [-1])
@@ -695,7 +711,7 @@ def topbnv_fwlite(argv):
             isGenPresent = event.getByLabel( genLabel, gens )
             if isGenPresent:
                 ngen[0] = 10
-                gendecayflag = 0
+                gendecayflag[0] = 0
                 tdecayflag = -1
                 tbardecayflag = -1
 
@@ -963,6 +979,7 @@ def topbnv_fwlite(argv):
                 muoneta[i] = m.eta()
                 muonphi[i] = m.phi()
                 muone[i] = m.energy()
+                muonq[i] = m.charge()
                 muonpx[i] = m.px()
                 muonpy[i] = m.py()
                 muonpz[i] = m.pz()
@@ -994,6 +1011,7 @@ def topbnv_fwlite(argv):
                 electronpx[i] = m.px()
                 electronpy[i] = m.py()
                 electronpz[i] = m.pz()
+                electronq[i] = m.charge()
         #'''
 
         # Veto on dilepton events
