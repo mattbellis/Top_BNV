@@ -351,9 +351,9 @@ def topbnv_fwlite(argv):
         TreeSemiLept.Branch('muoneta', muoneta, 'muoneta[nmuon]/F')
         muonphi = array('f', 16*[-1.])
         TreeSemiLept.Branch('muonphi', muonphi, 'muonphi[nmuon]/F')
-        muonpx = array('f', 16*[-1.])
         muonq = array('f', 16*[-1.])
-        TreeSemiLept.Branch('muonq', muonq, 'muonq[nelectron]/F')
+        TreeSemiLept.Branch('muonq', muonq, 'muonq[nmuon]/F')
+        muonpx = array('f', 16*[-1.])
         TreeSemiLept.Branch('muonpx', muonpx, 'muonpx[nmuon]/F')
         muonpy = array('f', 16*[-1.])
         TreeSemiLept.Branch('muonpy', muonpy, 'muonpy[nmuon]/F')
@@ -710,10 +710,14 @@ def topbnv_fwlite(argv):
             haveGenSolution = False
             isGenPresent = event.getByLabel( genLabel, gens )
             if isGenPresent:
+                #print(" ----------------------------- ")
                 ngen[0] = 10
                 gendecayflag[0] = 0
                 tdecayflag = -1
                 tbardecayflag = -1
+
+                wpenergy = -999
+                wmenergy = -999
 
                 topQuark = None
                 antitopQuark = None
@@ -725,10 +729,15 @@ def topbnv_fwlite(argv):
                     ##### PROPAGATING FROM THEMSELVES
                     #if options.verbose:
                     if 1:
-                        genOut += 'GEN pdg id=%d pt=%+5.3f status=%d ndau: %d\n' % \
-                                ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters() )
-                        for ndau in range(0,gen.numberOfDaughters()):
-                            genOut += "daughter pdgid: %d   pt: %f  %f\n" % (gen.daughter(ndau).pdgId(), gen.daughter(ndau).pt(), gen.daughter(ndau).mother().pt())
+                        #genOut = "" # For debugging
+                        mother = -999
+                        if gen.mother() != None:
+                            mother = gen.mother().pdgId() 
+                        #genOut += 'GEN pdg id=%d pt=%+5.3f status=%d ndau: %d mother: %d\n' % \
+                                #( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother )
+                        #for ndau in range(0,gen.numberOfDaughters()):
+                            #genOut += "daughter pdgid: %d   pt: %f  %f\n" % (gen.daughter(ndau).pdgId(), gen.daughter(ndau).pt(), gen.daughter(ndau).mother().pt())
+                        print genOut
                     if gen.pdgId() == 6:
                         topQuark = gen
                         if found_top is False:
@@ -759,6 +768,8 @@ def topbnv_fwlite(argv):
                                 genphi[2] = d0.phi()
                                 genpdg[2] = d0.pdgId()
 
+                                wpenergy = d0.energy() # For matching
+
                             elif d1.pdgId()==24:
 
                                 # b
@@ -773,6 +784,8 @@ def topbnv_fwlite(argv):
                                 geneta[2] = d1.eta()
                                 genphi[2] = d1.phi()
                                 genpdg[2] = d1.pdgId()
+
+                                wpenergy = d1.energy() # For matching
 
                     elif gen.pdgId() == -6:
                         antitopQuark = gen
@@ -804,6 +817,8 @@ def topbnv_fwlite(argv):
                                 genphi[7] = d0.phi()
                                 genpdg[7] = d0.pdgId()
 
+                                wmenergy = d0.energy() # For matching
+
                             elif d1.pdgId()==-24:
 
                                 # b
@@ -819,9 +834,13 @@ def topbnv_fwlite(argv):
                                 genphi[7] = d1.phi()
                                 genpdg[7] = d1.pdgId()
 
+                                wmenergy = d1.energy() # For matching
 
-                    elif gen.pdgId() == 24 and gen.mother().pdgId()==6:
+                    elif gen.pdgId() == 24 and \
+                            (gen.mother().pdgId()==6 or (gen.mother().pdgId()==24 and abs(gen.energy()-wpenergy)< 10)):
                         if gen.numberOfDaughters()==2:
+                            d0 = gen.daughter(0)
+                            d1 = gen.daughter(1)
 
                             # W children 1
                             gene[3] = d0.energy()
@@ -836,12 +855,16 @@ def topbnv_fwlite(argv):
                             genphi[4] = d1.phi()
                             genpdg[4] = d1.pdgId()
 
+                            print("HERE!!!! - %d %d" % (d0.pdgId(),d1.pdgId()))
+
                             if d0.pdgId() in [1,2,3,4, -1, -2, -3, -4]:
                                 tdecayflag = 0
                             elif d0.pdgId() in [11, 13, 15, 12, 14, 16]:
                                 tdecayflag = 1
 
-                    elif gen.pdgId() == -24 and gen.mother().pdgId()==-6:
+                    #elif gen.pdgId() == -24 and gen.mother().pdgId()==-6:
+                    elif gen.pdgId() == -24 and \
+                            (gen.mother().pdgId()==-6 or (gen.mother().pdgId()==-24 and abs(gen.energy()-wmenergy)< 10)):
                         if gen.numberOfDaughters()==2:
                             d0 = gen.daughter(0)
                             d1 = gen.daughter(1)
@@ -859,6 +882,8 @@ def topbnv_fwlite(argv):
                             genphi[9] = d1.phi()
                             genpdg[9] = d1.pdgId()
 
+                            print("THERE!!!! - %d %d" % (d0.pdgId(),d1.pdgId()))
+
                             if d0.pdgId() in [1,2,3,4,-1,-2,-3,-4]:
                                 tbardecayflag = 0
                             elif d0.pdgId() in [11, 13, 15, 12, 14, 16]:
@@ -868,6 +893,7 @@ def topbnv_fwlite(argv):
                     ttbarCandP4 = topQuark.p4() + antitopQuark.p4()
                     h_mttbar_true.Fill( ttbarCandP4.mass() )
                     haveGenSolution = True
+                    #print("tbar/t flag: %d %d" % (tbardecayflag, tdecayflag))
                     gendecayflag[0] = 10*tbardecayflag + tdecayflag
                 else:
                     if options.verbose:
@@ -1578,7 +1604,7 @@ def topbnv_fwlite(argv):
             nevents += 1
 
             #if nevents % 1000 == 0:
-            if nevents % 10 == 0:
+            if nevents % 100 == 0:
                 print ('===============================================')
                 print ('    ---> Event ' + str(nevents))
             elif options.verbose:
