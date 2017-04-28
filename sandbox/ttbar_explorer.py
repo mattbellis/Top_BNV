@@ -16,11 +16,11 @@ tree = f.Get("TreeSemiLept")
 
 # Uncomment this if you just want to see what is stored
 # in the file.
-#print("In the file...")
-#f.ls()
-#print("In the TTree....")
-#tree.Print()
-#exit()
+print("In the file...")
+f.ls()
+print("In the TTree....")
+tree.Print()
+exit()
 
 nentries = tree.GetEntries()
 
