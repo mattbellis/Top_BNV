@@ -7,7 +7,6 @@ import matplotlib.pylab as plt
 # Might need to comment this if lichen is not installed
 import lichen.lichen as lch
 
-
 f = ROOT.TFile(sys.argv[1])
 
 tree = f.Get("TreeSemiLept")
