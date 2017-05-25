@@ -9,14 +9,14 @@ f = ROOT.TFile(sys.argv[1])
 
 tree = f.Get("TreeSemiLept")
 
-t.Print()
-exit()
+#tree.Print()
+#exit()
 
 nentries = tree.GetEntries()
 
 energies = []
 
-for i in xrange(nentries):
+for i in range(nentries):
 
     output = "Event: %d\n" % (i)
     tree.GetEntry(i)
