@@ -361,6 +361,12 @@ def topbnv_fwlite(argv):
         TreeSemiLept.Branch('muonpz', muonpz, 'muonpz[nmuon]/F')
         muone = array('f', 16*[-1.])
         TreeSemiLept.Branch('muone', muone, 'muone[nmuon]/F')
+        muonsumchhadpt = array('f', 16*[-1.])
+        TreeSemiLept.Branch('muonsumchhadpt', muonsumchhadpt, 'muonsumchhadpt[nmuon]/F')
+        muonsumnhadpt = array('f', 16*[-1.])
+        TreeSemiLept.Branch('muonsumnhadpt', muonsumnhadpt, 'muonsumnhadpt[nmuon]/F')
+        muonsumphotEt = array('f', 16*[-1.])
+        TreeSemiLept.Branch('muonsumphotEt', muonsumphotEt, 'muonsumphotEt[nmuon]/F')
 
         # Electrons
         nelectron = array('i', [-1])
@@ -729,15 +735,15 @@ def topbnv_fwlite(argv):
                     ##### PROPAGATING FROM THEMSELVES
                     #if options.verbose:
                     if 1:
-                        #genOut = "" # For debugging
+                        genOut = "" # For debugging
                         mother = -999
                         if gen.mother() != None:
                             mother = gen.mother().pdgId() 
-                        #genOut += 'GEN pdg id=%d pt=%+5.3f status=%d ndau: %d mother: %d\n' % \
-                                #( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother )
-                        #for ndau in range(0,gen.numberOfDaughters()):
-                            #genOut += "daughter pdgid: %d   pt: %f  %f\n" % (gen.daughter(ndau).pdgId(), gen.daughter(ndau).pt(), gen.daughter(ndau).mother().pt())
-                        print genOut
+                        genOut += 'GEN pdg id=%d pt=%+5.3f status=%d ndau: %d mother: %d\n' % \
+                                ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother )
+                        for ndau in range(0,gen.numberOfDaughters()):
+                            genOut += "daughter pdgid: %d   pt: %f  %f\n" % (gen.daughter(ndau).pdgId(), gen.daughter(ndau).pt(), gen.daughter(ndau).mother().pt())
+                        #print genOut
                     if gen.pdgId() == 6:
                         topQuark = gen
                         if found_top is False:
@@ -855,7 +861,7 @@ def topbnv_fwlite(argv):
                             genphi[4] = d1.phi()
                             genpdg[4] = d1.pdgId()
 
-                            print("HERE!!!! - %d %d" % (d0.pdgId(),d1.pdgId()))
+                            #print("HERE!!!! - %d %d" % (d0.pdgId(),d1.pdgId()))
 
                             if d0.pdgId() in [1,2,3,4, -1, -2, -3, -4]:
                                 tdecayflag = 0
@@ -882,7 +888,7 @@ def topbnv_fwlite(argv):
                             genphi[9] = d1.phi()
                             genpdg[9] = d1.pdgId()
 
-                            print("THERE!!!! - %d %d" % (d0.pdgId(),d1.pdgId()))
+                            #print("THERE!!!! - %d %d" % (d0.pdgId(),d1.pdgId()))
 
                             if d0.pdgId() in [1,2,3,4,-1,-2,-3,-4]:
                                 tbardecayflag = 0
@@ -1009,6 +1015,14 @@ def topbnv_fwlite(argv):
                 muonpx[i] = m.px()
                 muonpy[i] = m.py()
                 muonpz[i] = m.pz()
+                pfi  = m.pfIsolationR03()
+                #print( pfi.sumChargedHadronPt, pfi.sumChargedParticlePt, pfi.sumNeutralHadronEt, pfi.sumPhotonEt, pfi.sumNeutralHadronEtHighThreshold, pfi.sumPhotonEtHighThreshold, pfi.sumPUPt)
+                muonsumchhadpt[i] = pfi.sumChargedHadronPt
+                muonsumnhadpt[i] = pfi.sumNeutralHadronEt
+                muonsumphotEt[i] = pfi.sumPhotonEt
+
+
+
 
         #print("J")
         #'''
