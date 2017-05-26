@@ -1224,7 +1224,7 @@ def topbnv_fwlite(argv):
                     jetpx[i] = jet.px()
                     jetpy[i] = jet.py()
                     jetpz[i] = jet.pz()
-                    jetbtag[i] = jet.bDiscriminator()
+                    jetbtag[i] = jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")
                     njets2write += 1
 
 
