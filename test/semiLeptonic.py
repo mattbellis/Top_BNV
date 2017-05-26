@@ -57,7 +57,7 @@ for i in range(nentries):
 		dm0pdg = tree.genpdg[8]
 		dm1pdg = tree.genpdg[9]
 
-		if(dm0pdg in range(-6,-1) or dm1pdg in range(-6,-1)):
+		if(dm0pdg in range(-16,-11) or dm1pdg in range(-16,-11)):
 			continue
 		else:
 			# This is a hadronic decay
@@ -84,7 +84,7 @@ for i in range(nentries):
 			
 			bbmass = invmass(bb)
 
-			tb = dm0mass + dm1mass + bbmass
+			tb = invmass(dm0 + dm1 + bb)
 			
 			#print(dm0mass)
 			#print(dm1mass)
@@ -95,5 +95,5 @@ for i in range(nentries):
 
 plt.figure()
 plt.hist(tMasses, bins = 10)
-plt.savefig('tmasses.png')
+plt.show()
 

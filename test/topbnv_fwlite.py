@@ -418,6 +418,8 @@ def topbnv_fwlite(argv):
         jete = array('f', 16*[-1.])
         TreeSemiLept.Branch('jete', jete, 'jete[njet]/F')
         #'''
+        jetbtag = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetbtag', jetbtag, 'jetbtag[njet]/F')
 
         '''
         pats = ["muon"]
@@ -1218,6 +1220,7 @@ def topbnv_fwlite(argv):
                     jetpx[i] = jet.px()
                     jetpy[i] = jet.py()
                     jetpz[i] = jet.pz()
+                    jetbtag[i] = jet.bDiscriminator()
                     njets2write += 1
 
 

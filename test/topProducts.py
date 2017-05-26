@@ -23,9 +23,9 @@ f = ROOT.TFile(sys.argv[1])
 tree = f.Get("TreeSemiLept")
 
 #print("In the file...")
-#f.ls()
+f.ls()
 #print("In the TTree...")
-#tree.Print()
+tree.Print()
 #exit()
 
 nentries = tree.GetEntries()
@@ -136,7 +136,7 @@ for i in range(nentries):
         WChild2[2] = tree.geneta[3]
         WChild2[3] = tree.genphi[3]
         WChild2[4] = tree.genpdg[3]
-        WChild2[1],WChild2[2],WChild2[3] = PTtoXYZ(WChild2[1],WChild2[2],WChild2[2]) 
+        WChild2[1],WChild2[2],WChild2[3] = PTtoXYZ(WChild2[1],WChild2[2],WChild2[3]) 
         
         WmChild1[0] = tree.gene[8]
         WmChild1[1] = tree.genpt[8]
