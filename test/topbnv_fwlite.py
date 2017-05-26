@@ -388,6 +388,12 @@ def topbnv_fwlite(argv):
         electrone = array('f', 16*[-1.])
         TreeSemiLept.Branch('electrone', electrone, 'electrone[nelectron]/F')
 
+        electronchiso = array('f', 16*[-1.])
+        TreeSemiLept.Branch('electronchiso', electronchiso, 'electronchiso[nelectron]/F')
+        electronnhiso = array('f', 16*[-1.])
+        TreeSemiLept.Branch('electronnhiso', electronnhiso, 'electronnhiso[nelectron]/F')
+        electronphotiso = array('f', 16*[-1.])
+        TreeSemiLept.Branch('electronphotiso', electronphotiso, 'electronphotiso[nelectron]/F')
         # Electrons before corrections are applied
         #nprecorrelectron = array('i', [-1])
         #TreeSemiLept.Branch('nprecorrelectron', nprecorrelectron, 'nprecorrelectron/I')
@@ -1649,5 +1655,6 @@ def topbnv_fwlite(argv):
 #####################################################################################
 if __name__ == "__main__":
     topbnv_fwlite(sys.argv)
+
 
 
