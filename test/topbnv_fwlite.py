@@ -1054,6 +1054,10 @@ def topbnv_fwlite(argv):
                 electronpy[i] = m.py()
                 electronpz[i] = m.pz()
                 electronq[i] = m.charge()
+                pfe  = m.PflowIsolationVariables()
+                electronchiso[i] = pfe.chargedHadronIso()
+                electronnhiso[i] = pfe.neutralHadronIso()
+                electronphotiso[i] = pfe.photonIso()
         #'''
 
         # Veto on dilepton events
