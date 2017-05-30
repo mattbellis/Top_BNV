@@ -127,6 +127,8 @@ for i in range(nentries):
 
         WChild1[0] = tree.gene[4]
         WChild1[1] = tree.genpt[4]
+        if (np.abs(WChild1[4]) == 13):
+            muonPT.append(WChild1[1])
         WChild1[2] = tree.geneta[4]
         WChild1[3] = tree.genphi[4]
         WChild1[4] = tree.genpdg[4]
@@ -134,6 +136,8 @@ for i in range(nentries):
     
         WChild2[0] = tree.gene[3]
         WChild2[1] = tree.genpt[3]
+        if (np.abs(WChild2[4]) == 13):
+            muonPT.append(WChild2[1])
         WChild2[2] = tree.geneta[3]
         WChild2[3] = tree.genphi[3]
         WChild2[4] = tree.genpdg[3]
@@ -141,6 +145,8 @@ for i in range(nentries):
         
         WmChild1[0] = tree.gene[8]
         WmChild1[1] = tree.genpt[8]
+        if (np.abs(WmChild1[4]) == 13):
+            muonPT.append(WmChild1[1])
         WmChild1[2] = tree.geneta[8]
         WmChild1[3] = tree.genphi[8]
         WmChild1[4] = tree.genpdg[8]
@@ -148,6 +154,8 @@ for i in range(nentries):
         
         WmChild2[0] = tree.gene[9]
         WmChild2[1] = tree.genpt[9]
+        if (np.abs(WmChild2[4]) == 13):
+            muonPT.append(WmChild2[1])
         WmChild2[2] = tree.geneta[9]
         WmChild2[3] = tree.genphi[9]
         WmChild2[4] = tree.genpdg[9]
@@ -232,33 +240,33 @@ pltLabels = ["$\Delta E (GeV)$","$\Delta p_x (GeV/c)$","$\Delta p_y (GeV/c)$","$
 plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
-    plt.xlabel(pltLabels[j])
+    plt.xlabel(pltLabels[j],fontsize=18)
     lch.hist_err(diffs[j],bins=125,range=(-50,50))
-plt.tight_layout()
+    plt.tight_layout()
 
 #Tbar
 plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
-    plt.xlabel(pltLabels[j])
+    plt.xlabel(pltLabels[j],fontsize=18)
     lch.hist_err(diffsBar[j],bins=125,range=(-50,50))
-plt.tight_layout()
+    plt.tight_layout()
 
 #W q q 
 plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
-    plt.xlabel(pltLabels[j])
+    plt.xlabel(pltLabels[j],fontsize=18)
     lch.hist_err(Wdiffs[j],bins=125,range=(-2.5,2.5))
-plt.tight_layout()
+    plt.tight_layout()
 
 #W mu nu
 plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
-    plt.xlabel(pltLabels[j])
+    plt.xlabel(pltLabels[j],fontsize=18)
     lch.hist_err(WdiffsM[j],bins=125,range=(-2.5,2.5))
-plt.tight_layout()
+    plt.tight_layout()
 
 
 '''
@@ -284,12 +292,14 @@ plt.hist(topPT,bins = 25)
 plt.figure()
 plt.title("TBar PT")
 plt.hist(tbarPT,bins = 25)
+'''
 
+print(len(muonPT))
 plt.figure()
 plt.title("Muon PT")
-plt.hist(muonPT,bins = 25)
+lch.hist_err(muonPT,bins = 100)
+plt.xlabel(r"Muon p$_T$ (GeV/c)",fontsize=18)
 
-'''
 plt.show()
 
 
