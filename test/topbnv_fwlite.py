@@ -341,6 +341,10 @@ def topbnv_fwlite(argv):
         TreeSemiLept.Branch('metpt', metpt, 'metpt/F')
         metphi = array('f', [-1])
         TreeSemiLept.Branch('metphi', metphi, 'metphi/F')
+        mete = array('f', [-1])
+        TreeSemiLept.Branch('mete',mete, 'mete/F')
+        meteta = array('f',[-1])
+        TreeSemiLept.Branch('meteta', meteta, 'meteta/F')
 
         # Muons
         nmuon = array('i', [-1])
@@ -512,6 +516,8 @@ def topbnv_fwlite(argv):
         NearestAK4JetPhi      = bookFloatBranch('NearestAK4JetPhi', -1.)
         NearestAK4JetPt       = bookFloatBranch('NearestAK4JetPt', -1.)
         # Semi leptonic event properties
+        SemiLepMETe           = bookFloatBranch('SemiLepMETe', -1.)
+        SemiLepMETeta         = bookFloatBranch('SemiLepMETeta', -1.)
         SemiLepMETphi         = bookFloatBranch('SemiLepMETphi', -1.)
         SemiLepMETpt          = bookFloatBranch('SemiLepMETpt', -1.)
         SemiLepNvtx           = bookIntBranch('SemiLepNvtx', -1)
@@ -1349,6 +1355,8 @@ def topbnv_fwlite(argv):
         met = mets.product().front()
         metpt[0] = met.pt()
         metphi[0] = met.phi()
+        mete[0] = met.energy()
+        meteta[0] = met.eta()
         #print("MET pt/phi: %f %f" % (metpt[0],metphi[0]))
 
         theLepJet = nearestJetP4
@@ -1588,6 +1596,8 @@ def topbnv_fwlite(argv):
             LeptonEnergy        [0] = theLepton.E()
             LeptonPtRel         [0] = nearestJetP4.Perp(theLepton.Vect())
             LeptonDRMin         [0] = nearestJetP4.DeltaR(theLepton)
+            SemiLepMETe         [0] = met.energy()
+            SemiLepMETeta       [0] = met.eta()
             SemiLepMETpt        [0] = met.pt()
             SemiLepMETphi       [0] = met.phi()
             SemiLepNvtx         [0] = NPV

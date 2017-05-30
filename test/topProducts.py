@@ -152,15 +152,33 @@ for i in range(nentries):
         WmChild2[4] = tree.genpdg[9]
         WmChild2[1],WmChild2[2],WmChild2[3] = PTtoXYZ(WmChild2[1],WmChild2[2],WmChild2[3])
         
-        if(WChild1[4] == 13):
-            muonPT.append(WChild1[1])
-        if(WChild2[4] == 13):
-            muonPT.append(WChild2[1])
-        if(WmChild1[4] == 13):
-            muonPT.append(WmChild1[1])
-        if(WmChild2[4] == 13):
-            muonPT.append(WmChild2[1])
-
+        Wdiff = [0.,0.,0.,0.]       
+        Wmdiff = [0.,0.,0.,0.]
+        muondiff = [0.,0.,0.,0.]
+        muonmdiff = [0.,0.,0.,0.]
+        
+        
+        if(WChild1[4] == -13 or WChild2[4] == -13):
+            muondiff[0] = W[0]-WChild1[0]-WChild2[0]
+            muondiff[1] = W[1]-WChild1[1]-WChild2[1]
+            muondiff[2] = W[2]-WChild1[2]-WChild2[2]
+            muondiff[3] = W[3]-WChild1[3]-WChild2[3]
+        else:
+            Wdiff[0] = W[0]-WChild1[0]-WChild2[0]
+            Wdiff[1] = W[1]-WChild1[1]-WChild2[1]
+            Wdiff[2] = W[2]-WChild1[2]-WChild2[2]
+            Wdiff[3] = W[3]-WChild1[3]-WChild2[3]
+        
+        if(WmChild1[4] == 13 or WmChild2[4] == 13):
+            muonmdiff[0] = W[0]-WChild1[0]-WChild2[0]
+            muonmdiff[1] = W[1]-WChild1[1]-WChild2[1]
+            muonmdiff[2] = W[2]-WChild1[2]-WChild2[2]
+            muonmdiff[3] = W[3]-WChild1[3]-WChild2[3]
+        else:
+            Wmdiff[0] = W[0]-WChild1[0]-WChild2[0]
+            Wmdiff[1] = W[1]-WChild1[1]-WChild2[1]
+            Wmdiff[2] = W[2]-WChild1[2]-WChild2[2]
+            Wmdiff[3] = W[3]-WChild1[3]-WChild2[3]
         #print(WChild1[4])
         #print(WChild2[4])
         if(WChild1[4] == -13.0 or WChild2[4] == -13.0):
@@ -183,25 +201,9 @@ for i in range(nentries):
             diffs[j].append(diff[j])
             diffsBar[j].append(diffBar[j])
         
-        Wdiff = [0.,0.,0.,0.]
-        WdiffM = [0.,0.,0.,0.]
-
-        Wdiff[0] = W[0]-WChild1[0]-WChild2[0]
-        Wdiff[1] = W[1]-WChild1[1]-WChild2[1]
-        Wdiff[2] = W[2]-WChild1[2]-WChild2[2]
-        Wdiff[3] = W[3]-WChild1[3]-WChild2[3]
-
-       
-        WdiffM[0] = Wm[0]-WmChild1[0]-WmChild2[0]
-        WdiffM[1] = Wm[1]-WmChild1[1]-WmChild2[1]
-        WdiffM[2] = Wm[2]-WmChild1[2]-WmChild2[2]
-        WdiffM[3] = Wm[3]-WmChild1[3]-WmChild2[3]
-
-        
-        
         for j in range(4):
             Wdiffs[j].append(Wdiff[j])
-            WdiffsM[j].append(WdiffM[j])
+            WdiffsM[j].append(muondiff[j])
 
         masses[0].append(invmass(top))
         masses[1].append(invmass(W))
@@ -224,38 +226,41 @@ print("The percent of electron decays is: ", electronCount/nentries*100)
 print("The percent of tau decays is: ", tauCount/nentries*100)
 
 
-pltTitles = ["E","px","py","pz"]
+pltLabels = ["$\Delta E (GeV)$","$\Delta p_x (GeV/c)$","$\Delta p_y (GeV/c)$","$\Delta p_z (GeV/c)$"]
+#T
 plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
-    plt.title(pltTitles[j])
+    plt.xlabel(pltLabels[j])
     plt.hist(diffs[j],bins=125,range=(-50,50))
 plt.tight_layout()
 
+#Tbar
 plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
-    plt.title(pltTitles[j] + " tbar")
-    plt.hist(diffsBar[j],bins=25,range=(-50,50))
+    plt.xlabel(pltLabels[j])
+    plt.hist(diffsBar[j],bins=125,range=(-50,50))
 plt.tight_layout()
 
-pltTitles = ["W diff E","W diff px","W diff py","W diff pz"]
+#W q q 
 plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
-    plt.title(pltTitles[j])
+    plt.xlabel(pltLabels[j])
     plt.hist(Wdiffs[j],bins=125,range=(-50,50))
 plt.tight_layout()
 
+#W mu nu
 plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
-    plt.title(pltTitles[j] + " m")
-    plt.hist(WdiffsM[j],bins=25,range=(-50,50))
+    plt.xlabel(pltLabels[j])
+    plt.hist(WdiffsM[j],bins=125,range=(-50,50))
 plt.tight_layout()
 
 
-
+'''
 pltTitles2 = ["Mass Top", "Mass W", "Mass B"]
 plt.figure()
 for j in range(0,3):
@@ -283,7 +288,7 @@ plt.figure()
 plt.title("Muon PT")
 plt.hist(muonPT,bins = 25)
 
-
+'''
 plt.show()
 
 

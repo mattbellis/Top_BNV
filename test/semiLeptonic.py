@@ -21,79 +21,38 @@ tree = f.Get("TreeSemiLept")
 
 # Number of entries
 nentries = tree.GetEntries()
-
-tMasses = []
-barMasses = []
-dm0 = [0.,0.,0.,0.]
-dm1 = [0.,0.,0.,0.]
-bb = [0.,0.,0.,0.]
-
+isos = []
 # Loop over all entries for a t
 for i in range(nentries):
-	tree.GetEntry(i)
-	leptonic = False
-	hadronic = False	
-	'''
-	top = 0
-	b = 1
-	W = 2
-	W daughters = 3 + 4
-	tbar = 5
-	bbar = 6
-	Wm = 7
-	Wm daughters = 8 + 9
-	'''
-	
-	d0pdg = tree.genpdg[3]
-	d1pdg = tree.genpdg[4]
-	
-	if(d0pdg in range(1,6) or d1pdg in range(1,6)):
-		hadronic = True
-	elif(d0pdg in range(-16,-11) or d1pdg in range(-16,11)):
-		leptonic = True 
+    tree.GetEntry(i)
+    leptonic = False
+    hadronic = False
+    numIso = 0
 
-	
-	if(leptonic):
-		dm0pdg = tree.genpdg[8]
-		dm1pdg = tree.genpdg[9]
+    # Isolated Muon
+    nmuon = tree.nmuon
+    muonpt = tree.muonpt
+    chhadpt = tree.muonsumchhadpt
+    nhadpt = tree.muonsumnhadpt
+    photet = tree.muonsumphotEt
+    njets = tree.njet
+    if(nmuon >= 1):
+        for muon in range(nmuon):
+            if(muonpt[muon] != 0):
+                muonpt[muon] = float(muonpt[muon])
+                iso = (chhadpt[muon] + nhadpt[muon] + photet[muon])/muonpt[muon]
+                isos.append(iso)
+            if(iso <= .15):
+                numIso += 1
 
-		if(dm0pdg in range(-16,-11) or dm1pdg in range(-16,-11)):
-			continue
-		else:
-			# This is a hadronic decay
-			dm0[0] = tree.gene[8]
-			dm0[1] = tree.genpt[8]
-			dm0[2] = tree.geneta[8]
-			dm0[3] = tree.genphi[8]				
-			dm0[1],dm0[2],dm0[3] = PTtoXYZ(dm0[1],dm0[2],dm0[3])
-
-			dm1[0] = tree.gene[9]
-			dm1[1] = tree.genpt[9]
-			dm1[2] = tree.geneta[9]
-			dm1[3] = tree.genphi[9]				
-			dm1[1],dm1[2],dm1[3] = PTtoXYZ(dm1[1],dm1[2],dm1[3])
-
-			dm0mass = invmass(dm0)
-			dm1mass = invmass(dm1)
-
-			bb[0] = tree.gene[6]
-			bb[1] = tree.genpt[6]
-			bb[2] = tree.geneta[6]
-			bb[3] = tree.genphi[6]				
-			bb[1],bb[2],bb[3] = PTtoXYZ(bb[1],bb[2],bb[3])
-			
-			bbmass = invmass(bb)
-
-			tb = invmass(dm0 + dm1 + bb)
-			
-			#print(dm0mass)
-			#print(dm1mass)
-
-			tMasses.append(tb)
-
+        #if(numIso == 1):
+            # Muon Veto
+            # Electron Veto
 
 
 plt.figure()
-plt.hist(tMasses, bins = 10)
+plt.hist(isos, bins = 100, range = [0,20])
+plt.title("Muon Isolation")
+plt.xlabel("$I_{rel}$")
 plt.show()
 
