@@ -64,15 +64,23 @@ for nentry in range(nentries):
 
     metpt.append(tree.metpt)
 
+    onegood_muon = False
     for i in range(nmuon):
         muonpt.append(tree.muonpt[i])
+        if nmuon==1 and tree.muonpt[i]>50:
+            onegood_muon = True
+
+    if onegood_muon == False:
+        continue 
 
     for i in range(njet):
         jetbtag.append(tree.jetbtag[i])
         if tree.jetbtag[i] > btagcut:
-            bjets.append(np.array([tree.jete[i], tree.jetpx[i], tree.jetpy[i], tree.jetpz[i]]))
+            if tree.jetpt[i]>10:
+                bjets.append(np.array([tree.jete[i], tree.jetpx[i], tree.jetpy[i], tree.jetpz[i]]))
         else:
-            jets.append(np.array([tree.jete[i], tree.jetpx[i], tree.jetpy[i], tree.jetpz[i]]))
+            if tree.jetpt[i]>10:
+                jets.append(np.array([tree.jete[i], tree.jetpx[i], tree.jetpy[i], tree.jetpz[i]]))
 
     if len(bjets)>1 and len(jets)>1:
         #print(len(bjets),len(jets))
