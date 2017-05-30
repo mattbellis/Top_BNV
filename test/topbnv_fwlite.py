@@ -341,6 +341,10 @@ def topbnv_fwlite(argv):
         TreeSemiLept.Branch('metpt', metpt, 'metpt/F')
         metphi = array('f', [-1])
         TreeSemiLept.Branch('metphi', metphi, 'metphi/F')
+        mete = array('f', [-1])
+        TreeSemiLept.Branch('mete',mete, 'mete/F')
+        meteta = array('f',[-1])
+        TreeSemiLept.Branch('meteta', meteta, 'meteta/F')
 
         # Muons
         nmuon = array('i', [-1])
@@ -361,6 +365,12 @@ def topbnv_fwlite(argv):
         TreeSemiLept.Branch('muonpz', muonpz, 'muonpz[nmuon]/F')
         muone = array('f', 16*[-1.])
         TreeSemiLept.Branch('muone', muone, 'muone[nmuon]/F')
+        muonsumchhadpt = array('f', 16*[-1.])
+        TreeSemiLept.Branch('muonsumchhadpt', muonsumchhadpt, 'muonsumchhadpt[nmuon]/F')
+        muonsumnhadpt = array('f', 16*[-1.])
+        TreeSemiLept.Branch('muonsumnhadpt', muonsumnhadpt, 'muonsumnhadpt[nmuon]/F')
+        muonsumphotEt = array('f', 16*[-1.])
+        TreeSemiLept.Branch('muonsumphotEt', muonsumphotEt, 'muonsumphotEt[nmuon]/F')
 
         # Electrons
         nelectron = array('i', [-1])
@@ -382,6 +392,12 @@ def topbnv_fwlite(argv):
         electrone = array('f', 16*[-1.])
         TreeSemiLept.Branch('electrone', electrone, 'electrone[nelectron]/F')
 
+        #electronchiso = array('f', 16*[-1.])
+        #TreeSemiLept.Branch('electronchiso', electronchiso, 'electronchiso[nelectron]/F')
+        #electronnhiso = array('f', 16*[-1.])
+        #TreeSemiLept.Branch('electronnhiso', electronnhiso, 'electronnhiso[nelectron]/F')
+        #electronphotiso = array('f', 16*[-1.])
+        #TreeSemiLept.Branch('electronphotiso', electronphotiso, 'electronphotiso[nelectron]/F')
         # Electrons before corrections are applied
         #nprecorrelectron = array('i', [-1])
         #TreeSemiLept.Branch('nprecorrelectron', nprecorrelectron, 'nprecorrelectron/I')
@@ -412,6 +428,8 @@ def topbnv_fwlite(argv):
         jete = array('f', 16*[-1.])
         TreeSemiLept.Branch('jete', jete, 'jete[njet]/F')
         #'''
+        jetbtag = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetbtag', jetbtag, 'jetbtag[njet]/F')
 
         '''
         pats = ["muon"]
@@ -498,6 +516,8 @@ def topbnv_fwlite(argv):
         NearestAK4JetPhi      = bookFloatBranch('NearestAK4JetPhi', -1.)
         NearestAK4JetPt       = bookFloatBranch('NearestAK4JetPt', -1.)
         # Semi leptonic event properties
+        SemiLepMETe           = bookFloatBranch('SemiLepMETe', -1.)
+        SemiLepMETeta         = bookFloatBranch('SemiLepMETeta', -1.)
         SemiLepMETphi         = bookFloatBranch('SemiLepMETphi', -1.)
         SemiLepMETpt          = bookFloatBranch('SemiLepMETpt', -1.)
         SemiLepNvtx           = bookIntBranch('SemiLepNvtx', -1)
@@ -729,15 +749,15 @@ def topbnv_fwlite(argv):
                     ##### PROPAGATING FROM THEMSELVES
                     #if options.verbose:
                     if 1:
-                        #genOut = "" # For debugging
+                        genOut = "" # For debugging
                         mother = -999
                         if gen.mother() != None:
                             mother = gen.mother().pdgId() 
-                        #genOut += 'GEN pdg id=%d pt=%+5.3f status=%d ndau: %d mother: %d\n' % \
-                                #( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother )
-                        #for ndau in range(0,gen.numberOfDaughters()):
-                            #genOut += "daughter pdgid: %d   pt: %f  %f\n" % (gen.daughter(ndau).pdgId(), gen.daughter(ndau).pt(), gen.daughter(ndau).mother().pt())
-                        print genOut
+                        genOut += 'GEN pdg id=%d pt=%+5.3f status=%d ndau: %d mother: %d\n' % \
+                                ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother )
+                        for ndau in range(0,gen.numberOfDaughters()):
+                            genOut += "daughter pdgid: %d   pt: %f  %f\n" % (gen.daughter(ndau).pdgId(), gen.daughter(ndau).pt(), gen.daughter(ndau).mother().pt())
+                        #print genOut
                     if gen.pdgId() == 6:
                         topQuark = gen
                         if found_top is False:
@@ -855,7 +875,7 @@ def topbnv_fwlite(argv):
                             genphi[4] = d1.phi()
                             genpdg[4] = d1.pdgId()
 
-                            print("HERE!!!! - %d %d" % (d0.pdgId(),d1.pdgId()))
+                            #print("HERE!!!! - %d %d" % (d0.pdgId(),d1.pdgId()))
 
                             if d0.pdgId() in [1,2,3,4, -1, -2, -3, -4]:
                                 tdecayflag = 0
@@ -882,7 +902,7 @@ def topbnv_fwlite(argv):
                             genphi[9] = d1.phi()
                             genpdg[9] = d1.pdgId()
 
-                            print("THERE!!!! - %d %d" % (d0.pdgId(),d1.pdgId()))
+                            #print("THERE!!!! - %d %d" % (d0.pdgId(),d1.pdgId()))
 
                             if d0.pdgId() in [1,2,3,4,-1,-2,-3,-4]:
                                 tbardecayflag = 0
@@ -1009,6 +1029,14 @@ def topbnv_fwlite(argv):
                 muonpx[i] = m.px()
                 muonpy[i] = m.py()
                 muonpz[i] = m.pz()
+                pfi  = m.pfIsolationR03()
+                #print( pfi.sumChargedHadronPt, pfi.sumChargedParticlePt, pfi.sumNeutralHadronEt, pfi.sumPhotonEt, pfi.sumNeutralHadronEtHighThreshold, pfi.sumPhotonEtHighThreshold, pfi.sumPUPt)
+                muonsumchhadpt[i] = pfi.sumChargedHadronPt
+                muonsumnhadpt[i] = pfi.sumNeutralHadronEt
+                muonsumphotEt[i] = pfi.sumPhotonEt
+
+
+
 
         #print("J")
         #'''
@@ -1038,6 +1066,10 @@ def topbnv_fwlite(argv):
                 electronpy[i] = m.py()
                 electronpz[i] = m.pz()
                 electronq[i] = m.charge()
+                #pfe  = m.isolationVariables03()
+                #electronchiso[i] = pfe.chargedHadronIso
+                #electronnhiso[i] = pfe.neutralHadronIso
+                #electronphotiso[i] = pfe.photonIso
         #'''
 
         # Veto on dilepton events
@@ -1204,6 +1236,7 @@ def topbnv_fwlite(argv):
                     jetpx[i] = jet.px()
                     jetpy[i] = jet.py()
                     jetpz[i] = jet.pz()
+                    jetbtag[i] = jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")
                     njets2write += 1
 
 
@@ -1322,6 +1355,8 @@ def topbnv_fwlite(argv):
         met = mets.product().front()
         metpt[0] = met.pt()
         metphi[0] = met.phi()
+        mete[0] = met.energy()
+        meteta[0] = met.eta()
         #print("MET pt/phi: %f %f" % (metpt[0],metphi[0]))
 
         theLepJet = nearestJetP4
@@ -1561,6 +1596,8 @@ def topbnv_fwlite(argv):
             LeptonEnergy        [0] = theLepton.E()
             LeptonPtRel         [0] = nearestJetP4.Perp(theLepton.Vect())
             LeptonDRMin         [0] = nearestJetP4.DeltaR(theLepton)
+            SemiLepMETe         [0] = met.energy()
+            SemiLepMETeta       [0] = met.eta()
             SemiLepMETpt        [0] = met.pt()
             SemiLepMETphi       [0] = met.phi()
             SemiLepNvtx         [0] = NPV
@@ -1628,5 +1665,6 @@ def topbnv_fwlite(argv):
 #####################################################################################
 if __name__ == "__main__":
     topbnv_fwlite(sys.argv)
+
 
 
