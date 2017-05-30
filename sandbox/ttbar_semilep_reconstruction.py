@@ -70,8 +70,8 @@ for nentry in range(nentries):
         if nmuon==1 and tree.muonpt[i]>50:
             onegood_muon = True
 
-    if onegood_muon == False:
-        continue 
+    #if onegood_muon == False:
+    #    continue 
 
     for i in range(njet):
         jetbtag.append(tree.jetbtag[i])

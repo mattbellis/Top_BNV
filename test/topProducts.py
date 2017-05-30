@@ -4,6 +4,7 @@ import sys
 import numpy as np
 import matplotlib.pylab as plt
 
+import lichen.lichen as lch
 from PttoXYZ import PTtoXYZ
 
 def invmass(p4):
@@ -232,7 +233,7 @@ plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
     plt.xlabel(pltLabels[j])
-    plt.hist(diffs[j],bins=125,range=(-50,50))
+    lch.hist_err(diffs[j],bins=125,range=(-50,50))
 plt.tight_layout()
 
 #Tbar
@@ -240,7 +241,7 @@ plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
     plt.xlabel(pltLabels[j])
-    plt.hist(diffsBar[j],bins=125,range=(-50,50))
+    lch.hist_err(diffsBar[j],bins=125,range=(-50,50))
 plt.tight_layout()
 
 #W q q 
@@ -248,7 +249,7 @@ plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
     plt.xlabel(pltLabels[j])
-    plt.hist(Wdiffs[j],bins=125,range=(-50,50))
+    lch.hist_err(Wdiffs[j],bins=125,range=(-2.5,2.5))
 plt.tight_layout()
 
 #W mu nu
@@ -256,7 +257,7 @@ plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
     plt.xlabel(pltLabels[j])
-    plt.hist(WdiffsM[j],bins=125,range=(-50,50))
+    lch.hist_err(WdiffsM[j],bins=125,range=(-2.5,2.5))
 plt.tight_layout()
 
 
