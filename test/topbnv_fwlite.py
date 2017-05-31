@@ -16,12 +16,14 @@ from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25n
 #
 
 #####################################################################################
-jet_energy_corrections = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC
-    [1,276811,"Spring16_23Sep2016BCDV2_DATA"],
-    [276831,278801,"Spring16_23Sep2016EFV2_DATA"],
-    [278802,280385,"Spring16_23Sep2016GV2_DATA"],
-    [280386,float("inf"),"Spring16_23Sep2016HV2_DATA"]
-]
+#jet_energy_corrections = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC
+#    [1,276811,"Spring16_23Sep2016BCDV2_DATA"],
+#    [276831,278801,"Spring16_23Sep2016EFV2_DATA"],
+#    [278802,280385,"Spring16_23Sep2016GV2_DATA"],
+#    [280386,float("inf"),"Spring16_23Sep2016HV2_DATA"]
+#]
+
+jet_energy_corrections = "Summer16_23Sep2016V4_MC"
 
 #####################################################################################
 jet_energy_resolution = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
@@ -258,7 +260,7 @@ def topbnv_fwlite(argv):
     rhos, rhoLabel = Handle("double"), "fixedGridRhoAll"
     gens, genLabel = Handle("std::vector<reco::GenParticle>"), "prunedGenParticles"
     #packedgens, packedgenLabel = Handle("std::vector<reco::packedGenParticle>"), "PACKEDgENpARTICLES"
-    packedgens, packedgenLabel = Handle("std::vector<pat::packedGenParticle>"), "PACKEDgENpARTICLES"
+    packedgens, packedgenLabel = Handle("std::vector<pat::PackedGenParticle>"), "PACKEDgENpARTICLES"
     genInfo, genInfoLabel = Handle("GenEventInfoProduct"), "generator"
     # Enterprising students could figure out the LHE weighting for theoretical uncertainties
     #lheInfo, lheInfoLabel = Handle("LHEEventProduct"), "externalLHEProducer"
@@ -593,11 +595,10 @@ def topbnv_fwlite(argv):
     if options.isData:
         DataJECs = DataJEC(jet_energy_corrections)
     else:
-        jecAK4 = createJEC('JECs/Spring16_23Sep2016V2_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK4PFchs')
-        jecAK8 = createJEC('JECs/Spring16_23Sep2016V2_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK8PFchs')
-        jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_23Sep2016V2_MC_Uncertainty_AK4PFchs.txt'))
-        jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_23Sep2016V2_MC_Uncertainty_AK8PFchs.txt'))
-
+        jecAK4 = createJEC('JECs/Summer16_23Sep2016V4_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK4PFchs')
+        jecAK8 = createJEC('JECs/Summer16_23Sep2016V4_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK8PFchs')
+        jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt'))
+        jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer16_23Sep2016V4_MC_Uncertainty_AK8PFchs.txt'))
 
     selectElectron = VIDElectronSelector(mvaEleID_Spring15_25ns_nonTrig_V1_wp80)
     #selectElectronvidelectron._VIDSelectorBase__instance.ignoreCut('GsfEleEffAreaPFIsoCut_0')
@@ -748,7 +749,7 @@ def topbnv_fwlite(argv):
         if not options.isData:
             
             isPackedGenPresent = event.getByLabel( packedgenLabel, packedgens )
-            if isPackedGenPresent:
+	    if isPackedGenPresent:
                 for igen,gen in enumerate( packedgens.product() ):
                         packedgenOut = 'PACKED GEN pdg id=%d pt=%+5.3f status=%d ndau: %d mother: %d\n' % \
                                 ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother )
