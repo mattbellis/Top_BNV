@@ -1,7 +1,7 @@
 import ROOT
 import sys
-import lichen.lichen as lch
 import matplotlib.pyplot as plt
+import lichen.lichen as lch
 import numpy as np
 
 f = ROOT.TFile(sys.argv[1])
@@ -9,16 +9,20 @@ tree = f.Get("TreeSemiLept")
 
 nentries = tree.GetEntries()
 
-nmuons = []
-njets = []
-mupt = []
-jpt = []
+muonPT = []
+numMuons = []
+jetPT = []
+numJets = []
 
 for i in range(nentries):
     tree.GetEntry(i)
-    nmuon = tree.nmuon
-    njet = tree.njet
+    nmuons = tree.nmuon
     muonpt = tree.muonpt
+    numMuons.append(nmuons)
+    for j in range(nmuons):
+        muonPT.append(muonpt[j])
+        #print(muonpt[j])
+    njets = tree.njet
     jetpt = tree.jetpt
 
     nmuons.append(nmuon)

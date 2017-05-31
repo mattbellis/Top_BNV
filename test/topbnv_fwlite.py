@@ -257,6 +257,7 @@ def topbnv_fwlite(argv):
     pileups, pileuplabel = Handle("std::vector<PileupSummaryInfo>"), "slimmedAddPileupInfo"
     rhos, rhoLabel = Handle("double"), "fixedGridRhoAll"
     gens, genLabel = Handle("std::vector<reco::GenParticle>"), "prunedGenParticles"
+    #packedgens, packedgenLabel = Handle("std::vector<reco::packedGenParticle>"), "packedGenParticles"
     genInfo, genInfoLabel = Handle("GenEventInfoProduct"), "generator"
     # Enterprising students could figure out the LHE weighting for theoretical uncertainties
     #lheInfo, lheInfoLabel = Handle("LHEEventProduct"), "externalLHEProducer"
@@ -430,6 +431,23 @@ def topbnv_fwlite(argv):
         #'''
         jetbtag = array('f', 16*[-1.])
         TreeSemiLept.Branch('jetbtag', jetbtag, 'jetbtag[njet]/F')
+
+        jetNHF = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetNHF', jetNHF, 'jetNHF[njet]/F')
+        jetNEMF = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetNEMF', jetNEMF, 'jetNEMF[njet]/F')
+        jetCHF = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetCHF', jetCHF, 'jetCHF[njet]/F')
+        jetMUF = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetMUF', jetMUF, 'jetMUF[njet]/F')
+        jetCEMF = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetCEMF', jetCEMF, 'jetCEMF[njet]/F')
+        jetNumConst = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetNumConst', jetNumConst, 'jetNumConst[njet]/F')
+        jetNumNeutralParticles = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetNumNeutralParticles', jetNumNeutralParticles, 'jetNumNeutralParticles[njet]/F')
+        jetCHM = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetCHM', jetCHM, 'jetCHM[njet]/F')
 
         '''
         pats = ["muon"]
@@ -727,6 +745,16 @@ def topbnv_fwlite(argv):
         ##  \______  /\___  >___|  /  |____|   |____/\____/|__| /____  >
         ##         \/     \/     \/                                  \/
         if not options.isData:
+            '''
+            isPackedGenPresent = event.getByLabel( packedgenLabel, packedgens )
+            if isPackedGenPresent:
+                for igen,gen in enumerate( packedgens.product() ):
+                        packedgenOut = 'PACKED GEN pdg id=%d pt=%+5.3f status=%d ndau: %d mother: %d\n' % \
+                                ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother )
+                        print(packedgenOut)
+            '''
+
+
             haveGenSolution = False
             isGenPresent = event.getByLabel( genLabel, gens )
             if isGenPresent:
@@ -1237,7 +1265,18 @@ def topbnv_fwlite(argv):
                     jetpy[i] = jet.py()
                     jetpz[i] = jet.pz()
                     jetbtag[i] = jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")
+                    # Do the loose flag.
+                    jetNHF[i] = jet.neutralHadronEnergyFraction();
+                    jetNEMF[i] = jet.neutralEmEnergyFraction();
+                    jetCHF[i] = jet.chargedHadronEnergyFraction();
+                    jetMUF[i] = jet.muonEnergyFraction();
+                    jetCEMF[i] = jet.chargedEmEnergyFraction();
+                    jetNumConst[i] = jet.chargedMultiplicity()+jet.neutralMultiplicity();
+                    jetNumNeutralParticles[i] =jet.neutralMultiplicity();
+                    jetCHM[i] = jet.chargedMultiplicity(); 
+
                     njets2write += 1
+
 
 
             if not goodJet:
