@@ -121,11 +121,11 @@ plt.xlabel("$I_{rel}$",fontsize=18)
 
 plt.figure()
 lch.hist_err(top,bins=100,range=(0,800))
-plt.title("b jet and 2 other jets")
+plt.xlabel("Invariant mass of 3 jets (GeV/c$^2$)", fontsize = 18)
 
 plt.figure()
 lch.hist_err(twoJets,bins=100,range=(0,300))
-plt.title("2 Jets")
+plt.xlabel("Invariant mass of 2 jets (GeV/c$^2$)", fontsize = 18)
 
 plt.show()
 
