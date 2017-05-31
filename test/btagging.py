@@ -1,7 +1,8 @@
 import ROOT
 import sys
+import matplotlib.pylab as plt
+import numpy as np
 import lichen.lichen as lch
-import matplotlib.pyplot as plt
 
 
 f = ROOT.TFile(sys.argv[1])
@@ -11,14 +12,13 @@ nentries = tree.GetEntries()
 btags = []
 for i in range(nentries):
     tree.GetEntry(i)
-    btag = tree.jetbtag
-    njet = tree.njet
-
-    for j in range(njet):
-        btags.append(btag[j])
+    jetbtag = tree.jetbtag
+    njets = tree.njet
+    for j in range(njets):
+        btags.append(jetbtag[j])
+        print(jetbtag[j])
 
 plt.figure()
-lch.hist_err(btags, range = [0,1.25])
-plt.xlabel("b-tag variable")
-
+lch.hist_err(btags,bins=100,range=(0,1.25))
+plt.xlabel(r"b-tagging variable", fontsize = 18)
 plt.show()
