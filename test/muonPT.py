@@ -29,25 +29,37 @@ for i in range(nentries):
     for j in range(njet):
         jpt.append(jetpt[j])
 
+mupt = np.array(mupt)
+
 plt.figure()
-lch.hist_err(mupt)
+lch.hist_err(mupt[mupt>0],range=(0,100))
 plt.xlabel("Muon p$_T$ (GeV/c)", fontsize = 18)
 #plt.yscale('log',nonposy = 'clip')
+plt.tight_layout()
+plt.savefig('muonpt0.png')
 
 plt.figure()
-lch.hist_err(mupt, range = [10,100])
+lch.hist_err(mupt[mupt>10], range = [0,100])
 plt.xlabel("Muon p$_T$ (GeV/c)", fontsize = 18)
+plt.tight_layout()
+plt.savefig('muonpt1.png')
 
 plt.figure()
-lch.hist_err(jpt)
+lch.hist_err(jpt,range=(0,300))
 plt.xlabel("Jet p$_T$ (GeV/c)", fontsize = 18)
+plt.tight_layout()
+plt.savefig('jetpt.png')
 
 plt.figure()
 lch.hist_err(nmuons)
 plt.xlabel("# of muons")
+plt.tight_layout()
+plt.savefig('nmuons.png')
 
 plt.figure()
 lch.hist_err(njets)
 plt.xlabel("# of jets")
+plt.tight_layout()
+plt.savefig('njets.png')
 
 plt.show()

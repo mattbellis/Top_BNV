@@ -18,7 +18,10 @@ for i in range(nentries):
         btags.append(btag[j])
 
 plt.figure()
-lch.hist_err(btags, range = [0,1.25])
-plt.xlabel("b-tag variable")
+#lch.hist_err(btags, range = [0,1.25],bins=100,markersize=5)
+plt.hist(btags, range = [0,1.1],bins=110)
+plt.xlabel("CSV2 b-tag output",fontsize=18)
+plt.tight_layout()
+plt.savefig('btag.png')
 
 plt.show()
