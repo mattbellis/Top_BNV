@@ -257,7 +257,8 @@ def topbnv_fwlite(argv):
     pileups, pileuplabel = Handle("std::vector<PileupSummaryInfo>"), "slimmedAddPileupInfo"
     rhos, rhoLabel = Handle("double"), "fixedGridRhoAll"
     gens, genLabel = Handle("std::vector<reco::GenParticle>"), "prunedGenParticles"
-    #packedgens, packedgenLabel = Handle("std::vector<reco::packedGenParticle>"), "packedGenParticles"
+    #packedgens, packedgenLabel = Handle("std::vector<reco::packedGenParticle>"), "PACKEDgENpARTICLES"
+    packedgens, packedgenLabel = Handle("std::vector<pat::packedGenParticle>"), "PACKEDgENpARTICLES"
     genInfo, genInfoLabel = Handle("GenEventInfoProduct"), "generator"
     # Enterprising students could figure out the LHE weighting for theoretical uncertainties
     #lheInfo, lheInfoLabel = Handle("LHEEventProduct"), "externalLHEProducer"
@@ -745,14 +746,14 @@ def topbnv_fwlite(argv):
         ##  \______  /\___  >___|  /  |____|   |____/\____/|__| /____  >
         ##         \/     \/     \/                                  \/
         if not options.isData:
-            '''
+            
             isPackedGenPresent = event.getByLabel( packedgenLabel, packedgens )
             if isPackedGenPresent:
                 for igen,gen in enumerate( packedgens.product() ):
                         packedgenOut = 'PACKED GEN pdg id=%d pt=%+5.3f status=%d ndau: %d mother: %d\n' % \
                                 ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother )
                         print(packedgenOut)
-            '''
+            
 
 
             haveGenSolution = False
