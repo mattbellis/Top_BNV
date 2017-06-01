@@ -11,6 +11,9 @@ When using das_client, need 3 things within the slashes dataset query.
 
     das_client --query="dataset=/WW_TuneCUETP8M1_13TeV-pythia8/*Summer16*/MINIAODSIM" --format plain
 
+    das_client --query="dataset=/WW_TuneCUETP8M1_13TeV-pythia8/*Summer16*/MINIAODSIM" --format plain
+
+
 
 To find the root files in case we want to look at them.
 
