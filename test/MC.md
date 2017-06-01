@@ -1,3 +1,8 @@
+Referencing B2G list of MC
+
+https://twiki.cern.ch/twiki/bin/viewauth/CMS/B2GAnaEDMNTuples80X
+
+
 When using das_client, need 3 things within the slashes dataset query. 
 
 das_client --query="dataset=/WJetsToQQ*/*/*" --format=plain --limit=30
