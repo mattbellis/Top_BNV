@@ -23,7 +23,11 @@ from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25n
 #    [280386,float("inf"),"Spring16_23Sep2016HV2_DATA"]
 #]
 
-jet_energy_corrections = "Summer16_23Sep2016V4_MC"
+#jet_energy_corrections = "Summer16_23Sep2016V4_MC"
+jet_energy_corrections = [ [1,276811,"Summer16_23Sep2016V4"], 
+[276831,278801,"Summer16_23Sep2016V4"], 
+[278802,280385,"Summer16_23Sep2016V4"], 
+[280919,float("inf"),"Summer16_23Sep2016V4"] ] 
 
 #####################################################################################
 jet_energy_resolution = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
@@ -417,6 +421,7 @@ def topbnv_fwlite(argv):
         # Jets
         njet = array('i', [-1])
         TreeSemiLept.Branch('njet', njet, 'njet/I')
+
         jetpt = array('f', 16*[-1.])
         TreeSemiLept.Branch('jetpt', jetpt, 'jetpt[njet]/F')
         jeteta = array('f', 16*[-1.])
@@ -431,6 +436,22 @@ def topbnv_fwlite(argv):
         TreeSemiLept.Branch('jetpz', jetpz, 'jetpz[njet]/F')
         jete = array('f', 16*[-1.])
         TreeSemiLept.Branch('jete', jete, 'jete[njet]/F')
+
+        jetjecpt = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetjecpt', jetjecpt, 'jetjecpt[njet]/F')
+        jetjeceta = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetjeceta', jetjeceta, 'jetjeceta[njet]/F')
+        jetjecphi = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetjecphi', jetjecphi, 'jetjecphi[njet]/F')
+        jetjecpx = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetjecpx', jetjecpx, 'jetjecpx[njet]/F')
+        jetjecpy = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetjecpy', jetjecpy, 'jetjecpy[njet]/F')
+        jetjecpz = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetjecpz', jetjecpz, 'jetjecpz[njet]/F')
+        jetjece = array('f', 16*[-1.])
+        TreeSemiLept.Branch('jetjece', jetjece, 'jetjece[njet]/F')
+
         #'''
         jetbtag = array('f', 16*[-1.])
         TreeSemiLept.Branch('jetbtag', jetbtag, 'jetbtag[njet]/F')
@@ -593,8 +614,10 @@ def topbnv_fwlite(argv):
     ##               \/               \/                          \/     \/                    \/     \/
     ROOT.gSystem.Load('libCondFormatsJetMETObjects')
     if options.isData:
+        # CHANGE THIS FOR DATA
         DataJECs = DataJEC(jet_energy_corrections)
     else:
+        # CHANGE THIS FOR DIFFERENT MCs down the road
         jecAK4 = createJEC('JECs/Summer/Summer16_23Sep2016V4_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK4PFchs')
         jecAK8 = createJEC('JECs/Summer/Summer16_23Sep2016V4_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK8PFchs')
         jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt'))
@@ -1356,7 +1379,20 @@ def topbnv_fwlite(argv):
                 '''
 
 
+            #print("---------")
+            #print(jetP4Raw.Perp())
             jetP4 = jetP4Raw * newJEC * ptsmear
+            #print(jetP4.Perp())
+            if goodJet:
+                if njets2write-1<16:
+                    i = njets2write-1
+                    jetjecpt[i] = jetP4.Perp()
+                    jetjeceta[i] = jetP4.Eta()
+                    jetjecphi[i] = jetP4.Phi()
+                    jetjece[i] = jetP4.E()
+                    jetjecpx[i] = jetP4.Px()
+                    jetjecpy[i] = jetP4.Py()
+                    jetjecpz[i] = jetP4.Pz()
 
             # Now perform jet kinematic cuts
             ##print(jetP4.Perp())
