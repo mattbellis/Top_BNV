@@ -15,6 +15,9 @@ When using das_client, need 3 things within the slashes dataset query.
     
     das_client --query="dataset=/ZW_TuneCUETP8M1_13TeV-pythia8/*Summer16*/MINIAODSIM" --format plain
 
+Some of the above queries will produce collections with what looks like the exact same string, except for a "ext1" addition. 
+That just refers to an extension of the dataset, that is, additional Monte Carlo. 
+
 
 
 To find the root files in case we want to look at them.
