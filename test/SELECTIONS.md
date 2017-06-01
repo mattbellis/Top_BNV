@@ -8,3 +8,9 @@ Odd strucuture in CSV2 b-tagging variable at 0.55-ish is the result of low-momen
 Use "loose" jets
 https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
 
+
+Jet Energy Corrections
+https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC
+
+
+
