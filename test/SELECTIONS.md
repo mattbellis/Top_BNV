@@ -13,4 +13,11 @@ Jet Energy Corrections
 https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC
 
 
+# Pile-up
+Will need to use this type of file
+
+https://github.com/cmsb2g/B2GDAS/blob/master/test/makepu_fwlite.py
+
+to generate purw.root for pileup reweighting. 
+
 
