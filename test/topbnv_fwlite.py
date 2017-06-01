@@ -264,7 +264,7 @@ def topbnv_fwlite(argv):
     rhos, rhoLabel = Handle("double"), "fixedGridRhoAll"
     gens, genLabel = Handle("std::vector<reco::GenParticle>"), "prunedGenParticles"
     #packedgens, packedgenLabel = Handle("std::vector<reco::packedGenParticle>"), "PACKEDgENpARTICLES"
-    packedgens, packedgenLabel = Handle("std::vector<pat::PackedGenParticle>"), "PACKEDgENpARTICLES"
+    packedgens, packedgenLabel = Handle("std::vector<pat::PackedGenParticle>"), "packedGenParticles"
     genInfo, genInfoLabel = Handle("GenEventInfoProduct"), "generator"
     # Enterprising students could figure out the LHE weighting for theoretical uncertainties
     #lheInfo, lheInfoLabel = Handle("LHEEventProduct"), "externalLHEProducer"
@@ -771,13 +771,17 @@ def topbnv_fwlite(argv):
         ##         \/     \/     \/                                  \/
         if not options.isData:
             
+            '''
             isPackedGenPresent = event.getByLabel( packedgenLabel, packedgens )
-	    if isPackedGenPresent:
+            if isPackedGenPresent:
+                print("--------------")
                 for igen,gen in enumerate( packedgens.product() ):
-                        packedgenOut = 'PACKED GEN pdg id=%d pt=%+5.3f status=%d ndau: %d mother: %d\n' % \
-                                ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother )
+                    if abs(gen.pdgId())<30:
+                        packedgenOut = 'PACKED GEN pdg id=%d energy=%5.3f pt=%+5.3f status=%d ndau: %d mother: %d' % \
+                                        ( gen.pdgId(), gen.energy(), gen.pt(), gen.status(), gen.numberOfDaughters(), gen.mother(0).pdgId() )
                         print(packedgenOut)
-            
+
+            ''' 
 
 
             haveGenSolution = False
@@ -806,11 +810,11 @@ def topbnv_fwlite(argv):
                         mother = -999
                         if gen.mother() != None:
                             mother = gen.mother().pdgId() 
-                        genOut += 'GEN pdg id=%d pt=%+5.3f status=%d ndau: %d mother: %d\n' % \
-                                ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother )
+                        genOut += 'GEN pdg id=%d pt=%+5.3f status=%d ndau: %d mother: %d isLastCopy: %d\n' % \
+                                ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother, gen.isLastCopy() )
                         for ndau in range(0,gen.numberOfDaughters()):
                             genOut += "daughter pdgid: %d   pt: %f  %f\n" % (gen.daughter(ndau).pdgId(), gen.daughter(ndau).pt(), gen.daughter(ndau).mother().pt())
-                        #print genOut
+                        print genOut
                     if gen.pdgId() == 6:
                         topQuark = gen
                         if found_top is False:
