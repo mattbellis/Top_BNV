@@ -473,6 +473,20 @@ def topbnv_fwlite(argv):
         jetCHM = array('f', 16*[-1.])
         TreeSemiLept.Branch('jetCHM', jetCHM, 'jetCHM[njet]/F')
 
+
+
+        # Vertex stuff
+        vertexX = array('f',[-1.])
+        TreeSemiLept.Branch('vertexX', vertexX, 'vertexX/F')
+        vertexY = array('f',[-1.])
+        TreeSemiLept.Branch('vertexY', vertexY, 'vertexY/F')
+        vertexZ = array('f',[-1.])
+        TreeSemiLept.Branch('vertexZ', vertexZ, 'vertexZ/F')
+
+
+
+
+
         '''
         pats = ["muon"]
         attributes = ["n","pt","eta","phi","px","py","pz","e"]
@@ -814,7 +828,7 @@ def topbnv_fwlite(argv):
                                 ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother, gen.isLastCopy() )
                         for ndau in range(0,gen.numberOfDaughters()):
                             genOut += "daughter pdgid: %d   pt: %f  %f\n" % (gen.daughter(ndau).pdgId(), gen.daughter(ndau).pt(), gen.daughter(ndau).mother().pt())
-                        print genOut
+                        #print genOut
                     if gen.pdgId() == 6:
                         topQuark = gen
                         if found_top is False:
@@ -997,11 +1011,43 @@ def topbnv_fwlite(argv):
             if options.verbose:
             #if 1:
                 print ("Event has no good primary vertex.")
+            vertexX[0] = -999
+            vertexY[0] = -999
+            vertexZ[0] = -999
             return
         else:
             PV = vertices.product()[0]
+<<<<<<< HEAD
+            vertexX[0] = PV.x()
+            vertexY[0] = PV.y()
+	    vertexZ[0] = PV.z()
+	    if options.verbose:
+		print ("PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (PV.x(), PV.y(), PV.z(), PV.ndof()))
+
+		##   __________.__.__                        __________                     .__       .__     __  .__
+		##   \______   \__|  |   ____  __ ________   \______   \ ______  _  __ ____ |__| ____ |  |___/  |_|__| ____    ____
+		##    |     ___/  |  | _/ __ \|  |  \____ \   |       _// __ \ \/ \/ // __ \|  |/ ___\|  |  \   __\  |/    \  / ___\
+		##    |    |   |  |  |_\  ___/|  |  /  |_> >  |    |   \  ___/\     /\  ___/|  / /_/  >   Y  \  | |  |   |  \/ /_/  >
+		##    |____|   |__|____/\___  >____/|   __/   |____|_  /\___  >\/\_/  \___  >__\___  /|___|  /__| |__|___|  /\___  /
+		##                          \/      |__|             \/     \/            \/  /_____/      \/             \//_____/
+
+		'''
+		if not options.isData: # Is Monte Carlo
+		    # Need to make sure we read in the pileup reweighting info from another file. 
+		    # See original code from where we got this. 
+		    event.getByLabel(pileuplabel, pileups)
+
+		    TrueNumInteractions = 0
+		    if len(pileups.product())>0:
+			TrueNumInteractions = pileups.product()[0].getTrueNumInteractions()
+		    else:
+			print 'Event has no pileup information, setting TrueNumInteractions to 0.'
+=======
+            vertexX = PV.x()
+            vertexY = PV.y()
+            vertexZ = PV.z()
             if options.verbose:
-                print ("PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (PV.x(), PV.y(), PV.z(), PV.ndof()))
+                print ("PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (vertexX, vertexY, vertexZ, PV.ndof()))
 
         ##   __________.__.__                        __________                     .__       .__     __  .__
         ##   \______   \__|  |   ____  __ ________   \______   \ ______  _  __ ____ |__| ____ |  |___/  |_|__| ____    ____
@@ -1021,6 +1067,7 @@ def topbnv_fwlite(argv):
                 TrueNumInteractions = pileups.product()[0].getTrueNumInteractions()
             else:
                 print 'Event has no pileup information, setting TrueNumInteractions to 0.'
+>>>>>>> 07833e2613b18eb6fc8a3ad3979cde4990ee001f
 
             if not options.isData and not options.disablePileup:
                 puWeight = purw.GetBinContent( purw.GetXaxis().FindBin( TrueNumInteractions ) )
