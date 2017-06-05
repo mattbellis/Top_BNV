@@ -805,7 +805,7 @@ def topbnv_fwlite(argv):
                     ##### TO MAKE SURE WE DON'T WORRY ABOUT TOPS THAT ARE JUST
                     ##### PROPAGATING FROM THEMSELVES
                     #if options.verbose:
-                    if 1:
+                    if 0:
                         genOut = "" # For debugging
                         mother = -999
                         if gen.mother() != None:
