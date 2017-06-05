@@ -1021,7 +1021,7 @@ def topbnv_fwlite(argv):
             vertexY = PV.y()
             vertexZ = PV.z()
             if options.verbose:
-                print ("PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (PV.x(), PV.y(), PV.z(), PV.ndof()))
+                print ("PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (vertexX, vertexY, vertexZ, PV.ndof()))
 
         ##   __________.__.__                        __________                     .__       .__     __  .__
         ##   \______   \__|  |   ____  __ ________   \______   \ ______  _  __ ____ |__| ____ |  |___/  |_|__| ____    ____
