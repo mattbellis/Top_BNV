@@ -473,6 +473,20 @@ def topbnv_fwlite(argv):
         jetCHM = array('f', 16*[-1.])
         TreeSemiLept.Branch('jetCHM', jetCHM, 'jetCHM[njet]/F')
 
+
+
+        # Vertex stuff
+        vertexX = array('f',16*[-1.])
+        TreeSemiLept.Branch('vertexX', vertexX, 'vertexX[njet]/F')
+        vertexY = array('f',16*[-1.])
+        TreeSemiLept.Branch('vertexY', vertexY, 'vertexY[njet]/F')
+        vertexZ = array('f',16*[-1.])
+        TreeSemiLept.Branch('vertexZ', vertexZ, 'vertexZ[njet]/F')
+
+
+
+
+
         '''
         pats = ["muon"]
         attributes = ["n","pt","eta","phi","px","py","pz","e"]
@@ -997,9 +1011,15 @@ def topbnv_fwlite(argv):
             if options.verbose:
             #if 1:
                 print ("Event has no good primary vertex.")
+            vertexX = -999
+            vertexY = -999
+            vertexZ = -999
             return
         else:
             PV = vertices.product()[0]
+            vertexX = PV.x()
+            vertexY = PV.y()
+            vertexZ = PV.z()
             if options.verbose:
                 print ("PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (PV.x(), PV.y(), PV.z(), PV.ndof()))
 
