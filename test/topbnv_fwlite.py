@@ -49,11 +49,11 @@ jet_energy_resolution = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS
 #####################################################################################
 def createJEC(jecSrc, jecLevelList, jetAlgo):
     log = logging.getLogger('JEC')
-    log.info('Getting jet energy corrections for %s jets', %(jetAlgo))
+    log.info('Getting jet energy corrections for %s jets', jetAlgo)
     jecParameterList = ROOT.vector('JetCorrectorParameters')()
     # Load the different JEC levels (the order matters!)
     for jecLevel in jecLevelList:
-        log.debug('  - %s jet corrections', %(jecLevel))
+        log.debug('  - %s jet corrections', jecLevel)
         jecParameter = ROOT.JetCorrectorParameters('%s_%s_%s.txt' % (jecSrc, jecLevel, jetAlgo));
         #print jecParameter
         jecParameterList.push_back(jecParameter)
@@ -297,15 +297,15 @@ def topbnv_fwlite(argv):
 
         def bookFloatBranch(name, default):
             tmp = array('f', [default])
-            TreeSemiLept.Branch(name, tmp, '%s/F' %(name))
+            TreeSemiLept.Branch(name, tmp, '%s/F' %name)
             return tmp
         def bookIntBranch(name, default):
             tmp = array('i', [default])
-            TreeSemiLept.Branch(name, tmp, '%s/I' %(name))
+            TreeSemiLept.Branch(name, tmp, '%s/I' %name)
             return tmp
         def bookLongIntBranch(name, default):
             tmp = array('l', [default])
-            TreeSemiLept.Branch(name, tmp, '%s/L' %(name))
+            TreeSemiLept.Branch(name, tmp, '%s/L' %name)
             return tmp
 
         ##### OUR STUFF #####################
@@ -1060,7 +1060,6 @@ def topbnv_fwlite(argv):
             # Need to make sure we read in the pileup reweighting info from another file. 
             # See original code from where we got this. 
             event.getByLabel(pileuplabel, pileups)
-
             TrueNumInteractions = 0
             if len(pileups.product())>0:
                 TrueNumInteractions = pileups.product()[0].getTrueNumInteractions()
@@ -1070,7 +1069,7 @@ def topbnv_fwlite(argv):
             if not options.isData and not options.disablePileup:
                 puWeight = purw.GetBinContent( purw.GetXaxis().FindBin( TrueNumInteractions ) )
                 evWeight *= puWeight
-        '''
+		
 
         ## __________.__             ____   ____      .__
         ## \______   \  |__   ____   \   \ /   /____  |  |  __ __   ____
@@ -1089,7 +1088,6 @@ def topbnv_fwlite(argv):
             if options.verbose:
                 print ('rho = {0:6.2f}'.format( rho ))
 
-
         #print("F")
 
         ## .____                  __                    _________      .__                 __  .__
@@ -1104,7 +1102,7 @@ def topbnv_fwlite(argv):
         event.getByLabel( electronLabel, electrons )
 
         #print("H")
-
+	
 
         #print("I")
         # Select tight good muons
@@ -1148,10 +1146,10 @@ def topbnv_fwlite(argv):
             for i,electron in enumerate( electrons.product() ):
                 #print type(electron),"\n",electron
                 #print type(event),"\n",event
-                passTight = selectElectron( electron, event )
+		passTight = selectElectron( electron, event )
                 if electron.pt() > options.minElectronPt and abs(electron.eta()) < options.maxElectronEta \
                     and passTight:
-                    goodelectrons.append( electron )
+		    goodelectrons.append( electron )
                     if options.verbose:
                         print ("elec %2d: pt %4.1f, supercluster eta %+5.3f, phi %+5.3f sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d" % \
                             ( i, electron.pt(), electron.superCluster().eta(), electron.phi(), electron.sigmaIetaIeta(), electron.full5x5_sigmaIetaIeta(), electron.passConversionVeto()))
