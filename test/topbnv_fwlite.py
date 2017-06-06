@@ -829,7 +829,7 @@ def topbnv_fwlite(argv):
                         for ndau in range(0,gen.numberOfDaughters()):
                             genOut += "daughter pdgid: %d   pt: %f  %f\n" % (gen.daughter(ndau).pdgId(), gen.daughter(ndau).pt(), gen.daughter(ndau).mother().pt())
                         #print genOut
-                    if gen.pdgId() == 6:
+                    if gen.pdgId() == 6 and gen.isLastCopy():
                         topQuark = gen
                         if found_top is False:
 
@@ -878,7 +878,7 @@ def topbnv_fwlite(argv):
 
                                 wpenergy = d1.energy() # For matching
 
-                    elif gen.pdgId() == -6:
+                    elif gen.pdgId() == -6 and gen.isLastCopy():
                         antitopQuark = gen
                         if found_antitop is False:
                             found_antitop  = True
@@ -927,8 +927,8 @@ def topbnv_fwlite(argv):
 
                                 wmenergy = d1.energy() # For matching
 
-                    elif gen.pdgId() == 24 and \
-                            (gen.mother().pdgId()==6 or (gen.mother().pdgId()==24 and abs(gen.energy()-wpenergy)< 10)):
+                    elif gen.pdgId() == 24 and gen.isLastCopy() and \
+                            (gen.mother().pdgId()==6 and abs(gen.energy()-wpenergy)< 10):
                         if gen.numberOfDaughters()==2:
                             d0 = gen.daughter(0)
                             d1 = gen.daughter(1)
@@ -954,8 +954,8 @@ def topbnv_fwlite(argv):
                                 tdecayflag = 1
 
                     #elif gen.pdgId() == -24 and gen.mother().pdgId()==-6:
-                    elif gen.pdgId() == -24 and \
-                            (gen.mother().pdgId()==-6 or (gen.mother().pdgId()==-24 and abs(gen.energy()-wmenergy)< 10)):
+                    elif gen.pdgId() == -24 and gen.isLastCopy() and \
+                            (gen.mother().pdgId()==-6 and abs(gen.energy()-wmenergy)< 10):
                         if gen.numberOfDaughters()==2:
                             d0 = gen.daughter(0)
                             d1 = gen.daughter(1)
