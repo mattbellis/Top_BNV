@@ -22,13 +22,13 @@ def invmass(p4):
 
 f = ROOT.TFile(sys.argv[1])
 tree = f.Get("TreeSemiLept")
-
+'''
 #print("In the file...")
 f.ls()
 #print("In the TTree...")
 tree.Print()
 #exit()
-
+'''
 nentries = tree.GetEntries()
 
 topPT = []
@@ -241,50 +241,57 @@ plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
     plt.xlabel(pltLabels[j],fontsize=18)
-    lch.hist_err(diffs[j],bins=125,range=(-50,50))
+    lch.hist_err(diffs[j],bins=125,range=(-1,1))
     plt.tight_layout()
+plt.suptitle('Top')
+plt.subplots_adjust(top = 0.88)
 
 #Tbar
 plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
-    plt.xlabel(pltLabels[j],fontsize=18)
-    lch.hist_err(diffsBar[j],bins=125,range=(-50,50))
+    plt.xlabel(pltLabels[j] + 'tbar',fontsize=18)
+    lch.hist_err(diffsBar[j],bins=125,range=(-1,1))
     plt.tight_layout()
+plt.suptitle('tbar')
+plt.subplots_adjust(top = 0.88)
 
 #W q q 
 plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
-    plt.xlabel(pltLabels[j],fontsize=18)
-    lch.hist_err(Wdiffs[j],bins=125,range=(-2.5,2.5))
+    plt.xlabel(pltLabels[j] + 'W q q',fontsize=18)
+    lch.hist_err(Wdiffs[j],bins=125,range=(-1,1))
     plt.tight_layout()
+plt.suptitle('W q q')
+plt.subplots_adjust(top = 0.88)
 
 #W mu nu
 plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
-    plt.xlabel(pltLabels[j],fontsize=18)
-    lch.hist_err(WdiffsM[j],bins=125,range=(-2.5,2.5))
+    plt.xlabel(pltLabels[j]+'W mu nu',fontsize=18)
+    lch.hist_err(WdiffsM[j],bins=125,range=(-1,1))
     plt.tight_layout()
+plt.suptitle('W mu nu')
+plt.subplots_adjust(top = 0.88)
 
-
-'''
 pltTitles2 = ["Mass Top", "Mass W", "Mass B"]
 plt.figure()
+ranges = [[160,180],[70,90],[4.5,5]]
 for j in range(0,3):
     plt.subplot(2,2,j+1)
-    plt.hist(masses[j],bins=25)
+    lch.hist_err(masses[j],bins=25,range=(ranges[j][0],ranges[j][1]))
     plt.title(pltTitles2[j])
 plt.tight_layout()
 
 plt.figure()
 for j in range(3,6):
     plt.subplot(2,2,j-2)
-    plt.hist(masses[j],bins=25)
+    lch.hist_err(masses[j],bins=25,range=(ranges[j-3][0],ranges[j-3][1]))
     plt.title(pltTitles2[j-3] + " tbar")
 plt.tight_layout()
-
+'''
 plt.figure()
 plt.title("Top PT")
 plt.hist(topPT,bins = 25)
@@ -292,14 +299,14 @@ plt.hist(topPT,bins = 25)
 plt.figure()
 plt.title("TBar PT")
 plt.hist(tbarPT,bins = 25)
-'''
+
 
 print(len(muonPT))
 plt.figure()
 plt.title("Muon PT")
 lch.hist_err(muonPT,bins = 100)
 plt.xlabel(r"Muon p$_T$ (GeV/c)",fontsize=18)
-
+'''
 plt.show()
 
 
