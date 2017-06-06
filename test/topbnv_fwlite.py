@@ -1017,12 +1017,11 @@ def topbnv_fwlite(argv):
             return
         else:
             PV = vertices.product()[0]
-<<<<<<< HEAD
             vertexX[0] = PV.x()
             vertexY[0] = PV.y()
-	    vertexZ[0] = PV.z()
-	    if options.verbose:
-		print ("PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (PV.x(), PV.y(), PV.z(), PV.ndof()))
+            vertexZ[0] = PV.z()
+        if options.verbose:
+            print ("PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (PV.x(), PV.y(), PV.z(), PV.ndof()))
 
 		##   __________.__.__                        __________                     .__       .__     __  .__
 		##   \______   \__|  |   ____  __ ________   \______   \ ______  _  __ ____ |__| ____ |  |___/  |_|__| ____    ____
@@ -1031,8 +1030,8 @@ def topbnv_fwlite(argv):
 		##    |____|   |__|____/\___  >____/|   __/   |____|_  /\___  >\/\_/  \___  >__\___  /|___|  /__| |__|___|  /\___  /
 		##                          \/      |__|             \/     \/            \/  /_____/      \/             \//_____/
 
-		'''
-		if not options.isData: # Is Monte Carlo
+        '''
+        if not options.isData: # Is Monte Carlo
 		    # Need to make sure we read in the pileup reweighting info from another file. 
 		    # See original code from where we got this. 
 		    event.getByLabel(pileuplabel, pileups)
@@ -1066,8 +1065,7 @@ def topbnv_fwlite(argv):
             if len(pileups.product())>0:
                 TrueNumInteractions = pileups.product()[0].getTrueNumInteractions()
             else:
-                print 'Event has no pileup information, setting TrueNumInteractions to 0.'
->>>>>>> 07833e2613b18eb6fc8a3ad3979cde4990ee001f
+                print('Event has no pileup information, setting TrueNumInteractions to 0.')
 
             if not options.isData and not options.disablePileup:
                 puWeight = purw.GetBinContent( purw.GetXaxis().FindBin( TrueNumInteractions ) )
