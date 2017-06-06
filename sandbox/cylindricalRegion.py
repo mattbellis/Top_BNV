@@ -51,7 +51,7 @@ plt.figure()
 ax = plt.axes(projection = '3d')
 ax.scatter(x,y,z,c='r')
 #ax.scatter(notx,noty,notz,c='b')
-plt.show()
+#plt.show()
 
 plt.figure()
 plt.plot(x,y, '.',alpha=0.1)
