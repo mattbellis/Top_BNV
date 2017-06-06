@@ -49,11 +49,11 @@ jet_energy_resolution = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS
 #####################################################################################
 def createJEC(jecSrc, jecLevelList, jetAlgo):
     log = logging.getLogger('JEC')
-    log.info('Getting jet energy corrections for %s jets', jetAlgo)
+    log.info('Getting jet energy corrections for %s jets', %(jetAlgo))
     jecParameterList = ROOT.vector('JetCorrectorParameters')()
     # Load the different JEC levels (the order matters!)
     for jecLevel in jecLevelList:
-        log.debug('  - %s jet corrections', jecLevel)
+        log.debug('  - %s jet corrections', %(jecLevel))
         jecParameter = ROOT.JetCorrectorParameters('%s_%s_%s.txt' % (jecSrc, jecLevel, jetAlgo));
         #print jecParameter
         jecParameterList.push_back(jecParameter)
@@ -297,15 +297,15 @@ def topbnv_fwlite(argv):
 
         def bookFloatBranch(name, default):
             tmp = array('f', [default])
-            TreeSemiLept.Branch(name, tmp, '%s/F' % name)
+            TreeSemiLept.Branch(name, tmp, '%s/F' %(name))
             return tmp
         def bookIntBranch(name, default):
             tmp = array('i', [default])
-            TreeSemiLept.Branch(name, tmp, '%s/I' % name)
+            TreeSemiLept.Branch(name, tmp, '%s/I' %(name))
             return tmp
         def bookLongIntBranch(name, default):
             tmp = array('l', [default])
-            TreeSemiLept.Branch(name, tmp, '%s/L' % name)
+            TreeSemiLept.Branch(name, tmp, '%s/L' %(name))
             return tmp
 
         ##### OUR STUFF #####################
