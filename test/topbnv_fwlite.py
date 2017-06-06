@@ -1060,7 +1060,7 @@ def topbnv_fwlite(argv):
             # Need to make sure we read in the pileup reweighting info from another file. 
             # See original code from where we got this. 
             event.getByLabel(pileuplabel, pileups)
-
+            print('made it')
             TrueNumInteractions = 0
             if len(pileups.product())>0:
                 TrueNumInteractions = pileups.product()[0].getTrueNumInteractions()
