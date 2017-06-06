@@ -1150,6 +1150,10 @@ def topbnv_fwlite(argv):
                 if electron.pt() > options.minElectronPt and abs(electron.eta()) < options.maxElectronEta \
                     and passTight:
 		    goodelectrons.append( electron )
+		    elec = electron.electronIDs()
+		    #print('New set')
+		    for i in range(len(elec)):
+                    	print(elec[i][0], elec[i][1])
                     if options.verbose:
                         print ("elec %2d: pt %4.1f, supercluster eta %+5.3f, phi %+5.3f sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d" % \
                             ( i, electron.pt(), electron.superCluster().eta(), electron.phi(), electron.sigmaIetaIeta(), electron.full5x5_sigmaIetaIeta(), electron.passConversionVeto()))
@@ -1157,7 +1161,9 @@ def topbnv_fwlite(argv):
         #print("K")
         nelectron[0] = len(goodelectrons)
         for i,m in enumerate(goodelectrons):
-            if i<16:
+	    goodelecID = m.electronIDs()
+	    print(len(goodelecID))
+	    if i<16:
                 electronpt[i] = m.pt()
                 electroneta[i] = m.eta()
                 electronphi[i] = m.phi()
@@ -1166,7 +1172,8 @@ def topbnv_fwlite(argv):
                 electronpy[i] = m.py()
                 electronpz[i] = m.pz()
                 electronq[i] = m.charge()
-                #pfe  = m.isolationVariables03()
+                
+		#pfe  = m.isolationVariables03()
                 #electronchiso[i] = pfe.chargedHadronIso
                 #electronnhiso[i] = pfe.neutralHadronIso
                 #electronphotiso[i] = pfe.photonIso
