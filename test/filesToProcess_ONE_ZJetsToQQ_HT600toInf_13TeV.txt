@@ -1,0 +1,1 @@
+/uscms/home/mbellis/eos_store/ZJetsToQQ_HT600toInf_13TeV-madgraph/crab_bellis_ZJetsToQQ_slim_MC/170605_204912/0000/top_slimmmed_files_MC_ttbar_10.root
