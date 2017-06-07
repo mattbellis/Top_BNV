@@ -399,6 +399,12 @@ def topbnv_fwlite(argv):
         TreeSemiLept.Branch('electronpz', electronpz, 'electronpz[nelectron]/F')
         electrone = array('f', 16*[-1.])
         TreeSemiLept.Branch('electrone', electrone, 'electrone[nelectron]/F')
+	electronTkIso = array('f',16*[-1.])
+	TreeSemiLept.Branch('electronTkIso', electronTkIso, 'electronTkIso[nelectron]/F')
+	electronHCIso = array('f',16*[-1.])
+	TreeSemiLept.Branch('electronHCIso', electronHCIso, 'electronHCIso[nelectron]/F')
+	electronECIso = array('f',16*[-1.])
+	TreeSemiLept.Branch('electronECIso', electronECIso, 'electronECIso[nelectron]/F')
 
         #electronchiso = array('f', 16*[-1.])
         #TreeSemiLept.Branch('electronchiso', electronchiso, 'electronchiso[nelectron]/F')
@@ -1150,10 +1156,10 @@ def topbnv_fwlite(argv):
                 if electron.pt() > options.minElectronPt and abs(electron.eta()) < options.maxElectronEta \
                     and passTight:
 		    goodelectrons.append( electron )
-		    elec = electron.electronIDs()
+		    #elec = electron.electronIDs()
 		    #print('New set')
-		    for i in range(len(elec)):
-                    	print(elec[i][0], elec[i][1])
+		    #for i in range(len(elec)):
+                    #	print(elec[i][0], elec[i][1])
                     if options.verbose:
                         print ("elec %2d: pt %4.1f, supercluster eta %+5.3f, phi %+5.3f sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d" % \
                             ( i, electron.pt(), electron.superCluster().eta(), electron.phi(), electron.sigmaIetaIeta(), electron.full5x5_sigmaIetaIeta(), electron.passConversionVeto()))
@@ -1161,8 +1167,8 @@ def topbnv_fwlite(argv):
         #print("K")
         nelectron[0] = len(goodelectrons)
         for i,m in enumerate(goodelectrons):
-	    goodelecID = m.electronIDs()
-	    print(len(goodelecID))
+	    #goodelecID = m.electronIDs()
+	    #print(len(goodelecID))
 	    if i<16:
                 electronpt[i] = m.pt()
                 electroneta[i] = m.eta()
@@ -1172,7 +1178,9 @@ def topbnv_fwlite(argv):
                 electronpy[i] = m.py()
                 electronpz[i] = m.pz()
                 electronq[i] = m.charge()
-                
+                electronTkIso[i] = m.dr03TkSumPt()
+		electronHCIso[i] = m.dr03HcalTowerSumEt()
+		electronECIso[i] = m.dr03EcalRecHitSumEt()
 		#pfe  = m.isolationVariables03()
                 #electronchiso[i] = pfe.chargedHadronIso
                 #electronnhiso[i] = pfe.neutralHadronIso
