@@ -42,6 +42,11 @@ config.section_("Data")
 #config.Data.inputDataset = '/ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM'
 
 # Z + Jets - Q Q
+# THIS DOESN'T SEEM TO WORK 
+# After we slim, we try to process, but the trigger information doesn't seem to be there. 
+# RuntimeError: getByLabel (edm::TriggerResults, 'TriggerResults', '', 'HLT') failed
+# Could this have something to do with the RAWAODSIM in the file designation?
+# Passing on this for now. 
 #config.Data.inputDataset = '/ZJetsToQQ_HT600toInf_13TeV-madgraph/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM'
 
 # Single Top
