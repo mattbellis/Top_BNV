@@ -86,7 +86,6 @@ for i in range(nentries):
         if(numIso==1 and onemuoniso<=0.15):
             # Electron Veto
             
-
             # Jet stuff
             if(njets >= 4):
                 jetp4s = []

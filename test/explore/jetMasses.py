@@ -48,5 +48,5 @@ for i in range(nentries):
                 tops.append(top)
 plt.figure()
 lch.hist_err(tops,bins = 200)
-plt.xlabel("Inv mass of 3 jets $(GeV/c^2)$")
+plt.xlabel("Inv mass of 2 jets $(GeV/c^2)$")
 plt.show()
