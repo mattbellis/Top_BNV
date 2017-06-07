@@ -731,6 +731,10 @@ def topbnv_fwlite(argv):
             #print "\n === TRIGGER PATHS ==="
 
         # Check the names of the triggers to see if any of "our" trigger fired
+        #print("Debugging....")
+        #print(triggerBits)
+        #print(triggerBits.product())
+        #print(triggerNames(triggerBits.product()))
         names = event.object().triggerNames(triggerBits.product())
 
         # Get list of triggers that fired

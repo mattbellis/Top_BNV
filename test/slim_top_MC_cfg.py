@@ -38,7 +38,7 @@ process.out = cms.OutputModule("PoolOutputModule",
                 'keep *_slimmedAddPileupInfo__*', \
                 'keep *_offlineSlimmedPrimaryVertices__*', \
                 'keep *_prunedGenParticles__*',  # This will be Feynman-level particles. Not jets. \
-                'keep *_packedGenParticles__*',  # This will be Feynman-level particles. MAYBE? \
+                #'keep *_packedGenParticles__*',  # This will be Feynman-level particles. MAYBE? \
                 'keep *_slimmedGenJets__*',  # Generated jets. \
                 'keep *_generator__*',  # Used for event weights \
                 'keep *_TriggerResults__*', \
