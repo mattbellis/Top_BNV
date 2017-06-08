@@ -22,7 +22,7 @@ tree = f.Get("TreeSemiLept")
 nentries = tree.GetEntries()
 
 for i in range(nentries):
-	if i % 100 = 0:
+	if i % 100 == 0:
 		print(i)
 		
 	#Jets
@@ -50,7 +50,7 @@ for i in range(nentries):
 	if njets >= 3 and len(btagJets) >= 1:
 		for j1 in range(0,len(jets)-1):
 			for j2 in range(1,len(jets)):
-				W = invmass([jets[j1],jets[j2])
+				W = invmass([jets[j1],jets[j2]])
 				if W >= 65 and W <= 95:
 					for b in btagJets:
 						top = invmass([jets[j1],jets[j2],b])
