@@ -35,6 +35,8 @@ for i in range(nentries):
     
     tree.GetEntry(i)
 
+    leptonic = False
+
 	#Jets
     jets = []
     btagJets = []
@@ -45,35 +47,7 @@ for i in range(nentries):
     jete = tree.jetjece
     jeteta = tree.jetjeceta
     jetphi = tree.jetjecphi
-
-    for j in range(njets):
-        jetx, jety, jetz = PTtoXYZ(jetpt[j],jeteta[j],jetphi[j])
-        jet = [jete[j],jetx,jety,jetz]
-        if btag[j] >= .84 and jetpt[j] >= 30:
-            btagJets.append(jet)
-        elif jetpt[j] >= 30:
-            jets.append(jet)
     
-    #print('btag',len(btagJets))
-    #print(njets)
-
-    # At least 3 jets, including a btag
-    if njets >= 3 and len(btagJets) >= 1:
-        #print('made it')
-        for j1 in range(0,len(jets)-1):
-            for j2 in range(1,len(jets)):
-                W = invmass([jets[j1],jets[j2]])
-                #print('w',W)
-                #print(j1,j2)
-                if W >= 65 and W <= 95:
-                    for b in btagJets:
-                        top = invmass([jets[j1],jets[j2],b])
-                        #print(top)
-                        #if top >= 160 and top <= 190:
-                        topCandidatesH.append([jets[j1],jets[j2],b])
-                        wCandidatesH.append([jets[j1],jets[j2]])
-							
-	
 	# MET
     metpt = tree.metpt
     mete = tree.mete
@@ -101,11 +75,13 @@ for i in range(nentries):
     isoH = tree.electronHCIso
     isoE = tree.electronECIso
 	
-    # Check if there was a possible hadronic decay, then check for leptonic
-    #if len(topCandidatesH) >= 1:
-    # Leptonic decay needs an isolated lepton, btag jet and missing ET
-    # Missing ET and lepton should be a wCandidate							
-    
+    for j in range(njets):
+        jetx, jety, jetz = PTtoXYZ(jetpt[j],jeteta[j],jetphi[j])
+        jet = [jete[j],jetx,jety,jetz]
+        if btag[j] >= .84 and jetpt[j] >= 30:
+            btagJets.append(jet)
+        elif jetpt[j] >= 30:
+            jets.append(jet)
     
     metx,mety,metz = PTtoXYZ(metpt,meteta,metphi)
     MET = [mete,metx,mety,metz]
@@ -164,6 +140,7 @@ for i in range(nentries):
                         topCandidatesM.append([MET,muon,b])
                         wCandidatesM.append([MET,muon])
                         topCandidatesL.append([MET,muon,b])
+                        leptonic = True
     for e in range(nelectrons):
         elecptF = float(elecpt[e])
         if(abs(elecptF) > 30):
@@ -183,6 +160,54 @@ for i in range(nentries):
                         topCandidatesE.append([MET,electron,b])
                         wCandidatesE.append([MET,electron])
                         topCandidatesL.append([MET,electron,b])
+                        leptonic = True
+    
+    
+    
+    ''' 
+    if leptonic:        
+            
+        #print('btag',len(btagJets))
+        #print(njets)
+    
+        # At least 3 jets, including a btag
+        if njets >= 3 and len(btagJets) >= 1:
+            #print('made it')
+            for j1 in range(0,len(jets)-1):
+                for j2 in range(1,len(jets)):
+                    W = invmass([jets[j1],jets[j2]])
+                    #print('w',W)
+                    #print(j1,j2)
+                    if W >= 65 and W <= 95:
+                        for b in btagJets:
+                            top = invmass([jets[j1],jets[j2],b])
+                            #print(top)
+                            #if top >= 160 and top <= 190:
+                            topCandidatesH.append([jets[j1],jets[j2],b])
+                            wCandidatesH.append([jets[j1],jets[j2]])
+							
+    '''
+    
+    #print('btag',len(btagJets))
+    #print(njets)
+
+    # At least 3 jets, including a btag
+    if njets >= 3 and len(btagJets) >= 1:
+        #print('made it')
+        for j1 in range(0,len(jets)-1):
+            for j2 in range(1,len(jets)):
+                W = invmass([jets[j1],jets[j2]])
+                #print('w',W)
+                #print(j1,j2)
+                if W >= 65 and W <= 95:
+                    for b in btagJets:
+                        top = invmass([jets[j1],jets[j2],b])
+                        #print(top)
+                        #if top >= 160 and top <= 190:
+                        topCandidatesH.append([jets[j1],jets[j2],b])
+                        wCandidatesH.append([jets[j1],jets[j2]])
+	
+    
 Hmasses = []
 Mmasses = []
 Emasses = []
@@ -209,3 +234,4 @@ lch.hist_err(Lmasses, bins = 100, range = (150,200), color = 'yellow', label = '
 #lch.hist_err(Mmasses, bins = 200, range = (150,200), color = 'black', label = 'Semileptonic Electron')
 plt.legend()
 plt.show()
+
