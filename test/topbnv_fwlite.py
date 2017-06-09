@@ -399,12 +399,12 @@ def topbnv_fwlite(argv):
         TreeSemiLept.Branch('electronpz', electronpz, 'electronpz[nelectron]/F')
         electrone = array('f', 16*[-1.])
         TreeSemiLept.Branch('electrone', electrone, 'electrone[nelectron]/F')
-	electronTkIso = array('f',16*[-1.])
-	TreeSemiLept.Branch('electronTkIso', electronTkIso, 'electronTkIso[nelectron]/F')
-	electronHCIso = array('f',16*[-1.])
-	TreeSemiLept.Branch('electronHCIso', electronHCIso, 'electronHCIso[nelectron]/F')
-	electronECIso = array('f',16*[-1.])
-	TreeSemiLept.Branch('electronECIso', electronECIso, 'electronECIso[nelectron]/F')
+	    electronTkIso = array('f',16*[-1.])
+    	TreeSemiLept.Branch('electronTkIso', electronTkIso, 'electronTkIso[nelectron]/F')
+    	electronHCIso = array('f',16*[-1.])
+    	TreeSemiLept.Branch('electronHCIso', electronHCIso, 'electronHCIso[nelectron]/F')
+    	electronECIso = array('f',16*[-1.])
+    	TreeSemiLept.Branch('electronECIso', electronECIso, 'electronECIso[nelectron]/F')
 
         #electronchiso = array('f', 16*[-1.])
         #TreeSemiLept.Branch('electronchiso', electronchiso, 'electronchiso[nelectron]/F')
@@ -1174,21 +1174,21 @@ def topbnv_fwlite(argv):
 	    #goodelecID = m.electronIDs()
 	    #print(len(goodelecID))
 	    if i<16:
-                electronpt[i] = m.pt()
-                electroneta[i] = m.eta()
-                electronphi[i] = m.phi()
-                electrone[i] = m.energy()
-                electronpx[i] = m.px()
-                electronpy[i] = m.py()
-                electronpz[i] = m.pz()
-                electronq[i] = m.charge()
-                electronTkIso[i] = m.dr03TkSumPt()
-		        electronHCIso[i] = m.dr03HcalTowerSumEt()
-		        electronECIso[i] = m.dr03EcalRecHitSumEt()
-		#pfe  = m.isolationVariables03()
-                #electronchiso[i] = pfe.chargedHadronIso
-                #electronnhiso[i] = pfe.neutralHadronIso
-                #electronphotiso[i] = pfe.photonIso
+            electronpt[i] = m.pt()
+            electroneta[i] = m.eta()
+            electronphi[i] = m.phi()
+            electrone[i] = m.energy()
+            electronpx[i] = m.px()
+            electronpy[i] = m.py()
+            electronpz[i] = m.pz()
+            electronq[i] = m.charge()
+            electronTkIso[i] = m.dr03TkSumPt()
+            #electronHCIso[i] = m.dr03HcalTowerSumEt()
+            #electronECIso[i] = m.dr03EcalRecHitSumEt()
+            #pfe  = m.isolationVariables03()
+            #electronchiso[i] = pfe.chargedHadronIso
+            #electronnhiso[i] = pfe.neutralHadronIso
+            #electronphotiso[i] = pfe.photonIso
         #'''
 
         # Veto on dilepton events
