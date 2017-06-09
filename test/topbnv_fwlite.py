@@ -1183,8 +1183,8 @@ def topbnv_fwlite(argv):
                 electronpz[i] = m.pz()
                 electronq[i] = m.charge()
                 electronTkIso[i] = m.dr03TkSumPt()
-		electronHCIso[i] = m.dr03HcalTowerSumEt()
-		electronECIso[i] = m.dr03EcalRecHitSumEt()
+		        electronHCIso[i] = m.dr03HcalTowerSumEt()
+		        electronECIso[i] = m.dr03EcalRecHitSumEt()
 		#pfe  = m.isolationVariables03()
                 #electronchiso[i] = pfe.chargedHadronIso
                 #electronnhiso[i] = pfe.neutralHadronIso
