@@ -1,7 +1,7 @@
 import ROOT, sys
 import numpy as np
 import matplotlib.pylab as plt
-import lichen.lichen as lch
+#import lichen.lichen as lch
 from PttoXYZ import PTtoXYZ
 
 def invmass(p4s):
@@ -203,8 +203,8 @@ for i in range(len(topCandidatesM)):
 
 
 plt.figure()
-lch.hist_err(Hmasses, bins = 100, range = (150,200), color = 'red', label = 'Hadronic')
-lch.hist_err(Lmasses, bins = 100, range = (150,200), color = 'yellow', label = 'Leptonic')
+plt.hist(Hmasses, bins = 100, range = (150,200), color = 'red', label = 'Hadronic')
+plt.hist(Lmasses, bins = 100, range = (150,200), color = 'yellow', label = 'Leptonic')
 #lch.hist_err(Emasses, bins = 200, range = (150,200), color = 'blue', label = 'Semileptonic Muon')
 #lch.hist_err(Mmasses, bins = 200, range = (150,200), color = 'black', label = 'Semileptonic Electron')
 plt.legend()

@@ -1,8 +1,8 @@
 import ROOT, sys
 import numpy as np
 import matplotlib.pylab as plt
-import lichen.lichen as lch
-import math as m
+#import lichen.lichen as lch
+import math as math
 from PttoXYZ import PTtoXYZ
 
 def invmass(p4s):
@@ -19,8 +19,8 @@ def invmass(p4s):
 
 def XYZtoPT(x,y,z):
     pt = x**2 + y**2
-    eta = -m.log(m.tan(m.atan(pt/z)/2.0))
-    phi = m.acos(x/pt)
+    eta = -math.log(math.tan(math.atan(abs(pt/z))/2.0))
+    phi = math.acos(x/pt)
     return pt,eta,phi
 
 f = ROOT.TFile(sys.argv[1])
@@ -281,8 +281,8 @@ Emasses = []
 Lmasses = []
 
 for i in range(len(topCandidatesH)):
-    Hmasses.append(invmass(topCandidatesH[i]))
-    #print(invmass(topCandidatesH[i]))
+	Hmasses.append(invmass(topCandidatesH[i]))
+#print(invmass(topCandidatesH[i]))
 #print(len(Hmasses))
 for i in range(len(topCandidatesE)):
 	Emasses.append(invmass(topCandidatesE[i]))
@@ -295,8 +295,8 @@ for i in range(len(topCandidatesM)):
 
 
 plt.figure()
-lch.hist_err(Hmasses, bins = 100, range = (150,200), color = 'red', label = 'Hadronic')
-lch.hist_err(Lmasses, bins = 100, range = (150,200), color = 'yellow', label = 'Leptonic')
+plt.hist(Hmasses, bins = 100, range = (150,200), color = 'red', label = 'Hadronic')
+plt.hist(Lmasses, bins = 100, range = (150,200), color = 'yellow', label = 'Leptonic')
 #lch.hist_err(Emasses, bins = 200, range = (150,200), color = 'blue', label = 'Semileptonic Muon')
 #lch.hist_err(Mmasses, bins = 200, range = (150,200), color = 'black', label = 'Semileptonic Electron')
 plt.legend()
