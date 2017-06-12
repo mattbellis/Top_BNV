@@ -1,6 +1,7 @@
 import ROOT, sys
 import numpy as np
 import matplotlib.pylab as plt
+plt.use('TkAgg', warn=False)
 #import lichen.lichen as lch
 import math as math
 from PttoXYZ import PTtoXYZ
