@@ -1,7 +1,6 @@
 import ROOT, sys
 import numpy as np
 import matplotlib.pylab as plt
-plt.use('TkAgg', warn=False)
 #import lichen.lichen as lch
 import math as math
 from PttoXYZ import PTtoXYZ
@@ -264,7 +263,7 @@ for i in range(nentries):
     wc2mpdg = tree.genpdg[8] 
     #wc2m[1],wc2m[2],wc2m[3] = PTtoXYZ(wc2m[1],wc2m[2],wc2m[3])
    
-    if wc1pdg == 11 or wc1mpdg == -11 or wc1pdg == 11 or wc2pdg == -11:
+    if abs(wc1pdg) == 11 or abs(wc1mpdg) == 11 or abs(wc1pdg) == 11 or abs(wc2pdg) == 11:
         for l in range(len(topCandidatesE)):
             electron = topCandidatesE[l][1]
             electrone, electronx, electrony, electronz = electron
