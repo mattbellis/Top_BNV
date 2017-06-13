@@ -75,7 +75,55 @@ for entry in range(nentries):
     eleciso = tree.electronTkIso
     isoH = tree.electronHCIso
     isoE = tree.electronECIso
+
+    # MC Truth
+    b = [0.,0.,0.,0.]
+    bb = [0.,0.,0.,0.]
+    wc1 = [0.,0.,0.,0.]
+    wc2 = [0.,0.,0.,0.]
+    wc1m = [0.,0.,0.,0.]
+    wc2m = [0.,0.,0.,0.]
+
+    b[0] = tree.gene[1]
+    b[1] = tree.genpt[1]
+    b[2] = tree.geneta[1]
+    b[3] = tree.genphi[1]
+    #b[1],b[2],b[3] = PTtoXYZ(b[1],b[2],b[3])
+
+    bb[0] = tree.gene[6]
+    bb[1] = tree.genpt[6]
+    bb[2] = tree.geneta[6]
+    bb[3] = tree.genphi[6]
+    #bb[1],bb[2],bb[3] = PTtoXYZ(bb[1],bb[2],bb[3])
+
+    wc1[0] = tree.gene[4]
+    wc1[1] = tree.genpt[4]
+    wc1[2] = tree.geneta[4]
+    wc1[3] = tree.genphi[4]
+    wc1pdg = tree.genpdg[4] 
+    #wc1[1],wc1[2],wc1[3] = PTtoXYZ(wc1[1],wc1[2],wc1[3])
     
+    wc2[0] = tree.gene[3]
+    wc2[1] = tree.genpt[3]
+    wc2[2] = tree.geneta[3]
+    wc2[3] = tree.genphi[3]
+    wc2pdg = tree.genpdg[3] 
+    #wc2[1],wc2[2],wc2[3] = PTtoXYZ(wc2[1],wc2[2],wc2[3])
+
+    wc1m[0] = tree.gene[9]
+    wc1m[1] = tree.genpt[9]
+    wc1m[2] = tree.geneta[9]
+    wc1m[3] = tree.genphi[9]
+    wc1mpdg = tree.genpdg[9] 
+    #wc1m[1],wc1m[2],wc1m[3] = PTtoXYZ(wc1m[1],wc1m[2],wc1m[3])
+    
+    wc2m[0] = tree.gene[8]
+    wc2m[1] = tree.genpt[8]
+    wc2m[2] = tree.geneta[8]
+    wc2m[3] = tree.genphi[8]
+    wc2mpdg = tree.genpdg[8] 
+    #wc2m[1],wc2m[2],wc2m[3] = PTtoXYZ(wc2m[1],wc2m[2],wc2m[3])
+
     # Isolation Calculations
     muIso = []
     elecIso = []
@@ -91,6 +139,7 @@ for entry in range(nentries):
             muIso.append(iso)
             if iso <= .12:
                 nummuIso += 1
+                isolatedMuon = [muone[mu],muonpt[mu],muoneta[mu],muonphi[mu]]
             elif iso <= .2:
                 nummuLoose += 1
 
@@ -102,6 +151,7 @@ for entry in range(nentries):
             elecIso.append([isovare,isovarb])
             if isovarb <= .10:
                 numelecIso += 1
+                isolatedElectron = [elece[elec],elecpt[elec],eleceta[elec],elecphi[elec]]
             elif isovarb <= .2:
                 numelecLoose += 1
 
@@ -136,6 +186,9 @@ for entry in range(nentries):
                     for jet in range(njets):
                         if btag[jet] >= .84:
                             elecCut += 1
+
+                            
+
 
 
 print(elecCut)

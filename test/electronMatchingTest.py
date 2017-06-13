@@ -1,6 +1,6 @@
 import ROOT,sys
 import numpy as np
-import matplotlib as plt
+import matplotlib.pylab as plt
 import math as math
 from PttoXYZ import PTtoXYZ
 
@@ -27,7 +27,9 @@ tree = f.Get("TreeSemiLept")
 
 nentries = tree.GetEntries()
 rightelectron = 0
-
+total = 0
+count = 0
+differences = []
 
 for i in range(nentries):
 
@@ -107,29 +109,46 @@ for i in range(nentries):
                 if(abs(wc1pdg) == 11):
                     #print(wc1pdg)
                     #print('wc1',wc1[1])
-                    if(abs(elecpt[j]) - wc1[1]) <= 1:
+                    #if(abs(elecpt[j]) - wc1[1]) <= 1:
                         #print('right electron')
-                        rightelectron += 1
+                        #rightelectron += 1
+                    differences.append(abs(elecpt[j] - wc1[1]))
                 if abs(wc2pdg) == 11:
                     #print(wc2pdg)
                     #print('wc2',wc2[1])
-                    if(abs(elecpt[j]) - wc2[1]) <= 1:
+                    #if(abs(elecpt[j]) - wc2[1]) <= 1:
                         #print('right electron')
-                        rightelectron += 1
+                        #rightelectron += 1
+                    differences.append(abs(elecpt[j] - wc2[1]))
                 if abs(wc1mpdg) == 11:
                     #print(wc1mpdg)
                     #print('wc1m',wc1m[1])
-                    if(abs(elecpt[j]) - wc1m[1]) <= 1:
+                    #if(abs(elecpt[j]) - wc1m[1]) <= 1:
                         #print('right electron')
-                        rightelectron += 1
+                        #rightelectron += 1
+                    differences.append(abs(elecpt[j] - wc1m[1]))
                 if abs(wc2mpdg) == 11:
-                        #print(wc2mpdg)
+                    #print(wc2mpdg)
                     #print('wc2m',wc2m[1])
-                    if(abs(elecpt[j]) - wc2m[1]) <= 1:
+                    #if(abs(elecpt[j]) - wc2m[1]) <= 1:
                         #print('right electron')
-                        rightelectron += 1
+                        #rightelectron += 1
+                    differences.append(abs(elecpt[j] - wc2m[1]))
+
+for diff in range(len(differences)):
+    total += 1
+    if differences[diff] <= 10:
+        count += 1
+
+print('Total: ', total)
+print('Count: ', count)
+#print(rightelectron)
+
+plt.figure()
+plt.hist(differences,bins=100,range=(0,10))
+plt.show()
 
 
-print(rightelectron)
+
 
 
