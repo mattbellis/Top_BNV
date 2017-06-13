@@ -26,13 +26,27 @@ f = ROOT.TFile(sys.argv[1])
 tree = f.Get("TreeSemiLept")
 
 nentries = tree.GetEntries()
+rightelectron = 0
+
 
 for i in range(nentries):
+
+    #print(i)
 
     if i % 1000 == 0:
         print(i)
 
     tree.GetEntry(i)
+    
+    # Electrons
+    elecpt = tree.electronpt
+    elece = tree.electrone
+    eleceta = tree.electroneta
+    elecphi = tree.electronphi
+    nelectrons = tree.nelectron
+    eleciso = tree.electronTkIso
+    isoH = tree.electronHCIso
+    isoE = tree.electronECIso
 
 
     # MC Truth Info
@@ -83,11 +97,39 @@ for i in range(nentries):
     wc2mpdg = tree.genpdg[8] 
     #wc2m[1],wc2m[2],wc2m[3] = PTtoXYZ(wc2m[1],wc2m[2],wc2m[3])
 
-    if(abs(wc1pdg) == 11):
-        print(wc1pdg)
-    if abs(wc2pdg) == 11:
-        print(wc2pdg)
-    if abs(wc1mpdg) == 11:
-        print(wc1mpdg)
-    if abs(wc2mpdg) == 11:
-        print(wc2mpdg)
+    if(nelectrons >= 1):
+        if(abs(wc1pdg) == 11 or abs(wc2pdg) == 11 or abs(wc1mpdg) == 11 or abs(wc2mpdg) == 11):
+            for j in range(nelectrons):
+                #print('nelectrons', nelectrons)
+                #print(elecpt[j])
+
+
+                if(abs(wc1pdg) == 11):
+                    #print(wc1pdg)
+                    #print('wc1',wc1[1])
+                    if(abs(elecpt[j]) - wc1[1]) <= 1:
+                        #print('right electron')
+                        rightelectron += 1
+                if abs(wc2pdg) == 11:
+                    #print(wc2pdg)
+                    #print('wc2',wc2[1])
+                    if(abs(elecpt[j]) - wc2[1]) <= 1:
+                        #print('right electron')
+                        rightelectron += 1
+                if abs(wc1mpdg) == 11:
+                    #print(wc1mpdg)
+                    #print('wc1m',wc1m[1])
+                    if(abs(elecpt[j]) - wc1m[1]) <= 1:
+                        #print('right electron')
+                        rightelectron += 1
+                if abs(wc2mpdg) == 11:
+                        #print(wc2mpdg)
+                    #print('wc2m',wc2m[1])
+                    if(abs(elecpt[j]) - wc2m[1]) <= 1:
+                        #print('right electron')
+                        rightelectron += 1
+
+
+print(rightelectron)
+
+
