@@ -1,7 +1,9 @@
 # import everything
 import ROOT, sys
-import matplotlib as plt
+import matplotlib.pylab as plt
 import numpy as np
+import math as math
+import lichen.lichen as lch
 from PttoXYZ import PTtoXYZ
 
 # helper functions
@@ -31,14 +33,22 @@ nentries = tree.GetEntries()
 
 # Make any lists you'll need
 finalEvents = []
+differencesElectron = []
+etaElectrons = []
+etaWchildren = []
+phiElectrons = []
+phiWchildren = []
+distance = []
+
 muonCut = 0
 elecCut = 0
-
+test = 0
+electrons = 0
 # Loop over all the events
 for entry in range(nentries):
     tree.GetEntry(entry)
 
-    if entry % 100 == 0:
+    if entry % 1000 == 0:
         print(entry)
     
 # Get all the tree items you will need
@@ -124,6 +134,8 @@ for entry in range(nentries):
     wc2mpdg = tree.genpdg[8] 
     #wc2m[1],wc2m[2],wc2m[3] = PTtoXYZ(wc2m[1],wc2m[2],wc2m[3])
 
+    Wchildren = [[wc1pdg,wc1],[wc1mpdg,wc1m],[wc2pdg,wc2],[wc2mpdg,wc2m]]
+
     # Isolation Calculations
     muIso = []
     elecIso = []
@@ -170,6 +182,7 @@ for entry in range(nentries):
                         for jet in range(njets):
                             if btag[jet] >= .84:
                                 muonCut += 1
+                                
     
 # CUTS (e + jets)
     # One isolated electron
@@ -186,11 +199,61 @@ for entry in range(nentries):
                     for jet in range(njets):
                         if btag[jet] >= .84:
                             elecCut += 1
+                            for w in range(len(Wchildren)):
+                                if abs(Wchildren[w][0]) == 11:
+                                    differencesElectron.append(abs(isolatedElectron[1]-Wchildren[w][1][1])) 
+                                    electrons += 1      
+                                    etaE = isolatedElectron[2]
+                                    phiE = isolatedElectron[3]
+                                    etaW = Wchildren[w][1][2]
+                                    phiW = Wchildren[w][1][3]
+                                    
+                                    etaElectrons.append(etaE)
+                                    etaWchildren.append(etaW)
+                                    phiElectrons.append(phiE)
+                                    phiWchildren.append(phiW)
+                                    
+                                    distance.append(math.sqrt((etaE-etaW)**2+(phiE-phiW)**2))
 
-                            
+                                    if abs(isolatedElectron[1]-Wchildren[w][1][1]) <= 10 and \
+                                            math.sqrt((etaE-etaW)**2+(phiE-phiW)**2) <= .002:
+                                        test += 1
 
 
 
-print(elecCut)
-print(muonCut)
-print(nentries)
+
+print('elecCut', elecCut)
+print('muonCut', muonCut)
+print('nentries', nentries)
+print('Test', test)
+print('electrons', electrons)
+
+plt.figure()
+plt.hist(differencesElectron,bins = 100)#,range = (0,1))
+plt.xlabel("Difference in pt")
+
+plt.figure()
+plt.hist(differencesElectron,bins = 100,range = (0,10))
+plt.xlabel("Difference in pt")
+
+plt.figure()
+plt.hist(distance,bins = 100, range = (0,.005))
+plt.xlabel("Distance between electrons in eta-phi space")
+
+plt.figure()
+lch.hist_2D(distance,differencesElectron)
+
+plt.figure()
+plt.plot(etaElectrons,phiElectrons,'ro', alpha = 0.1, label = "Electrons")
+plt.plot(etaWchildren,phiWchildren,'b*', alpha = 0.1, label = "MC Truth")
+plt.xlabel('eta')
+plt.ylabel('phi')
+
+plt.legend()
+
+
+
+
+
+
+plt.show()
