@@ -1,6 +1,8 @@
 import ROOT, sys, math
 import matplotlib.pylab as plt
 import numpy as np
+#from print_table.py import print_table
+from print_table.py import print_table
 
 f = ROOT.TFile(sys.argv[1])
 tree = f.Get("TreeSemiLept")
@@ -14,6 +16,11 @@ electronetas = []
 count = 0
 total = 0 
 electrons = 0
+geta = 0
+gpt = 0
+eta = 0
+pt = 0
+
 
 for i in range(nent):
     if i % 1000 == 0:
@@ -116,6 +123,13 @@ for i in range(nent):
             total += 1
             if(genpt > 45 and abs(geneta) < 2.494):
                 count += 1
+            
+            if(abs(geneta) < 2.494):
+                geta += 1
+                if(abs(genpt) > 45):
+                    gpt += 1
+
+
 
     for j in range(nelectrons):
         electronpt = elecpt[j]
@@ -123,6 +137,10 @@ for i in range(nent):
         electroneta = eleceta[j]
         electronetas.append(electroneta)
         electrons += 1
+        if(abs(electroneta) < 2.494):
+            eta += 1
+            if(abs(electronpt) > 45):
+                pt += 1
 
 print(min(electronetas),max(electronetas))
 print(min(electronpts))
@@ -130,6 +148,18 @@ print('Gen > 45 and -2.49 < eta < 2.49: ', count)
 print('Gen lost', total - count)
 print('Total gen electrons', total)
 print('Total electrons', electrons)
+
+
+print()
+print()
+print()
+
+print_table([["",total,electrons],["-2.4 < eta < 2.4",geta,eta],["pt > 45",gpt,pt]], header = ["","Gen", "Reco"],wrap = True, max_col_width = 15, wrap_style = 'wrap', row_line = True, fix_col_width = True)
+
+
+
+
+
 plt.figure()
 plt.hist(genpts, bins=100, color = 'red', alpha = 0.2, normed = True, label = 'Gen')
 plt.hist(electronpts, bins=100, color = 'blue', alpha = 0.2, normed = True, label = 'Reconstructed')

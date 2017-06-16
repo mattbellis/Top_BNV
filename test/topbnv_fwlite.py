@@ -1156,13 +1156,13 @@ def topbnv_fwlite(argv):
             for i,electron in enumerate( electrons.product() ):
                 #print type(electron),"\n",electron
                 #print type(event),"\n",event
-		passTight = selectElectron( electron, event )
+		        passTight = selectElectron( electron, event )
                 if electron.pt() > options.minElectronPt and abs(electron.eta()) < options.maxElectronEta \
                     and passTight:
-		    goodelectrons.append( electron )
-		    #elec = electron.electronIDs()
-		    #print('New set')
-		    #for i in range(len(elec)):
+		            goodelectrons.append( electron )
+		            #elec = electron.electronIDs()
+		            #print('New set')
+		            #for i in range(len(elec)):
                     #	print(elec[i][0], elec[i][1])
                     if options.verbose:
                         print ("elec %2d: pt %4.1f, supercluster eta %+5.3f, phi %+5.3f sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d" % \
@@ -1173,24 +1173,24 @@ def topbnv_fwlite(argv):
         for i,m in enumerate(goodelectrons):
 	    #goodelecID = m.electronIDs()
 	    #print(len(goodelecID))
-	    if i<16:
-            	electronpt[i] = m.pt()
-	        electroneta[i] = m.eta()
-	        electronphi[i] = m.phi()
-	        electrone[i] = m.energy()
-        	electronpx[i] = m.px()
-	        electronpy[i] = m.py()
-	        electronpz[i] = m.pz()
-	        electronq[i] = m.charge()
-	        #print(m.dr03TkSumPt())
-		electronTkIso[i] = m.dr03TkSumPt()
-	        #print(electronTkIso[i])
-		electronHCIso[i] = m.dr03HcalTowerSumEt()
-	        electronECIso[i] = m.dr03EcalRecHitSumEt()
-	        #pfe  = m.isolationVariables03()
-	        #electronchiso[i] = pfe.chargedHadronIso
-	        #electronnhiso[i] = pfe.neutralHadronIso
-	        #electronphotiso[i] = pfe.photonIso
+	        if i<16:
+                electronpt[i] = m.pt()
+	            electroneta[i] = m.eta()
+	            electronphi[i] = m.phi()
+	            electrone[i] = m.energy()
+        	    electronpx[i] = m.px()
+	            electronpy[i] = m.py()
+	            electronpz[i] = m.pz()
+	            electronq[i] = m.charge()
+	            #print(m.dr03TkSumPt())
+		        electronTkIso[i] = m.dr03TkSumPt()
+	            #print(electronTkIso[i])
+		        electronHCIso[i] = m.dr03HcalTowerSumEt()
+	            electronECIso[i] = m.dr03EcalRecHitSumEt()
+	            #pfe  = m.isolationVariables03()
+	            #electronchiso[i] = pfe.chargedHadronIso
+	            #electronnhiso[i] = pfe.neutralHadronIso
+	            #electronphotiso[i] = pfe.photonIso
         #'''
 
         # Veto on dilepton events
