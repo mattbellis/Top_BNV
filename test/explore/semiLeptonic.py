@@ -34,6 +34,7 @@ nentries = tree.GetEntries()
 isos = []
 top = []
 twoJets = []
+twoJetsdR = []
 # Loop over all entries for a t
 for i in range(nentries):
     if i % 100 == 0:
@@ -90,20 +91,26 @@ for i in range(nentries):
             if(njets >= 4):
                 jetp4s = []
                 btags = []
+                jetR = []
+                btagR = []
                 btag = False
                 for jet in range(njets):
                     pt = jetpt[jet]
                     if(jetbtag[jet] >= .84):
                         btag = True
                         jetx, jety, jetz = PTtoXYZ(jetpt[jet],jeteta[jet],jetphi[jet]) 
+                        jeta,jphi = jeteta[jet],jetphi[jet]
                         btagJet = [jete[jet],jetx,jety,jetz]
                         if pt>30:
                             btags.append(btagJet)
+                            btagR.append([jeta,jphi])
                     else:    
                         jetx, jety, jetz = PTtoXYZ(jetpt[jet],jeteta[jet],jetphi[jet])
+                        jeta,jphi = jeteta[jet],jetphi[jet]
                         p4 = [jete[jet],jetx,jety,jetz]
                         if pt>30:
                             jetp4s.append(p4)
+                            jetR.append([jeta,jphi])
                 if(btag):
                     for btag in btags:
                         for twoB in range(0,len(jetp4s)-1):
@@ -113,6 +120,12 @@ for i in range(nentries):
                                 top.append(maybeTop)
                                 twoJet = invmass([jetp4s[twoB],jetp4s[not2b]])
                                 twoJets.append(twoJet)
+                                R1 = jetR[twoB]
+                                R2 = jetR[not2b]
+                                dR = np.sqrt((R1[0]-R2[0])**2 + (R1[1]-R2[1])**2)
+                                twoJetsdR.append(dR)
+
+
 plt.figure()
 lch.hist_err(isos, range=(0,0.5))
 plt.title("Muon Isolation")
@@ -125,6 +138,10 @@ plt.xlabel("Invariant mass of 3 jets (GeV/c$^2$)", fontsize = 18)
 plt.figure()
 lch.hist_err(twoJets,bins=100,range=(0,300))
 plt.xlabel("Invariant mass of 2 jets (GeV/c$^2$)", fontsize = 18)
+
+plt.figure()
+plt.plot(twoJets,twoJetsdR,'.',alpha=0.2)
+plt.xlabel("Invariant mass of 2 jets versus dR of these two jets", fontsize = 14)
 
 plt.show()
 
