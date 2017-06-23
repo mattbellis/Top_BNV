@@ -34,7 +34,8 @@ nentries = tree.GetEntries()
 isos = []
 top = []
 twoJets = []
-twoJetsdR = []
+jectop = []
+jectwoJets = []
 # Loop over all entries for a t
 for i in range(nentries):
     if i % 100 == 0:
@@ -59,6 +60,11 @@ for i in range(nentries):
     jetphi = tree.jetphi
     jete = tree.jete
     jetbtag = tree.jetbtag
+    jetjecpt = tree.jetjecpt
+    jetjeceta = tree.jetjeceta
+    jetjecphi = tree.jetjecphi
+    jetjece = tree.jetjece
+    jetjecbtag = tree.jetjecbtag
     onemuoniso = -1
     if(nmuon >= 1):
         for muon in range(nmuon):
@@ -86,31 +92,35 @@ for i in range(nentries):
                     
         if(numIso==1 and onemuoniso<=0.15):
             # Electron Veto
-            
+
             # Jet stuff
             if(njets >= 4):
                 jetp4s = []
+                jetjecp4s = []
                 btags = []
-                jetR = []
-                btagR = []
+                jecbtags = []
                 btag = False
+                jecbtag = False
                 for jet in range(njets):
                     pt = jetpt[jet]
-                    if(jetbtag[jet] >= .84):
+                    ptjec = jetjecpt[jet]
+                    if(jetbtag[jet] >= .8 and pt >= 30):
                         btag = True
                         jetx, jety, jetz = PTtoXYZ(jetpt[jet],jeteta[jet],jetphi[jet]) 
-                        jeta,jphi = jeteta[jet],jetphi[jet]
                         btagJet = [jete[jet],jetx,jety,jetz]
-                        if pt>30:
-                            btags.append(btagJet)
-                            btagR.append([jeta,jphi])
+                        btags.append(btagJet)
+                        jetjecx, jetjecy, jetjecz = PTtoXYZ(jetjecpt[jet],jetjeceta[jet],jetjecphi[jet]) 
+                        jecbtagJet = [jetjece[jet],jetjecx,jetjecy,jetjecz]
+                        jecbtags.append(jecbtagJet)
                     else:    
                         jetx, jety, jetz = PTtoXYZ(jetpt[jet],jeteta[jet],jetphi[jet])
-                        jeta,jphi = jeteta[jet],jetphi[jet]
                         p4 = [jete[jet],jetx,jety,jetz]
                         if pt>30:
                             jetp4s.append(p4)
-                            jetR.append([jeta,jphi])
+                        jetjecx, jetjecy, jetjecz = PTtoXYZ(jetjecpt[jet],jetjeceta[jet],jetjecphi[jet])
+                        p4 = [jetjece[jet],jetjecx,jetjecy,jetjecz]
+                        if ptjec>30:
+                            jetjecp4s.append(p4)
                 if(btag):
                     for btag in btags:
                         for twoB in range(0,len(jetp4s)-1):
@@ -120,28 +130,30 @@ for i in range(nentries):
                                 top.append(maybeTop)
                                 twoJet = invmass([jetp4s[twoB],jetp4s[not2b]])
                                 twoJets.append(twoJet)
-                                R1 = jetR[twoB]
-                                R2 = jetR[not2b]
-                                dR = np.sqrt((R1[0]-R2[0])**2 + (R1[1]-R2[1])**2)
-                                twoJetsdR.append(dR)
-
-
+                    for jecbtag in jecbtags:
+                        for twoB in range(0,len(jetjecp4s)-1):
+                            for not2b in range(twoB+1,len(jetjecp4s)):
+                                maybeTop = invmass([jecbtag,jetjecp4s[twoB],jetjecp4s[not2b]])
+                                #if(maybeTop >= 150 and maybeTop <= 200):
+                                jectop.append(maybeTop)
+                                twoJet = invmass([jetjecp4s[twoB],jetjecp4s[not2b]])
+                                jectwoJets.append(twoJet)
 plt.figure()
 lch.hist_err(isos, range=(0,0.5))
 plt.title("Muon Isolation")
 plt.xlabel("$I_{rel}$",fontsize=18)
 
 plt.figure()
-lch.hist_err(top,bins=100,range=(0,800))
+lch.hist_err(top,bins=100, range = (0,500), color = 'red', label = 'Before')
+lch.hist_err(jectop,bins=100, range = (0,500), color = 'blue', label = 'After')
 plt.xlabel("Invariant mass of 3 jets (GeV/c$^2$)", fontsize = 18)
+plt.legend()
 
 plt.figure()
-lch.hist_err(twoJets,bins=100,range=(0,300))
+lch.hist_err(twoJets,bins=100, range = (0,500), color = 'red', label = 'Before')
+lch.hist_err(jectwoJets,bins=100, range = (0,500), color = 'blue', label = 'After')
 plt.xlabel("Invariant mass of 2 jets (GeV/c$^2$)", fontsize = 18)
-
-plt.figure()
-plt.plot(twoJets,twoJetsdR,'.',alpha=0.2)
-plt.xlabel("Invariant mass of 2 jets versus dR of these two jets", fontsize = 14)
+plt.legend()
 
 plt.show()
 
