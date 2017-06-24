@@ -650,8 +650,15 @@ def topbnv_fwlite(argv):
         jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt'))
         jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/Summer16_23Sep2016V4_MC_Uncertainty_AK8PFchs.txt'))
 
-    selectElectron = VIDElectronSelector(mvaEleID_Spring15_25ns_nonTrig_V1_wp80)
-    #selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_loose)
+    print("electron selectors....")
+    print(type(mvaEleID_Spring15_25ns_nonTrig_V1_wp80))
+    print(type(cutBasedElectronID_Summer16_80X_V1_loose))
+    print("this one")
+    print(mvaEleID_Spring15_25ns_nonTrig_V1_wp80)
+    print(" and then this one")
+    print(cutBasedElectronID_Summer16_80X_V1_loose)
+    #selectElectron = VIDElectronSelector(mvaEleID_Spring15_25ns_nonTrig_V1_wp80)
+    selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_loose)
     #selectElectron = VersionedGsfElectronSelector(cutBasedElectronID_Summer16_80X_V1_loose)
     #selectElectronvidelectron._VIDSelectorBase__instance.ignoreCut('GsfEleEffAreaPFIsoCut_0')
 
