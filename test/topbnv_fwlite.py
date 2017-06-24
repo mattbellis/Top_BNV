@@ -5,9 +5,15 @@ from array import array
 from DataFormats.FWLite import Events, Handle
 # Use the VID framework for the electron ID. Tight ID without the PF isolation cut.
 from RecoEgamma.ElectronIdentification.VIDElectronSelector import VIDElectronSelector
+#from RecoEgamma.ElectronIdentification.Identification.VersionedGsfElectronSelector import VersionedGsfElectronSelector
 from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff import cutBasedElectronID_Spring15_25ns_V1_standalone_tight
 from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff import mvaEleID_Spring15_25ns_nonTrig_V1_wp80
-from RecoEgamma.ElectronIdentification.Identification.egmGsfElectronIDs import cutBasedElectronID-Summer16-80X-V1-loose
+# Cut-based...we should use this!
+# https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2#Recipe80X
+from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff import cutBasedElectronID_Summer16_80X_V1_loose 
+#import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-loose as electron_loose
+#import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-medium as electron_medium
+#import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-tight as electron_tight
 
 ############################################
 # Jet Energy Corrections / Resolution tools
@@ -644,8 +650,9 @@ def topbnv_fwlite(argv):
         jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt'))
         jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/Summer16_23Sep2016V4_MC_Uncertainty_AK8PFchs.txt'))
 
-    #selectElectron = VIDElectronSelector(mvaEleID_Spring15_25ns_nonTrig_V1_wp80)
-    #selectElectron = VIDElectronSelector(cutBasedElectronHLTPreselecition_Summer16_V1_cff)
+    selectElectron = VIDElectronSelector(mvaEleID_Spring15_25ns_nonTrig_V1_wp80)
+    #selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_loose)
+    #selectElectron = VersionedGsfElectronSelector(cutBasedElectronID_Summer16_80X_V1_loose)
     #selectElectronvidelectron._VIDSelectorBase__instance.ignoreCut('GsfEleEffAreaPFIsoCut_0')
 
     ## __________.__.__                        __________                     .__       .__     __  .__
