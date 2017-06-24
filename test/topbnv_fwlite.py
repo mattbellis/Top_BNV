@@ -7,6 +7,7 @@ from DataFormats.FWLite import Events, Handle
 from RecoEgamma.ElectronIdentification.VIDElectronSelector import VIDElectronSelector
 from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff import cutBasedElectronID_Spring15_25ns_V1_standalone_tight
 from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff import mvaEleID_Spring15_25ns_nonTrig_V1_wp80
+from RecoEgamma.ElectronIdentification.Identification.egmGsfElectronIDs import cutBasedElectronID-Summer16-80X-V1-loose
 
 ############################################
 # Jet Energy Corrections / Resolution tools
@@ -643,7 +644,8 @@ def topbnv_fwlite(argv):
         jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt'))
         jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/Summer16_23Sep2016V4_MC_Uncertainty_AK8PFchs.txt'))
 
-    selectElectron = VIDElectronSelector(mvaEleID_Spring15_25ns_nonTrig_V1_wp80)
+    #selectElectron = VIDElectronSelector(mvaEleID_Spring15_25ns_nonTrig_V1_wp80)
+    #selectElectron = VIDElectronSelector(cutBasedElectronHLTPreselecition_Summer16_V1_cff)
     #selectElectronvidelectron._VIDSelectorBase__instance.ignoreCut('GsfEleEffAreaPFIsoCut_0')
 
     ## __________.__.__                        __________                     .__       .__     __  .__
@@ -1156,10 +1158,9 @@ def topbnv_fwlite(argv):
             for i,electron in enumerate( electrons.product() ):
                 #print type(electron),"\n",electron
                 #print type(event),"\n",event
-		        passTight = selectElectron( electron, event )
-                if electron.pt() > options.minElectronPt and abs(electron.eta()) < options.maxElectronEta \
-                    and passTight:
-		            goodelectrons.append( electron )
+                passTight = selectElectron( electron, event )
+                if electron.pt() > options.minElectronPt and abs(electron.eta()) < options.maxElectronEta and passTight:
+                    goodelectrons.append( electron )
 		            #elec = electron.electronIDs()
 		            #print('New set')
 		            #for i in range(len(elec)):
@@ -1173,23 +1174,23 @@ def topbnv_fwlite(argv):
         for i,m in enumerate(goodelectrons):
 	    #goodelecID = m.electronIDs()
 	    #print(len(goodelecID))
-	        if i<16:
+            if i<16:
                 electronpt[i] = m.pt()
-	            electroneta[i] = m.eta()
-	            electronphi[i] = m.phi()
-	            electrone[i] = m.energy()
-        	    electronpx[i] = m.px()
-	            electronpy[i] = m.py()
-	            electronpz[i] = m.pz()
-	            electronq[i] = m.charge()
-	            #print(m.dr03TkSumPt())
-		        electronTkIso[i] = m.dr03TkSumPt()
-	            #print(electronTkIso[i])
-		        electronHCIso[i] = m.dr03HcalTowerSumEt()
-	            electronECIso[i] = m.dr03EcalRecHitSumEt()
-	            #pfe  = m.isolationVariables03()
-	            #electronchiso[i] = pfe.chargedHadronIso
-	            #electronnhiso[i] = pfe.neutralHadronIso
+                electroneta[i] = m.eta()
+                electronphi[i] = m.phi()
+                electrone[i] = m.energy()
+                electronpx[i] = m.px()
+                electronpy[i] = m.py()
+                electronpz[i] = m.pz()
+                electronq[i] = m.charge()
+                #print(m.dr03TkSumPt())
+                electronTkIso[i] = m.dr03TkSumPt()
+                #print(electronTkIso[i])
+                electronHCIso[i] = m.dr03HcalTowerSumEt()
+                electronECIso[i] = m.dr03EcalRecHitSumEt()
+                #pfe  = m.isolationVariables03()
+                #electronchiso[i] = pfe.chargedHadronIso
+                #electronnhiso[i] = pfe.neutralHadronIso
 	            #electronphotiso[i] = pfe.photonIso
         #'''
 
