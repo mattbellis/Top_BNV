@@ -35,6 +35,8 @@ process.out = cms.OutputModule("PoolOutputModule",
                 'keep *_slimmedJetsAK8__*', # This is for top-tagged (boosted?) I think\
                 'keep *_slimmedMETs__*', \
                 'keep *_slimmedTaus__*', \
+                'keep *_offlineBeamSpot__*', # maybe needed for electron \
+                'keep *_ConversionCollection__*', # maybe needed for electron \
                 'keep *_slimmedAddPileupInfo__*', \
                 'keep *_offlineSlimmedPrimaryVertices__*', \
                 'keep *_prunedGenParticles__*',  # This will be Feynman-level particles. Not jets. \
@@ -42,7 +44,8 @@ process.out = cms.OutputModule("PoolOutputModule",
                 'keep *_slimmedGenJets__*',  # Generated jets. \
                 'keep *_generator__*',  # Used for event weights \
                 'keep *_TriggerResults__*', \
-                'keep *_fixedGridRhoAll__*',  # Needed for isolation \
+                'keep *_fixedGridRhoAll__*', # Needed for isolation \
+                'keep *_fixedGridRhoFastjetAll__*',  # Needed for cutbased e cuts?
 
                 ])
         )
