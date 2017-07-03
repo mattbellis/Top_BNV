@@ -28,3 +28,9 @@ To find the root files in case we want to look at them.
 If we wanted to look at one of these files, we would do
 
         root -l "root://cmsxrootd.fnal.gov//store/mc/RunIISummer16MiniAODv2/WJetsToQQ_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/70000/007F0D37-9ABE-E611-9EE6-002590E3A212.root"
+
+
+Here's how I found a ttbar file to run on. 
+
+        das_client --query="file dataset=/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" --format=plain
+

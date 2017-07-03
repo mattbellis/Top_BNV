@@ -7,3 +7,6 @@ python topbnv_fwlite.py --input filesToProcess_DATA.txt --trigProc HLT --localIn
 
 # Use this for ttbar MC testing
 python topbnv_fwlite.py --input filesToProcess_ONE.txt --trigProc HLT --localInputFiles --disablePileup --output output_MC.root
+
+# Use this for ttbar running on NOT SLIMMED files
+python topbnv_fwlite.py --input filesToProcess_NOTLOCAL_TTBAR.txt --trigProc HLT --disablePileup --output output_NOTLOCAL_NOTSLIMMED.root --maxevent 10000
