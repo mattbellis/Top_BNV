@@ -5,7 +5,8 @@ config.section_("General")
 #config.General.requestName = 'bellis_top_slim_MC'
 #config.General.requestName = 'bellis_ZJetsToQQ_slim_MC'
 #config.General.requestName = 'bellis_QCD_HT300to500_slim_MC'
-config.General.requestName = 'bellis_WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'
+#config.General.requestName = 'bellis_WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'
+config.General.requestName = 'bellis_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8'
 
 config.General.workArea = 'crab_projects'
 
@@ -23,12 +24,11 @@ config.section_("Data")
 # From Louise
 # W + jets
 #das_client --query ="dataset=/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/*Summer16*/MINIAODSIM" --format=plain --limit=30
-config.Data.inputDataset = '/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM'
+#config.Data.inputDataset = '/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM'
 #
 
 # ttbar
-
-#config.Data.inputDataset = '/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM'
+config.Data.inputDataset = '/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM'
 
 # QCD
 #das_client --query="dataset=/QCD_Pt-30to50_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/*Summer16*/MINIAODSIM" --format plain
@@ -41,6 +41,21 @@ config.Data.inputDataset = '/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/R
 #config.Data.inputDataset = '/QCD_Pt-80to120_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM'
 
 # End from Louise
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
