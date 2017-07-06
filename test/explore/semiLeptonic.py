@@ -122,7 +122,10 @@ for i in range(nentries):
                                 twoJets.append(twoJet)
                                 R1 = jetR[twoB]
                                 R2 = jetR[not2b]
-                                dR = np.sqrt((R1[0]-R2[0])**2 + (R1[1]-R2[1])**2)
+                                deltaPhi = R1[1]-R2[1]
+                                if deltaPhi > np.pi:
+                                    deltaPhi = 2*np.pi - deltaPhi
+                                dR = np.sqrt((R1[0]-R2[0])**2 + (deltaPhi**2))
                                 twoJetsdR.append(dR)
 
 
