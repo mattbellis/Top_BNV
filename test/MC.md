@@ -44,3 +44,9 @@ If we wanted to look at one of these files, we would do
 ** /ST_t-channel_antitop_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM
 
 
+
+Here's how I found a ttbar file to run on. 
+
+        das_client --query="file dataset=/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" --format=plain
+>>>>>>> 34f4c882fb33b06eed39c64e088d44338da92d8e
+

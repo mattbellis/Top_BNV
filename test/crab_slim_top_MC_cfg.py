@@ -4,7 +4,9 @@ config = Configuration()
 config.section_("General")
 #config.General.requestName = 'bellis_top_slim_MC'
 #config.General.requestName = 'bellis_ZJetsToQQ_slim_MC'
-config.General.requestName = 'bellis_QCD_HT300to500_slim_MC'
+#config.General.requestName = 'bellis_QCD_HT300to500_slim_MC'
+config.General.requestName = 'bellis_WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'
+
 config.General.workArea = 'crab_projects'
 
 config.section_("JobType")
@@ -17,6 +19,12 @@ config.section_("Data")
 
 
 # DATA SETS
+
+# From Louise
+# W + jets
+#das_client --query ="dataset=/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/*Summer16*/MINIAODSIM" --format=plain --limit=30
+#config.Data.inputDataset = '/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM'
+#
 
 # ttbar
 #config.Data.inputDataset = '/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM'
