@@ -179,7 +179,7 @@ plt.hist(twoJets,bins=100,range=(0,300))
 plt.xlabel("Invariant mass of 2 jets (GeV/c$^2$)", fontsize = 18)
 
 plt.figure()
-plt.plot(twoJets,twoJetsdR,'.',inv,dRTruth,'*',alpha=0.2)
+plt.plot(twoJets,twoJetsdR,'.',inv,dRTruth,'r',alpha=0.2)
 plt.xlabel("Invariant mass of 2 jets versus dR of these two jets", fontsize = 14)
 
 plt.show()
