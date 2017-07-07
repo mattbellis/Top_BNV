@@ -22,7 +22,8 @@ process.source = cms.Source("PoolSource",
 
 
 process.out = cms.OutputModule("PoolOutputModule",
-        fileName = cms.untracked.string('top_slimmmed_files_MC_ttbar_NOTLOCAL_FOR_TESTING.root'),
+        #fileName = cms.untracked.string('top_slimmmed_files_MC_ttbar_NOTLOCAL_FOR_TESTING.root'),
+        fileName = cms.untracked.string('slimmmed_files.root'),
         #fileName = cms.untracked.string('top_slimmmed_files_DATA_ttbar.root'),
         #fileName = cms.untracked.string('/uscms/home/mbellis/eos_store/TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8/crab_bellis_top_slim_MC/170112_192558/0000/top_slimmmed_files_MC_ttbar_TESTLARGE.root'),
         #outputCommands = cms.untracked.vstring(['drop *', 'keep *_slimmedMuons__*', 'keep *_slimmedElectrons__*', 'keep *_slimmedJets__*', 'keep *_slimmedMETs__*'])
