@@ -261,7 +261,7 @@ plt.figure()
 for j in range(0,4):
     plt.subplot(2,2,j+1)
     plt.xlabel(pltLabels[j] + 'W q q',fontsize=18)
-    lch.hist_err(Wdiffs[j],bins=125,range=(-1,1))
+    lch.hist_err(Wdiffs[j],bins=125,range=(-1000,1000))
     plt.tight_layout()
 plt.suptitle('W q q')
 plt.subplots_adjust(top = 0.88)
