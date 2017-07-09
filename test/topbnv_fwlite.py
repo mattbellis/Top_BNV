@@ -602,6 +602,7 @@ def topbnv_fwlite(argv):
 
 
     # and also make a few 1-d histograms
+    '''
     h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV)", 200, 0, 6000)
     h_mttbar_true = ROOT.TH1F("h_mttbar_true", "True m_{t#bar{t}};m_{t#bar{t}} (GeV)", 200, 0, 6000)
 
@@ -632,6 +633,7 @@ def topbnv_fwlite(argv):
     h_nsjAK8 = ROOT.TH1F("h_nsjAK8", "AK8 CMS Top Tagger N_{subjets};N_{subjets}", 5, 0, 5)
     h_tau21AK8 = ROOT.TH1F("h_tau21AK8", "AK8 Jet #tau_{2} / #tau_{1};Mass#tau_{21}", 100, 0, 1.0)
     h_tau32AK8 = ROOT.TH1F("h_tau32AK8", "AK8 Jet #tau_{3} / #tau_{2};Mass#tau_{32}", 100, 0, 1.0)
+    '''
 
     ##      ____.       __    _________                                     __  .__
     ##     |    | _____/  |_  \_   ___ \  __________________   ____   _____/  |_|__| ____   ____   ______
@@ -1008,7 +1010,7 @@ def topbnv_fwlite(argv):
                     
                 if topQuark != None and antitopQuark != None:
                     ttbarCandP4 = topQuark.p4() + antitopQuark.p4()
-                    h_mttbar_true.Fill( ttbarCandP4.mass() )
+                    #h_mttbar_true.Fill( ttbarCandP4.mass() )
                     haveGenSolution = True
                     #print("tbar/t flag: %d %d" % (tbardecayflag, tdecayflag))
                     gendecayflag[0] = 10*tbardecayflag + tdecayflag
@@ -1137,8 +1139,8 @@ def topbnv_fwlite(argv):
         if len(muons.product()) > 0:
             for i,muon in enumerate( muons.product() ):
                 #if muon.pt() > options.minMuonPt and abs(muon.eta()) < options.maxMuonEta and muon.muonBestTrack().dz(PV.position()) < 5.0 and muon.isTightMuon(PV):
-                #if muon.pt() > options.minMuonPt and abs(muon.eta()) < options.maxMuonEta: 
-                if 1:
+                #if 1:
+                if muon.pt() > options.minMuonPt and abs(muon.eta()) < options.maxMuonEta: 
                     goodmuons.append( muon )
                     if options.verbose:
                         print ("muon %2d: pt %4.1f, eta %+5.3f phi %+5.3f dz(PV) %+5.3f, POG loose id %d, tight id %d." % (
@@ -1523,20 +1525,20 @@ def topbnv_fwlite(argv):
         theLepJetBDisc = nearestJet.bDiscriminator( options.bdisc )
 
         # Fill some plots related to the jets
-        h_ptAK4.Fill( theLepJet.Perp(), evWeight )
-        h_etaAK4.Fill( theLepJet.Eta(), evWeight )
-        h_yAK4.Fill( theLepJet.Rapidity(), evWeight )
-        h_phiAK4.Fill( theLepJet.Phi(), evWeight )
-        h_mAK4.Fill( theLepJet.M(), evWeight )
-        h_BDiscAK4.Fill( theLepJetBDisc, evWeight )
+        #h_ptAK4.Fill( theLepJet.Perp(), evWeight )
+        #h_etaAK4.Fill( theLepJet.Eta(), evWeight )
+        #h_yAK4.Fill( theLepJet.Rapidity(), evWeight )
+        #h_phiAK4.Fill( theLepJet.Phi(), evWeight )
+        #h_mAK4.Fill( theLepJet.M(), evWeight )
+        #h_BDiscAK4.Fill( theLepJetBDisc, evWeight )
         # Fill some plots related to the lepton, the MET, and the 2-d cut
         ptRel = theLepJet.Perp( theLepton.Vect() )
-        h_ptLep.Fill(theLepton.Perp(), evWeight)
-        h_etaLep.Fill(theLepton.Eta(), evWeight)
-        h_met.Fill(met.pt(), evWeight)
-        h_ptRel.Fill( ptRel, evWeight )
-        h_dRMin.Fill( dRMin, evWeight )
-        h_2DCut.Fill( dRMin, ptRel, evWeight )
+        #h_ptLep.Fill(theLepton.Perp(), evWeight)
+        #h_etaLep.Fill(theLepton.Eta(), evWeight)
+        #h_met.Fill(met.pt(), evWeight)
+        #h_ptRel.Fill( ptRel, evWeight )
+        #h_dRMin.Fill( dRMin, evWeight )
+        #h_2DCut.Fill( dRMin, ptRel, evWeight )
         pass2D = ptRel > 20.0 or dRMin > 0.4
         if options.verbose:
             print ('2d cut : dRMin = {0:6.2f}, ptRel = {1:6.2f}, pass = {2:6d}'.format( dRMin, ptRel, pass2D ))
