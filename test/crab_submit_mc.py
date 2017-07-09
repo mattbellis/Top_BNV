@@ -1,7 +1,7 @@
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 config = config()
 
-config.General.requestName = 'bellis_mc'
+config.General.requestName = 'bellis_mc_4'
 config.General.workArea = 'crab_projects'
 config.General.transferOutputs = True
 config.General.transferLogs = True
@@ -15,6 +15,8 @@ config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
 config.Data.outLFNDirBase = '/store/user/mbellis/'
+config.Data.ignoreLocality = True # DO I NEED THIS BECAUSE IT IS AT FNAL?
+config.Site.whitelist = ["T2_US*"] # DO I NEED THIS BECAUSE IT IS AT FNAL?
 config.Data.publication = False
 
 config.Site.storageSite = 'T3_US_FNALLPC'

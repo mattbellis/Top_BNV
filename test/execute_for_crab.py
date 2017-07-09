@@ -4,12 +4,10 @@ files = []
 #outfile = file( 'filesToProcess_FOR_CRAB.txt', 'w')
 #for ifile in PSet.process.source.fileNames :    
     #outfile.write( ifile + '\n' )
-
-
-outfile.close()
+#outfile.close()
 
 sys.argv.append('--input')
-sys.argv.append('filesToProcess_FOR_CRAB.txt')
+sys.argv.append('filesToProcess_FOR_CRAB_TTBAR_SMALL.txt')
 
 sys.argv.append('--isCrabRun')
 

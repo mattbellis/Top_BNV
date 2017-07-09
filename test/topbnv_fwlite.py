@@ -842,6 +842,7 @@ def topbnv_fwlite(argv):
                 antitopQuark = None
                 found_top = False
                 found_antitop = False
+                #print("------------------------------------------------------------")
                 for igen,gen in enumerate( gens.product() ):
                     ##### WHEN LOOPING OVER CHECK THE HARD SCATTERING FLAG 
                     ##### TO MAKE SURE WE DON'T WORRY ABOUT TOPS THAT ARE JUST
@@ -856,7 +857,7 @@ def topbnv_fwlite(argv):
                                 ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother, gen.isLastCopy() )
                         for ndau in range(0,gen.numberOfDaughters()):
                             genOut += "daughter pdgid: %d   pt: %f  %f\n" % (gen.daughter(ndau).pdgId(), gen.daughter(ndau).pt(), gen.daughter(ndau).mother().pt())
-                        #print genOut
+                        print genOut
                     if gen.pdgId() == 6 and gen.isLastCopy():
                         topQuark = gen
                         if found_top is False:
@@ -956,7 +957,7 @@ def topbnv_fwlite(argv):
                                 wmenergy = d1.energy() # For matching
 
                     elif gen.pdgId() == 24 and gen.isLastCopy() and \
-                            (gen.mother().pdgId()==6 and abs(gen.energy()-wpenergy)< 10):
+                            abs(gen.energy()-wpenergy)< 10:
                         if gen.numberOfDaughters()==2:
                             d0 = gen.daughter(0)
                             d1 = gen.daughter(1)
@@ -983,7 +984,7 @@ def topbnv_fwlite(argv):
 
                     #elif gen.pdgId() == -24 and gen.mother().pdgId()==-6:
                     elif gen.pdgId() == -24 and gen.isLastCopy() and \
-                            (gen.mother().pdgId()==-6 and abs(gen.energy()-wmenergy)< 10):
+                            abs(gen.energy()-wmenergy)< 10:
                         if gen.numberOfDaughters()==2:
                             d0 = gen.daughter(0)
                             d1 = gen.daughter(1)
