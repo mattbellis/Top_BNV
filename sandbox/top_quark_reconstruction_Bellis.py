@@ -34,6 +34,7 @@ nentries = tree.GetEntries()
 energies = []
 csvs = []
 masses = []
+Wmasses = []
 
 for i in range(nentries):
 
@@ -78,12 +79,18 @@ for i in range(nentries):
                 mass = invmass([bjet,jet0,jet1])
                 masses.append(mass)
 
+                mass = invmass([jet0,jet1])
+                Wmasses.append(mass)
+
     #csvs += csv[pt>30].tolist()
 
     #energies.append(njet)
 
 plt.figure()
-plt.hist(masses,bins=50,range=(0,1100))
+plt.subplot(1,2,1)
+plt.hist(masses,bins=200,range=(0,1100))
+plt.subplot(1,2,2)
+plt.hist(Wmasses,bins=200,range=(0,1100))
 
 plt.show()
 
