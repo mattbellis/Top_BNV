@@ -13,9 +13,9 @@ f.ls()
 
 tree = f.Get("IIHEAnalysis")
 
-#tree.Print()
+tree.Print()
 #tree.Print("*jet*")
-#exit()
+exit()
 
 nentries = tree.GetEntries()
 
