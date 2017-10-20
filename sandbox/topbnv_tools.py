@@ -2,6 +2,8 @@ import math
 import numpy as np
 import ROOT 
 
+pdgcodes = {6:"t", -6:"tbar"}
+
 # Assume we pass in 4 numpy arrays
 # Where each 
 def invmass(E,px,py,pz):
@@ -19,7 +21,7 @@ def invmass(E,px,py,pz):
         return -math.sqrt(-m2)
 
 # Pass in an event and a tree and return gen particles
-def get_gen_particles(event, tree):
+def get_gen_particles(tree):
 	
     # Make Dictionary
     gen_particles = {
@@ -33,9 +35,14 @@ def get_gen_particles(event, tree):
     px = tree.mc_px
     py = tree.mc_py
     pz = tree.mc_pz
+
+    print(pdgId)
+    for i in pdgId:
+        print(i)
+
     
     for i in range(len(pdgId)):
-        p4 = [E[i], px[i], py[i], pz[i], pdgId]
+        p4 = [E[i], px[i], py[i], pz[i], pdgId[i]]
         
         '''
         t        6
@@ -50,19 +57,22 @@ def get_gen_particles(event, tree):
         Wnu     +/- 12,14,16
         '''
         
-        if pdgId == 6:
+
+        if pdgId[i] == 6:
             gen_particles['t'].append(p4)
-        elif pdgId == -6:
+        elif pdgId[i] == -6:
             gen_particles['tbar'].append(p4)
-        elif pdgId == 24:
+        elif pdgId[i] == 24:
             gen_particles['Wp'].append(p4)
-        elif pdgId == -24:
+        elif pdgId[i] == -24:
             gen_particles['Wm'].append(p4)
-        elif pdgId == 5:
+        elif pdgId[i] == 5:
             gen_particles['b'].append(p4)
-        elif pdgId == -5:
+        elif pdgId[i] == -5:
             gen_particles['bbar'].append(p4)
 
+
+    return gen_particles
 
 
 

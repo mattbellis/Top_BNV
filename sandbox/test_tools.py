@@ -18,8 +18,7 @@ for i in range(nentries):
 
     tree.GetEntry(i)
 
-    E, px, py, pz, pdgId = tbt.get_gen_particles(tree.GetEntry(i), tree)
+    gps = tbt.get_gen_particles(tree)
 
-    for i in pdgId:
-        print(i)
+    print(gps)
     print("--------")
