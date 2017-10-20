@@ -19,18 +19,50 @@ def invmass(E,px,py,pz):
         return -math.sqrt(-m2)
 
 # Pass in an event and a tree and return gen particles
-def get_gen_particles(tree, event):
-	tree.GetEntry(event)
+def get_gen_particles(event, tree):
 	
-	jetE = tree.jet_energy
-	jetpx = tree.jet_px
-	jetpy = tree.jet_py
-	jetpz = tree.jet_pz
+    # Make Dictionary
+    gen_particles = {
+            't':[], 'tbar':[], 'Wp':[], 'Wm':[], 'b':[], 'bbar':[], 'Wjet0':[],
+            'Wjet1':[],'Wlep':[], 'Wnu':[]
+            }
 
-	
 
-	 
-	   
+    pdgId = tree.mc_pdgId
+    E = tree.mc_energy
+    px = tree.mc_px
+    py = tree.mc_py
+    pz = tree.mc_pz
     
+    for i in range(len(pdgId)):
+        p4 = [E[i], px[i], py[i], pz[i], pdgId]
+        
+        '''
+        t        6
+        tbar    -6
+        Wp       24
+        Wm      -24
+        b        5
+        bbar    -5
+        Wjet0    ???
+        Wjet1    ???
+        Wlep    +/- 11,13,15
+        Wnu     +/- 12,14,16
+        '''
+        
+        if pdgId == 6:
+            gen_particles['t'].append(p4)
+        elif pdgId == -6:
+            gen_particles['tbar'].append(p4)
+        elif pdgId == 24:
+            gen_particles['Wp'].append(p4)
+        elif pdgId == -24:
+            gen_particles['Wm'].append(p4)
+        elif pdgId == 5:
+            gen_particles['b'].append(p4)
+        elif pdgId == -5:
+            gen_particles['bbar'].append(p4)
+
+
 
 

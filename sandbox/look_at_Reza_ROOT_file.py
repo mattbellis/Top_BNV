@@ -9,12 +9,14 @@ import matplotlib.pylab as plt
 
 f = ROOT.TFile(sys.argv[1])
 
-f.ls()
+#f.ls()
 
 tree = f.Get("IIHEAnalysis")
 
-tree.Print()
+#tree.Print()
 #tree.Print("*jet*")
+tree.Print("*gen*")
+tree.Print("*mu_*")
 exit()
 
 nentries = tree.GetEntries()
