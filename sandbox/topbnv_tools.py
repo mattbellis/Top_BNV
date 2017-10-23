@@ -6,14 +6,17 @@ pdgcodes = {6:"t", -6:"tbar"}
 
 # Assume we pass in 4 numpy arrays
 # Where each 
-def invmass(E,px,py,pz):
+def invmass(p4s):
 
-    Etot = E.sum()
-    pxtot = px.sum()
-    pytot = py.sum()
-    pztot = pz.sum()
+    tot = [0.0, 0.0, 0.0, 0.0]
 
-    m2 = Etot*Etot - (pxtot*pxtot + pytot*pytot + pztot*pztot)
+    for p4 in p4s:
+        tot[0] += p4[0]
+        tot[1] += p4[1]
+        tot[2] += p4[2]
+        tot[3] += p4[3]
+
+    m2 = tot[0]*tot[0] - (tot[1]*tot[1] + tot[2]*tot[2] + tot[3]*tot[3])
 
     if m2 >= 0:
         return math.sqrt(m2)
