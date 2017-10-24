@@ -4,8 +4,21 @@ import ROOT
 
 pdgcodes = {6:"t", -6:"tbar"}
 
-# Assume we pass in 4 numpy arrays
-# Where each 
+################################################################################
+# Assume we pass in a list of 4 numbers in either a list or array
+################################################################################
+def angle_between_vectors(p30, p31):
+
+    mag0 = math.sqrt(p30[0]*p30[0] + p30[1]*p30[1] + p30[2]*p30[2])
+    mag1 = math.sqrt(p31[0]*p31[0] + p31[1]*p31[1] + p31[2]*p31[2])
+
+    dot = p30[0]*p31[0] + p30[1]*p31[1] + p30[2]*p31[2]
+
+    return math.acos(dot/(mag0*mag1))
+
+################################################################################
+# Assume we pass in a list of 4 numbers in either a list or array
+################################################################################
 def invmass(p4s):
 
     tot = [0.0, 0.0, 0.0, 0.0]
@@ -23,7 +36,10 @@ def invmass(p4s):
     else:
         return -math.sqrt(-m2)
 
+
+################################################################################
 # Pass in an event and a tree and return gen particles
+################################################################################
 def get_gen_particles(tree):
 	
     # Make Dictionary

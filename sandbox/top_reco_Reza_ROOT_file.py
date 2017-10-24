@@ -22,6 +22,7 @@ nentries = tree.GetEntries()
 topmass = []
 wmass = []
 csvs = []
+angles = []
 
 for i in range(nentries):
 
@@ -62,32 +63,55 @@ for i in range(nentries):
                 topmass.append(m)
                 wm = tbt.invmass([jet[j], jet[k]])
                 wmass.append(wm)
+                angles.append(tbt.angle_between_vectors(jet[j][1:], jet[k][1:]))
+
+
+################################################################################
 
 topmass = np.array(topmass)
 wmass = np.array(wmass)
 csvs = np.array(csvs)
+angles = np.array(angles)
 
+################################################################################
 plt.figure()
-plt.subplot(2,2,1)
+plt.subplot(2,3,1)
 plt.hist(topmass,bins=100,range=(0,600))
 
-plt.subplot(2,2,2)
+plt.subplot(2,3,2)
 plt.hist(wmass,bins=100,range=(0,300))
 
-plt.subplot(2,2,3)
+plt.subplot(2,3,3)
 plt.hist(csvs,bins=110,range=(0,1.1))
 
+plt.subplot(2,3,4)
+plt.hist(angles,bins=100,range=(0, 3.2))
 
+plt.subplot(2,3,5)
+plt.plot(wmass,angles,'.',markersize=0.5,alpha=0.2)
+plt.xlim(50,150)
+plt.ylim(0, 3.2)
+
+
+################################################################################
 # Cut on the wmass
 index = wmass>70.0
 index *= wmass<95.0
 
 plt.figure()
-plt.subplot(2,2,1)
+plt.subplot(2,3,1)
 plt.hist(topmass[index],bins=100,range=(0,600))
 
-plt.subplot(2,2,2)
+plt.subplot(2,3,2)
 plt.hist(wmass[index],bins=100,range=(0,300))
+
+plt.subplot(2,3,4)
+plt.hist(angles[index],bins=100,range=(0,3.2))
+
+plt.subplot(2,3,5)
+plt.plot(wmass[index],angles[index],'.',markersize=0.5,alpha=0.2)
+plt.xlim(50,150)
+plt.ylim(0, 3.2)
 
 plt.show()
 
