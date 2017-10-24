@@ -2,7 +2,40 @@ import math
 import numpy as np
 import ROOT 
 
+TWOPI = 2*math.pi
+
 pdgcodes = {6:"t", -6:"tbar"}
+
+################################################################################
+# Pass in an angle in radians and get an angle back between 0 and 2pi
+# https://root.cern.ch/doc/master/TLorentzVector_8h_source.html#l00463
+# https://root.cern.ch/doc/master/TVector2_8cxx_source.html#l00101
+################################################################################
+def angle_mod_2pi(angle):
+
+    while angle >= TWOPI:
+        angle -= TWOPI
+
+    return angle
+
+################################################################################
+# We pass in two array-like objects that represent eta and phi of two vectors
+# https://root.cern.ch/doc/master/TLorentzVector_8h_source.html#l00463
+################################################################################
+def deltaR(etph0, etph1):
+
+    # Assume eta is in the first entry
+    deta = etph0[0] - etph1[0]
+
+    # Assume phi is in the second entry
+    # First make sure it is between 0 and 2pi
+    # https://root.cern.ch/doc/master/TVector2_8cxx_source.html#l00101
+    etph0[1] = angle_mod_2pi(etph0[1])
+    etph1[1] = angle_mod_2pi(etph1[1])
+
+    dphi = etph0[1] - etph1[1]
+
+    return math.sqrt(deta*deta + dphi*dphi)
 
 ################################################################################
 # Assume we pass in a list of 4 numbers in either a list or array
