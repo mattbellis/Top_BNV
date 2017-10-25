@@ -16,6 +16,9 @@ def angle_mod_2pi(angle):
     while angle >= TWOPI:
         angle -= TWOPI
 
+    while angle < 0:
+        angle += TWOPI
+
     return angle
 
 ################################################################################
