@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import ROOT 
+import pickle
 
 TWOPI = 2*math.pi
 
@@ -161,5 +162,75 @@ def get_gen_particles(tree):
 
     return gen_particles
 
+
+################################################################################
+################################################################################
+# Read in the pickled dictionary file.
+################################################################################
+def read_dictionary_file(filename):
+    """ This function returns the list of dictionaries that are in the inputted file.
+
+    Args:
+        **filename** (str): The file to be read in using pickle.
+
+    Return:
+        **dictionary** (list): List of the dictionaries in the file passed in.
+
+    """
+
+    # Open and pickle the file.
+    infile = open(filename, 'rb')
+    try:
+        dictionary = pickle.load(infile)
+    except ValueError as detail:
+        error_string = """%s
+        This is most likely caused by the file being pickled with a higher protocol in Python3.x and then trying to open it with a lower protocol in 2.7.\n
+        You will want to recreate the file using the same version of python as the one you are using to open it.\n
+        File is not read in!""" % detail
+        raise ValueError(error_string)
+    except UnicodeDecodeError as detail:
+        error_string = """%s
+        This is most likely caused by the file being pickled with a lower protocol in Python2.7 and then trying to open it with a higher protocol in 3.x.\n
+        You will want to recreate the file using the same version of python as the one you are using to open it.\n
+        File is not read in!""" % detail
+
+    return dictionary
+
+
+################################################################################
+def write_pickle_file(data,filename="outfile.pkl"):
+
+    for key in data.keys():
+        data[key] = np.array(data[key])
+
+    filename = "temp.pkl"
+    outfile = open(filename,'wb')
+    pickle.dump(data,outfile,pickle.HIGHEST_PROTOCOL)
+    outfile.close()
+
+
+################################################################################
+def chain_pickle_files(filenames):
+
+    data = {}
+    for i,filename in enumerate(filenames):
+
+        print("Opening file ",filename)
+
+        if i==0:
+            data = read_dictionary_file(filename)
+        else:
+            temp = read_dictionary_file(filename)
+
+            for key in data.keys():
+                a = data[key]
+                b = temp[key]
+                totlen = len(a) + len(b)
+                c = np.zeros(totlen)
+                c[0:len(a)] = a
+                c[len(a):] = b
+                data[key] = c
+
+    return data
 
 
