@@ -2,7 +2,43 @@ import math
 import numpy as np
 import ROOT 
 
+TWOPI = 2*math.pi
+
 pdgcodes = {6:"t", -6:"tbar"}
+
+################################################################################
+# Pass in an angle in radians and get an angle back between 0 and 2pi
+# https://root.cern.ch/doc/master/TLorentzVector_8h_source.html#l00463
+# https://root.cern.ch/doc/master/TVector2_8cxx_source.html#l00101
+################################################################################
+def angle_mod_2pi(angle):
+
+    while angle >= TWOPI:
+        angle -= TWOPI
+
+    while angle < 0:
+        angle += TWOPI
+
+    return angle
+
+################################################################################
+# We pass in two array-like objects that represent eta and phi of two vectors
+# https://root.cern.ch/doc/master/TLorentzVector_8h_source.html#l00463
+################################################################################
+def deltaR(etph0, etph1):
+
+    # Assume eta is in the first entry
+    deta = etph0[0] - etph1[0]
+
+    # Assume phi is in the second entry
+    # First make sure it is between 0 and 2pi
+    # https://root.cern.ch/doc/master/TVector2_8cxx_source.html#l00101
+    etph0[1] = angle_mod_2pi(etph0[1])
+    etph1[1] = angle_mod_2pi(etph1[1])
+
+    dphi = etph0[1] - etph1[1]
+
+    return math.sqrt(deta*deta + dphi*dphi)
 
 ################################################################################
 # Assume we pass in a list of 4 numbers in either a list or array
@@ -38,6 +74,18 @@ def invmass(p4s):
 
 
 ################################################################################
+# Pass in pt, eta, and phi and return the x,y,z components of momentum
+################################################################################
+def etaphiTOxyz(pt,eta,phi):
+
+    px = pt*math.cos(phi)
+    py = pt*math.sin(phi)
+    pz = pt/math.tan(2*math.atan(math.exp(-eta)))
+
+    return px, py, pz
+
+
+################################################################################
 # Pass in an event and a tree and return gen particles
 ################################################################################
 def get_gen_particles(tree):
@@ -55,8 +103,28 @@ def get_gen_particles(tree):
     py = tree.mc_py
     pz = tree.mc_pz
 
-    print(pdgId)
+    LHE_pdgId = tree.LHE_pdgid
+    LHE_E = tree.LHE_E
+    pt = tree.LHE_Pt
+    eta = tree.LHE_Eta
+    phi = tree.LHE_Phi
+    
+    LHE_px = []
+    LHE_py = []
+    LHE_pz = []
+
+    for i in range(len(pt)):
+        L_px, L_py, L_pz = etaphiTOxyz(pt[i],eta[i],phi[i])
+        LHE_px.append(L_px)
+        LHE_py.append(L_py)
+        LHE_pz.append(L_pz)
+    
+    print("MC pdgId")
     for i in pdgId:
+        print(i)
+
+    print("----------------- \nLHE pdgId")
+    for i in LHE_pdgId:
         print(i)
 
     
