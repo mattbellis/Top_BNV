@@ -89,7 +89,8 @@ def main():
 
     ################################################################################
 
-    tbt.write_pickle_file(data,"outfile.pkl")
+    outfilename = filenames[0].split('/')[-1].split('.root')[0] + "_PICKLE.pkl"
+    tbt.write_pickle_file(data,outfilename)
 
 
 ################################################################################
