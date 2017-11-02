@@ -30,7 +30,7 @@ def main():
 
         print("Opening file ",filename)
 
-        f = ROOT.TFile(filename)
+        f = ROOT.TFile.Open(filename)
 
         #f.ls()
 
@@ -41,6 +41,8 @@ def main():
         #exit()
 
         nentries = tree.GetEntries()
+
+        print("Will run over %d entries" % (nentries))
 
         for i in range(nentries):
 

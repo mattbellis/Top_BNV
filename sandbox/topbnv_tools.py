@@ -203,7 +203,6 @@ def write_pickle_file(data,filename="outfile.pkl"):
     for key in data.keys():
         data[key] = np.array(data[key])
 
-    filename = "temp.pkl"
     outfile = open(filename,'wb')
     pickle.dump(data,outfile,pickle.HIGHEST_PROTOCOL)
     outfile.close()
