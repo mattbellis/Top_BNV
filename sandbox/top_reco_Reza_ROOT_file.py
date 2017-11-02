@@ -1,12 +1,13 @@
-import ROOT
-import sys
-
 import topbnv_tools as tbt
 
 import numpy as np
-import matplotlib.pylab as plt
+#import matplotlib.pylab as plt
 
-import lichen.lichen as lch
+import ROOT
+import sys
+
+#import lichen.lichen as lch
+#
 
 filenames = sys.argv[1:]
 
@@ -25,7 +26,7 @@ for filename in filenames:
 
     print("Opening file ",filename)
 
-    f = ROOT.TFile(filename)
+    f = ROOT.TFile.Open(filename)
 
     #f.ls()
 
@@ -91,6 +92,7 @@ angles = np.array(angles)
 dRs = np.array(dRs)
 
 ################################################################################
+'''
 plt.figure()
 plt.subplot(3,3,1)
 lch.hist_err(topmass,bins=100,range=(0,600),color='k')
@@ -145,6 +147,9 @@ plt.subplot(3,3,7)
 lch.hist_2D(dRs[index],angles[index],xbins=100,ybins=100,xrange=(0,6.28),yrange=(0,3.14))
 
 
-plt.show()
+#plt.show()
+
+'''
+np.savetxt('testout.dat',(topmass,wmass,csvs,angles,dRs))
 
 
