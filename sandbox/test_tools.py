@@ -20,5 +20,5 @@ for i in range(nentries):
 
     gps = tbt.get_gen_particles(tree)
 
-    print(gps)
+    #print(gps)
     print("--------")
