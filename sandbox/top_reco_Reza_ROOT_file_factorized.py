@@ -23,6 +23,7 @@ def main():
     data["csvs"] = []
     data["angles"] = []
     data["dRs"] = []
+    data["METpt"] = []
 
 
     # Loop over the files.
@@ -61,6 +62,9 @@ def main():
             phi = tree.jet_phi
             e = tree.jet_energy
             csv = tree.jet_CSVv2
+            metpt = tree.MET_Pt
+
+            data['METpt'].append(metpt)
 
             # Doing this because the jet_n value seems to be bigger.
             njet = len(csv)

@@ -181,7 +181,7 @@ def read_dictionary_file(filename):
     # Open and pickle the file.
     infile = open(filename, 'rb')
     try:
-        dictionary = pickle.load(infile)
+        dictionary = pickle.load(infile,encoding='latin1')
     except ValueError as detail:
         error_string = """%s
         This is most likely caused by the file being pickled with a higher protocol in Python3.x and then trying to open it with a lower protocol in 2.7.\n
