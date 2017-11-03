@@ -93,8 +93,8 @@ def get_gen_particles(tree):
 	
     # Make Dictionary
     gen_particles = {
-            't':[], 'tbar':[], 'Wp':[], 'Wm':[], 'b':[], 'bbar':[], 'Wjet0':[],
-            'Wjet1':[],'Wlep':[], 'Wnu':[]
+            't':[], 'tbar':[], 'Wp':[], 'Wm':[], 'b':[], 'bbar':[], 'Wpjet0':[],
+            'Wpjet1':[], 'Wmjet0':[], 'Wmjet1':[], 'Wplep':[], 'Wpnu':[], 'Wmlep':[], 'Wmnu':[]
             }
 
 
@@ -115,10 +115,11 @@ def get_gen_particles(tree):
     LHE_pz = []
 
     for i in range(len(pt)):
-        L_px, L_py, L_pz = etaphiTOxyz(pt[i],eta[i],phi[i])
-        LHE_px.append(L_px)
-        LHE_py.append(L_py)
-        LHE_pz.append(L_pz)
+        if eta[i] != 0 and phi[i] != 0:
+            L_px, L_py, L_pz = etaphiTOxyz(pt[i],eta[i],phi[i])
+            LHE_px.append(L_px)
+            LHE_py.append(L_py)
+            LHE_pz.append(L_pz)
     
     print("MC pdgId")
     for i in pdgId:
@@ -129,7 +130,7 @@ def get_gen_particles(tree):
         print(i)
 
     
-    for i in range(len(pdgId)):
+    for i in range(len(pdgId)-4):
         p4 = [E[i], px[i], py[i], pz[i], pdgId[i]]
         
         '''
@@ -158,7 +159,32 @@ def get_gen_particles(tree):
             gen_particles['b'].append(p4)
         elif pdgId[i] == -5:
             gen_particles['bbar'].append(p4)
+    
+    wchild = len(pdgId)-4
 
+    if pdgId[wchild] in [11,13,15]:
+        if pdgId[wchild + 1] in [-12,-14,-16]:
+            gen_particles['Wmlep'].append([E[wchild],px[wchild],py[wchild],pz[wchild]])
+            gen_particles['Wmnu'].append([E[wchild+1],px[wchild+1],py[wchild+1],pz[wchild+1]])
+    
+    elif pdgId[wchild+1] in [11,13,15]:
+        if pdgId[wchild] in [-12,-14,-16]:
+            gen_particles['Wmlep'].append([E[wchild+1],px[wchild+1],py[wchild+1],pz[wchild+1]])
+            gen_particles['Wmnu'].append([E[wchild],px[wchild],py[wchild],pz[wchild]])
+    
+    elif pdgId[wchild] in [-11,-13,-15]:
+        if pdgId[wchild+1] in [12,14,16]:
+            gen_particles['Wplep'].append([E[wchild],px[wchild],py[wchild],pz[wchild]])
+            gen_particles['Wpnu'].append([E[wchild+1],px[wchild+1],py[wchild+1],pz[wchild+1]])
+        
+
+    elif pdgId[wchild+1] in [-11,-13,-15]:
+        if pdgId[wchild] in [12,14,16]:
+            gen_particles['Wpnu'].append([E[wchild],px[wchild],py[wchild],pz[wchild]])
+            gen_particles['Wplep'].append([E[wchild+1],px[wchild+1],py[wchild+1],pz[wchild+1]])
+
+    # Check if first two are leptons/nu (+/- cases)
+    # Check if first two are jets - all quarks but need to check charges (add to +1 or -1)
 
     return gen_particles
 
