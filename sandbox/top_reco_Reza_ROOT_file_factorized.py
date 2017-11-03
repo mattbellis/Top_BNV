@@ -64,7 +64,6 @@ def main():
             csv = tree.jet_CSVv2
             metpt = tree.MET_Pt
 
-            data['METpt'].append(metpt)
 
             # Doing this because the jet_n value seems to be bigger.
             njet = len(csv)
@@ -91,6 +90,8 @@ def main():
                         data["wmass"].append(wm)
                         data["angles"].append(tbt.angle_between_vectors(jet[j][1:4], jet[k][1:4]))
                         data["dRs"].append(tbt.deltaR(jet[j][4:], jet[k][4:]))
+                        # There is only 1 MET, but we associate with every W/top candidate. 
+                        data['METpt'].append(metpt)
 
 
     ################################################################################
