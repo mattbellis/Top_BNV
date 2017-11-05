@@ -86,7 +86,7 @@ def main():
             for n in range(nmuons):
                 if muisPF[n]:
                     data["mupt"].append(mupt[n])
-                    data["muiso04"].append(int(bool(muiso04[n])))
+                    data["muiso04"].append(muiso04[n])
                     data["muisPF"].append(int(bool(muisPF[n])))
                     data["muist"].append(int(int(bool(muistight[n]))))
                     data["muism"].append(int(int(bool(muismedium[n]))))
