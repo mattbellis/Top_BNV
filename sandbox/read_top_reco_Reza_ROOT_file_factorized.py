@@ -83,6 +83,30 @@ def main():
     lch.hist_2D(dRs[index],angles[index],xbins=100,ybins=100,xrange=(0,6.28),yrange=(0,3.14))
 
 
+    '''
+    # For talk
+    plt.figure()
+    lch.hist_err(topmass[index],bins=100,range=(0,600),color='k')
+    plt.hist(topmass[index],bins=100,range=(0,600),color='grey',alpha=0.2)
+    plt.xlabel(r'Top candidate with W-mass cut (GeV/c$^2$)',fontsize=14)
+    plt.tight_layout()
+    plt.savefig('top.png')
+
+    plt.figure()
+    lch.hist_err(wmass,bins=100,range=(0,300),color='k')
+    plt.hist(wmass,bins=100,range=(0,300),color='grey',alpha=0.2)
+    plt.xlabel(r'W candidate (GeV/c$^2$)',fontsize=14)
+    plt.tight_layout()
+    plt.savefig('W.png')
+
+    plt.figure()
+    lch.hist_err(csvs,bins=110,range=(0,1.1),color='k')
+    plt.hist(csvs,bins=100,range=(0,1.1),color='grey',alpha=0.2)
+    plt.xlabel(r'CSVv2 variable',fontsize=14)
+    plt.tight_layout()
+    plt.savefig('csvv2.png')
+    '''
+
     plt.show()
 
 
