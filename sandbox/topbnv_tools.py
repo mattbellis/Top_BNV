@@ -92,10 +92,15 @@ def etaphiTOxyz(pt,eta,phi):
 def get_gen_particles(tree):
 	
     # Make Dictionary
+    '''
     gen_particles = {
             't':[], 'tbar':[], 'Wp':[], 'Wm':[], 'b':[], 'bbar':[], 'Wpjet0':[],
             'Wpjet1':[], 'Wmjet0':[], 'Wmjet1':[], 'Wplep':[], 'Wpnu':[], 'Wmlep':[], 'Wmnu':[]
             }
+    '''
+
+    gen_particles = []
+    particle = {"idx":-1, "pdgId":-999, "p4":[0.0, 0.0, 0.0,0.0], "motherpdg": -1, "grandmotherpdg":-1, "motheridx": -1, "grandmotheridx":-1, "ndau":-1}
 
 
     pdgId = tree.mc_pdgId
@@ -105,6 +110,8 @@ def get_gen_particles(tree):
     pz = tree.mc_pz
 
     mother = tree.mc_mother_pdgId
+    motheridx = tree.mc_mother_index
+    ndau = tree.mc_numberOfDaughters
 
     LHE_pdgId = tree.LHE_pdgid
     LHE_E = tree.LHE_E
@@ -123,11 +130,13 @@ def get_gen_particles(tree):
             LHE_py.append(L_py)
             LHE_pz.append(L_pz)
     
+    '''
     print("MC pdgId")
     for i in range(len(pdgId)):
         print('part', pdgId[i])
         for j in range(len(mother[i])):
             print('mom', mother[i][j])
+    '''
 
 
     #print("----------------- \nLHE pdgId")
@@ -135,9 +144,24 @@ def get_gen_particles(tree):
     #    print(i)
 
     for i in range(len(pdgId)):
+
+        #print(i,motheridx[i][0])
         p4 = [E[i], px[i], py[i], pz[i], pdgId[i]]
 
-        mother
+        #print(motheridx[i]][0])
+
+        particle["idx"] = i
+        particle["pdgId"] = pdgId[i]
+        particle["p4"] = p4
+        particle["motheridx"] = motheridx[i][0]
+        particle["motherpdg"] = mother[i][0]
+        particle["grandmotherpdg"] = mother[motheridx[i][0]][0]
+        particle["grandmotheridx"] = motheridx[motheridx[i][0]][0]
+
+        particle["ndau"] = ndau[i]
+
+        gen_particles.append(particle.copy())
+
         
         '''
         t        6
@@ -153,6 +177,8 @@ def get_gen_particles(tree):
         '''
         
 
+
+        '''
         if pdgId[i] == 6: # Do I need to check the daughters?
             gen_particles['t'].append(p4)
         elif pdgId[i] == -6:
@@ -185,6 +211,8 @@ def get_gen_particles(tree):
 
         elif (pdgId[i] in [-2,-4,-6] or pdgId[i] in [1,3,5]) and mother[i][0] == -24:
             gen_particles['Wmjet0'].append(p4)
+
+        '''
 
     return gen_particles
 
