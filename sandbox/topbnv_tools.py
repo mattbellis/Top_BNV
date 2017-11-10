@@ -104,6 +104,8 @@ def get_gen_particles(tree):
     py = tree.mc_py
     pz = tree.mc_pz
 
+    mother = tree.mc_mother_pdgId
+
     LHE_pdgId = tree.LHE_pdgid
     LHE_E = tree.LHE_E
     pt = tree.LHE_Pt
@@ -122,16 +124,20 @@ def get_gen_particles(tree):
             LHE_pz.append(L_pz)
     
     print("MC pdgId")
-    for i in pdgId:
-        print(i)
+    for i in range(len(pdgId)):
+        print('part', pdgId[i])
+        for j in range(len(mother[i])):
+            print('mom', mother[i][j])
 
-    print("----------------- \nLHE pdgId")
-    for i in LHE_pdgId:
-        print(i)
 
-    
-    for i in range(len(pdgId)-4):
+    #print("----------------- \nLHE pdgId")
+    #for i in LHE_pdgId:
+    #    print(i)
+
+    for i in range(len(pdgId)):
         p4 = [E[i], px[i], py[i], pz[i], pdgId[i]]
+
+        mother
         
         '''
         t        6
@@ -147,44 +153,38 @@ def get_gen_particles(tree):
         '''
         
 
-        if pdgId[i] == 6:
+        if pdgId[i] == 6: # Do I need to check the daughters?
             gen_particles['t'].append(p4)
         elif pdgId[i] == -6:
             gen_particles['tbar'].append(p4)
-        elif pdgId[i] == 24:
+        elif pdgId[i] == 24 and mother[i][0] == 6:
             gen_particles['Wp'].append(p4)
-        elif pdgId[i] == -24:
+        elif pdgId[i] == -24 and mother[i][0] == -6:
             gen_particles['Wm'].append(p4)
-        elif pdgId[i] == 5:
+        elif pdgId[i] == 5 and mother[i][0] == 6:
             gen_particles['b'].append(p4)
-        elif pdgId[i] == -5:
+        elif pdgId[i] == -5 and mother[i][0] == -6:
             gen_particles['bbar'].append(p4)
     
-    wchild = len(pdgId)-4
+    
 
-    if pdgId[wchild] in [11,13,15]:
-        if pdgId[wchild + 1] in [-12,-14,-16]:
-            gen_particles['Wmlep'].append([E[wchild],px[wchild],py[wchild],pz[wchild]])
-            gen_particles['Wmnu'].append([E[wchild+1],px[wchild+1],py[wchild+1],pz[wchild+1]])
+        elif pdgId[i] in [11,13,15] and mother[i][0] == -24:
+            gen_particles['Wmlep'].append(p4)
     
-    elif pdgId[wchild+1] in [11,13,15]:
-        if pdgId[wchild] in [-12,-14,-16]:
-            gen_particles['Wmlep'].append([E[wchild+1],px[wchild+1],py[wchild+1],pz[wchild+1]])
-            gen_particles['Wmnu'].append([E[wchild],px[wchild],py[wchild],pz[wchild]])
+        elif pdgId[i] in [-12,-14,-16] and mother[i][0] == -24:
+            gen_particles['Wmnu'].append(p4)
     
-    elif pdgId[wchild] in [-11,-13,-15]:
-        if pdgId[wchild+1] in [12,14,16]:
-            gen_particles['Wplep'].append([E[wchild],px[wchild],py[wchild],pz[wchild]])
-            gen_particles['Wpnu'].append([E[wchild+1],px[wchild+1],py[wchild+1],pz[wchild+1]])
+        elif pdgId[i] in [-11,-13,-15] and mother[i][0] == 24:
+            gen_particles['Wplep'].append(p4)
         
+        elif pdgId[i] in [12,14,16] and mother[i][0] == 24:
+            gen_particles['Wpnu'].append(p4)
 
-    elif pdgId[wchild+1] in [-11,-13,-15]:
-        if pdgId[wchild] in [12,14,16]:
-            gen_particles['Wpnu'].append([E[wchild],px[wchild],py[wchild],pz[wchild]])
-            gen_particles['Wplep'].append([E[wchild+1],px[wchild+1],py[wchild+1],pz[wchild+1]])
+        elif (pdgId[i] in [2,4,6] or pdgId[i] in [-1,-3,-5]) and mother[i][0] == 24:
+            gen_particles['Wpjet0'].append(p4)
 
-    # Check if first two are leptons/nu (+/- cases)
-    # Check if first two are jets - all quarks but need to check charges (add to +1 or -1)
+        elif (pdgId[i] in [-2,-4,-6] or pdgId[i] in [1,3,5]) and mother[i][0] == -24:
+            gen_particles['Wmjet0'].append(p4)
 
     return gen_particles
 
