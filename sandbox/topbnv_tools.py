@@ -287,3 +287,48 @@ def chain_pickle_files(filenames):
     return data
 
 
+################################################################################
+# Lorentz boost
+# 
+# Test code
+
+# pmom = [200, 90,50,50]
+# rest_frame = pmom
+# print(lorentz_boost(pmom,rest_frame))
+#
+################################################################################
+def lorentz_boost(pmom, rest_frame):
+
+    p = rest_frame
+    c = 1
+
+    pmag = np.sqrt(p[1]**2 + p[2]**2 + p[3]**2)
+    #E = np.sqrt((pmag*c)**2 + (m*c**2)**2)
+    E = p[0]
+
+    beta = pmag/E
+    betaX = p[1]/E
+    betaY = p[2]/E
+    betaZ = p[3]/E
+
+    gamma = np.sqrt(1 / (1-beta**2))
+
+    x = ((gamma-1) * betaX) / beta**2
+    y = ((gamma-1) * betaY) / beta**2
+    z = ((gamma-1) * betaZ) / beta**2
+
+    L = np.matrix([[gamma,      -gamma*betaX, -gamma*betaY, -gamma*betaZ],
+                [-gamma*betaX,  1 + x*betaX,      x*betaY,      x*betaZ],
+                [-gamma*betaY,      y*betaX,  1 + y*betaY,      y*betaZ],
+                [-gamma*betaZ,      z*betaX,      z*betaZ,  1 + z*betaZ]])
+
+
+    # Moving particle that will be boosted
+    #vector = np.matrix([E,p[1],p[1],p[2]])
+    vector = np.matrix(pmom)
+
+    boosted_vec = L*np.matrix.transpose(vector)
+
+    return boosted_vec
+################################################################################
+
