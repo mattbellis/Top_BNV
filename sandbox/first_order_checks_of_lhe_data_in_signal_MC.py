@@ -47,11 +47,15 @@ for i in range(nevents):
     if i%1000==0:
         print(i)
 
-    if i>1000:
+    if i>1000000000:
         break
 
 
     nparticles = len(t.LHE_pdgid)
+
+    #print("----------------------")
+    #for j in range(0,4):
+        #print(t.LHE_pdgid[j],t.LHE_status[j])
 
     #print("--------")
     bnvmuon = []
@@ -98,19 +102,22 @@ for i in range(nevents):
             pt = t.LHE_Pt[j]
             eta = t.LHE_Eta[j]
 
+            '''
             if pt<1:
                 print("--------")
                 print(pt)
                 print(pid)
                 print(eta)
+            '''
 
-            qpt.append(pt)
-            qeta.append(eta)
+            if t.LHE_status[j]>-1:
+                qpt.append(pt)
+                qeta.append(eta)
 
-            if pt<30:
-                pass_jet_pt = False
-            if np.abs(eta)>2.5:
-                pass_jet_eta = False
+                if pt<30:
+                    pass_jet_pt = False
+                if np.abs(eta)>2.5:
+                    pass_jet_eta = False
 
         ########################################################################
         # Lepton cuts
@@ -170,7 +177,6 @@ plt.hist(qeta,bins=50,range=(-4,4),linewidth=3,fill=False,histtype='step',label=
 #plt.legend(loc='upper left')
 plt.tight_layout()
 #plt.savefig('Fig1_from_paper.png')
-plt.show()
 
 cuts_text = ["SM hadronic: ",
              "lep pt>25: ",
@@ -191,3 +197,5 @@ print("%-28s  %5d" % ("cut on jet pt/eta: ", len(index[index])))
 
 index = cuts[0]*cuts[1]*cuts[2]*cuts[3]*cuts[4]
 print("%-28s  %5d" % ("cut on lepton/jet pt/eta: ", len(index[index])))
+
+plt.show()
