@@ -12,7 +12,7 @@ f = ROOT.TFile.Open(sys.argv[1])
 
 t = f.Get("IIHEAnalysis")
 
-#t.Print()
+t.Print()
 #exit()
 
 
@@ -24,6 +24,8 @@ qpt = []
 qeta = []
 leppt = []
 lepeta = []
+
+wts = [[], []]
 
 cuts = []
 ncuts = 5
@@ -56,6 +58,19 @@ for i in range(nevents):
     #print("----------------------")
     #for j in range(0,4):
         #print(t.LHE_pdgid[j],t.LHE_status[j])
+    wt = t.LHE_weight_sys
+    wit = t.LHE_id_sys
+
+    wt_nom = t.LHE_weight_nominal
+    wt_1 = wt[446]
+    wt_2 = wt[447]
+
+    #'''
+    if i==0:
+        for j,(wi,w) in enumerate(zip(wt,wit)):
+            print(j,wi,w)
+        #exit()
+    #'''
 
     #print("--------")
     bnvmuon = []
@@ -136,6 +151,8 @@ for i in range(nevents):
         boosted = tbt.lorentz_boost(bnvmuon[0:4],bnvtop[0:4])
         Ee = boosted.item(0,0)
         ebnv.append(2*Ee/Mt)
+        wts[0].append(wt_1/wt_nom)
+        wts[1].append(wt_2/wt_nom)
 
         if one_muon:
             cuts[0].append(True)
@@ -150,14 +167,35 @@ for i in range(nevents):
         esm.append(2*Ee/Mt)
 
 
+ebnv = np.array(ebnv)
+
+print("A")
+print(len(wts[0]))
+print(len(ebnv))
+
+x = np.sort(wts[0])
+print(x[0:10])
+print(x[-10:])
+
+x = np.sort(wts[1])
+print(x[0:10])
+print(x[-10:])
+
+wts[0] = np.array(wts[0])
+wts[1] = np.array(wts[1])
+
+
 
 
 #'''
+nbins = 50
 print(len(ebnv))
 print(len(esm))
 plt.figure()
-plt.hist(ebnv,bins=50,range=(0,1),linewidth=3,fill=False,histtype='step',label='BNV',normed=True,color='r')
-plt.hist(esm,bins=50,range=(0,1),linewidth=3,fill=False,histtype='step',label='SM',normed=True,color='b')
+plt.hist(ebnv,bins=nbins,range=(0,1),linewidth=3,fill=False,histtype='step',label='BNV',normed=True,color='r')
+plt.hist(ebnv[wts[0]<200],bins=nbins,weights=wts[0][wts[0]<200],range=(0,1),linewidth=3,fill=False,histtype='step',label='BNV - rwgt1',normed=True,color='g')
+plt.hist(ebnv[wts[1]<200],bins=nbins,weights=wts[1][wts[1]<200],range=(0,1),linewidth=3,fill=False,histtype='step',label='BNV - rwgt2',normed=True,color='magenta')
+plt.hist(esm,bins=nbins,range=(0,1),linewidth=3,fill=False,histtype='step',label='SM',normed=True,color='b')
 plt.xlabel(r'$2E_{\ell}/m_t$',fontsize=18)
 plt.legend(loc='upper left')
 plt.tight_layout()
