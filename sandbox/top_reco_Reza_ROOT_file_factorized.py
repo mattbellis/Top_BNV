@@ -24,6 +24,17 @@ def main():
     data["angles"] = []
     data["dRs"] = []
     data["METpt"] = []
+    data["njets"] = []
+    data["nbjets"] = []
+    data["lepmass"] = []
+    data["leadleppt"] = []
+    data["subleadleppt"] = []
+    data["leadlepeta"] = []
+    data["subleadlepeta"] = []
+    data["leadjetpt"] = []
+    data["subleadjetpt"] = []
+    data["leadjeteta"] = []
+    data["subleadjeteta"] = []
 
 
     # Loop over the files.
@@ -65,6 +76,7 @@ def main():
             metpt = tree.MET_Pt
 
 
+
             # Doing this because the jet_n value seems to be bigger.
             njet = len(csv)
 
@@ -92,7 +104,8 @@ def main():
                         data["dRs"].append(tbt.deltaR(jet[j][4:], jet[k][4:]))
                         # There is only 1 MET, but we associate with every W/top candidate. 
                         data['METpt'].append(metpt)
-
+            data['njets'].append(njet)
+            data['nbjets'].append(len(bjet))
 
     ################################################################################
 

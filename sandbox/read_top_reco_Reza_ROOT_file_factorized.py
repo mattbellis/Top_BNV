@@ -26,7 +26,9 @@ def main():
     csvs = data['csvs']
     angles = data['angles']
     dRs = data['dRs']
+    njets = data['njets']
 
+    print(njets)
 
     ################################################################################
     plt.figure()
