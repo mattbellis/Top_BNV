@@ -26,11 +26,16 @@ def main():
     data["METpt"] = []
     data["njets"] = []
     data["nbjets"] = []
-    data["lepmass"] = []
-    data["leadleppt"] = []
-    data["subleadleppt"] = []
-    data["leadlepeta"] = []
-    data["subleadlepeta"] = []
+    data["mumass"] = []
+    data["leadmupt"] = []
+    data["subleadmupt"] = []
+    data["leadmueta"] = []
+    data["subleadmueta"] = []
+    data["elecmass"] = []
+    data["leadelecpt"] = []
+    data["subleadelecpt"] = []
+    data["leadeleceta"] = []
+    data["subleadeleceta"] = []
     data["leadjetpt"] = []
     data["subleadjetpt"] = []
     data["leadjeteta"] = []
@@ -74,7 +79,13 @@ def main():
             e = tree.jet_energy
             csv = tree.jet_CSVv2
             metpt = tree.MET_Pt
-
+            mue = tree.mu_gt_p
+            mupx = tree.mu_gt_px
+            mupy = tree.mu_gt_py
+            mupz = tree.mu_gt_pz
+            mupt = tree.mu_gt_pt
+            mueta = tree.mu_gt_eta
+            muphi = tree.mu_gt_phi
 
 
             # Doing this because the jet_n value seems to be bigger.
@@ -82,6 +93,7 @@ def main():
 
             jet = []
             bjet = []
+            muon = []
             #print(njet,len(csv),len(px))
 
             for n in range(njet):
@@ -91,7 +103,19 @@ def main():
                         bjet.append([e[n],px[n],py[n],pz[n],eta[n],phi[n]])
                     else:
                         jet.append([e[n],px[n],py[n],pz[n],eta[n],phi[n]])
-
+            print("+++++++++++++++++++++++++++")
+            for n in range(len(mue)):
+                print(mupt[n])
+                muon.append([mue[n],mupx[n],mupy[n],mupz[n],mueta[n],muphi[n]])
+                data["mumass"].append(mue[n]*mue[n] - (mupy[n]*mupy[n] + mupx[n]*mupx[n] + mupz[n]*mupz[n]))
+                if n == 0:
+                    data["leadmupt"].append(mupt[n])
+                    data["leadmueta"].append(mueta[n])
+                if n == 1:
+                    data["subleadmupt"].append(mupt[n])
+                    data["subleadmueta"].append(mueta[n])
+            print("+++++++++++++++++++++++++++")
+            
             for b in bjet:
                 for j in range(0,len(jet)-1):
                     for k in range(j+1,len(jet)):
