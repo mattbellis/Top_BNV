@@ -15,4 +15,6 @@ https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions
 
 # Datasets
 
+```
 dasgoclient --query="dataset=/SingleMuon*/Run2016*Feb2017*/MINIAOD" --format=plain
+```
