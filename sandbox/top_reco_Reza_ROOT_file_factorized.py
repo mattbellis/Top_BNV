@@ -7,10 +7,13 @@ import numpy as np
 
 import pickle
 
-################################################################################
-def main():
+import argparse
 
-    filenames = sys.argv[1:]
+
+################################################################################
+def main(filenames,outfile=None):
+
+    #filenames = sys.argv[1:]
 
     print("Will open files:")
     for f in filenames:
@@ -45,7 +48,7 @@ def main():
     # Loop over the files.
     for filename in filenames:
 
-        print("Opening file ",filename)
+        print("Opening file %s" % (filename))
 
         f = ROOT.TFile.Open(filename)
 
@@ -103,9 +106,9 @@ def main():
                         bjet.append([e[n],px[n],py[n],pz[n],eta[n],phi[n]])
                     else:
                         jet.append([e[n],px[n],py[n],pz[n],eta[n],phi[n]])
-            print("+++++++++++++++++++++++++++")
+            #print("+++++++++++++++++++++++++++")
             for n in range(len(mue)):
-                print(mupt[n])
+                #print(mupt[n])
                 muon.append([mue[n],mupx[n],mupy[n],mupz[n],mueta[n],muphi[n]])
                 data["mumass"].append(mue[n]*mue[n] - (mupy[n]*mupy[n] + mupx[n]*mupx[n] + mupz[n]*mupz[n]))
                 if n == 0:
@@ -114,7 +117,7 @@ def main():
                 if n == 1:
                     data["subleadmupt"].append(mupt[n])
                     data["subleadmueta"].append(mueta[n])
-            print("+++++++++++++++++++++++++++")
+            #print("+++++++++++++++++++++++++++")
             
             for b in bjet:
                 for j in range(0,len(jet)-1):
@@ -133,10 +136,18 @@ def main():
 
     ################################################################################
 
-    outfilename = filenames[0].split('/')[-1].split('.root')[0] + "_PICKLE.pkl"
-    tbt.write_pickle_file(data,outfilename)
+    if outfile is None:
+        outfile = filenames[0].split('/')[-1].split('.root')[0] + "_PICKLE.pkl"
+    tbt.write_pickle_file(data,outfile)
 
 
 ################################################################################
 if __name__=="__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Process some files for top BNV search.')
+    parser.add_argument('--outfile', dest='outfile', default=None, help='Name of output file.')
+    parser.add_argument('infiles', action='append', nargs='*', help='Input file name(s)')
+    args = parser.parse_args()
+
+    print(args)
+
+    main(args.infiles[0],args.outfile)
