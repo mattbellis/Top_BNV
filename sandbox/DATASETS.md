@@ -9,3 +9,15 @@ https://cmsweb.cern.ch/das/request?view=list&limit=50&instance=prod%2Fglobal&inp
 Is this where we get the lumi mask from?
 
 https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/:w
+
+
+
+
+# Datasets
+
+```
+dasgoclient --query="dataset=/SingleMuon*/Run2016*Feb2017*/MINIAOD" --format=plain
+```
+
+MCM links
+* https://cms-pdmv.cern.ch/mcm/requests?dataset_name=TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8&page=0&shown=524415
