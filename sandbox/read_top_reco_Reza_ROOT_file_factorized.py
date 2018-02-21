@@ -1,10 +1,11 @@
-import ROOT
-import sys
 
 import topbnv_tools as tbt
 
 import numpy as np
 import matplotlib.pylab as plt
+
+import ROOT
+import sys
 
 import lichen.lichen as lch
 
@@ -110,6 +111,8 @@ def main():
     '''
 
     plt.show()
+
+    return data
 
 
 ################################################################################
