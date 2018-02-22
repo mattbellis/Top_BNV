@@ -14,6 +14,9 @@ import pickle
 ################################################################################
 def main():
 
+    lumi_file_name = 'lumi_data.pkl'
+    lumi_data = pickle.load( open( lumi_file_name, "rb" ) )
+
     filenames = sys.argv[1:]
 
     print("Will open files:")

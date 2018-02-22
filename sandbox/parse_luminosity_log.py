@@ -3,7 +3,7 @@ import pickle
 
 import sys
 
-infilename = sys.argv[1]
+infilename = 'LUMINOSITY.log'
 infile = open(infilename,'r')
 
 lumi_info = {}
@@ -50,5 +50,33 @@ for key in lumi_info.keys():
 
 print(tot)
 
+################################################################################
+# Now parse the crab completion log
+################################################################################
+
+infilename = 'CRAB_COMPLETION.log'
+infile = open(infilename,'r')
+
+while True:
+
+    line = infile.readline()
+
+    if not line:
+        break
+
+    if 'CRAB project directory' in line:
+        dataset = line.split('/')[-1].strip()
+        print(dataset)
+        failed = 0
+
+    if 'finished' in line:
+        finished = int(line.split('(')[1].split('/')[0])
+        finished_out_of = int(line.split('/')[1].split(')')[0])
+        print(finished,finished_out_of, finished_out_of-finished)
+
+        lumi_info[dataset]['finished_files'] = finished
+        lumi_info[dataset]['total_files'] = finished_out_of
+
+print(lumi_info)
 pickle.dump( lumi_info, open( "lumi_info.pkl", "wb" ) )
 

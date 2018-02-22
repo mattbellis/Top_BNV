@@ -263,7 +263,7 @@ def write_pickle_file(data,filename="outfile.pkl"):
 
 
 ################################################################################
-def chain_pickle_files(filenames):
+def chain_pickle_files(filenames, lumi_info=None):
 
     data = {}
     for i,filename in enumerate(filenames):
