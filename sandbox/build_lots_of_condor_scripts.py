@@ -10,9 +10,15 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2):
 
     lo = list_of_files[0].split('_')[-1].split('.root')[0]
     hi = list_of_files[-1].split('_')[-1].split('.root')[0]
-    tag = "%s_%s" % (lo,hi)
+    tag = "NFILES_%s_%s" % (lo,hi)
 
-    outfile = "%s_%s_%s_%s.pkl" % (s0,s1,s2, tag)
+    #outfile = "%s_%s_%s_%s.pkl" % (s0,s1,s2, tag)
+    outfile = "DATA_DATASET_%s_%s.pkl" % (s0, tag)
+    if topdir.find('SingleMuon')>=0:
+        outfile = "DATA_DATASET_%s_%s.pkl" % (s0, tag)
+    else:
+        outfile = "MC_DATASET_%s_%s.pkl" % (s0, tag)
+
     print(outfile)
 
     #startdir = topdir.split('/')[-2:]
