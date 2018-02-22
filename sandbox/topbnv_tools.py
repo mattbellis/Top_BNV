@@ -265,8 +265,27 @@ def write_pickle_file(data,filename="outfile.pkl"):
 ################################################################################
 def chain_pickle_files(filenames, lumi_info=None):
 
+    tot_lumi = 0
+
     data = {}
     for i,filename in enumerate(filenames):
+
+        dataset = filename.split('DATASET_')[1].split('_NFILES')[0]
+
+        nfiles = filename.split('_NFILES_')[1].split('.pkl')[0]
+        lofile = int(nfiles.split('_')[0])
+        hifile = int(nfiles.split('_')[1])
+
+        nfiles = hifile - lofile + 1
+
+        lumi = lumi_info[dataset]['recorded']
+        total_files = lumi_info[dataset]['total_files']
+
+        print(lumi)
+        lumi *= nfiles/float(total_files)
+        print(lumi)
+
+        tot_lumi += lumi
 
         print("Opening file ",filename)
 
@@ -284,7 +303,7 @@ def chain_pickle_files(filenames, lumi_info=None):
                 c[len(a):] = b
                 data[key] = c
 
-    return data
+    return data,tot_lumi
 
 
 ################################################################################

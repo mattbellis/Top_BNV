@@ -14,8 +14,8 @@ import pickle
 ################################################################################
 def main():
 
-    lumi_file_name = 'lumi_data.pkl'
-    lumi_data = pickle.load( open( lumi_file_name, "rb" ) )
+    lumi_file_name = 'lumi_info.pkl'
+    lumi_info = pickle.load( open( lumi_file_name, "rb" ) )
 
     filenames = sys.argv[1:]
 
@@ -23,7 +23,8 @@ def main():
     for f in filenames:
         print(f)
 
-    data = tbt.chain_pickle_files(filenames)
+    data,tot_lumi = tbt.chain_pickle_files(filenames,lumi_info)
+    print("tot_lumi: ",tot_lumi)
 
     topmass = data['topmass']
     wmass = data['wmass']
