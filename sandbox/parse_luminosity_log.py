@@ -78,5 +78,5 @@ while True:
         lumi_info[dataset]['total_files'] = finished_out_of
 
 print(lumi_info)
-pickle.dump( lumi_info, open( "lumi_info.pkl", "wb" ) )
+pickle.dump( lumi_info, open( "lumi_info.pkl", "wb" ), protocol=0 )
 
