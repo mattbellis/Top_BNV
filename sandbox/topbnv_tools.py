@@ -235,7 +235,7 @@ def read_dictionary_file(filename):
     # Open and pickle the file.
     infile = open(filename, 'rb')
     try:
-        dictionary = pickle.load(infile,encoding='latin1')
+        dictionary = pickle.load(infile)
     except ValueError as detail:
         error_string = """%s
         This is most likely caused by the file being pickled with a higher protocol in Python3.x and then trying to open it with a lower protocol in 2.7.\n
@@ -278,14 +278,17 @@ def chain_pickle_files(filenames, lumi_info=None):
 
         nfiles = hifile - lofile + 1
 
-        lumi = lumi_info[dataset]['recorded']
-        total_files = lumi_info[dataset]['total_files']
+        if lumi_info==None:
+            1
+        else:
+            lumi = lumi_info[dataset]['recorded']
+            total_files = lumi_info[dataset]['total_files']
 
-        print(lumi)
-        lumi *= nfiles/float(total_files)
-        print(lumi)
+            print(lumi)
+            lumi *= nfiles/float(total_files)
+            print(lumi)
 
-        tot_lumi += lumi
+            tot_lumi += lumi
 
         print("Opening file ",filename)
 

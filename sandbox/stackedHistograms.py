@@ -61,8 +61,9 @@ def main():
     bins = 100 
     
     plt.figure()
-    plt.subplot(3,3,1)
+    #plt.subplot(3,3,1)
     plt.hist([topmassDATA,topmassMC], bins, stacked=True)
+    '''
     #lch.hist_err(topmass,bins=100,range=(0,600),color='k')
     plt.xlabel('Top Mass (GeV)')
 
@@ -94,13 +95,13 @@ def main():
     #lch.hist_2D(dRs,angles,xbins=100,ybins=100,xrange=(0,6.28),yrange=(0,3.14))
     plt.xlabel('dRs')
     plt.ylabel('Angles')
-
+    '''
 
     ################################################################################
     # Cut on the wmass
     #index = wmass>70.0
     #index *= wmass<95.0
-
+    '''
     plt.figure()
     plt.title('W Mass Cuts')
     plt.subplot(3,3,1)
@@ -133,7 +134,7 @@ def main():
     plt.ylabel('Angles')
 
 
-    '''
+    
     # For talk
     plt.figure()
     #lch.hist_err(topmass[index],bins=100,range=(0,600),color='k')
@@ -155,8 +156,8 @@ def main():
     plt.xlabel(r'CSVv2 variable',fontsize=14)
     plt.tight_layout()
     plt.savefig('csvv2.png')
+    
     '''
-
     plt.show()
 
     return data
