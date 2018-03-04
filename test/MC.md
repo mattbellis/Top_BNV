@@ -48,5 +48,15 @@ If we wanted to look at one of these files, we would do
 Here's how I found a ttbar file to run on. 
 
         das_client --query="file dataset=/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" --format=plain
->>>>>>> 34f4c882fb33b06eed39c64e088d44338da92d8e
 
+
+** And some others
+
+dasgoclient --query="dataset=/TTJets*/*Summer16*/MINIAODSIM" --format plain --limit=30
+
+
+** To get numbers of events
+
+dasgoclient --query="dataset=/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM | grep dataset.nevents" --format=json
+
+dasgoclient --query="dataset=/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM | grep dataset.nevents" --format=json
