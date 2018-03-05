@@ -85,6 +85,19 @@ def etaphiTOxyz(pt,eta,phi):
 
     return px, py, pz
 
+################################################################################
+# Pass in CSV to be converted to dictionary
+################################################################################
+def csvtodict(csv_filename):
+
+    # edit this to return a dictionary
+
+    import csv
+    with open('my_file.csv') as f:
+        for line in csv.DictReader(f, fieldnames=('val1', 'val2', 'val3')):
+            print(line)
+    # will return a dictionary
+    return 
 
 ################################################################################
 # Pass in an event and a tree and return gen particles
