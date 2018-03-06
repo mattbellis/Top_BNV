@@ -91,13 +91,16 @@ def etaphiTOxyz(pt,eta,phi):
 ################################################################################
 def csvtodict(csv_filename):
 
+    # Dictionary = {{ 'Tag as key' , 'Dictionary of everything else as value}}
+
     reader = csv.DictReader(open(csv_filename))
     my_dict = list(reader)
 
-    for d in my_dict:
-        print(d.keys())
+    x = dict(((d['Tag'], dict({'cross_section' : d['cross_section'],'total_events' : d['total_events'], 'completed_events' : d['completed_events'],
+        'filter_eff' : d['filter_efficiency'], 'filter_eff_err' : d['filter_efficiency_error'], 'match_eff' : d['match_efficiency_error'],
+        'neg_weights' : d['negative_weights_fraction']})) for d in my_dict))
 
-    return my_dict 
+    return x 
 
 ################################################################################
 # Pass in an event and a tree and return gen particles
