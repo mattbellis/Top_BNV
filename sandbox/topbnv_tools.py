@@ -2,6 +2,7 @@ import math
 import numpy as np
 import ROOT 
 import pickle
+import csv
 
 TWOPI = 2*math.pi
 
@@ -90,14 +91,13 @@ def etaphiTOxyz(pt,eta,phi):
 ################################################################################
 def csvtodict(csv_filename):
 
-    # edit this to return a dictionary
+    reader = csv.DictReader(open(csv_filename))
+    my_dict = list(reader)
 
-    import csv
-    with open('my_file.csv') as f:
-        for line in csv.DictReader(f, fieldnames=('val1', 'val2', 'val3')):
-            print(line)
-    # will return a dictionary
-    return 
+    for d in my_dict:
+        print(d.keys())
+
+    return my_dict 
 
 ################################################################################
 # Pass in an event and a tree and return gen particles
