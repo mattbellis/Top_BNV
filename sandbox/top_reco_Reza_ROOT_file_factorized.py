@@ -44,6 +44,11 @@ def main(filenames,outfile=None):
     data["leadjeteta"] = []
     data["subleadjeteta"] = []
 
+    data["trig_HLT_IsoMu24_accept"] = []
+    data["trig_HLT_IsoTkMu24_accept"] = []
+    data["trig_HLT_IsoMu22_eta2p1_accept"] = []
+    data["trig_HLT_IsoTkMu22_eta2p1_accept"] = []
+
 
     # Loop over the files.
     for filename in filenames:
@@ -89,6 +94,11 @@ def main(filenames,outfile=None):
             mupt = tree.mu_gt_pt
             mueta = tree.mu_gt_eta
             muphi = tree.mu_gt_phi
+
+            data["trig_HLT_IsoMu24_accept"].append(tree.trig_HLT_IsoMu24_accept)
+            data["trig_HLT_IsoTkMu24_accept"].append(tree.trig_HLT_IsoTkMu24_accept)
+            data["trig_HLT_IsoMu22_eta2p1_accept"].append(tree.trig_HLT_IsoMu22_eta2p1_accept)
+            data["trig_HLT_IsoTkMu22_eta2p1_accept"].append(tree.trig_HLT_IsoTkMu22_eta2p1_accept)
 
 
             # Doing this because the jet_n value seems to be bigger.
