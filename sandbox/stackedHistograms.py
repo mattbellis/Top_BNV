@@ -33,12 +33,14 @@ def main():
     for filename in DATAfiles:
         print('DATA: ', filename)
                 
+    mcdata = []
     print("Will open files:")
-    for f in filenames:
-        print(f)
-
+    for f in MCfiles:
+        print('f', f)
+        mcdataTMP, tot_lumiMC = tbt.chain_pickle_files(f)
+        mcdata.append(mcdataTMP) 
+    
     data,tot_lumi = tbt.chain_pickle_files(DATAfiles,lumi_info)
-    mcdata, tot_lumiMC = tbt.chain_pickle_files(MCfiles)
     print("tot_lumi: ",tot_lumi)
 
     topmassDATA = data['topmass']
@@ -49,20 +51,38 @@ def main():
     #njets = data['njets']
     njetsDATA  = data['njets']
 
-    topmassMC = mcdata['topmass']
-    wmassMC  = mcdata['wmass']
-    csvsMC  = mcdata['csvs']
-    anglesMC = mcdata['angles']
-    dRsMC  = mcdata['dRs']
-    #njets = mcdata['njets']
-    njetsMC  = mcdata['njets']
+    topmassMC = [] 
+    wmassMC  = []
+    csvsMC  = []
+    anglesMC = []
+    dRsMC  = []
+    #njets = []
+    njetsMC  = []
+    
+    for mc in mcdata:
+        topmassMC.append(mc['topmass'])
+        wmassMC.append(mc['wmass'])
+        csvsMC.append(mc['csvs'])
+        anglesMC.append(mc['angles'])
+        dRsMC.append(mc['dRs'])
+        #njets.append(mc['njets'])
+        njetsMC.append(mc['njets'])
+
+    ################################################################################
+    # WEIGHTING
+
+    mcInfo = tbt.csvtodict("MCinfo.csv")
+
+    
+
+
 
     ################################################################################
     bins = 100 
     
     plt.figure()
     #plt.subplot(3,3,1)
-    plt.hist([topmassDATA,topmassMC], bins, stacked=True)
+    plt.hist([topmassDATA,topmassMC[0],topmassMC[1]], bins, stacked=True)
     '''
     #lch.hist_err(topmass,bins=100,range=(0,600),color='k')
     plt.xlabel('Top Mass (GeV)')

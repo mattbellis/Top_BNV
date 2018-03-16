@@ -251,7 +251,10 @@ def read_dictionary_file(filename):
     # Open and pickle the file.
     infile = open(filename, 'rb')
     try:
-        dictionary = pickle.load(infile,encoding='latin')
+        ### RUNNING LOCALLY
+        #dictionary = pickle.load(infile,encoding='latin')
+        ### RUNNING AT FERMILAB
+        dictionary = pickle.load(infile)
     except ValueError as detail:
         error_string = """%s
         This is most likely caused by the file being pickled with a higher protocol in Python3.x and then trying to open it with a lower protocol in 2.7.\n
@@ -281,11 +284,14 @@ def write_pickle_file(data,filename="outfile.pkl"):
 ################################################################################
 def chain_pickle_files(filenames, lumi_info=None):
 
+    if type(filenames)==str:
+        filenames = [filenames]
+
     tot_lumi = 0
 
     data = {}
     for i,filename in enumerate(filenames):
-
+        
         dataset = filename.split('DATASET_')[1].split('_NFILES')[0]
 
         nfiles = filename.split('_NFILES_')[1].split('.pkl')[0]
