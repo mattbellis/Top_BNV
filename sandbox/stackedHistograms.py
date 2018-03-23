@@ -27,21 +27,33 @@ def main():
             MCfiles.append(filename)
         else:
             DATAfiles.append(filename)
-    
+    '''
     for filename in MCfiles:
         print('MC: ', filename)
     for filename in DATAfiles:
         print('DATA: ', filename)
-                
+    '''            
     mcdata = []
-    print("Will open files:")
-    for f in MCfiles:
-        print('f', f)
-        mcdataTMP, tot_lumiMC = tbt.chain_pickle_files(f)
-        mcdata.append(mcdataTMP) 
-    
+    #print("Will open files:")
+    mcInfo = tbt.csvtodict("MCinfo.csv")
+    weights = [1]
+    mcEvents = [0]
+    crosssection = [0]
+
     data,tot_lumi = tbt.chain_pickle_files(DATAfiles,lumi_info)
     print("tot_lumi: ",tot_lumi)
+   
+
+    for f in MCfiles:
+        #print('f', f)
+        mcdataTMP, tot_lumiMC = tbt.chain_pickle_files(f)
+        mcdata.append(mcdataTMP) 
+        fnew = f.split('DATASET_crab_')[1].split('_NFILES')[0]
+        nfiles = int(f.split('NFILES_')[1].split('_')[1].split('.')[0]) - int(f.split('NFILES_')[1].split('_')[0])
+        crosssection = 1000*(float(mcInfo[fnew]['cross_section']))
+        mcEvents = (float(mcInfo[fnew]['total_events']))
+        print(crosssection,mcEvents/crosssection,tot_lumi,nfiles,mcEvents,mcInfo[fnew]['nfiles'])
+        weights.append((crosssection * tot_lumi) / (nfiles*mcEvents/int(mcInfo[fnew]['nfiles'])))
 
     topmassDATA = data['topmass']
     wmassDATA  = data['wmass']
@@ -59,6 +71,7 @@ def main():
     #njets = []
     njetsMC  = []
     
+
     for mc in mcdata:
         topmassMC.append(mc['topmass'])
         wmassMC.append(mc['wmass'])
@@ -68,21 +81,19 @@ def main():
         #njets.append(mc['njets'])
         njetsMC.append(mc['njets'])
 
-    ################################################################################
-    # WEIGHTING
-
-    mcInfo = tbt.csvtodict("MCinfo.csv")
-
+    print('Weights', weights)
     
-
-
-
-    ################################################################################
     bins = 100 
-    
+
+    hweights = []
+    for w,d in zip(weights,[topmassDATA,topmassMC[0],topmassMC[1]]):
+        print('weighting: ',w,len(d))
+        hweights.append(w*np.ones(len(d)))
+        #hweights.append(1*np.ones(len(d)))
+
     plt.figure()
     #plt.subplot(3,3,1)
-    plt.hist([topmassDATA,topmassMC[0],topmassMC[1]], bins, stacked=True)
+    plt.hist([topmassDATA,topmassMC[0],topmassMC[1]], bins, weights=hweights,stacked=True)
     '''
     #lch.hist_err(topmass,bins=100,range=(0,600),color='k')
     plt.xlabel('Top Mass (GeV)')
