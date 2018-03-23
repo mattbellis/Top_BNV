@@ -288,6 +288,7 @@ def chain_pickle_files(filenames, lumi_info=None):
         filenames = [filenames]
 
     tot_lumi = 0
+    #print(lumi_info)
 
     data = {}
     for i,filename in enumerate(filenames):
