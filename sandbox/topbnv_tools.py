@@ -365,7 +365,7 @@ def lorentz_boost(pmom, rest_frame):
     L = np.matrix([[gamma,      -gamma*betaX, -gamma*betaY, -gamma*betaZ],
                 [-gamma*betaX,  1 + x*betaX,      x*betaY,      x*betaZ],
                 [-gamma*betaY,      y*betaX,  1 + y*betaY,      y*betaZ],
-                [-gamma*betaZ,      z*betaX,      z*betaZ,  1 + z*betaZ]])
+                [-gamma*betaZ,      z*betaX,      z*betaY,  1 + z*betaZ]])
 
 
     # Moving particle that will be boosted
