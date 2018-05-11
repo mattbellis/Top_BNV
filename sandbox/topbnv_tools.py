@@ -98,7 +98,7 @@ def csvtodict(csv_filename):
 
     x = dict(((d['Tag'], dict({'cross_section' : d['cross_section'],'total_events' : d['total_events'], 'completed_events' : d['completed_events'],
         'filter_eff' : d['filter_efficiency'], 'filter_eff_err' : d['filter_efficiency_error'], 'match_eff' : d['match_efficiency_error'],
-        'neg_weights' : d['negative_weights_fraction']})) for d in my_dict))
+        'neg_weights' : d['negative_weights_fraction'], 'nfiles' : d['nfiles']})) for d in my_dict))
 
     return x 
 
@@ -251,7 +251,10 @@ def read_dictionary_file(filename):
     # Open and pickle the file.
     infile = open(filename, 'rb')
     try:
+        ### RUNNING LOCALLY
         dictionary = pickle.load(infile,encoding='latin')
+        ### RUNNING AT FERMILAB
+        #dictionary = pickle.load(infile)
     except ValueError as detail:
         error_string = """%s
         This is most likely caused by the file being pickled with a higher protocol in Python3.x and then trying to open it with a lower protocol in 2.7.\n
@@ -281,11 +284,15 @@ def write_pickle_file(data,filename="outfile.pkl"):
 ################################################################################
 def chain_pickle_files(filenames, lumi_info=None):
 
+    if type(filenames)==str:
+        filenames = [filenames]
+
     tot_lumi = 0
+    #print(lumi_info)
 
     data = {}
     for i,filename in enumerate(filenames):
-
+        
         dataset = filename.split('DATASET_')[1].split('_NFILES')[0]
 
         nfiles = filename.split('_NFILES_')[1].split('.pkl')[0]
@@ -358,7 +365,7 @@ def lorentz_boost(pmom, rest_frame):
     L = np.matrix([[gamma,      -gamma*betaX, -gamma*betaY, -gamma*betaZ],
                 [-gamma*betaX,  1 + x*betaX,      x*betaY,      x*betaZ],
                 [-gamma*betaY,      y*betaX,  1 + y*betaY,      y*betaZ],
-                [-gamma*betaZ,      z*betaX,      z*betaZ,  1 + z*betaZ]])
+                [-gamma*betaZ,      z*betaX,      z*betaY,  1 + z*betaZ]])
 
 
     # Moving particle that will be boosted
