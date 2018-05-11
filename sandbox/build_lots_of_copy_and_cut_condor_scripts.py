@@ -42,9 +42,7 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2):
     print(cmd)
     sp.Popen(cmd,0).wait()
 
-    exit()
-
-
+    #exit()
 
 
 files_at_a_time = 10
@@ -126,7 +124,7 @@ for s0 in subdirs0:
 
             
     # Comment this out when we want to run over everything
-    exit()
+    #exit()
 
 
 print(topdir)
