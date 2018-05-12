@@ -35,6 +35,24 @@ def main(filenames,outfilename=None):
     outtree.Branch( 'topmass', topmass, 'topmass[ntop]/F' )
     wmass = array( 'f', maxn*[ 0. ] )
     outtree.Branch( 'wmass', wmass, 'wmass[ntop]/F' )
+    wangle = array( 'f', maxn*[ 0. ] )
+    outtree.Branch( 'wangle', wangle, 'wangle[ntop]/F' )
+    wdR = array( 'f', maxn*[ 0. ] )
+    outtree.Branch( 'wdR', wdR, 'wdR[ntop]/F' )
+
+    METpt = array( 'f', [ 0. ] )
+    outtree.Branch( 'METpt', METpt, 'METpt/F' )
+
+    nmuon = array( 'i', [ 0 ] )
+    outtree.Branch( 'nmuon', nmuon, 'nmuon/I' )
+    leadmupt = array( 'f', [ 0. ] )
+    outtree.Branch( 'leadmupt', leadmupt, 'leadmupt/F' )
+    leadmueta = array( 'f', [ 0. ] )
+    outtree.Branch( 'leadmueta', leadmueta, 'leadmueta/F' )
+    subleadmupt = array( 'f', [ 0. ] )
+    outtree.Branch( 'subleadmupt', subleadmupt, 'subleadmupt/F' )
+    subleadmueta = array( 'f', [ 0. ] )
+    outtree.Branch( 'subleadmueta', subleadmueta, 'subleadmueta/F' )
 
     trig_HLT_IsoMu24_accept = array( 'i', [ 0 ] )
     trig_HLT_IsoTkMu24_accept = array( 'i', [ 0 ] )
@@ -89,11 +107,9 @@ def main(filenames,outfilename=None):
         print("Opening file %s" % (filename))
 
         f = ROOT.TFile.Open(filename)
-
         #f.ls()
 
         tree = f.Get("IIHEAnalysis")
-
         #tree.Print()
         #tree.Print("*jet*")
         #exit()
@@ -155,19 +171,28 @@ def main(filenames,outfilename=None):
                     nj += 1
             #print("+++++++++++++++++++++++++++")
 
+            #'''
+            #print("+++++++++++++++++++++++++++")
+            if len(mue)>0:
+                leadmupt[0] = mupt[0]
+                leadmueta[0] = mueta[0]
+            if len(mue)>1:
+                subleadmupt[0] = mupt[1]
+                subleadmueta[0] = mueta[1]
             '''
             for n in range(len(mue)):
-                #print(mupt[n])
-                muon.append([mue[n],mupx[n],mupy[n],mupz[n],mueta[n],muphi[n]])
-                data["mumass"].append(mue[n]*mue[n] - (mupy[n]*mupy[n] + mupx[n]*mupx[n] + mupz[n]*mupz[n]))
+                print(mupt[n])
+                #muon.append([mue[n],mupx[n],mupy[n],mupz[n],mueta[n],muphi[n]])
+                #data["mumass"].append(mue[n]*mue[n] - (mupy[n]*mupy[n] + mupx[n]*mupx[n] + mupz[n]*mupz[n]))
                 if n == 0:
-                    data["leadmupt"].append(mupt[n])
-                    data["leadmueta"].append(mueta[n])
+                    leadmupt[0] = mupt[n]
+                    leadmueta[0] = mueta[n]
                 if n == 1:
-                    data["subleadmupt"].append(mupt[n])
-                    data["subleadmueta"].append(mueta[n])
-            #print("+++++++++++++++++++++++++++")
+                    subleadmupt[0] = mupt[n]
+                    subleadmueta[0] = mueta[n]
             '''
+            #print("+++++++++++++++++++++++++++")
+            #'''
             
             ntop[0] = 0
             for b in bjet:
@@ -180,14 +205,12 @@ def main(filenames,outfilename=None):
                             topmass[ntop[0]] = m
                             wm = tbt.invmass([jet[j][0:4], jet[k][0:4]])
                             wmass[ntop[0]] = wm
+                            wangle[ntop[0]] = tbt.angle_between_vectors(jet[j][1:4], jet[k][1:4])
+                            wdR[ntop[0]] = tbt.deltaR(jet[j][4:], jet[k][4:])
+
                             ntop[0] += 1
 
-                        '''
-                        data["angles"].append(tbt.angle_between_vectors(jet[j][1:4], jet[k][1:4]))
-                        data["dRs"].append(tbt.deltaR(jet[j][4:], jet[k][4:]))
-                        # There is only 1 MET, but we associate with every W/top candidate. 
-                        data['METpt'].append(metpt)
-                        '''
+            METpt[0] = metpt
             #data['njets'].append(njet)
             #data['nbjets'].append(len(bjet))
 
