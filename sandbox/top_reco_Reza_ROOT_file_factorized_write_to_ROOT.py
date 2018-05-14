@@ -4,6 +4,7 @@ import sys
 import topbnv_tools as tbt
 
 import numpy as np
+import math
 
 import pickle
 
@@ -128,13 +129,22 @@ def main(filenames,outfilename=None):
 
             tree.GetEntry(i)
 
-            '''
+            gen_b = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0] ]
+
+            #'''
             gen_particles = tbt.get_gen_particles(tree)
-            print("----------")
+            #print("----------")
+            ib = 0
             for gen in gen_particles:
-                if np.abs(gen['pdgId'])==24 and gen['ndau']==2:
-                    print(gen)
-            '''
+                #if np.abs(gen['pdgId'])==24 and gen['ndau']==2:
+                if np.abs(gen['pdgId'])==5 and np.abs(gen['motherpdg'])==6:
+                    #print(gen)
+                    p4 = gen['p4']
+                    b_pt,b_eta,b_phi = tbt.xyzTOetaphi(p4[1],p4[2],p4[3])
+                    gen_b[ib] = b_pt,b_eta,b_phi 
+                    ib += 1 # Assume we only have 2 b-quarks coming from the tops per event
+
+            #'''
 
             #njet = tree.jet_n
             pt = tree.jet_pt
@@ -167,12 +177,28 @@ def main(filenames,outfilename=None):
             bjet = []
             muon = []
             #print(njet,len(csv),len(px))
+            # Try to match bjets
+            print("Looking -------------------------------------------------------")
+            nj = 0
+            for n in range(njet[0]):
+                for gb in gen_b:
+                    etaph0 = [eta[n],phi[n]]
+                    etaph1 = [gb[1],gb[2]]
+                    #'''
+                    gendR = tbt.deltaR(etaph0,etaph1)
+                    if math.fabs(pt[n]-gb[0])<10 and gendR<0.5:
+                        print("FOUND MATCH!  ",csv[n])
+                        print(gb)
+                        print(pt[n],eta[n],phi[n])
+                        print(gendR)
+                    #'''
+                
 
             nj = 0
             for n in range(njet[0]):
                 if pt[n]>30:
                     #data["csvs"].append(csv[n])
-                    if csv[n]>0.87:
+                    if csv[n]>0.87 or csv[n]<-9:
                         bjet.append([e[n],px[n],py[n],pz[n],eta[n],phi[n]])
                         jetcsv[nj] = csv[n]
                     else:
