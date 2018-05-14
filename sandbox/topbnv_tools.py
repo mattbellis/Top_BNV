@@ -252,9 +252,9 @@ def read_dictionary_file(filename):
     infile = open(filename, 'rb')
     try:
         ### RUNNING LOCALLY
-        #dictionary = pickle.load(infile,encoding='latin')
+        dictionary = pickle.load(infile,encoding='latin')
         ### RUNNING AT FERMILAB
-        dictionary = pickle.load(infile)
+        #dictionary = pickle.load(infile)
     except ValueError as detail:
         error_string = """%s
         This is most likely caused by the file being pickled with a higher protocol in Python3.x and then trying to open it with a lower protocol in 2.7.\n
