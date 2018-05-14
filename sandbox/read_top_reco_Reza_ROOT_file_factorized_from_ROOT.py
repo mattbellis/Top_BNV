@@ -28,16 +28,20 @@ def main():
         print(f)
         T.Add(f)
 
+    ntops = []
     topmass = []
     wmass = []
     csvs = []
     angles = []
     dRs = []
+    wH = []
     njets = []
     leadmupt = []
     leadmueta = []
     subleadmupt = []
     subleadmueta = []
+    metpt = []
+    triggers = [[], [], [], []]
 
     nentries = T.GetEntries()
     for i in range(nentries):
@@ -45,10 +49,12 @@ def main():
 
         njets.append(T.njet)
         ntop = T.ntop
+        ntops.append(ntop)
         for n in range(ntop):
             topmass.append(T.topmass[n])
             wmass.append(T.wmass[n])
             dRs.append(T.wdR[n])
+            wH.append(T.wH[n])
             angles.append(T.wangle[n])
 
         for n in range(T.njet):
@@ -58,17 +64,31 @@ def main():
         leadmueta.append(T.leadmueta)
         subleadmupt.append(T.subleadmupt)
         subleadmueta.append(T.subleadmueta)
+        metpt.append(T.METpt)
 
+        triggers[0].append(T.trig_HLT_IsoMu24_accept)
+        triggers[1].append(T.trig_HLT_IsoTkMu24_accept)
+        triggers[2].append(T.trig_HLT_IsoMu22_eta2p1_accept)
+        triggers[3].append(T.trig_HLT_IsoTkMu22_eta2p1_accept)
+
+
+    ntops = np.array(ntops)
     topmass = np.array(topmass)
     wmass = np.array(wmass)
     csvs = np.array(csvs)
     angles = np.array(angles)
     dRs = np.array(dRs)
+    wH = np.array(wH)
     njets = np.array(njets)
     leadmupt = np.array(leadmupt)
     leadmueta = np.array(leadmueta)
     subleadmupt = np.array(subleadmupt)
     subleadmueta = np.array(subleadmueta)
+    metpt = np.array(metpt)
+    triggers[0] = np.array(triggers[0])
+    triggers[1] = np.array(triggers[1])
+    triggers[2] = np.array(triggers[2])
+    triggers[3] = np.array(triggers[3])
 
 
     '''
@@ -94,7 +114,7 @@ def main():
 
     plt.subplot(3,3,3)
     lch.hist_err(csvs,bins=110,range=(0,1.1),color='k')
-    plt.xlabel('Isolation Variable')
+    plt.xlabel('CSV variable')
 
     plt.subplot(3,3,4)
     lch.hist_err(angles,bins=100,range=(0, 3.2),color='k')
@@ -117,11 +137,22 @@ def main():
     plt.xlabel('dRs')
     plt.ylabel('Angles')
 
+    plt.subplot(3,3,8)
+    lch.hist_err(wH,bins=100,range=(0,250),color='k')
+    plt.xlabel('scalar H')
+
+    plt.subplot(3,3,9)
+    lch.hist_err(ntops,bins=6,range=(0,6),color='k')
+    plt.xlabel('ntops')
+
+    plt.tight_layout()
+
 
     ################################################################################
     # Cut on the wmass
     index = wmass>70.0
     index *= wmass<95.0
+    #index = (np.abs(angles - dRs)<=0.45)
 
     plt.figure()
     plt.title('W Mass Cuts')
@@ -154,6 +185,11 @@ def main():
     plt.xlabel('dRs')
     plt.ylabel('Angles')
 
+    plt.subplot(3,3,8)
+    lch.hist_err(wH[index],bins=100,range=(0,250),color='k')
+    plt.xlabel('scalar H')
+
+    plt.tight_layout()
 
     ############################################################################
     # Muons
@@ -175,6 +211,11 @@ def main():
     lch.hist_err(subleadmueta,bins=100,range=(-3.0,3.0),color='k')
     plt.xlabel(r'Sub-leading muon $\eta$ (GeV/c)')
 
+    plt.subplot(3,3,7)
+    lch.hist_err(metpt,bins=100,range=(0.0,100.0),color='k')
+    plt.xlabel(r'Missing E$_T$ (GeV)')
+
+    plt.tight_layout()
     '''
     # For talk
     plt.figure()
@@ -198,6 +239,34 @@ def main():
     plt.tight_layout()
     plt.savefig('csvv2.png')
     '''
+
+    ############################################################################
+    # Triggers
+    ############################################################################
+    plt.figure()
+    plt.subplot(5,4,1)
+    lch.hist_err(triggers[0],bins=2,range=(0,2),color='k')
+    plt.xlabel(r'Trigger 0')
+
+    plt.subplot(5,4,2)
+    lch.hist_err(triggers[1],bins=2,range=(0,2),color='k')
+    plt.xlabel(r'Trigger 1')
+
+    plt.subplot(5,4,3)
+    lch.hist_err(triggers[2],bins=2,range=(0,2),color='k')
+    plt.xlabel(r'Trigger 2')
+
+    plt.subplot(5,4,4)
+    lch.hist_err(triggers[3],bins=2,range=(0,2),color='k')
+    plt.xlabel(r'Trigger 3')
+
+    for i in range(0,4):
+        for j in range(0,4):
+            plt.subplot(5,4,5+i*4 + j)
+            lch.hist_err(triggers[i][triggers[j]==1],bins=2,range=(0,2))
+
+    plt.tight_layout()
+
 
     plt.show()
 
