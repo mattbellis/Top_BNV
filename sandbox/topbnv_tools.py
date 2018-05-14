@@ -57,6 +57,17 @@ def angle_between_vectors(p30, p31):
 ################################################################################
 # Assume we pass in a list of 4 numbers in either a list or array
 ################################################################################
+def scalarH(p4s):
+
+    totH = 0
+    for p4 in p4s:
+        totH += np.sqrt(p4[1]*p4[1] + p4[2]*p4[2])
+
+    return totH
+
+################################################################################
+# Assume we pass in a list of 4 numbers in either a list or array
+################################################################################
 def invmass(p4s):
 
     tot = [0.0, 0.0, 0.0, 0.0]

@@ -39,6 +39,8 @@ def main(filenames,outfilename=None):
     outtree.Branch( 'wangle', wangle, 'wangle[ntop]/F' )
     wdR = array( 'f', maxn*[ 0. ] )
     outtree.Branch( 'wdR', wdR, 'wdR[ntop]/F' )
+    wH = array( 'f', maxn*[ 0. ] )
+    outtree.Branch( 'wH', wH, 'wH[ntop]/F' )
 
     METpt = array( 'f', [ 0. ] )
     outtree.Branch( 'METpt', METpt, 'METpt/F' )
@@ -126,6 +128,14 @@ def main(filenames,outfilename=None):
 
             tree.GetEntry(i)
 
+            '''
+            gen_particles = tbt.get_gen_particles(tree)
+            print("----------")
+            for gen in gen_particles:
+                if np.abs(gen['pdgId'])==24 and gen['ndau']==2:
+                    print(gen)
+            '''
+
             #njet = tree.jet_n
             pt = tree.jet_pt
             px = tree.jet_px
@@ -207,6 +217,7 @@ def main(filenames,outfilename=None):
                             wmass[ntop[0]] = wm
                             wangle[ntop[0]] = tbt.angle_between_vectors(jet[j][1:4], jet[k][1:4])
                             wdR[ntop[0]] = tbt.deltaR(jet[j][4:], jet[k][4:])
+                            wH[ntop[0]] = tbt.scalarH([jet[j], jet[k]])
 
                             ntop[0] += 1
 
