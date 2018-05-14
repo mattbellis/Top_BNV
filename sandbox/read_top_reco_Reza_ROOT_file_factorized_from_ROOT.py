@@ -113,7 +113,7 @@ def main():
     plt.xlabel('W Mass (GeV)')
 
     plt.subplot(3,3,3)
-    lch.hist_err(csvs,bins=110,range=(0,1.1),color='k')
+    lch.hist_err(csvs,bins=110,range=(-11,1.1),color='k')
     plt.xlabel('CSV variable')
 
     plt.subplot(3,3,4)
