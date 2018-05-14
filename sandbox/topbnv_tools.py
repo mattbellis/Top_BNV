@@ -57,6 +57,17 @@ def angle_between_vectors(p30, p31):
 ################################################################################
 # Assume we pass in a list of 4 numbers in either a list or array
 ################################################################################
+def scalarH(p4s):
+
+    totH = 0
+    for p4 in p4s:
+        totH += np.sqrt(p4[1]*p4[1] + p4[2]*p4[2])
+
+    return totH
+
+################################################################################
+# Assume we pass in a list of 4 numbers in either a list or array
+################################################################################
 def invmass(p4s):
 
     tot = [0.0, 0.0, 0.0, 0.0]
@@ -98,7 +109,7 @@ def csvtodict(csv_filename):
 
     x = dict(((d['Tag'], dict({'cross_section' : d['cross_section'],'total_events' : d['total_events'], 'completed_events' : d['completed_events'],
         'filter_eff' : d['filter_efficiency'], 'filter_eff_err' : d['filter_efficiency_error'], 'match_eff' : d['match_efficiency_error'],
-        'neg_weights' : d['negative_weights_fraction']})) for d in my_dict))
+        'neg_weights' : d['negative_weights_fraction'], 'nfiles' : d['nfiles']})) for d in my_dict))
 
     return x 
 
@@ -288,6 +299,7 @@ def chain_pickle_files(filenames, lumi_info=None):
         filenames = [filenames]
 
     tot_lumi = 0
+    #print(lumi_info)
 
     data = {}
     for i,filename in enumerate(filenames):
@@ -364,7 +376,7 @@ def lorentz_boost(pmom, rest_frame):
     L = np.matrix([[gamma,      -gamma*betaX, -gamma*betaY, -gamma*betaZ],
                 [-gamma*betaX,  1 + x*betaX,      x*betaY,      x*betaZ],
                 [-gamma*betaY,      y*betaX,  1 + y*betaY,      y*betaZ],
-                [-gamma*betaZ,      z*betaX,      z*betaZ,  1 + z*betaZ]])
+                [-gamma*betaZ,      z*betaX,      z*betaY,  1 + z*betaZ]])
 
 
     # Moving particle that will be boosted

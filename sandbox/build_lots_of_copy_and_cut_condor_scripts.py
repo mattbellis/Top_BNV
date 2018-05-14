@@ -4,7 +4,7 @@ import os
 import subprocess as sp
 
 # Testing with
-# python build_lots_of_condor_scripts.py ~/eos_store/SingleMuon
+# python build_lots_of_copy_and_cut_condor_scripts.py  ~/eos_store/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/
 
 def write_out_build_file(list_of_files,topdir,s0,s1,s2):
 
@@ -12,14 +12,14 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2):
     hi = list_of_files[-1].split('_')[-1].split('.root')[0]
     tag = "NFILES_%s_%s" % (lo,hi)
 
-    #outfile = "%s_%s_%s_%s.pkl" % (s0,s1,s2, tag)
-    outfile = "DATA_DATASET_%s_%s.pkl" % (s0, tag)
-    if topdir.find('SingleMuon')>=0:
-        outfile = "DATA_DATASET_%s_%s.pkl" % (s0, tag)
-    else:
-        outfile = "MC_DATASET_%s_%s.pkl" % (s0, tag)
+    #arguments = "%s_%s_%s_%s.pkl" % (s0,s1,s2, tag)
+    #arguments = "DATA_DATASET_%s_%s.pkl" % (s0, tag)
+    #if topdir.find('SingleMuon')>=0:
+        #arguments = "DATA_DATASET_%s_%s.pkl" % (s0, tag)
+    #else:
+        #arguments = "MC_DATASET_%s_%s.pkl" % (s0, tag)
 
-    print(outfile)
+    #print(arguments)
 
     #startdir = topdir.split('/')[-2:]
     fullnames = []
@@ -30,8 +30,13 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2):
     print(list_of_files)
     print(fullnames)
 
-            
-    cmd = ['python', 'build_condor_script.py', outfile]
+    copybackdirectory = "root://cmseos.fnal.gov/%s/%s/%s/%s/." % (topdir,s0,s1,s2)
+    print()
+    print(copybackdirectory)
+    print()
+
+    #cmd = ['python', 'build_copy_and_cut_condor_script.py', copybackdirectory, arguments]
+    cmd = ['python', 'build_copy_and_cut_condor_script.py', copybackdirectory]
     for rootfile in fullnames:
         cmd += [rootfile]
     print(cmd)
@@ -40,7 +45,7 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2):
     #exit()
 
 
-files_at_a_time = 100
+files_at_a_time = 10
 
 pwd = os.getcwd()
 # This should be something like eos_store/SingleMuon (for the data)
@@ -78,8 +83,6 @@ for s0 in subdirs0:
             files = os.listdir(path)
             rootfiles = []
             for f in files:
-                # For MC
-                #if '.root' in f and 'TRIGGER' in f:
                 if '.root' in f:
                     rootfiles.append(f)
 
@@ -104,17 +107,13 @@ for s0 in subdirs0:
             list_of_files = []
             for i in range(minnum-1,maxnum):
 
-                # For MC
-                #tempfile = "TRIGGER_APPLIED_out_file_%d.root" % (i+1)
                 tempfile = "out_file_%d.root" % (i+1)
 
                 if tempfile in rootfiles:
                     list_of_files.append(tempfile)
                 
                 if (i+1)%files_at_a_time==0:
-                    #print(i)
-
-                    print(len(list_of_files))
+                    print(i)
 
                     if len(list_of_files)>0:
                         write_out_build_file(list_of_files,topdir,s0,s1,s2)
@@ -124,6 +123,7 @@ for s0 in subdirs0:
                 write_out_build_file(list_of_files,topdir,s0,s1,s2)
 
             
+    # Comment this out when we want to run over everything
     #exit()
 
 

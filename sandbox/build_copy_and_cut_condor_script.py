@@ -18,7 +18,8 @@ cmd += "notify_user = mbellis@FNAL.GOV\n"
 cmd += "x509userproxy = /tmp/x509up_u47418 \n"
 cmd += "Arguments = "
 for infile in infiles:
-    prepend = "root://cmsxrootd.fnal.gov//store/user/mbellis"
+    #prepend = "root://cmsxrootd.fnal.gov//store/user/mbellis"
+    prepend = "root://cmseos.fnal.gov//store/user/mbellis"
     #postpend = infile.split('mbellis')[1]
     postpend = infile.split('eos_store')[1]
     filename = "%s/%s " % (prepend, postpend)
