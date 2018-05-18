@@ -28,7 +28,7 @@ def main(filenames,outfilename=None):
         print(f)
 
     # Define our data we want to write out.
-    maxn = 32
+    maxn = 128
 
     ntop = array( 'i', [ 0 ] )
     outtree.Branch( 'ntop', ntop, 'ntop/I' )
@@ -71,6 +71,23 @@ def main(filenames,outfilename=None):
     outtree.Branch( 'njet', njet, 'njet/I' )
     jetcsv = array( 'f', maxn*[ 0. ] )
     outtree.Branch( 'jetcsv', jetcsv, 'jetcsv[njet]/F' )
+
+    #nbjet = array( 'i', [ 0 ] )
+    #outtree.Branch( 'nbjet', nbjet, 'nbjet/I' )
+    genbjetdR = array( 'f', maxn*[ 0. ] )
+    outtree.Branch( 'genbjetdR', genbjetdR, 'genbjetdR[njet]/F' )
+    genbjetdpt = array( 'f', maxn*[ 0. ] )
+    outtree.Branch( 'genbjetdpt', genbjetdpt, 'genbjetdpt[njet]/F' )
+
+    nbjetmatch = array( 'i', [ 0 ] )
+    outtree.Branch( 'nbjetmatch', nbjetmatch, 'nbjetmatch/I' )
+    bjetmatchcsv = array( 'f', maxn*[ 0. ] )
+    outtree.Branch( 'bjetmatchcsv', bjetmatchcsv, 'bjetmatchcsv[nbjetmatch]/F' )
+
+    nbjetnotmatch = array( 'i', [ 0 ] )
+    outtree.Branch( 'nbjetnotmatch', nbjetnotmatch, 'nbjetnotmatch/I' )
+    bjetnotmatchcsv = array( 'f', maxn*[ 0. ] )
+    outtree.Branch( 'bjetnotmatchcsv', bjetnotmatchcsv, 'bjetnotmatchcsv[nbjetnotmatch]/F' )
 
     '''
     data = {}
@@ -178,19 +195,35 @@ def main(filenames,outfilename=None):
             muon = []
             #print(njet,len(csv),len(px))
             # Try to match bjets
-            print("Looking -------------------------------------------------------")
+            #print("Looking -------------------------------------------------------")
             nj = 0
+            nbj = 0
+            nbjetmatch[0] = 0
+            nbjetnotmatch[0] = 0
             for n in range(njet[0]):
+                mindR = 1e6
                 for gb in gen_b:
                     etaph0 = [eta[n],phi[n]]
                     etaph1 = [gb[1],gb[2]]
-                    #'''
+                    
                     gendR = tbt.deltaR(etaph0,etaph1)
-                    if math.fabs(pt[n]-gb[0])<10 and gendR<0.5:
-                        print("FOUND MATCH!  ",csv[n])
-                        print(gb)
-                        print(pt[n],eta[n],phi[n])
-                        print(gendR)
+                    dpt = math.fabs(pt[n]-gb[0])
+                    # To store in TTree
+                    if gendR<mindR:
+                        genbjetdR[n] = gendR
+                        genbjetdpt[n] = dpt
+                        mindR = gendR
+                    #'''
+                    if dpt<100 and gendR<0.3:
+                        #print("FOUND MATCH!  ",csv[n])
+                        #print(gb)
+                        #print(pt[n],eta[n],phi[n])
+                        #print(gendR)
+                        bjetmatchcsv[nbjetmatch[0]] = jetcsv[n]
+                        nbjetmatch[0] += 1
+                    else:
+                        bjetnotmatchcsv[nbjetnotmatch[0]] = jetcsv[n]
+                        nbjetnotmatch[0] += 1
                     #'''
                 
 
