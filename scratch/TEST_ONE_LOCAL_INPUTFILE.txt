@@ -1,0 +1,1 @@
+/eos/uscms/store/user/mbellis/MINIAOD/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_RunIISummer16MiniAODv2_PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1_50000_0693E0E7-97BE-E611-B32F-0CC47A78A3D8_numEvent1000.root

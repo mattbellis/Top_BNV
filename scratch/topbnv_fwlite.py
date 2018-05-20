@@ -42,11 +42,16 @@ def getInputFiles(options):
     result = []
     with open(options.input, 'r') as fpInput:
         for lfn in fpInput:
+            print("lfn: ")
+            print(lfn)
             lfn = lfn.strip()
+            print(lfn)
             if lfn:
                 if not options.isCrabRun:
                     if options.localInputFiles:
                         pfn = lfn
+                        print('pfn: ')
+                        print(pfn)
                     else:
                         #pfn = 'file:/pnfs/desy.de/cms/tier2/' + lfn
                         pfn = 'root://cmsxrootd-site.fnal.gov/' + lfn
@@ -55,6 +60,7 @@ def getInputFiles(options):
                     pfn = 'root://xrootd-cms.infn.it/' + lfn
                 print ('Adding ' + pfn)
                 result.append(pfn)
+    print(result)
     return result
 #####################################################################################
 
@@ -102,25 +108,43 @@ def topbnv_fwlite(argv):
 
     # Jets
     njet = array('i', [-1])
-    TreeSemiLept.Branch('njet', njet, 'njet/I')
+    outtree.Branch('njet', njet, 'njet/I')
 
     jetpt = array('f', 16*[-1.])
-    TreeSemiLept.Branch('jetpt', jetpt, 'jetpt[njet]/F')
+    outtree.Branch('jetpt', jetpt, 'jetpt[njet]/F')
     jeteta = array('f', 16*[-1.])
-    TreeSemiLept.Branch('jeteta', jeteta, 'jeteta[njet]/F')
+    outtree.Branch('jeteta', jeteta, 'jeteta[njet]/F')
     jetphi = array('f', 16*[-1.])
-    TreeSemiLept.Branch('jetphi', jetphi, 'jetphi[njet]/F')
+    outtree.Branch('jetphi', jetphi, 'jetphi[njet]/F')
     jetpx = array('f', 16*[-1.])
-    TreeSemiLept.Branch('jetpx', jetpx, 'jetpx[njet]/F')
+    outtree.Branch('jetpx', jetpx, 'jetpx[njet]/F')
     jetpy = array('f', 16*[-1.])
-    TreeSemiLept.Branch('jetpy', jetpy, 'jetpy[njet]/F')
+    outtree.Branch('jetpy', jetpy, 'jetpy[njet]/F')
     jetpz = array('f', 16*[-1.])
-    TreeSemiLept.Branch('jetpz', jetpz, 'jetpz[njet]/F')
+    outtree.Branch('jetpz', jetpz, 'jetpz[njet]/F')
     jete = array('f', 16*[-1.])
-    TreeSemiLept.Branch('jete', jete, 'jete[njet]/F')
+    outtree.Branch('jete', jete, 'jete[njet]/F')
 
     jetbtag = array('f', 16*[-1.])
-    TreeSemiLept.Branch('jetbtag', jetbtag, 'jetbtag[njet]/F')
+    outtree.Branch('jetbtag', jetbtag, 'jetbtag[njet]/F')
+
+    jetNHF = array('f', 16*[-1.])
+    outtree.Branch('jetNHF', jetNHF, 'jetNHF[njet]/F')
+    jetNEMF = array('f', 16*[-1.])
+    outtree.Branch('jetNEMF', jetNEMF, 'jetNEMF[njet]/F')
+    jetCHF = array('f', 16*[-1.])
+    outtree.Branch('jetCHF', jetCHF, 'jetCHF[njet]/F')
+    jetMUF = array('f', 16*[-1.])
+    outtree.Branch('jetMUF', jetMUF, 'jetMUF[njet]/F')
+    jetCEMF = array('f', 16*[-1.])
+    outtree.Branch('jetCEMF', jetCEMF, 'jetCEMF[njet]/F')
+    jetNumConst = array('f', 16*[-1.])
+    outtree.Branch('jetNumConst', jetNumConst, 'jetNumConst[njet]/F')
+    jetNumNeutralParticles = array('f', 16*[-1.])
+    outtree.Branch('jetNumNeutralParticles', jetNumNeutralParticles, 'jetNumNeutralParticles[njet]/F')
+    jetCHM = array('f', 16*[-1.])
+    outtree.Branch('jetCHM', jetCHM, 'jetCHM[njet]/F')
+
 
     #################################################################################
     ## ___________                    __    .____
@@ -141,8 +165,8 @@ def topbnv_fwlite(argv):
         #print "GGGEEENNNNOUT...."
         #print genOut
 
-        event.getByLabel(triggerBitLabel, triggerBits)
-        event.getByLabel(metfiltBitLabel, metfiltBits)
+        #event.getByLabel(triggerBitLabel, triggerBits)
+        #event.getByLabel(metfiltBitLabel, metfiltBits)
         runnumber = event.eventAuxiliary().run()
 
         if options.verbose:
