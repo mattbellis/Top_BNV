@@ -84,6 +84,7 @@ def topbnv_fwlite(argv):
     #print options
 
     jets, jetLabel = Handle("std::vector<pat::Jet>"), "slimmedJets"
+    muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons"
     #packedgens, packedgenLabel = Handle("std::vector<reco::packedGenParticle>"), "PACKEDgENpARTICLES"
     packedgens, packedgenLabel = Handle("std::vector<pat::PackedGenParticle>"), "packedGenParticles"
     genInfo, genInfoLabel = Handle("GenEventInfoProduct"), "generator"
@@ -107,6 +108,7 @@ def topbnv_fwlite(argv):
         return tmp
 
     # Jets
+    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchoolLPC2018Jets
     njet = array('i', [-1])
     outtree.Branch('njet', njet, 'njet/I')
 
@@ -145,6 +147,43 @@ def topbnv_fwlite(argv):
     jetCHM = array('f', 16*[-1.])
     outtree.Branch('jetCHM', jetCHM, 'jetCHM[njet]/F')
 
+    # Muons
+    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchoolLPC2018Muons
+    # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2
+    nmuon = array('i', [-1])
+    outtree.Branch('nmuon', nmuon, 'nmuon/I')
+    muonpt = array('f', 16*[-1.])
+    outtree.Branch('muonpt', muonpt, 'muonpt[nmuon]/F')
+    muoneta = array('f', 16*[-1.])
+    outtree.Branch('muoneta', muoneta, 'muoneta[nmuon]/F')
+    muonphi = array('f', 16*[-1.])
+    outtree.Branch('muonphi', muonphi, 'muonphi[nmuon]/F')
+    muonq = array('f', 16*[-1.])
+    outtree.Branch('muonq', muonq, 'muonq[nmuon]/F')
+    muonpx = array('f', 16*[-1.])
+    outtree.Branch('muonpx', muonpx, 'muonpx[nmuon]/F')
+    muonpy = array('f', 16*[-1.])
+    outtree.Branch('muonpy', muonpy, 'muonpy[nmuon]/F')
+    muonpz = array('f', 16*[-1.])
+    outtree.Branch('muonpz', muonpz, 'muonpz[nmuon]/F')
+    muone = array('f', 16*[-1.])
+    outtree.Branch('muone', muone, 'muone[nmuon]/F')
+    muonsumchhadpt = array('f', 16*[-1.])
+    outtree.Branch('muonsumchhadpt', muonsumchhadpt, 'muonsumchhadpt[nmuon]/F')
+    muonsumnhadpt = array('f', 16*[-1.])
+    outtree.Branch('muonsumnhadpt', muonsumnhadpt, 'muonsumnhadpt[nmuon]/F')
+    muonsumphotEt = array('f', 16*[-1.])
+    outtree.Branch('muonsumphotEt', muonsumphotEt, 'muonsumphotEt[nmuon]/F')
+    muonsumPUPt = array('f', 16*[-1.])
+    outtree.Branch('muonsumPUPt', muonsumPUPt, 'muonsumPUPt[nmuon]/F')
+    muonisLoose = array('i', 16*[-1])
+    outtree.Branch('muonisLoose', muonisLoose, 'muonisLoose[nmuon]/I')
+    muonisMedium = array('i', 16*[-1])
+    outtree.Branch('muonisMedium', muonisMedium, 'muonisMedium[nmuon]/I')
+
+    muonPFiso = array('f', 16*[-1.]); outtree.Branch('muonPFiso', muonPFiso, 'muonPFiso[nmuon]/F')
+
+
 
     #################################################################################
     ## ___________                    __    .____
@@ -178,6 +217,7 @@ def topbnv_fwlite(argv):
 
         ##      ____.       __      _________      .__                 __  .__
         ##     |    | _____/  |_   /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____
+
         ##     |    |/ __ \   __\  \_____  \_/ __ \|  | _/ __ \_/ ___\   __\  |/  _ \ /    \
         ## /\__|    \  ___/|  |    /        \  ___/|  |_\  ___/\  \___|  | |  (  <_> )   |  \
         ## \________|\___  >__|   /_______  /\___  >____/\___  >\___  >__| |__|\____/|___|  /
@@ -283,6 +323,42 @@ def topbnv_fwlite(argv):
 
         # OUR STUFF
         njet[0] = njets2write
+
+
+        ########### MUONS ##################
+        event.getByLabel( muonLabel, muons )
+        nmuons2write = 0
+        if len(muons.product()) > 0:
+            for i,muon in enumerate( muons.product() ):
+                #if muon.pt() > options.minMuonPt and abs(muon.eta()) < options.maxMuonEta and muon.isMediumMuon():
+                if 1:
+                   muonpt[i] = muon.pt()
+                   muoneta[i] = muon.eta()
+                   muonphi[i] = muon.phi()
+                   muone[i] = muon.energy()
+                   muonq[i] = muon.charge()
+                   muonpx[i] = muon.px()
+                   muonpy[i] = muon.py()
+                   muonpz[i] = muon.pz()
+                   #pfi  = muon.pfIsolationR03()
+                   pfi  = muon.pfIsolationR04()
+                   #print( pfi.sumChargedHadronPt, pfi.sumChargedParticlePt, pfi.sumNeutralHadronEt, pfi.sumPhotonEt, pfi.sumNeutralHadronEtHighThreshold, pfi.sumPhotonEtHighThreshold, pfi.sumPUPt)
+                   muonsumchhadpt[i] = pfi.sumChargedHadronPt
+                   muonsumnhadpt[i] = pfi.sumNeutralHadronEt
+                   muonsumphotEt[i] = pfi.sumPhotonEt
+                   muonsumPUPt[i] = pfi.sumPUPt
+                   muonisLoose[i] = int(muon.isLooseMuon())
+                   muonisMedium[i] = int(muon.isMediumMuon())
+
+                   #(mu->pfIsolationR04().sumChargedHadronPt + max(0., mu->pfIsolationR04().sumNeutralHadronEt + mu->pfIsolationR04().sumPhotonEt - 0.5*mu->pfIsolationR04().sumPUPt))/mu->pt()
+
+                   muonPFiso[i] = (muonsumchhadpt[i] + max(0., muonsumnhadpt[i] + muonsumphotEt[i] - 0.5*muonsumPUPt[i]))/muonpt[i]
+                   nmuons2write += 1
+
+
+        nmuon[0] = nmuons2write
+
+
 
 
         ## ___________.__.__  .__    ___________
