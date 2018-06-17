@@ -4,6 +4,17 @@ import ROOT, copy, sys, logging
 from array import array
 from DataFormats.FWLite import Events, Handle
 
+from RecoEgamma.ElectronIdentification.VIDElectronSelector import VIDElectronSelector
+# Cut-based...we should use this!
+# https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2#Recipe80X
+#from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff import cutBasedElectronID_Summer16_80X_V1_loose
+from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff import cutBasedElectronID_Summer16_80X_V1_medium
+#import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-loose as electron_loose
+#import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-medium as electron_medium
+#import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-tight as electron_tight
+
+
+
 #####################################################################################
 # Command line parsing
 #####################################################################################
@@ -85,6 +96,7 @@ def topbnv_fwlite(argv):
 
     jets, jetLabel = Handle("std::vector<pat::Jet>"), "slimmedJets"
     muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons"
+    electrons, electronLabel = Handle("std::vector<pat::Electron>"), "slimmedElectrons"
     #packedgens, packedgenLabel = Handle("std::vector<reco::packedGenParticle>"), "PACKEDgENpARTICLES"
     packedgens, packedgenLabel = Handle("std::vector<pat::PackedGenParticle>"), "packedGenParticles"
     genInfo, genInfoLabel = Handle("GenEventInfoProduct"), "generator"
@@ -182,6 +194,34 @@ def topbnv_fwlite(argv):
     outtree.Branch('muonisMedium', muonisMedium, 'muonisMedium[nmuon]/I')
 
     muonPFiso = array('f', 16*[-1.]); outtree.Branch('muonPFiso', muonPFiso, 'muonPFiso[nmuon]/F')
+
+
+    # Electrons
+    nelectron = array('i', [-1])
+    outtree.Branch('nelectron', nelectron, 'nelectron/I')
+    electronpt = array('f', 16*[-1.])
+    outtree.Branch('electronpt', electronpt, 'electronpt[nelectron]/F')
+    electroneta = array('f', 16*[-1.])
+    outtree.Branch('electroneta', electroneta, 'electroneta[nelectron]/F')
+    electronphi = array('f', 16*[-1.])
+    outtree.Branch('electronphi', electronphi, 'electronphi[nelectron]/F')
+    electronq = array('f', 16*[-1.])
+    outtree.Branch('electronq', electronq, 'electronq[nelectron]/F')
+    electronpx = array('f', 16*[-1.])
+    outtree.Branch('electronpx', electronpx, 'electronpx[nelectron]/F')
+    electronpy = array('f', 16*[-1.])
+    outtree.Branch('electronpy', electronpy, 'electronpy[nelectron]/F')
+    electronpz = array('f', 16*[-1.])
+    outtree.Branch('electronpz', electronpz, 'electronpz[nelectron]/F')
+    electrone = array('f', 16*[-1.])
+    outtree.Branch('electrone', electrone, 'electrone[nelectron]/F')
+    electronTkIso = array('f',16*[-1.])
+    outtree.Branch('electronTkIso', electronTkIso, 'electronTkIso[nelectron]/F')
+    electronHCIso = array('f',16*[-1.])
+    outtree.Branch('electronHCIso', electronHCIso, 'electronHCIso[nelectron]/F')
+    electronECIso = array('f',16*[-1.])
+    outtree.Branch('electronECIso', electronECIso, 'electronECIso[nelectron]/F')
+
 
 
 
@@ -360,6 +400,53 @@ def topbnv_fwlite(argv):
 
 
 
+        ##############################################################
+        # Electrons
+        ##############################################################
+        #selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_loose)
+        selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_medium)
+        event.getByLabel( electronLabel, electrons )
+
+        # Referencing
+        # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
+        # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2#Working_points_for_2016_data_for
+        # For when we look at 2017
+        # https://twiki.cern.ch/twiki/bin/view/CMS/Egamma2017DataRecommendations
+        #
+        # Also look here
+        # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCMSDataAnalysisSchoolLPC2018egamma
+        # https://indico.cern.ch/event/662371/contributions/2704697/attachments/1514547/2496142/ShortExercise1.pdf
+        # https://indico.cern.ch/event/662371/contributions/2704714/attachments/1514558/2496227/ShortExercise2.pdf
+        # Do something like this for isolation?
+        # https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolationRun2#Recipe_for_accessing_PF_isolatio
+
+
+
+
+        ########### ELECTRONS ##################
+        event.getByLabel( electronLabel, electrons )
+        nelectrons2write = 0
+        if len(electrons.product()) > 0:
+            for i,electron in enumerate( electrons.product() ):
+                #if electron.pt() > options.minelectronPt and abs(electron.eta()) < options.maxelectronEta and electron.isMediumelectron():
+                passTight = selectElectron( electron, event )
+                if passTight:
+                   electronpt[i] = electron.pt()
+                   electroneta[i] = electron.eta()
+                   electronphi[i] = electron.phi()
+                   electrone[i] = electron.energy()
+                   electronq[i] = electron.charge()
+                   electronpx[i] = electron.px()
+                   electronpy[i] = electron.py()
+                   electronpz[i] = electron.pz()
+                   electronTkIso[i] = electron.dr03TkSumPt()
+                   electronHCIso[i] = electron.dr03HcalTowerSumEt()
+                   electronECIso[i] = electron.dr03EcalRecHitSumEt()
+
+                   nelectrons2write += 1
+
+
+        nelectron[0] = nelectrons2write
 
         ## ___________.__.__  .__    ___________
         ## \_   _____/|__|  | |  |   \__    ___/______   ____   ____
