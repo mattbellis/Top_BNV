@@ -102,6 +102,8 @@ def topbnv_fwlite(argv):
     #packedgens, packedgenLabel = Handle("std::vector<reco::packedGenParticle>"), "PACKEDgENpARTICLES"
     packedgens, packedgenLabel = Handle("std::vector<pat::PackedGenParticle>"), "packedGenParticles"
     genInfo, genInfoLabel = Handle("GenEventInfoProduct"), "generator"
+    mets, metLabel = Handle("std::vector<pat::MET>"), "slimmedMETs"
+
 
     f = ROOT.TFile(options.output, "RECREATE")
     f.cd()
@@ -223,6 +225,16 @@ def topbnv_fwlite(argv):
     outtree.Branch('electronHCIso', electronHCIso, 'electronHCIso[nelectron]/F')
     electronECIso = array('f',16*[-1.])
     outtree.Branch('electronECIso', electronECIso, 'electronECIso[nelectron]/F')
+
+    # MET
+    metpt = array('f', [-1])
+    outtree.Branch('metpt', metpt, 'metpt/F')
+    metphi = array('f', [-1])
+    outtree.Branch('metphi', metphi, 'metphi/F')
+    mete = array('f', [-1])
+    outtree.Branch('mete',mete, 'mete/F')
+    meteta = array('f',[-1])
+    outtree.Branch('meteta', meteta, 'meteta/F')
 
 
 
@@ -456,6 +468,23 @@ def topbnv_fwlite(argv):
 
 
         nelectron[0] = nelectrons2write
+
+        #######################################################################
+        # MET, Missing energy in transverse plane
+        # https://indico.cern.ch/event/662371/contributions/2823187/attachments/1574267/2496977/PileupMET_DAS2018LPC.pdf
+        # https://indico.cern.ch/event/662371/timetable/
+        # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchoolLPC2018METandPileupExercise
+        # SHOULD GO THROUGH THE EXERCISE! DO WE CORRECT? OR USE PUPPI????
+        #######################################################################
+        event.getByLabel( metLabel, mets )
+        #met = mets.product()[0]
+        met = mets.product().front()
+        metpt[0] = met.pt()
+        metphi[0] = met.phi()
+        mete[0] = met.energy()
+        meteta[0] = met.eta()
+        #print("MET pt/phi: %f %f" % (metpt[0],metphi[0]))
+
 
         ## ___________.__.__  .__    ___________
         ## \_   _____/|__|  | |  |   \__    ___/______   ____   ____
