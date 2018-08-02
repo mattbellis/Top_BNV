@@ -7,8 +7,10 @@ from DataFormats.FWLite import Events, Handle
 from RecoEgamma.ElectronIdentification.VIDElectronSelector import VIDElectronSelector
 from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff import cutBasedElectronID_Summer16_80X_V1_medium
 
+'''
 if hasattr(cutBasedElectronID_Summer16_80X_V1_medium,'isPOGApproved'):
     del cutBasedElectronID_Summer16_80X_V1_medium.isPOGApproved
+'''
 
 
 
@@ -78,7 +80,7 @@ def getInputFiles(options):
 
 
 #####################################################################################
-def topbnv_fwlite(argv):
+def electron_fwlite(argv):
     ## _____________      __.____    .__  __             _________ __          _____  _____
     ## \_   _____/  \    /  \    |   |__|/  |_  ____    /   _____//  |_ __ ___/ ____\/ ____\
     ##  |    __) \   \/\/   /    |   |  \   __\/ __ \   \_____  \\   __\  |  \   __\\   __\
@@ -173,11 +175,15 @@ def topbnv_fwlite(argv):
         #selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_loose)
         print("------ Electrons --------")
 
-        #'''
+        '''
         # This doesn't seem to help here either
         if hasattr(cutBasedElectronID_Summer16_80X_V1_medium,'isPOGApproved'):
             del cutBasedElectronID_Summer16_80X_V1_medium.isPOGApproved
-        #'''
+        '''
+
+        print(cutBasedElectronID_Summer16_80X_V1_medium)
+        print(cutBasedElectronID_Summer16_80X_V1_medium.isPOGApproved)
+        print(cutBasedElectronID_Summer16_80X_V1_medium.isPOGApproved.value())
 
         selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_medium)
 
@@ -284,7 +290,7 @@ def topbnv_fwlite(argv):
 
 #####################################################################################
 if __name__ == "__main__":
-    topbnv_fwlite(sys.argv)
+    electron_fwlite(sys.argv)
 
 
 
