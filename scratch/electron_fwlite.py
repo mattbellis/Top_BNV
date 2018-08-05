@@ -7,6 +7,7 @@ from DataFormats.FWLite import Events, Handle
 from RecoEgamma.ElectronIdentification.VIDElectronSelector import VIDElectronSelector
 from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff import cutBasedElectronID_Summer16_80X_V1_medium
 
+selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_medium)
 
 
 '''
@@ -187,9 +188,9 @@ def electron_fwlite(argv):
         #print(cutBasedElectronID_Summer16_80X_V1_medium.isPOGApproved)
         #print(cutBasedElectronID_Summer16_80X_V1_medium.isPOGApproved.value())
 
-        selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_medium)
+        #selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_medium)
 
-        print("This is the point after the selector is declared...")
+        #print("This is the point after the selector is declared...")
         
         # Referencing
         # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
