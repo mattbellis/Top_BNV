@@ -7,6 +7,8 @@ from DataFormats.FWLite import Events, Handle
 from RecoEgamma.ElectronIdentification.VIDElectronSelector import VIDElectronSelector
 from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff import cutBasedElectronID_Summer16_80X_V1_medium
 
+
+
 '''
 if hasattr(cutBasedElectronID_Summer16_80X_V1_medium,'isPOGApproved'):
     del cutBasedElectronID_Summer16_80X_V1_medium.isPOGApproved
@@ -181,9 +183,9 @@ def electron_fwlite(argv):
             del cutBasedElectronID_Summer16_80X_V1_medium.isPOGApproved
         '''
 
-        print(cutBasedElectronID_Summer16_80X_V1_medium)
-        print(cutBasedElectronID_Summer16_80X_V1_medium.isPOGApproved)
-        print(cutBasedElectronID_Summer16_80X_V1_medium.isPOGApproved.value())
+        #print(cutBasedElectronID_Summer16_80X_V1_medium)
+        #print(cutBasedElectronID_Summer16_80X_V1_medium.isPOGApproved)
+        #print(cutBasedElectronID_Summer16_80X_V1_medium.isPOGApproved.value())
 
         selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_medium)
 
