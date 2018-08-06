@@ -9,8 +9,12 @@ from RecoEgamma.ElectronIdentification.VIDElectronSelector import VIDElectronSel
 # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2#Recipe80X
 #from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff import cutBasedElectronID_Summer16_80X_V1_loose
 from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff import cutBasedElectronID_Summer16_80X_V1_medium
-if hasattr(cutBasedElectronID_Summer16_80X_V1_medium,'isPOGApproved'):
-    del cutBasedElectronID_Summer16_80X_V1_medium.isPOGApproved
+
+# Need to do this globally because there's a warning associated with the attribute, isPOGApproved
+# that doesn't need to be there but would get called every time we called this from the event
+# loop!
+selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_medium)
+
 #import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-loose as electron_loose
 #import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-medium as electron_medium
 #import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-tight as electron_tight
@@ -418,8 +422,6 @@ def topbnv_fwlite(argv):
         # Electrons
         ##############################################################
         #selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_loose)
-        print("Here!")
-        selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_medium)
         # Do we need this? Got this from...
         # https://github.com/ikrav/EgammaWork/blob/ntupler_and_VID_demos_7.4.12/FWLiteExamples/bin/FWLiteVIDElectronsDemo_cfg.py
         event.getByLabel( electronLabel, electrons )

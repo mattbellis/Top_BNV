@@ -176,7 +176,7 @@ def electron_fwlite(argv):
         # Electrons
         ##############################################################
         #selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_loose)
-        print("------ Electrons --------")
+        #print("------ Electrons --------")
 
         '''
         # This doesn't seem to help here either
@@ -215,10 +215,10 @@ def electron_fwlite(argv):
         if len(electrons.product()) > 0:
             for i,electron in enumerate( electrons.product() ):
 
-                print("Analyzing electron: ",i)
+                #print("Analyzing electron: ",i)
                 passSelection = selectElectron( electron, event )
 
-                print(passSelection,type(passSelection))
+                #print(passSelection,type(passSelection))
 
                 if passSelection:
                    electronpt[i] = electron.pt()
