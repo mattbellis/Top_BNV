@@ -19,13 +19,50 @@ selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_medium)
 #import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-medium as electron_medium
 #import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-tight as electron_tight
 
+# MC values are for the 2016 data
+muon_triggers_of_interest = [
+    ["HLT_IsoMu24_v", "v4"],
+    ["HLT_IsoTkMu24_v","v4"],
+    ["HLT_IsoMu22_eta2p1_v","v4"],
+    ["HLT_IsoTkMu22_eta2p1_v","v4"]
+    ]
+
+electron_triggers_of_interest = [
+    ["HLT_Ele32_eta2p1_WPTight_Gsf_v", "v7"],
+    ["HLT_Ele27_WPTight_Gsf_v", "v8"],
+    ["HLT_Ele25_eta2p1_WPTight_Gsf_v", "v8"]
+    ]
+
+dilepmue_triggers_of_interest = [
+    ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v", "v9"],
+    ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "v4"]
+]
+
+dilepemu_triggers_of_interest = [
+    ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "v9"],
+    ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v", ""],
+    ["HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "v3"],
+    ["HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v", "v4"]
+]
+
+dilepmumu_triggers_of_interest = [
+    ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v", "v7"],
+    ["HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v", "v6"]
+    ]
+
+dilepee_triggers_of_interest = [
+    ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "v9"],
+    ["HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v", "v8"]
+    ]
+
 triggers_of_interest = [
-    "HLT_IsoMu24",
-    "HLT_IsoTkMu24",
-    "HLT_IsoMu22_eta2p1",
-    "HLT_IsoTkMu22_eta2p1"]
-
-
+["SingleMuon",muon_triggers_of_interest],
+["SingleElectron",electron_triggers_of_interest],
+["DileptonMuE",dilepmue_triggers_of_interest],
+["DileptonEMu",dilepemu_triggers_of_interest],
+["DileptonMuMu",dilepmumu_triggers_of_interest],
+["DileptonEE",dilepee_triggers_of_interest]
+]
 
 
 #####################################################################################
@@ -46,6 +83,10 @@ def getUserOptions(argv):
         help='Print debugging info')
     add_option('maxevents',          default=-1,
         help='Number of events to run. -1 is all events')
+    add_option('trigType',          default="SingleMuon",
+        help='SingleMuon, SingleElectron, etc.')
+    add_option('isMC',          default=False, action='store_true',
+        help='Running over MC. We need this for the trigger and other stuff.')
     add_option('isCrabRun',          default=False, action='store_true',
         help='Use this flag when running with crab on the grid')
     add_option('localInputFiles',    default=False, action='store_true',
@@ -252,7 +293,46 @@ def topbnv_fwlite(argv):
     meteta = array('f',[-1])
     outtree.Branch('meteta', meteta, 'meteta/F')
 
+    # Triggers
+    # We'll record 4 muon trigger bits for 2016 data
+    ntrig_muon = array('i', [-1])
+    outtree.Branch('ntrig_muon', ntrig_muon, 'ntrig_muon/I')
+    trig_muon = array('i',8*[-1])
+    outtree.Branch('trig_muon', trig_muon, 'trig_muon[ntrig_muon]/I')
 
+    ntrig_electron = array('i', [-1])
+    outtree.Branch('ntrig_electron', ntrig_electron, 'ntrig_electron/I')
+    trig_electron = array('i',8*[-1])
+    outtree.Branch('trig_electron', trig_electron, 'trig_electron[ntrig_electron]/I')
+
+    ntrig_dilepmue = array('i', [-1])
+    outtree.Branch('ntrig_dilepmue', ntrig_dilepmue, 'ntrig_dilepmue/I')
+    trig_dilepmue = array('i',8*[-1])
+    outtree.Branch('trig_dilepmue', trig_dilepmue, 'trig_dilepmue[ntrig_electron]/I')
+
+    ntrig_dilepemu = array('i', [-1])
+    outtree.Branch('ntrig_dilepemu', ntrig_dilepemu, 'ntrig_dilepemu/I')
+    trig_dilepemu = array('i',8*[-1])
+    outtree.Branch('trig_dilepemu', trig_dilepemu, 'trig_dilepemu[ntrig_electron]/I')
+
+    ntrig_dilepmumu = array('i', [-1])
+    outtree.Branch('ntrig_dilepmumu', ntrig_dilepmumu, 'ntrig_dilepmumu/I')
+    trig_dilepmumu = array('i',8*[-1])
+    outtree.Branch('trig_dilepmumu', trig_dilepmumu, 'trig_dilepmumu[ntrig_electron]/I')
+
+    ntrig_dilepee = array('i', [-1])
+    outtree.Branch('ntrig_dilepee', ntrig_dilepee, 'ntrig_dilepee/I')
+    trig_dilepee = array('i',8*[-1])
+    outtree.Branch('trig_dilepee', trig_dilepee, 'trig_dilepee[ntrig_electron]/I')
+
+    trigger_tree_branches = {
+    "SingleMuon":trig_muon,
+    "SingleElectron":trig_electron,
+    "DileptonMuE":trig_dilepmue,
+    "DileptonEMu":trig_dilepemu,
+    "DileptonMuMu":trig_dilepmumu,
+    "DileptonEE":trig_dilepee
+    }
 
 
     #################################################################################
@@ -291,23 +371,63 @@ def topbnv_fwlite(argv):
 
         trigger_names = event.object().triggerNames(triggerBits.product())
 
-
         # Get list of triggers that fired
         #firedTrigs = []
-        print("------- Triggers ---------")
+        ntrig_muon[0] = len(muon_triggers_of_interest)
+        ntrig_electron[0] = len(electron_triggers_of_interest)
+        ntrig_dilepmue[0] = len(dilepmue_triggers_of_interest)
+        ntrig_dilepemu[0] = len(dilepemu_triggers_of_interest)
+        ntrig_dilepmumu[0] = len(dilepmumu_triggers_of_interest)
+        ntrig_dilepee[0] = len(dilepee_triggers_of_interest)
+
+
+        #print("------- Triggers ---------")
+        # Zero out the triggers
+        for toi in triggers_of_interest:
+
+            trigger_type = toi[0]
+            trigger_bit_names = toi[1]
+
+            for iname,name in enumerate(trigger_bit_names):
+                trigger_tree_branches[trigger_type][iname] = 0 # Didn't fire!
+
+        FLAG_passed_trigger = False
         for itrig in xrange(triggerBits.product().size()):
+
             if triggerBits.product().accept(itrig):
                 trigname = trigger_names.triggerName(itrig)
-                mc_selection = True
-                '''
-                if is_MC:
-                    mc_selection = trigname.find("v4")
-                '''
-                for name in triggers_of_interest:
-                    if trigname.find(name) >= 0 and mc_selection:
-                        print(trigname)
-                #firedTrigs.append( itrig )
 
+                mc_selection = True
+
+                for toi in triggers_of_interest:
+
+                    trigger_type = toi[0]
+                    trigger_bit_names = toi[1]
+
+                    for iname,name in enumerate(trigger_bit_names):
+
+                        if options.isMC:
+                            mc_selection = trigname.find(name[1]) # This is the version
+
+
+                        if trigname.find(name[0]) >= 0 and mc_selection:
+                            #print(trigname,trigger_type)
+                            #print(iname,trigger_tree_branches[trigger_type])
+                            #print(iname,trigger_tree_branches[trigger_type].Name())
+                            trigger_tree_branches[trigger_type][iname] = 1 # Fired!
+                            if trigger_type == options.trigType:
+                                FLAG_passed_trigger = True
+                                #print("PASSED TRIGGER REQUIREMENT!")
+                        #else:
+                            #trigger_tree_branches[trigger_type][iname] = 0 # Didn't fire!
+
+                    #firedTrigs.append( itrig )
+
+        #print("PASSED!!!!!!!!!!!!!! --------------")
+        # THIS SHOULD ONLY WRITE EVENTS THAT PASSED THE TRIGGER
+        if not FLAG_passed_trigger:
+            #print("NOT PASSING!")
+            return -1
 
         ##      ____.       __      _________      .__                 __  .__
         ##     |    | _____/  |_   /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____
