@@ -19,6 +19,13 @@ selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_medium)
 #import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-medium as electron_medium
 #import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-tight as electron_tight
 
+triggers_of_interest = [
+    "HLT_IsoMu24",
+    "HLT_IsoTkMu24",
+    "HLT_IsoMu22_eta2p1",
+    "HLT_IsoTkMu22_eta2p1"]
+
+
 
 
 #####################################################################################
@@ -107,6 +114,11 @@ def topbnv_fwlite(argv):
     packedgens, packedgenLabel = Handle("std::vector<pat::PackedGenParticle>"), "packedGenParticles"
     genInfo, genInfoLabel = Handle("GenEventInfoProduct"), "generator"
     mets, metLabel = Handle("std::vector<pat::MET>"), "slimmedMETs"
+
+    # NEED HLT2 for 80x 2016 (maybe only TTBar?
+    # https://twiki.cern.ch/twiki/bin/view/CMS/TopTrigger#Summary_for_2016_Run2016B_H_25_n
+    triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","", "HLT")
+
 
 
     f = ROOT.TFile(options.output, "RECREATE")
@@ -272,6 +284,30 @@ def topbnv_fwlite(argv):
                   event.eventAuxiliary().luminosityBlock(), \
                   event.eventAuxiliary().event())
 
+        ###############################################################
+        # Triggers
+        ###############################################################
+        event.getByLabel(triggerBitLabel, triggerBits)
+
+        trigger_names = event.object().triggerNames(triggerBits.product())
+
+
+        # Get list of triggers that fired
+        #firedTrigs = []
+        print("------- Triggers ---------")
+        for itrig in xrange(triggerBits.product().size()):
+            if triggerBits.product().accept(itrig):
+                trigname = trigger_names.triggerName(itrig)
+                mc_selection = True
+                '''
+                if is_MC:
+                    mc_selection = trigname.find("v4")
+                '''
+                for name in triggers_of_interest:
+                    if trigname.find(name) >= 0 and mc_selection:
+                        print(trigname)
+                #firedTrigs.append( itrig )
+
 
         ##      ____.       __      _________      .__                 __  .__
         ##     |    | _____/  |_   /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____
@@ -389,7 +425,7 @@ def topbnv_fwlite(argv):
         if len(muons.product()) > 0:
             for i,muon in enumerate( muons.product() ):
                 #if muon.pt() > options.minMuonPt and abs(muon.eta()) < options.maxMuonEta and muon.isMediumMuon():
-                if 1:
+                if i<16: # This is because we are only storing 16 muons at a time
                    muonpt[i] = muon.pt()
                    muoneta[i] = muon.eta()
                    muonphi[i] = muon.phi()
@@ -447,13 +483,13 @@ def topbnv_fwlite(argv):
         nelectrons2write = 0
         if len(electrons.product()) > 0:
             for i,electron in enumerate( electrons.product() ):
-                #if electron.pt() > options.minelectronPt and abs(electron.eta()) < options.maxelectronEta and electron.isMediumelectron():
+
 
                 #print("Here! ----  A")
                 passSelection = selectElectron( electron, event )
                 #print(passSelection,type(passSelection))
                 #print("Here! ----  B")
-                if passSelection:
+                if passSelection and i<16: # we're only keeping 16 electrons
                    electronpt[i] = electron.pt()
                    electroneta[i] = electron.eta()
                    electronphi[i] = electron.phi()
