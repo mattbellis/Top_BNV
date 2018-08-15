@@ -1,0 +1,9 @@
+#python build_lots_of_condor_scripts.py ~/eos_store/SingleMuon
+python build_lots_of_condor_scripts.py ~/eos_store/DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8
+#python build_lots_of_condor_scripts.py ~/eos_store/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8
+#python build_lots_of_condor_scripts.py ~/eos_store/TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8
+#python build_lots_of_condor_scripts.py ~/eos_store/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8
+#python build_lots_of_condor_scripts.py ~/eos_store/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8
+#python build_lots_of_condor_scripts.py ~/eos_store/WW_TuneCUETP8M1_13TeV-pythia8
+#python build_lots_of_condor_scripts.py ~/eos_store/WZ_TuneCUETP8M1_13TeV-pythia8
+#python build_lots_of_condor_scripts.py ~/eos_store/ZZ_TuneCUETP8M1_13TeV-pythia8

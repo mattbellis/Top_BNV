@@ -15,9 +15,9 @@ datasets = ['/SingleMuon/Run2016B-03Feb2017_ver2-v2/MINIAOD',
         ]
 
 
-dataset = datasets[0]
+dataset = datasets[NUMBERTORUN]
 
-request_name = "bellis_topbnv_%s" % (dataset[12:20])
+request_name = "bellis_%s" % (dataset.split('/')[2])
 
 #config.General.requestName = 'bellis_topbnv_TT_TUNE'
 #config.General.requestName = 'bellis_topbnv_RSGluonToTT'
@@ -37,6 +37,7 @@ config.Data.inputDataset = dataset
 
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
+#config.Data.splitting = 'Automatic'
 config.Data.unitsPerJob = 1
 
 # FOr 2016
