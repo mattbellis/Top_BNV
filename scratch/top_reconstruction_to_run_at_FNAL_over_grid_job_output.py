@@ -176,6 +176,8 @@ def main(filenames,outfile=None):
             #'''
             ncount = 0
             for n in range(njet_in):
+                if n<64:
+                    jetcsv[n] = csv[n]
                 if pt[n]>30 and ncount<64:
                     #jetcsv[ncount] = csv[n]
                     ncount += 1
