@@ -35,6 +35,7 @@ def main(infiles=None):
     njet = []
     nbjet = []
     ntop = []
+    nmuon = []
 
     for i in range(nentries):
 
@@ -43,10 +44,11 @@ def main(infiles=None):
         if i%100000==0:
             print("{0} out of {1} entries".format(i,nentries))
 
-        if i>10000:
+        if i>10000000:
             break
 
 
+        nmuon.append(chain.nmuon)
         leadmupt.append(chain.leadmupt)
 
         ntop.append(chain.ntop)
@@ -69,6 +71,7 @@ def main(infiles=None):
     njet = np.array(njet)
     nbjet = np.array(nbjet)
     ntop = np.array(ntop)
+    nmuon = np.array(nmuon)
 
     plt.figure(figsize=(12,8))
 
@@ -95,6 +98,9 @@ def main(infiles=None):
     plt.figure(figsize=(12,8))
     plt.subplot(2,3,1)
     lch.hist_err(ntop,bins=20,range=(0,20))
+
+    plt.subplot(2,3,2)
+    lch.hist_err(nmuon,bins=20,range=(0,20))
 
 
     plt.show()
