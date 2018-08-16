@@ -76,31 +76,31 @@ def main(infiles=None):
     plt.figure(figsize=(12,8))
 
     plt.subplot(2,3,1)
-    lch.hist_err(leadmupt[leadmupt<200],bins=400)
+    lch.hist_err(leadmupt[leadmupt<200],bins=400,alpha=0.2)
 
     plt.subplot(2,3,2)
-    lch.hist_err(topmass[topmass<1200],bins=400)
+    lch.hist_err(topmass[topmass<1200],bins=400,alpha=0.2)
 
     plt.subplot(2,3,3)
-    lch.hist_err(Wmass[Wmass<1200],bins=400,range=(0,400))
+    lch.hist_err(Wmass[Wmass<1200],bins=400,range=(0,400),alpha=0.2)
 
     plt.subplot(2,3,4)
-    lch.hist_err(Wmass[(Wmass>40)*(Wmass<150)],bins=100)
+    lch.hist_err(Wmass[(Wmass>40)*(Wmass<150)],bins=100,alpha=0.2)
 
     plt.subplot(2,3,5)
-    lch.hist_err(njet,bins=20,range=(0,20))
+    lch.hist_err(njet,bins=20,range=(0,20),alpha=0.2)
 
     plt.subplot(2,3,6)
-    lch.hist_err(nbjet,bins=8,range=(0,8))
+    lch.hist_err(nbjet,bins=8,range=(0,8),alpha=0.2)
 
     #lch.hist_err(jetcsv,bins=400)
 
     plt.figure(figsize=(12,8))
     plt.subplot(2,3,1)
-    lch.hist_err(ntop,bins=20,range=(0,20))
+    lch.hist_err(ntop,bins=20,range=(0,20),alpha=0.2)
 
     plt.subplot(2,3,2)
-    lch.hist_err(nmuon,bins=20,range=(0,20))
+    lch.hist_err(nmuon,bins=20,range=(0,20),alpha=0.2)
 
 
     plt.show()
