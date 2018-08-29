@@ -103,7 +103,7 @@ def main(infiles=None,outfilename=None):
     h,bin_edges = np.histogram(Wmass,bins=400,range=(0,800))
     output += prepare_histogram_for_output("Wmass",h,bin_edges)
 
-    h,bin_edges = np.histogram(jetcsv,bins=400,range=(0,800))
+    h,bin_edges = np.histogram(jetcsv,bins=440,range=(-20,2))
     output += prepare_histogram_for_output("jetcsv",h,bin_edges)
 
     outfile.write(output)
