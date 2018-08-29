@@ -30,7 +30,7 @@ def combine_bins(h,bin_edges,n=2):
 def main(infiles=None):
 
 
-    names = ['leadmupt']
+    names = ['leadmupt', 'topmass']
 
     plots = {}
     for name in names:
@@ -65,22 +65,20 @@ def main(infiles=None):
                     plots[name]['bin_edges'] = bin_edges
                 else:
                     plots[name]['bin_vals'] += bin_vals
-                    plots[name]['bin_edges'] += bin_edges
+                    #plots[name]['bin_edges'] += bin_edges
 
     print(plots)
 
     plt.figure(figsize=(12,8))
 
-    plt.subplot(2,3,1)
-    print("HERE")
-    print(plots['leadmupt']['bin_vals'],plots['leadmupt']['bin_edges'])
-    x,y = combine_bins(plots['leadmupt']['bin_vals'],plots['leadmupt']['bin_edges'],n=4)
-    x = np.array(x); y = np.array(y)
-    print(x)
-    print(y)
-    #plt.hist(x,y)
-    plt.errorbar((y[0:-1] + y[1:])/2, x,yerr=np.sqrt(x),fmt='.')
-    #plt.hist(plots['leadmupt']['bin_vals'],plots['leadmupt']['bin_edges'])
+    for i,name in enumerate(names):
+        plt.subplot(2,3,1+i)
+        print(plots[name]['bin_vals'],plots[name]['bin_edges'])
+        #x,y = combine_bins(plots[name]['bin_vals'],plots[name]['bin_edges'],n=4)
+        x,y = plots[name]['bin_vals'],plots[name]['bin_edges']
+        x = np.array(x); y = np.array(y)
+        xbins = (y[0:-1] + y[1:])/2.
+        plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.')
 
     '''
     plt.subplot(2,3,2)
