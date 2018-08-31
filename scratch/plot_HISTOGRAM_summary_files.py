@@ -30,14 +30,34 @@ def combine_bins(h,bin_edges,n=2):
 def main(infiles=None):
 
 
-    names = ['leadmupt', 'topmass']
+    names = ['leadmupt', 'topmass','Wmass','jetcsv']
+
+    mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets"]
 
     plots = {}
     for name in names:
-        plots[name] = {'bin_vals':[], 'bin_edges':[]}
-
+        plots[name] = {}
+        for dataset in mcdatasets:
+            plots[name][dataset] = {'bin_vals':[], 'bin_edges':[]}
 
     for i,infile in enumerate(infiles):
+
+        filedataset = infile.split('DATASET_')[1].split('_NFILES')[0]
+
+        dataset = None
+        for ds in mcdatasets:
+            if filedataset.find(ds)>=0:
+                dataset = ds
+                break
+        if dataset is None:
+            print("No dataset for {0}".format(filedataset))
+
+
+
+        for key in plots.keys():
+            datasetkeys = list(plots[key].keys())
+            if dataset not in datasetkeys:
+                plots[key][dataset] = {'bin_vals':[], 'bin_edges':[]}
 
         f = open(infile)
 
@@ -47,7 +67,7 @@ def main(infiles=None):
             if len(vals)==0:
                 break
 
-            print(vals)
+            #print(vals)
 
             name = vals[0]
 
@@ -60,25 +80,28 @@ def main(infiles=None):
                 bin_vals = np.array(bin_vals).astype(float)
                 bin_edges = np.array(bin_edges).astype(float)
 
-                if len(plots[name]['bin_vals'])==0:
-                    plots[name]['bin_vals'] = bin_vals
-                    plots[name]['bin_edges'] = bin_edges
+                if len(plots[name][dataset]['bin_vals'])==0:
+                    plots[name][dataset]['bin_vals'] = bin_vals
+                    plots[name][dataset]['bin_edges'] = bin_edges
                 else:
-                    plots[name]['bin_vals'] += bin_vals
+                    plots[name][dataset]['bin_vals'] += bin_vals
                     #plots[name]['bin_edges'] += bin_edges
 
-    print(plots)
+    #print(plots)
 
     plt.figure(figsize=(12,8))
 
     for i,name in enumerate(names):
-        plt.subplot(2,3,1+i)
-        print(plots[name]['bin_vals'],plots[name]['bin_edges'])
-        #x,y = combine_bins(plots[name]['bin_vals'],plots[name]['bin_edges'],n=4)
-        x,y = plots[name]['bin_vals'],plots[name]['bin_edges']
-        x = np.array(x); y = np.array(y)
-        xbins = (y[0:-1] + y[1:])/2.
-        plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.')
+        for dataset in plots[name].keys():
+            plt.subplot(2,3,1+i)
+            #print(plots[name]['bin_vals'],plots[name]['bin_edges'])
+            #x,y = combine_bins(plots[name]['bin_vals'],plots[name]['bin_edges'],n=4)
+            x,y = plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges']
+            x = np.array(x); y = np.array(y)
+            xbins = (y[0:-1] + y[1:])/2.
+            plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset)
+
+    plt.legend()
 
     '''
     plt.subplot(2,3,2)
