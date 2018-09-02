@@ -9,10 +9,12 @@ import lichen.lichen as lch
 
 import pickle
 
+import myhist as mh
+
 
 def combine_bins(h,bin_edges,n=2):
 
-    print(len(bin_edges)-1/n)
+    #print(len(bin_edges)-1/n)
 
     x = []
     y = [bin_edges[0]]
@@ -30,9 +32,10 @@ def combine_bins(h,bin_edges,n=2):
 def main(infiles=None):
 
 
+    colors = ['k','b','r','g','y','m','c','orange']
     names = ['leadmupt', 'topmass','Wmass','jetcsv']
 
-    mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets"]
+    mcdatasets = ['Data (2016)',"WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets"]
 
     plots = {}
     for name in names:
@@ -45,12 +48,16 @@ def main(infiles=None):
         filedataset = infile.split('DATASET_')[1].split('_NFILES')[0]
 
         dataset = None
-        for ds in mcdatasets:
-            if filedataset.find(ds)>=0:
-                dataset = ds
-                break
-        if dataset is None:
-            print("No dataset for {0}".format(filedataset))
+
+        if infile.find('DATA_DATASET')>=0:
+            dataset = "Data (2016)"
+        else:
+            for ds in mcdatasets:
+                if filedataset.find(ds)>=0:
+                    dataset = ds
+                    break
+            if dataset is None:
+                print("No dataset for {0}".format(filedataset))
 
 
 
@@ -89,19 +96,57 @@ def main(infiles=None):
 
     #print(plots)
 
+    ############################################################################
+    plt.figure(figsize=(12,8))
+
+    maxvals = np.zeros(len(names))
+    for i,name in enumerate(names):
+        for j,dataset in enumerate(plots[name].keys()):
+            plt.subplot(2,3,1+i)
+            #print(plots[name]['bin_vals'],plots[name]['bin_edges'])
+            #x,y = combine_bins(plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges'],n=8)
+            x,y = plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges']
+
+            x = np.array(x); y = np.array(y)
+            xbins = (y[0:-1] + y[1:])/2.
+            plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color=colors[j%len(colors)])
+
+            '''
+            mh.hh(x, y, plt.gca())
+            if max(x)>maxvals[i]:
+                maxvals[i] = max(x)
+            '''
+
+
+    plt.legend()
+
+    '''
+    for i,name in enumerate(names):
+        plt.subplot(2,3,1+i)
+        plt.ylim(0,1.1*maxvals[i])
+    '''
+
+
+    ############################################################################
+    # Stacked
+    ############################################################################
     plt.figure(figsize=(12,8))
 
     for i,name in enumerate(names):
-        for dataset in plots[name].keys():
-            plt.subplot(2,3,1+i)
-            #print(plots[name]['bin_vals'],plots[name]['bin_edges'])
-            #x,y = combine_bins(plots[name]['bin_vals'],plots[name]['bin_edges'],n=4)
-            x,y = plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges']
-            x = np.array(x); y = np.array(y)
-            xbins = (y[0:-1] + y[1:])/2.
-            plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset)
+        plt.subplot(2,3,1+i)
 
-    plt.legend()
+        heights,bins = [],[]
+        for j,dataset in enumerate(plots[name].keys()):
+            print(dataset)
+            if len(plots[name][dataset]['bin_vals'])>0:
+                heights.append(plots[name][dataset]['bin_vals'])
+                bins.append(plots[name][dataset]['bin_edges'])
+                plt.plot([0,0],[0,0],color=colors[j%len(colors)],label=dataset)
+
+        #print(heights)
+        #print(bins)
+        mh.shh(heights,bins,color=colors,ax=plt.gca())
+        plt.legend()
 
     '''
     plt.subplot(2,3,2)
