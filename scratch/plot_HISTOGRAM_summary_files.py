@@ -11,7 +11,28 @@ import pickle
 
 import myhist as mh
 
+from simple_MCinfo import mc_info
 
+print(mc_info)
+
+data_int_lumi = 35.* (1.0/1e-15) # 35 ifb --> inv barns
+
+for key in mc_info.keys():
+    entry = mc_info[key]
+    Ngen = entry['completed_events']
+    xsec = entry['cross_section']*1e-12 # pb --> barns
+
+    N = xsec * data_int_lumi
+
+    wt = N/Ngen
+
+    mc_info[key]['weight'] = wt
+
+    print(" {1:12.3f} {2:12} {3:12d} {4:12} {0}".format(key,wt,Ngen,int(N),xsec))
+
+
+
+################################################################################
 def combine_bins(h,bin_edges,n=2):
 
     #print(len(bin_edges)-1/n)
@@ -27,6 +48,7 @@ def combine_bins(h,bin_edges,n=2):
         y.append(bin_edges[i+n])
 
     return x,y
+################################################################################
 
 ################################################################################
 def main(infiles=None):
@@ -35,15 +57,22 @@ def main(infiles=None):
     colors = ['k','b','r','g','y','m','c','orange']
     names = ['leadmupt', 'topmass','Wmass','jetcsv']
 
-    mcdatasets = ['Data (2016)',"WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets"]
+    mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets"]
+    datadatasets = ['Data (2016)']
 
     plots = {}
+    dataplots = {}
     for name in names:
         plots[name] = {}
+        dataplots[name] = {}
         for dataset in mcdatasets:
             plots[name][dataset] = {'bin_vals':[], 'bin_edges':[]}
+        for dataset in datadatasets:
+            dataplots[name][dataset] = {'bin_vals':[], 'bin_edges':[]}
 
     for i,infile in enumerate(infiles):
+
+        isData = False
 
         filedataset = infile.split('DATASET_')[1].split('_NFILES')[0]
 
@@ -51,6 +80,7 @@ def main(infiles=None):
 
         if infile.find('DATA_DATASET')>=0:
             dataset = "Data (2016)"
+            isData = True
         else:
             for ds in mcdatasets:
                 if filedataset.find(ds)>=0:
@@ -87,12 +117,18 @@ def main(infiles=None):
                 bin_vals = np.array(bin_vals).astype(float)
                 bin_edges = np.array(bin_edges).astype(float)
 
-                if len(plots[name][dataset]['bin_vals'])==0:
-                    plots[name][dataset]['bin_vals'] = bin_vals
-                    plots[name][dataset]['bin_edges'] = bin_edges
+                if isData == False:
+                    if len(plots[name][dataset]['bin_vals'])==0:
+                        plots[name][dataset]['bin_vals'] = bin_vals
+                        plots[name][dataset]['bin_edges'] = bin_edges
+                    else:
+                        plots[name][dataset]['bin_vals'] += bin_vals
                 else:
-                    plots[name][dataset]['bin_vals'] += bin_vals
-                    #plots[name]['bin_edges'] += bin_edges
+                    if len(dataplots[name][dataset]['bin_vals'])==0:
+                        dataplots[name][dataset]['bin_vals'] = bin_vals
+                        dataplots[name][dataset]['bin_edges'] = bin_edges
+                    else:
+                        dataplots[name][dataset]['bin_vals'] += bin_vals
 
     #print(plots)
 
@@ -110,6 +146,13 @@ def main(infiles=None):
             x = np.array(x); y = np.array(y)
             xbins = (y[0:-1] + y[1:])/2.
             plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color=colors[j%len(colors)])
+
+        for j,dataset in enumerate(dataplots[name].keys()):
+            #x,y = combine_bins(dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges'],n=8)
+            x,y = dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges']
+            x = np.array(x); y = np.array(y)
+            xbins = (y[0:-1] + y[1:])/2.
+            plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color="k")
 
             '''
             mh.hh(x, y, plt.gca())
@@ -145,7 +188,16 @@ def main(infiles=None):
 
         #print(heights)
         #print(bins)
-        mh.shh(heights,bins,color=colors,ax=plt.gca())
+        if len(heights)>0:
+            mh.shh(heights,bins,color=colors,ax=plt.gca())
+
+        for j,dataset in enumerate(dataplots[name].keys()):
+            #x,y = combine_bins(dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges'],n=8)
+            x,y = dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges']
+            x = np.array(x); y = np.array(y)
+            xbins = (y[0:-1] + y[1:])/2.
+            plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color="k")
+
         plt.legend()
 
     '''

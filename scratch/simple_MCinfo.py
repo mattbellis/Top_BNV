@@ -67,7 +67,7 @@ mc_info = {
          'total_events': 125000000,
          'cross_section': 6104, # pb #### THERE ARE ALSO OTHER VALUES AROUND 5900
          'filter_efficiency': 1,
-         'match_efficiency': 03831,
+         'match_efficiency': 0.3831, # CHECK THIS!!!!!!!!!!!!!!!!!!!!
          'negative_weights_fraction': 0.27
          },
         'WW_TuneCUETP8M1_13TeV-pythia8-v1':

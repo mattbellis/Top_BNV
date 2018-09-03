@@ -75,8 +75,8 @@ def shh(heights, bins, ax=None,color='blue',alpha=1.0):
         ax.add_patch(patch)
 
         # update the view limits
-        print("HERE")
-        print(left)
+        #print("HERE")
+        #print(left)
         ax.set_xlim(left[0], right[-1])
         ax.set_ylim(bottom.min(), 1.1*top.max())
 
