@@ -59,7 +59,15 @@ def main(infiles=None):
 
 
     colors = ['k','b','r','g','y','m','c','orange']
-    names = ['leadmupt', 'topmass','Wmass','jetcsv']
+    names = ['leadmupt', 'topmass','Wmass','jetcsv', 'leadmupt_cut0', 'topmass_cut0', 'Wmass_cut0']
+    xaxislabels = [r'leading $\mu$ p_T [GeV/c]', 
+                   r'Top candidate mass [GeV/c$^2$]', 
+                   r'$W$ candidate mass [GeV/c$^2$]', 
+                   r'Jet CSVv2 variable',
+                   r'leading $\mu$ p_T [GeV/c]', 
+                   r'Top candidate mass [GeV/c$^2$]', 
+                   r'$W$ candidate mass [GeV/c$^2$]'
+                   ]
 
     mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets"]
     datadatasets = ['Data (2016)']
@@ -148,7 +156,7 @@ def main(infiles=None):
     maxvals = np.zeros(len(names))
     for i,name in enumerate(names):
         for j,dataset in enumerate(plots[name].keys()):
-            plt.subplot(2,3,1+i)
+            plt.subplot(3,3,1+i)
             #print(plots[name]['bin_vals'],plots[name]['bin_edges'])
             #x,y = combine_bins(plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges'],n=8)
             x,y = plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges']
@@ -164,18 +172,21 @@ def main(infiles=None):
             xbins = (y[0:-1] + y[1:])/2.
             plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color="k")
 
+
             '''
             mh.hh(x, y, plt.gca())
             if max(x)>maxvals[i]:
                 maxvals[i] = max(x)
             '''
+        plt.xlabel(xaxislabels[i],fontsize=18)
 
 
     plt.legend()
+    plt.tight_layout()
 
     '''
     for i,name in enumerate(names):
-        plt.subplot(2,3,1+i)
+        plt.subplot(3,3,1+i)
         plt.ylim(0,1.1*maxvals[i])
     '''
 
@@ -183,10 +194,21 @@ def main(infiles=None):
     ############################################################################
     # Stacked
     ############################################################################
-    plt.figure(figsize=(12,8))
+    #plt.figure(figsize=(12,8))
+
+    # Make an empty plot for the legend
+    plt.figure(figsize=(5,4),dpi=100)
+    for j,dataset in enumerate(plots[name].keys()):
+        plt.plot([0,0],[0,0],color=colors[j%len(colors)],label=dataset,linewidth=8)
+    plt.axis('off')
+    plt.legend(loc='center',fontsize=18)
+    plt.tight_layout()
+    plt.savefig('plots/legend.png')
+
 
     for i,name in enumerate(names):
-        plt.subplot(2,3,1+i)
+        #plt.subplot(3,3,1+i)
+        plt.figure(figsize=(5,4),dpi=100)
 
         heights,bins = [],[]
         for j,dataset in enumerate(plots[name].keys()):
@@ -208,37 +230,14 @@ def main(infiles=None):
             xbins = (y[0:-1] + y[1:])/2.
             plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color="k")
 
-        plt.legend()
+        plt.xlabel(xaxislabels[i],fontsize=14)
+        #plt.legend()
+        plt.tight_layout()
 
-    '''
-    plt.subplot(2,3,2)
-    lch.hist_err(topmass[topmass<1200],bins=400,alpha=0.2)
-
-    plt.subplot(2,3,3)
-    lch.hist_err(Wmass[Wmass<1200],bins=400,range=(0,400),alpha=0.2)
-
-    plt.subplot(2,3,4)
-    lch.hist_err(Wmass[(Wmass>40)*(Wmass<150)],bins=100,alpha=0.2)
-
-    plt.subplot(2,3,5)
-    lch.hist_err(njet,bins=20,range=(0,20),alpha=0.2)
-
-    plt.subplot(2,3,6)
-    lch.hist_err(nbjet,bins=8,range=(0,8),alpha=0.2)
-
-    #lch.hist_err(jetcsv,bins=400)
-
-    plt.figure(figsize=(12,8))
-    plt.subplot(2,3,1)
-    lch.hist_err(ntop,bins=20,range=(0,20),alpha=0.2)
-
-    plt.subplot(2,3,2)
-    lch.hist_err(nmuon,bins=20,range=(0,20),alpha=0.2)
-    '''
-
+        figname = "plots/fig_{0}.png".format(name)
+        plt.savefig(figname)
 
     plt.show()
-
 
     return 1
 

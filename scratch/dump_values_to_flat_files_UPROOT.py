@@ -27,10 +27,21 @@ def main(infiles=None,outfilename=None):
     leadmupt = []
     topmass = []
     Wmass = []
+    ntop = []
+
+    leadmupt_cut0 = []
+    topmass_cut0 = []
+    Wmass_cut0 = []
+    ntop_cut0 = []
+
+    leadmupt_cut1 = []
+    topmass_cut1 = []
+    Wmass_cut1 = []
+    ntop_cut1 = []
+
     jetcsv = []
     njet = []
     nbjet = []
-    ntop = []
     nmuon = []
 
     for infile in infiles:
@@ -44,6 +55,7 @@ def main(infiles=None,outfilename=None):
         print(tree.array('nmuon'))
 
         data = tree.arrays(["nmuon", "leadmupt", "ntop","topmass","nW","Wmass","nbjet","njet","jetcsv"])
+                           
 
         print(type(data))
 
@@ -63,13 +75,22 @@ def main(infiles=None,outfilename=None):
 
             nmuon.append(data[b'nmuon'][i])
             leadmupt.append(data[b'leadmupt'][i])
+            
+            lmupt = data[b'leadmupt'][i]
+            if lmupt>25:
+                leadmupt_cut0.append(lmupt)
 
             ntop.append(data[b'ntop'][i])
             for n in range(data[b'ntop'][i]):
                 topmass.append(data[b'topmass'][i][n])
+                if lmupt>25:
+                    topmass_cut0.append(data[b'topmass'][i][n])
 
             for n in range(data[b'nW'][i]):
-                Wmass.append(data[b'Wmass'][i][n])
+                wm = data[b'Wmass'][i][n]
+                Wmass.append(wm)
+                if lmupt>25:
+                    Wmass_cut0.append(wm)
 
             nbjet.append(data[b'nbjet'][i])
 
@@ -105,6 +126,15 @@ def main(infiles=None,outfilename=None):
 
     h,bin_edges = np.histogram(jetcsv,bins=440,range=(-20,2))
     output += prepare_histogram_for_output("jetcsv",h,bin_edges)
+
+    h,bin_edges = np.histogram(leadmupt_cut0,bins=400,range=(0,400))
+    output += prepare_histogram_for_output("leadmupt_cut0",h,bin_edges)
+
+    h,bin_edges = np.histogram(topmass_cut0,bins=400,range=(0,800))
+    output += prepare_histogram_for_output("topmass_cut0",h,bin_edges)
+
+    h,bin_edges = np.histogram(Wmass_cut0,bins=400,range=(0,800))
+    output += prepare_histogram_for_output("Wmass_cut0",h,bin_edges)
 
     outfile.write(output)
     
