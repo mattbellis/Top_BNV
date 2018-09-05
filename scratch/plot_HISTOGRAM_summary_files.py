@@ -13,7 +13,11 @@ import myhist as mh
 
 from simple_MCinfo import mc_info
 
-print(mc_info)
+from collections import OrderedDict
+
+mcparamsnames = list(mc_info.keys())
+
+#print(mc_info)
 
 data_int_lumi = 35.* (1.0/1e-15) # 35 ifb --> inv barns
 
@@ -28,7 +32,7 @@ for key in mc_info.keys():
 
     mc_info[key]['weight'] = wt
 
-    print(" {1:12.3f} {2:12} {3:12d} {4:12} {0}".format(key,wt,Ngen,int(N),xsec))
+    print(" {1:12.3f} {2:12} {3:12d} {4:12.2e} {0}".format(key,wt,Ngen,int(N),xsec))
 
 
 
@@ -60,17 +64,23 @@ def main(infiles=None):
     mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets"]
     datadatasets = ['Data (2016)']
 
-    plots = {}
-    dataplots = {}
+    plots = OrderedDict()
+    dataplots = OrderedDict()
     for name in names:
-        plots[name] = {}
-        dataplots[name] = {}
+        plots[name] = OrderedDict()
+        dataplots[name] = OrderedDict()
         for dataset in mcdatasets:
             plots[name][dataset] = {'bin_vals':[], 'bin_edges':[]}
         for dataset in datadatasets:
             dataplots[name][dataset] = {'bin_vals':[], 'bin_edges':[]}
 
     for i,infile in enumerate(infiles):
+
+        wt = 1.0
+        for name in mcparamsnames:
+            if infile.find(name)>=0:
+                wt = mc_info[name]['weight']
+        print(wt,infile)
 
         isData = False
 
@@ -119,10 +129,10 @@ def main(infiles=None):
 
                 if isData == False:
                     if len(plots[name][dataset]['bin_vals'])==0:
-                        plots[name][dataset]['bin_vals'] = bin_vals
+                        plots[name][dataset]['bin_vals'] = bin_vals * wt
                         plots[name][dataset]['bin_edges'] = bin_edges
                     else:
-                        plots[name][dataset]['bin_vals'] += bin_vals
+                        plots[name][dataset]['bin_vals'] += bin_vals * wt
                 else:
                     if len(dataplots[name][dataset]['bin_vals'])==0:
                         dataplots[name][dataset]['bin_vals'] = bin_vals
@@ -180,7 +190,7 @@ def main(infiles=None):
 
         heights,bins = [],[]
         for j,dataset in enumerate(plots[name].keys()):
-            print(dataset)
+            #print(dataset)
             if len(plots[name][dataset]['bin_vals'])>0:
                 heights.append(plots[name][dataset]['bin_vals'])
                 bins.append(plots[name][dataset]['bin_edges'])
