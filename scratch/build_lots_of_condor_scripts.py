@@ -45,7 +45,7 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2):
     #exit()
 
 
-files_at_a_time = 100
+files_at_a_time = 10
 
 pwd = os.getcwd()
 # This should be something like eos_store/SingleMuon (for the data)
