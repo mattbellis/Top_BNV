@@ -669,6 +669,7 @@ def topbnv_fwlite(argv):
             break
 
         # loop over events in this file
+        print('Tot events in this file: ' + str(events.size()))
         for iev, event in enumerate(events):
 
             if maxevents > 0 and nevents > maxevents:

@@ -26,6 +26,8 @@ def main(filenames,outfile=None):
     outtree.Branch('njet', njet, 'njet/I')
     jetcsv = array('f', 64*[-1.])
     outtree.Branch('jetcsv', jetcsv, 'jetcsv[njet]/F')
+    jetpt = array('f', 64*[-1.])
+    outtree.Branch('jetpt', jetpt, 'jetpt[njet]/F')
 
     #'''
     nbjet = array('i', [-1])
@@ -40,6 +42,10 @@ def main(filenames,outfile=None):
     outtree.Branch('nW', nW, 'nW/I')
     Wmass = array('f', 64*[-1.])
     outtree.Branch('Wmass', Wmass, 'Wmass[nW]/F')
+    Wjet1pt = array('f', 64*[-1.])
+    outtree.Branch('Wjet1pt', Wjet1pt, 'Wjet1pt[nW]/F')
+    Wjet2pt = array('f', 64*[-1.])
+    outtree.Branch('Wjet2pt', Wjet2pt, 'Wjet2pt[nW]/F')
 
     nmuon = array('i', [-1])
     outtree.Branch('nmuon', nmuon, 'nmuon/I')
@@ -182,14 +188,15 @@ def main(filenames,outfile=None):
                     #jetcsv[ncount] = csv[n]
                     ncount += 1
                     if csv[n]>0.87:
-                        bjet.append([e[n],px[n],py[n],pz[n],eta[n],phi[n]])
+                        bjet.append([e[n],px[n],py[n],pz[n],pt[n],eta[n],phi[n]])
                     else:
-                        jet.append([e[n],px[n],py[n],pz[n],eta[n],phi[n]])
+                        jet.append([e[n],px[n],py[n],pz[n],pt[n],eta[n],phi[n]])
             #'''
             #'''
             #print("+++++++++++++++++++++++++++")
             #####################################################
             # DO THIS TO SPEED THINGS UP 
+            nmuon[0] = nmu_in
             if nmu_in>2:
                 nmu_in = 2
             #####################################################
@@ -223,6 +230,8 @@ def main(filenames,outfile=None):
                         wm = tbt.invmass([jet[j][0:4], jet[k][0:4]])
                         if Wcount<64:
                             Wmass[Wcount] = wm
+                            Wjet1pt[Wcount] = jet[j][4]
+                            Wjet2pt[Wcount] = jet[k][4]
 
                         #data["angles"].append(tbt.angle_between_vectors(jet[j][1:4], jet[k][1:4]))
                         #data["dRs"].append(tbt.deltaR(jet[j][4:], jet[k][4:]))
