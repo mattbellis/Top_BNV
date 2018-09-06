@@ -56,7 +56,6 @@ def main(infiles=None,outfilename=None):
 
         data = tree.arrays(["nmuon", "leadmupt", "ntop","topmass","nW","Wmass","nbjet","njet","jetcsv"])
                            
-
         print(type(data))
 
         print(data)

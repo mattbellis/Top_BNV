@@ -194,7 +194,6 @@ def main(infiles=None):
     ############################################################################
     # Stacked
     ############################################################################
-    #plt.figure(figsize=(12,8))
 
     # Make an empty plot for the legend
     plt.figure(figsize=(5,4),dpi=100)
@@ -206,9 +205,10 @@ def main(infiles=None):
     plt.savefig('plots/legend.png')
 
 
+    plt.figure(figsize=(12,8))
     for i,name in enumerate(names):
-        #plt.subplot(3,3,1+i)
-        plt.figure(figsize=(5,4),dpi=100)
+        plt.subplot(3,3,1+i)
+        #plt.figure(figsize=(5,4),dpi=100)
 
         heights,bins = [],[]
         for j,dataset in enumerate(plots[name].keys()):
