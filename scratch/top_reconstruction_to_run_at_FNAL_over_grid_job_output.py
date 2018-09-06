@@ -28,6 +28,14 @@ def main(filenames,outfile=None):
     outtree.Branch('jetcsv', jetcsv, 'jetcsv[njet]/F')
     jetpt = array('f', 64*[-1.])
     outtree.Branch('jetpt', jetpt, 'jetpt[njet]/F')
+    jeteta = array('f', 64*[-1.])
+    outtree.Branch('jeteta', jeteta, 'jeteta[njet]/F')
+    jetphi = array('f', 64*[-1.])
+    outtree.Branch('jetphi', jetphi, 'jetphi[njet]/F')
+    jetidx = array('i', 64*[-1])
+    outtree.Branch('jetidx', jetidx, 'jetidx[njet]/I')
+    bjetidx = array('i', 64*[-1])
+    outtree.Branch('bjetidx', bjetidx, 'bjetidx[njet]/I')
 
     #'''
     nbjet = array('i', [-1])
@@ -38,14 +46,23 @@ def main(filenames,outfile=None):
     topmass = array('f', 64*[-1.])
     outtree.Branch('topmass', topmass, 'topmass[ntop]/F')
 
+    topjet0idx = array('i', 64*[-1])
+    outtree.Branch('topjet0idx', topjet0idx, 'topjet0idx[ntop]/I')
+    topjet1idx = array('i', 64*[-1])
+    outtree.Branch('topjet1idx', topjet1idx, 'topjet1idx[ntop]/I')
+    topjet2idx = array('i', 64*[-1])
+    outtree.Branch('topjet2idx', topjet2idx, 'topjet2idx[ntop]/I')
+
     nW = array('i', [-1])
     outtree.Branch('nW', nW, 'nW/I')
+
+    # Index this by number of tops
     Wmass = array('f', 64*[-1.])
-    outtree.Branch('Wmass', Wmass, 'Wmass[nW]/F')
-    Wjet1pt = array('f', 64*[-1.])
-    outtree.Branch('Wjet1pt', Wjet1pt, 'Wjet1pt[nW]/F')
-    Wjet2pt = array('f', 64*[-1.])
-    outtree.Branch('Wjet2pt', Wjet2pt, 'Wjet2pt[nW]/F')
+    outtree.Branch('Wmass', Wmass, 'Wmass[ntop]/F')
+    #Wjet1pt = array('f', 64*[-1.])
+    #outtree.Branch('Wjet1pt', Wjet1pt, 'Wjet1pt[nW]/F')
+    #Wjet2pt = array('f', 64*[-1.])
+    #outtree.Branch('Wjet2pt', Wjet2pt, 'Wjet2pt[nW]/F')
 
     nmuon = array('i', [-1])
     outtree.Branch('nmuon', nmuon, 'nmuon/I')
@@ -57,11 +74,15 @@ def main(filenames,outfile=None):
     outtree.Branch('leadmupt', leadmupt, 'leadmupt/F')
     leadmueta = array('f', [-1.])
     outtree.Branch('leadmueta', leadmueta, 'leadmueta/F')
+    leadmuphi = array('f', [-1.])
+    outtree.Branch('leadmuphi', leadmuphi, 'leadmuphi/F')
 
     subleadmupt = array('f', [-1.])
     outtree.Branch('subleadmupt', subleadmupt, 'subleadmupt/F')
     subleadmueta = array('f', [-1.])
     outtree.Branch('subleadmueta', subleadmueta, 'subleadmueta/F')
+    subleadmuphi = array('f', [-1.])
+    outtree.Branch('subleadmuphi', subleadmuphi, 'subleadmuphi/F')
     #'''
 
     ntrigger = array('i', [-1])
@@ -174,23 +195,35 @@ def main(filenames,outfile=None):
             jet = []
             bjet = []
             muon = []
-            #print(njet,len(csv),len(px))
 
             njet[0] = njet_in
-            #njet[0] = 4
+
+            bjetcut_on_csv = 0.87
 
             #'''
             ncount = 0
+            nb = 0 # Number of b jets
+            nj = 0 # Number of not-b jets
+            for idx in range(0,64):
+                bjetidx[idx] = -1
+                jetidx[idx] = -1
             for n in range(njet_in):
                 if n<64:
                     jetcsv[n] = csv[n]
-                if pt[n]>30 and ncount<64:
+                    jetpt[n] = pt[n]
+                    jeteta[n] = eta[n]
+                    jetphi[n] = phi[n]
+                if pt[n]>20 and ncount<64:
                     #jetcsv[ncount] = csv[n]
                     ncount += 1
-                    if csv[n]>0.87:
+                    if csv[n]>bjetcut_on_csv:
                         bjet.append([e[n],px[n],py[n],pz[n],pt[n],eta[n],phi[n]])
+                        bjetidx[nb] = n
+                        nb += 1
                     else:
                         jet.append([e[n],px[n],py[n],pz[n],pt[n],eta[n],phi[n]])
+                        jetidx[nj] = n
+                        nj += 1
             #'''
             #'''
             #print("+++++++++++++++++++++++++++")
@@ -208,37 +241,41 @@ def main(filenames,outfile=None):
                 if n == 0:
                     leadmupt[0] = mupt[n]
                     leadmueta[0] = mueta[n]
+                    leadmuphi[0] = muphi[n]
                 elif n == 1:
                     subleadmupt[0] = mupt[n]
                     subleadmueta[0] = mueta[n]
+                    subleadmuphi[0] = muphi[n]
             #print("+++++++++++++++++++++++++++")
             #'''
             
             #'''
             topcount = 0
             Wcount = 0
-            for b in bjet:
+            for bidx,b in enumerate(bjet):
                 for j in range(0,len(jet)-1):
                     for k in range(j+1,len(jet)):
                         #print(b,jet[j],jet[k])
 
                         #print(topcount)
                         m = tbt.invmass([b[0:4], jet[j][0:4], jet[k][0:4]])
+                        wm = tbt.invmass([jet[j][0:4], jet[k][0:4]])
+
                         if topcount<64:
                             topmass[topcount] = m
+                            topjet0idx[topcount] = bidx
+                            topjet1idx[topcount] = j
+                            topjet2idx[topcount] = k
 
-                        wm = tbt.invmass([jet[j][0:4], jet[k][0:4]])
-                        if Wcount<64:
-                            Wmass[Wcount] = wm
-                            Wjet1pt[Wcount] = jet[j][4]
-                            Wjet2pt[Wcount] = jet[k][4]
+                            Wmass[topcount] = wm
+                            Wcount += 1
+                            topcount += 1
+                            #Wjet1pt[Wcount] = jet[j][4]
+                            #Wjet2pt[Wcount] = jet[k][4]
 
-                        #data["angles"].append(tbt.angle_between_vectors(jet[j][1:4], jet[k][1:4]))
-                        #data["dRs"].append(tbt.deltaR(jet[j][4:], jet[k][4:]))
-                        # There is only 1 MET, but we associate with every W/top candidate. 
-
-                        topcount += 1
-                        Wcount += 1
+                            #data["angles"].append(tbt.angle_between_vectors(jet[j][1:4], jet[k][1:4]))
+                            #data["dRs"].append(tbt.deltaR(jet[j][4:], jet[k][4:]))
+                            # There is only 1 MET, but we associate with every W/top candidate. 
 
             metpt[0] = metpt_in
             nbjet[0] = len(bjet)
