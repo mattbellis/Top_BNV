@@ -158,66 +158,34 @@ def get_gen_particles(tree):
     '''
 
     gen_particles = []
-    particle = {"idx":-1, "pdgId":-999, "p4":[0.0, 0.0, 0.0,0.0], "motherpdg": -1, "grandmotherpdg":-1, "motheridx": -1, "grandmotheridx":-1, "ndau":-1}
+    particle = {"idx":-1, "pdg":-999, "p4":[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "motherpdg": -1, "motheridx": -1, "ndau":-1}
 
+    pdg = tree.genpdg
+    E = tree.gene
+    px = tree.genpx
+    py = tree.genpy
+    pz = tree.genpz
 
-    pdgId = tree.mc_pdgId
-    E = tree.mc_energy
-    px = tree.mc_px
-    py = tree.mc_py
-    pz = tree.mc_pz
+    pt = tree.genpt
+    eta = tree.geneta
+    phi = tree.genphi
 
-    mother = tree.mc_mother_pdgId
-    motheridx = tree.mc_mother_index
-    ndau = tree.mc_numberOfDaughters
+    mother = tree.genmotherpdg
+    motheridx = tree.genmotheridx
+    ndau = tree.genndau
 
-    LHE_pdgId = tree.LHE_pdgid
-    LHE_E = tree.LHE_E
-    pt = tree.LHE_Pt
-    eta = tree.LHE_Eta
-    phi = tree.LHE_Phi
-
-    
-    LHE_px = []
-    LHE_py = []
-    LHE_pz = []
-
-    #print("In get_gen_particles -------------------")
-    for i in range(len(pt)):
-        #print(pt[i], eta[i], phi[i])
-        if eta[i] != 0 and phi[i] != 0:
-            L_px, L_py, L_pz = etaphiTOxyz(pt[i],eta[i],phi[i])
-            LHE_px.append(L_px)
-            LHE_py.append(L_py)
-            LHE_pz.append(L_pz)
-    
-    '''
-    print("MC pdgId")
-    for i in range(len(pdgId)):
-        print('part', pdgId[i])
-        for j in range(len(mother[i])):
-            print('mom', mother[i][j])
-    '''
-
-
-    #print("----------------- \nLHE pdgId")
-    #for i in LHE_pdgId:
-    #    print(i)
-
-    for i in range(len(pdgId)):
+    for i in range(len(pdg)):
 
         #print(i,motheridx[i][0])
-        p4 = [E[i], px[i], py[i], pz[i], pdgId[i]]
+        p4 = [E[i], px[i], py[i], pz[i], pt[i], eta[i], phi[i]]
 
         #print(motheridx[i]][0])
 
         particle["idx"] = i
-        particle["pdgId"] = pdgId[i]
+        particle["pdg"] = pdg[i]
         particle["p4"] = p4
-        particle["motheridx"] = motheridx[i][0]
-        particle["motherpdg"] = mother[i][0]
-        particle["grandmotherpdg"] = mother[motheridx[i][0]][0]
-        particle["grandmotheridx"] = motheridx[motheridx[i][0]][0]
+        particle["motheridx"] = motheridx[i]
+        particle["motherpdg"] = mother[i]
 
         particle["ndau"] = ndau[i]
 
