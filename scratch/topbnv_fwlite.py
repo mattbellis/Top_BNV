@@ -151,6 +151,7 @@ def topbnv_fwlite(argv):
     jets, jetLabel = Handle("std::vector<pat::Jet>"), "slimmedJets"
     muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons"
     electrons, electronLabel = Handle("std::vector<pat::Electron>"), "slimmedElectrons"
+    gens, genLabel = Handle("std::vector<reco::GenParticle>"), "prunedGenParticles"
     #packedgens, packedgenLabel = Handle("std::vector<reco::packedGenParticle>"), "PACKEDgENpARTICLES"
     packedgens, packedgenLabel = Handle("std::vector<pat::PackedGenParticle>"), "packedGenParticles"
     genInfo, genInfoLabel = Handle("GenEventInfoProduct"), "generator"
@@ -179,6 +180,34 @@ def topbnv_fwlite(argv):
         tmp = array('l', [default])
         outtree.Branch(name, tmp, '%s/L' %name)
         return tmp
+
+    # Generated MC 4-momentum
+    ngen = array('i', [-1])
+    outtree.Branch('ngen', ngen, 'ngen/I')
+
+    genpt = array('f', 16*[-1.])
+    outtree.Branch('genpt', genpt, 'genpt[ngen]/F')
+    geneta = array('f', 16*[-1.])
+    outtree.Branch('geneta', geneta, 'geneta[ngen]/F')
+    genphi = array('f', 16*[-1.])
+    outtree.Branch('genphi', genphi, 'genphi[ngen]/F')
+    gene = array('f', 16*[-1.])
+    outtree.Branch('gene', gene, 'gene[ngen]/F')
+    genpx = array('f', 16*[-1.])
+    outtree.Branch('genpx', genpx, 'genpx[ngen]/F')
+    genpy = array('f', 16*[-1.])
+    outtree.Branch('genpy', genpy, 'genpy[ngen]/F')
+    genpz = array('f', 16*[-1.])
+    outtree.Branch('genpz', genpz, 'genpz[ngen]/F')
+
+    genpdg = array('i', 16*[-1])
+    outtree.Branch('genpdg', genpdg, 'genpdg[ngen]/I')
+    genmotherpdg = array('i', 16*[-1])
+    outtree.Branch('genmotherpdg', genmotherpdg, 'genmotherpdg[ngen]/I')
+    genmotheridx = array('i', 16*[-1])
+    outtree.Branch('genmotheridx', genmotheridx, 'genmotheridx[ngen]/I')
+    genndau = array('i', 16*[-1])
+    outtree.Branch('genndau', genndau, 'genndau[ngen]/I')
 
     # Jets
     # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchoolLPC2018Jets
@@ -350,6 +379,8 @@ def topbnv_fwlite(argv):
     #################################################################################
     def processEvent(iev, event):
 
+        evWeight = 1.0 
+
         genOut = "Event %d\n" % (iev)
         #print "GGGEEENNNNOUT...."
         #print genOut
@@ -429,6 +460,148 @@ def topbnv_fwlite(argv):
             #print("NOT PASSING!")
             return -1
 
+        ##   ________                __________.__          __
+        ##  /  _____/  ____   ____   \______   \  |   _____/  |_  ______
+        ## /   \  ____/ __ \ /    \   |     ___/  |  /  _ \   __\/  ___/
+        ## \    \_\  \  ___/|   |  \  |    |   |  |_(  <_> )  |  \___ \
+        ##  \______  /\___  >___|  /  |____|   |____/\____/|__| /____  >
+        ##         \/     \/     \/                                  \/
+        if options.isMC:
+            
+            '''
+            isPackedGenPresent = event.getByLabel( packedgenLabel, packedgens )
+            if isPackedGenPresent:
+                print("--------------")
+                for igen,gen in enumerate( packedgens.product() ):
+                    if abs(gen.pdgId())<30:
+                        packedgenOut = 'PACKED GEN pdg id=%d energy=%5.3f pt=%+5.3f status=%d ndau: %d mother: %d' % \
+                                        ( gen.pdgId(), gen.energy(), gen.pt(), gen.status(), gen.numberOfDaughters(), gen.mother(0).pdgId() )
+                        print(packedgenOut)
+
+            ''' 
+
+
+            haveGenSolution = False
+            isGenPresent = event.getByLabel( genLabel, gens )
+            if isGenPresent:
+                #print(" ----------------------------- ")
+                ngen[0] = 10
+
+
+                topQuark = None
+                antitopQuark = None
+                found_top = False
+                found_antitop = False
+                #print("------------------------------------------------------------")
+                gcount = 0
+                wmenergy = 0
+                wpenergy = 0
+                for igen,gen in enumerate( gens.product() ):
+                    ##### WHEN LOOPING OVER CHECK THE HARD SCATTERING FLAG 
+                    ##### TO MAKE SURE WE DON'T WORRY ABOUT TOPS THAT ARE JUST
+                    ##### PROPAGATING FROM THEMSELVES
+                    #if options.verbose:
+                    if 1:
+                        genOut = "" # For debugging
+                        mother = -999
+                        if gen.mother() != None:
+                            '''
+                            mother = gen.mother().pdgId() 
+
+                            #genpdg[gcount] = gen.pdgId()
+                            genOut += 'GEN pdg id=%d pt=%+5.3f status=%d ndau: %d mother: %d isLastCopy: %d\n' % \
+                                    ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother, gen.isLastCopy() )
+                            for ndau in range(0,gen.numberOfDaughters()):
+                                genOut += "daughter pdgid: %d   pt: %f  %f\n" % (gen.daughter(ndau).pdgId(), gen.daughter(ndau).pt(), gen.daughter(ndau).mother().pt())
+                            '''
+                            ##### FIND TOPS AND THEIR DECAYS
+                            #print genOut
+                            if abs(gen.pdgId()) == 6 and gen.isLastCopy():
+                                parent = gen
+
+                                gene[gcount] = parent.energy()
+                                genpt[gcount] = parent.pt()
+                                geneta[gcount] = parent.eta()
+                                genphi[gcount] = parent.phi()
+                                genpdg[gcount] = parent.pdgId()
+                                genpx[gcount] = parent.px()
+                                genpy[gcount] = parent.py()
+                                genpz[gcount] = parent.pz()
+                                genmotherpdg[gcount] = -1
+                                genmotheridx[gcount] = -1
+                                genndau[gcount] = parent.numberOfDaughters()
+
+                                parentidx = gcount
+
+                                gcount += 1
+
+                                if parent.numberOfDaughters()==2:
+                                    for dauidx in [0,1]:
+                                        dau = parent.daughter(dauidx)
+
+                                        gene[gcount] = dau.energy()
+                                        genpt[gcount] = dau.pt()
+                                        geneta[gcount] = dau.eta()
+                                        genphi[gcount] = dau.phi()
+                                        genpdg[gcount] = dau.pdgId()
+                                        genpx[gcount] = dau.px()
+                                        genpy[gcount] = dau.py()
+                                        genpz[gcount] = dau.pz()
+                                        genmotherpdg[gcount] = dau.mother().pdgId()
+                                        genmotheridx[gcount] = parentidx
+                                        genndau[gcount] = dau.numberOfDaughters()
+
+                                        gcount += 1 
+
+                                        if dau.pdgId()==-24:
+                                            wmenergy = dau.energy() # For matching
+                                        elif dau.pdgId()==24:
+                                            wpenergy = dau.energy() # For matching
+
+                            ##### FIND Ws AND THEIR DECAYS
+                            elif (gen.pdgId() == 24 and gen.isLastCopy() and abs(gen.energy()-wpenergy)< 10) \
+                              or (gen.pdgId() ==-24 and gen.isLastCopy() and abs(gen.energy()-wmenergy)< 10):
+
+                                parent = gen
+
+                                parentidx = gcount
+
+                                if parent.numberOfDaughters()==2:
+                                    for dauidx in [0,1]:
+                                        dau = parent.daughter(dauidx)
+
+                                        gene[gcount] = dau.energy()
+                                        genpt[gcount] = dau.pt()
+                                        geneta[gcount] = dau.eta()
+                                        genphi[gcount] = dau.phi()
+                                        genpdg[gcount] = dau.pdgId()
+                                        genpx[gcount] = dau.px()
+                                        genpy[gcount] = dau.py()
+                                        genpz[gcount] = dau.pz()
+                                        genmotherpdg[gcount] = dau.mother().pdgId()
+                                        genmotheridx[gcount] = parentidx
+                                        genndau[gcount] = dau.numberOfDaughters()
+
+                                        gcount += 1 
+
+
+                else:
+                    if options.verbose:
+                        print ('No top quarks, not filling mttbar')
+
+            '''
+            if options.verbose:
+                #print(ngen)
+                for a,b,c,d,e,f,g,h,aa,bb,cc in zip( genpt, geneta, genphi, gene, genpx, genpy, genpz, genpdg, genmotheridx, genmotherpdg, genndau):
+                    print(a,b,c,d,e,f,g,h,aa,bb,cc)
+            '''
+
+            # Get MC weight
+            event.getByLabel( genInfoLabel, genInfo )
+            genWeight = genInfo.product().weight()
+            evWeight *= genWeight
+
+        #exit()
         ##      ____.       __      _________      .__                 __  .__
         ##     |    | _____/  |_   /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____
 

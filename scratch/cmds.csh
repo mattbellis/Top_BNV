@@ -1,1 +1,1 @@
-python topbnv_fwlite.py --input TEST_ONE_LOCAL_INPUTFILE.txt --localInputFiles
+python topbnv_fwlite.py --input TEST_ONE_LOCAL_INPUTFILE.txt --localInputFiles --isMC
