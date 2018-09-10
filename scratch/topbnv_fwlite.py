@@ -616,6 +616,11 @@ def topbnv_fwlite(argv):
         # list of particles sent to the jet clustering.
         # Therefore, we need to loop over the jet constituents and
         # remove the lepton.
+        #
+        # Jet info
+        # https://twiki.cern.ch/twiki/bin/view/CMS/TopJME#Jets_AN2
+        # Jet selection
+        # https://twiki.cern.ch/twiki/bin/view/CMS/TTbarXSecSynchronization
 
         # use getByLabel, just like in cmsRun
         event.getByLabel (jetLabel, jets)          # For b-tagging
