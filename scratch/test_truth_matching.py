@@ -44,17 +44,20 @@ def main(filenames,outfilename=None):
 
             #'''
             gen_particles = tbt.get_gen_particles(tree)
-            #print("----------")
-            #print(gen_particles)
+            print("----------")
+            #for gp in gen_particles:
+                #print(gp)
             ib = 0
             for gen in gen_particles:
                 #if np.abs(gen['pdg'])==24 and gen['ndau']==2:
                 if np.abs(gen['pdg'])==5 and np.abs(gen['motherpdg'])==6:
                     #print(gen)
-                    p4 = gen['p4']
-                    b_pt,b_eta,b_phi = tbt.xyzTOetaphi(p4[1],p4[2],p4[3])
-                    gen_b[ib] = b_pt,b_eta,b_phi 
+                    #p4 = gen['p4']
+                    #b_pt,b_eta,b_phi = tbt.xyzTOetaphi(p4[1],p4[2],p4[3])
+                    #gen_b[ib] = b_pt,b_eta,b_phi 
+                    gen_b[ib] = gen['p4'][4:]
                     ib += 1 # Assume we only have 2 b-quarks coming from the tops per event
+            print(gen_b)
 
             #'''
 
@@ -74,7 +77,7 @@ def main(filenames,outfilename=None):
             muon = []
             #print(njet,len(csv),len(px))
             # Try to match bjets
-            print("Looking -------------------------------------------------------")
+            #print("Looking -------------------------------------------------------")
             nj = 0
             nbj = 0
             #nbjetmatch[0] = 0
@@ -102,22 +105,22 @@ def main(filenames,outfilename=None):
                 if matchedjet:
                     vals[0].append(jetcsv[n])
                     vals[4].append(pt[n])
-                    if jetcsv[n]>0.95 and pt[n]>125 and pt[n]<140:
-                        print("FOUND MATCH!  ",jetcsv[n])
-                        print(gb)
-                        print(pt[n],eta[n],phi[n])
-                        print(gendR,dpt)
+                    #if jetcsv[n]>0.95 and pt[n]>125 and pt[n]<140:
+                        #print("FOUND MATCH!  ",jetcsv[n])
+                        #print(gb)
+                        #print(pt[n],eta[n],phi[n])
+                        #print(gendR,dpt)
                     nbsfound += 1
                     #bjetmatchcsv[nbjetmatch[0]] = jetcsv[n]
                     #nbjetmatch[0] += 1
                 else:
                     vals[1].append(jetcsv[n])
                     vals[5].append(pt[n])
-                    if jetcsv[n]>0.95 and pt[n]>125 and pt[n]<140:
-                        print("NO MATCH!  ",jetcsv[n])
-                        print(gb)
-                        print(pt[n],eta[n],phi[n])
-                        print(gendR,dpt)
+                    #if jetcsv[n]>0.95 and pt[n]>125 and pt[n]<140:
+                        #print("NO MATCH!  ",jetcsv[n])
+                        #print(gb)
+                        #print(pt[n],eta[n],phi[n])
+                        #print(gendR,dpt)
                     #bjetnotmatchcsv[nbjetnotmatch[0]] = jetcsv[n]
                     #nbjetnotmatch[0] += 1
                 #'''
@@ -132,12 +135,15 @@ def main(filenames,outfilename=None):
     print('matched:     ',len(vals[0][vals[0]>0.67]),len(vals[0]))
     print('not matched: ',len(vals[1][vals[1]>0.67]),len(vals[1]))
 
-    for v in [vals[0],vals[1]]:
+    pcut = 20
+    print("Momentum cut: {0}".format(pcut))
+    for v in [vals[0][vals[4]>pcut],vals[1][vals[5]>pcut]]:
         print("---------")
-        i = 0.67
-        tot = len(v)
-        passed = len(v[v>i])
-        print(passed/tot,passed,tot,i)
+        for i in range(0,10):
+            cut = 0.50 + 0.05*i
+            tot = len(v)
+            passed = len(v[v>cut])
+            print(passed/tot,passed,tot,cut)
 
     for v in [vals[4],vals[5]]:
         print("---------")
@@ -160,12 +166,12 @@ def main(filenames,outfilename=None):
 
     plt.figure()
     plt.subplot(2,2,1)
-    plt.plot(vals[0],vals[4],'.',alpha=0.5)
+    plt.plot(vals[0],vals[4],'.',alpha=0.5,markersize=0.5)
     plt.xlim(0,1.1)
     plt.ylim(0,200)
 
     plt.subplot(2,2,2)
-    plt.plot(vals[1],vals[5],'.',alpha=0.5)
+    plt.plot(vals[1],vals[5],'.',alpha=0.5,markersize=0.5)
     plt.xlim(0,1.1)
     plt.ylim(0,200)
 
