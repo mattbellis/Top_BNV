@@ -226,11 +226,11 @@ def main(filenames,outfilename=None):
                 topdR_bnb.append(dR)
 
                 mass = tbt.invmass([nonbjets[0],bjet])
-                top01.append(mass**2)
+                top01.append(mass)
                 mass = tbt.invmass([nonbjets[1],bjet])
-                top02.append(mass**2)
+                top02.append(mass)
                 mass = tbt.invmass([nonbjets[0],nonbjets[1]])
-                top12.append(mass**2)
+                top12.append(mass)
 
             #print(jet)
             #'''
@@ -318,18 +318,23 @@ def main(filenames,outfilename=None):
     plt.figure()
     plt.subplot(1,3,1)
     plt.plot(top01,top02,'.',alpha=0.5,markersize=0.5)
-    plt.xlim(0,30000)
-    plt.ylim(0,30000)
+    plt.xlim(0,200)
+    plt.ylim(0,200)
 
     plt.subplot(1,3,2)
     plt.plot(top01,top12,'.',alpha=0.5,markersize=0.5)
-    plt.xlim(0,30000)
-    plt.ylim(0,30000)
+    xpts = np.linspace(40,180,1000)
+    ypts0 = 30*np.sqrt(1 - ((xpts-110)**2)/50**2) + 75
+    ypts1 = -30*np.sqrt(1 - ((xpts-110)**2)/50**2) + 75
+    plt.plot(xpts,ypts0)
+    plt.plot(xpts,ypts1)
+    plt.xlim(0,200)
+    plt.ylim(0,200)
 
     plt.subplot(1,3,3)
     plt.plot(top02,top12,'.',alpha=0.5,markersize=0.5)
-    plt.xlim(0,30000)
-    plt.ylim(0,30000)
+    plt.xlim(0,200)
+    plt.ylim(0,200)
 
 
 
