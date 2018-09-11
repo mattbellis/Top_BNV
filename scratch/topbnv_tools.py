@@ -129,6 +129,37 @@ def etaphiTOxyz(pt,eta,phi):
     return px, py, pz
 
 ################################################################################
+# Draw Dalitz plot boundary
+################################################################################
+# http://pdg.lbl.gov/2017/reviews/rpp2017-rev-kinematics.pdf
+def draw_dalitz_boundary(M,m1,m2,m3,npts=100):
+
+        # Assume m12 is xaxis and m23 is yaxis
+
+        # Where ever we have double indices (e.g. m12) assume that is the squared value
+
+        # Squared values
+        m12min = (m1 + m2)**2
+        m12max = (M-m3)**2
+
+        m12 = np.linspace(m12min,m12max,npts)
+
+        E2star = (m12  - m1**2 + m2**2)/(2*np.sqrt(m12))
+        E3star = (M**2 - m12 - m3**2)/(2*np.sqrt(m12))
+
+        m23max = (E2star + E3star)**2 - (np.sqrt(E2star**2 - m2**2) - np.sqrt(E3star**2 - m3**2) )**2
+        m23min = (E2star + E3star)**2 - (np.sqrt(E2star**2 - m2**2) + np.sqrt(E3star**2 - m3**2) )**2
+
+        print(m12[0:3])
+        print(E2star[0:3])
+        print(E3star[0:3])
+        print(((E2star + E3star)**2)[0:3])
+        print(((np.sqrt(E2star**2 - m2**2) + np.sqrt(E3star**2 - m3**2) )**2)[0:3])
+        print(m23min[0:3])
+
+        return m12,m23min,m23max
+
+################################################################################
 # Pass in CSV to be converted to dictionary
 ################################################################################
 def csvtodict(csv_filename):
@@ -144,6 +175,66 @@ def csvtodict(csv_filename):
 
     return x 
 
+################################################################################
+# Pass in an event and a tree and return a bjet and 2 non-b jets in order to 
+# look for a top candiate
+################################################################################
+def get_top_candidate_jets(tree, csvcut=0.67):
+
+    bjets = []
+    nonbjets = []
+
+    njet = tree.njet
+    e = tree.jete
+    px = tree.jetpx
+    py = tree.jetpy
+    pz = tree.jetpz
+    pt = tree.jetpt
+    eta = tree.jeteta
+    phi = tree.jetphi
+    jetcsv = tree.jetbtag
+    NHF = tree.jetNHF
+    NEMF = tree.jetNEMF
+    CHF = tree.jetCHF
+    MUF = tree.jetMUF
+    CEMF = tree.jetCEMF
+    NC = tree.jetNumConst
+    NNP = tree.jetNumNeutralParticles
+    CHM = tree.jetCHM
+
+    for n in range(njet):
+
+        # Not doing lepton cleaning right now. Need to make sure DeltaR betwen 
+        # jets and leptons is>0.4. 
+        # https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
+        loose_jet = False
+        if abs(eta[n])<=2.4:
+            # https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
+            if NHF[n]<0.99 and NEMF[n]<0.99 and NC[n]>0 and CHF[n]>0 and CEMF[n]<0.99 and CHM[n]>0:
+                loose_jet = True
+        elif abs(eta[n])>2.4 and abs(eta[n])<=2.7:
+            # https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
+            if NHF[n]<0.99 and NEMF[n]<0.99 and NC[n]>0:
+                loose_jet = True
+        elif abs(eta[n])>2.7 and abs(eta[n])<=3.0:
+            # https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
+            if NHF[n]<0.98 and NEMF[n]>0.01 and NNP[n]>2:
+                loose_jet = True
+
+        #print(loose_jet)
+        if loose_jet is True:
+            #print(jetcsv[n])
+            if jetcsv[n]>csvcut:
+                bjets.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n]])
+            else:
+                nonbjets.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n]])
+
+    return bjets,nonbjets
+
+
+
+
+	
 ################################################################################
 # Pass in an event and a tree and return gen particles
 ################################################################################
@@ -205,44 +296,6 @@ def get_gen_particles(tree):
         Wnu     +/- 12,14,16
         '''
         
-
-
-        '''
-        if pdgId[i] == 6: # Do I need to check the daughters?
-            gen_particles['t'].append(p4)
-        elif pdgId[i] == -6:
-            gen_particles['tbar'].append(p4)
-        elif pdgId[i] == 24 and mother[i][0] == 6:
-            gen_particles['Wp'].append(p4)
-        elif pdgId[i] == -24 and mother[i][0] == -6:
-            gen_particles['Wm'].append(p4)
-        elif pdgId[i] == 5 and mother[i][0] == 6:
-            gen_particles['b'].append(p4)
-        elif pdgId[i] == -5 and mother[i][0] == -6:
-            gen_particles['bbar'].append(p4)
-    
-    
-
-        elif pdgId[i] in [11,13,15] and mother[i][0] == -24:
-            gen_particles['Wmlep'].append(p4)
-    
-        elif pdgId[i] in [-12,-14,-16] and mother[i][0] == -24:
-            gen_particles['Wmnu'].append(p4)
-    
-        elif pdgId[i] in [-11,-13,-15] and mother[i][0] == 24:
-            gen_particles['Wplep'].append(p4)
-        
-        elif pdgId[i] in [12,14,16] and mother[i][0] == 24:
-            gen_particles['Wpnu'].append(p4)
-
-        elif (pdgId[i] in [2,4,6] or pdgId[i] in [-1,-3,-5]) and mother[i][0] == 24:
-            gen_particles['Wpjet0'].append(p4)
-
-        elif (pdgId[i] in [-2,-4,-6] or pdgId[i] in [1,3,5]) and mother[i][0] == -24:
-            gen_particles['Wmjet0'].append(p4)
-
-        '''
-
     return gen_particles
 
 
