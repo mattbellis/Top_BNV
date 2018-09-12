@@ -226,11 +226,13 @@ def main(filenames,outfilename=None):
                 topdR_bnb.append(dR)
 
                 mass = tbt.invmass([nonbjets[0],bjet])
-                top01.append(mass)
+                top01.append(mass**2)
                 mass = tbt.invmass([nonbjets[1],bjet])
-                top02.append(mass)
+                top02.append(mass**2)
                 mass = tbt.invmass([nonbjets[0],nonbjets[1]])
-                top12.append(mass)
+                top12.append(mass**2)
+
+                #print(nonbjets[1][4] - nonbjets[0][4])
 
             #print(jet)
             #'''
@@ -315,26 +317,41 @@ def main(filenames,outfilename=None):
     plt.xlim(20,140)
     plt.ylim(-1,7)
 
+    top01 = np.array(top01)
+    top02 = np.array(top02)
+    top12 = np.array(top12)
+    dal_cuts = tbt.dalitz_boundaries(top02,top12)
+
     plt.figure()
     plt.subplot(1,3,1)
     plt.plot(top01,top02,'.',alpha=0.5,markersize=0.5)
-    plt.xlim(0,200)
-    plt.ylim(0,200)
+    plt.plot(top01[dal_cuts],top02[dal_cuts],'.',alpha=0.5,markersize=0.5)
+    plt.xlim(0,30000)
+    plt.ylim(0,30000)
 
     plt.subplot(1,3,2)
     plt.plot(top01,top12,'.',alpha=0.5,markersize=0.5)
-    xpts = np.linspace(40,180,1000)
-    ypts0 = 30*np.sqrt(1 - ((xpts-110)**2)/50**2) + 75
-    ypts1 = -30*np.sqrt(1 - ((xpts-110)**2)/50**2) + 75
-    plt.plot(xpts,ypts0)
-    plt.plot(xpts,ypts1)
-    plt.xlim(0,200)
-    plt.ylim(0,200)
+    plt.plot(top01[dal_cuts],top12[dal_cuts],'.',alpha=0.5,markersize=0.5)
+    #xpts = np.linspace(1000,25000,1000)
+    #ypts0 = 3000*np.sqrt(1 - ((xpts-12500)**2)/9000**2) + 6500
+    #ypts1 = -3000*np.sqrt(1 - ((xpts-12500)**2)/9000**2) + 6500
+    #plt.plot(xpts,ypts0)
+    #plt.plot(xpts,ypts1)
+    plt.xlim(0,30000)
+    plt.ylim(0,30000)
 
     plt.subplot(1,3,3)
     plt.plot(top02,top12,'.',alpha=0.5,markersize=0.5)
-    plt.xlim(0,200)
-    plt.ylim(0,200)
+    dal_cuts = tbt.dalitz_boundaries(top02,top12)
+    plt.plot(top02[dal_cuts],top12[dal_cuts],'.',alpha=0.5,markersize=0.5)
+
+    tot = len(top02)
+    passed = len(top02[dal_cuts])
+    print(passed/tot,passed,tot)
+
+    plt.xlim(0,30000)
+    plt.ylim(0,30000)
+
 
 
 

@@ -129,6 +129,42 @@ def etaphiTOxyz(pt,eta,phi):
     return px, py, pz
 
 ################################################################################
+# Boundaries
+################################################################################
+def dalitz_boundaries(xval,yval,projection=2):
+
+    passes_cut = False
+
+    # Projection 2
+    # x-axis (bjet + smallerpt non-bjet)
+    # y-axis (larger non-bjet + smallerpt non-bjet, the W-candidate)
+    if projection==2: # Triangle
+        # Bottom limit
+        m = 0.20
+        b = 1000.
+        ymin = m*xval + b
+        bottom_cut = yval>ymin
+
+        print(type(bottom_cut))
+
+        # Left limit
+        left_cut = xval>100.0
+        print(left_cut)
+
+        # Top limit
+        b = 12000
+        m = -.1750
+        ymax  = m*xval + b
+        top_cut = yval<ymax
+        print(top_cut)
+
+        passes_cut = bottom_cut * left_cut * top_cut
+        
+    return passes_cut
+
+
+
+################################################################################
 # Draw Dalitz plot boundary
 ################################################################################
 # http://pdg.lbl.gov/2017/reviews/rpp2017-rev-kinematics.pdf
@@ -179,7 +215,7 @@ def csvtodict(csv_filename):
 # Pass in an event and a tree and return a bjet and 2 non-b jets in order to 
 # look for a top candiate
 ################################################################################
-def get_top_candidate_jets(tree, csvcut=0.67):
+def get_top_candidate_jets(tree, csvcut=0.87):
 
     bjets = []
     nonbjets = []

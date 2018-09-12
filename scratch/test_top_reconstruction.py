@@ -87,25 +87,36 @@ def main(filenames,outfilename=None):
                         #print(nonbjets)
 
                         mass = tbt.invmass([nbjet0,nbjet1])
-                        wmass.append(mass)
-
                         dR = tbt.deltaR(nbjet0[5:],nbjet1[5:])
-                        wdR.append(dR)
 
-                        mass = tbt.invmass([nbjet0,nbjet1,bjet])
-                        topmass.append(mass)
+                        if mass>50 and mass<100 and dR<3:
+                            wmass.append(mass)
 
-                        dR = tbt.deltaR(nbjet0[5:],bjet[5:])
-                        topdR_bnb.append(dR)
-                        dR = tbt.deltaR(nbjet1[5:],bjet[5:])
-                        topdR_bnb.append(dR)
+                            wdR.append(dR)
 
-                        mass = tbt.invmass([nbjet0,bjet])
-                        top01.append(mass**2)
-                        mass = tbt.invmass([nbjet1,bjet])
-                        top02.append(mass**2)
-                        mass = tbt.invmass([nbjet0,nbjet1])
-                        top12.append(mass**2)
+                            mass = tbt.invmass([nbjet0,nbjet1,bjet])
+                            topmass.append(mass)
+
+                            dR = tbt.deltaR(nbjet0[5:],bjet[5:])
+                            topdR_bnb.append(dR)
+                            dR = tbt.deltaR(nbjet1[5:],bjet[5:])
+                            topdR_bnb.append(dR)
+
+                            mass = tbt.invmass([nbjet0,bjet])
+                            top01.append(mass**2)
+                            mass = tbt.invmass([nbjet1,bjet])
+                            top02.append(mass**2)
+                            mass = tbt.invmass([nbjet0,nbjet1])
+                            top12.append(mass**2)
+
+    top01 = np.array(top01)
+    top02 = np.array(top02)
+    top12 = np.array(top12)
+    wmass = np.array(wmass)
+    wdR = np.array(wdR)
+    topmass = np.array(topmass)
+    topdR_bnb = np.array(topdR_bnb)
+    dal_cuts = tbt.dalitz_boundaries(top02,top12)
 
     plt.figure()
     plt.subplot(3,2,1)
@@ -138,7 +149,38 @@ def main(filenames,outfilename=None):
     plt.xlim(0,30000)
     plt.ylim(0,30000)
 
+    ############################################################################
+    plt.figure()
+    plt.subplot(1,3,1)
+    plt.plot(top01[dal_cuts],top02[dal_cuts],'.',alpha=0.5,markersize=0.5)
+    plt.xlim(0,30000)
+    plt.ylim(0,30000)
 
+    plt.subplot(1,3,2)
+    plt.plot(top01[dal_cuts],top12[dal_cuts],'.',alpha=0.5,markersize=0.5)
+    plt.xlim(0,30000)
+    plt.ylim(0,30000)
+
+    plt.subplot(1,3,3)
+    plt.plot(top02[dal_cuts],top12[dal_cuts],'.',alpha=0.5,markersize=0.5)
+    plt.xlim(0,30000)
+    plt.ylim(0,30000)
+
+
+    plt.figure()
+    plt.subplot(3,2,1)
+    plt.hist(wmass[dal_cuts],bins=100,range=(20,140))
+    plt.subplot(3,2,2)
+    plt.hist(topmass[dal_cuts],bins=100,range=(0,400))
+    plt.subplot(3,2,3)
+    plt.hist(wdR[dal_cuts],bins=100,range=(-1,7))
+    #plt.subplot(3,2,4)
+    #plt.hist(topdR_bnb[dal_cuts],bins=100,range=(-1,7))
+
+    plt.subplot(3,2,5)
+    plt.plot(wmass[dal_cuts],wdR[dal_cuts],'.',markersize=1.0,alpha=0.5)
+    plt.xlim(20,140)
+    plt.ylim(-1,7)
 
     plt.show()
 
