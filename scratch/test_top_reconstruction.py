@@ -65,7 +65,7 @@ def main(filenames,outfilename=None):
 
             tree.GetEntry(i)
 
-            bjets,nonbjets = tbt.get_top_candidate_jets(tree)
+            bjets,nonbjets = tbt.get_top_candidate_jets(tree,ptcut=30)
 
             #print("-------------")
             #if len(bjets)>0 and len(nonbjets)>0:
@@ -89,7 +89,7 @@ def main(filenames,outfilename=None):
                         mass = tbt.invmass([nbjet0,nbjet1])
                         dR = tbt.deltaR(nbjet0[5:],nbjet1[5:])
 
-                        if mass>50 and mass<100 and dR<3:
+                        if mass>50 and mass<100:
                             wmass.append(mass)
 
                             wdR.append(dR)
@@ -117,6 +117,9 @@ def main(filenames,outfilename=None):
     topmass = np.array(topmass)
     topdR_bnb = np.array(topdR_bnb)
     dal_cuts = tbt.dalitz_boundaries(top02,top12)
+    print(len(dal_cuts),len(dal_cuts[dal_cuts]))
+
+    print(len(topmass),len(wmass))
 
     plt.figure()
     plt.subplot(3,2,1)

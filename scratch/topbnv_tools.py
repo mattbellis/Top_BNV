@@ -27,7 +27,10 @@ def angle_mod_2pi(angle):
 # We pass in two array-like objects that represent eta and phi of two vectors
 # https://root.cern.ch/doc/master/TLorentzVector_8h_source.html#l00463
 ################################################################################
-def deltaR(etph0, etph1):
+def deltaR(etph0, etph1,constrain0pi=True):
+
+    # constrain0pi will make sure that dR is between 0 and pi, rather than
+    # 0 and 2pi, if True.
 
     # Assume eta is in the first entry
     deta = etph0[0] - etph1[0]
@@ -40,7 +43,14 @@ def deltaR(etph0, etph1):
 
     dphi = etph0[1] - etph1[1]
 
-    return math.sqrt(deta*deta + dphi*dphi)
+    dR =  math.sqrt(deta*deta + dphi*dphi)
+
+    if dR>np.pi:
+        #olddR = dR
+        dR = TWOPI - dR
+        #print(olddR,dR)
+
+    return dR
 
 ################################################################################
 # Assume we pass in a list of 4 numbers in either a list or array
@@ -141,22 +151,22 @@ def dalitz_boundaries(xval,yval,projection=2):
     if projection==2: # Triangle
         # Bottom limit
         m = 0.20
-        b = 1000.
+        b = -1000.
         ymin = m*xval + b
         bottom_cut = yval>ymin
 
-        print(type(bottom_cut))
+        #print(type(bottom_cut))
 
         # Left limit
         left_cut = xval>100.0
-        print(left_cut)
+        #print(left_cut)
 
         # Top limit
         b = 12000
         m = -.1750
         ymax  = m*xval + b
         top_cut = yval<ymax
-        print(top_cut)
+        #print(top_cut)
 
         passes_cut = bottom_cut * left_cut * top_cut
         
@@ -186,12 +196,12 @@ def draw_dalitz_boundary(M,m1,m2,m3,npts=100):
         m23max = (E2star + E3star)**2 - (np.sqrt(E2star**2 - m2**2) - np.sqrt(E3star**2 - m3**2) )**2
         m23min = (E2star + E3star)**2 - (np.sqrt(E2star**2 - m2**2) + np.sqrt(E3star**2 - m3**2) )**2
 
-        print(m12[0:3])
-        print(E2star[0:3])
-        print(E3star[0:3])
-        print(((E2star + E3star)**2)[0:3])
-        print(((np.sqrt(E2star**2 - m2**2) + np.sqrt(E3star**2 - m3**2) )**2)[0:3])
-        print(m23min[0:3])
+        #print(m12[0:3])
+        #print(E2star[0:3])
+        #print(E3star[0:3])
+        #print(((E2star + E3star)**2)[0:3])
+        #print(((np.sqrt(E2star**2 - m2**2) + np.sqrt(E3star**2 - m3**2) )**2)[0:3])
+        #print(m23min[0:3])
 
         return m12,m23min,m23max
 
@@ -215,7 +225,7 @@ def csvtodict(csv_filename):
 # Pass in an event and a tree and return a bjet and 2 non-b jets in order to 
 # look for a top candiate
 ################################################################################
-def get_top_candidate_jets(tree, csvcut=0.87):
+def get_top_candidate_jets(tree, csvcut=0.87,ptcut=0.0):
 
     bjets = []
     nonbjets = []
@@ -239,6 +249,9 @@ def get_top_candidate_jets(tree, csvcut=0.87):
     CHM = tree.jetCHM
 
     for n in range(njet):
+
+        if pt[n]<ptcut:
+            continue
 
         # Not doing lepton cleaning right now. Need to make sure DeltaR betwen 
         # jets and leptons is>0.4. 
