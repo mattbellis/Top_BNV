@@ -19,6 +19,151 @@ selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_medium)
 #import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-medium as electron_medium
 #import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-tight as electron_tight
 
+#####################################################################################
+#jet_energy_corrections = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC
+#    [1,276811,"Spring16_23Sep2016BCDV2_DATA"],
+#    [276831,278801,"Spring16_23Sep2016EFV2_DATA"],
+#    [278802,280385,"Spring16_23Sep2016GV2_DATA"],
+#    [280386,float("inf"),"Spring16_23Sep2016HV2_DATA"]
+#]
+
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECDataMC
+########## NEED TO CHECK TO SEE IF THESE ARE CORRECT!!!!!!!!!
+# How do I get these ranges?
+#jet_energy_corrections = [ [1,276811,"Summer16_23Sep2016V4"],
+        #[276831,278801,"Summer16_23Sep2016V4"],
+        #[278802,280385,"Summer16_23Sep2016V4"],
+        #[280919,float("inf"),"Summer16_23Sep2016V4"] ]
+
+# THESE SHOULD BE THE LATEST - 9/12/2018
+jet_energy_corrections = [ [1,276811,"Summer16_07Aug2017_V11"],
+        [276831,278801,"Summer16_07Aug2017_V11"],
+        [278802,280385,"Summer16_07Aug2017_V11"],
+        [280919,float("inf"),"Summer16_07Aug2017_V11"] ]
+
+#####################################################################################
+# CHECK THIS!!!!!!!!!!
+#####################################################################################
+jet_energy_resolution = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
+                (0.0, 0.5, 1.109, 0.008),
+                (0.5, 0.8, 1.138, 0.013),
+                (0.8, 1.1, 1.114, 0.013),
+                (1.1, 1.3, 1.123, 0.024),
+                (1.3, 1.7, 1.084, 0.011),
+                (1.7, 1.9, 1.082, 0.035),
+                (1.9, 2.1, 1.140, 0.047),
+                (2.1, 2.3, 1.067, 0.053),
+                (2.3, 2.5, 1.177, 0.041),
+                (2.5, 2.8, 1.364, 0.039),
+                (2.8, 3.0, 1.857, 0.071),
+                (3.0, 3.2, 1.328, 0.022),
+                (3.2, 5.0, 1.160, 0.029),
+                                                            ]
+
+#####################################################################################
+def createJEC(jecSrc, jecLevelList, jetAlgo):
+    log = logging.getLogger('JEC')
+    log.info('Getting jet energy corrections for %s jets', jetAlgo)
+    jecParameterList = ROOT.vector('JetCorrectorParameters')()
+    # Load the different JEC levels (the order matters!)
+    for jecLevel in jecLevelList:
+        log.debug('  - %s jet corrections', jecLevel)
+        jecParameter = ROOT.JetCorrectorParameters('%s_%s_%s.txt' % (jecSrc, jecLevel, jetAlgo));
+        #print jecParameter
+        jecParameterList.push_back(jecParameter)
+    # Chain the JEC levels together
+    return ROOT.FactorizedJetCorrector(jecParameterList)
+
+#####################################################################################
+def getJEC(jecSrc, uncSrc, jet, area, rho, nPV): # get JEC and uncertainty for an *uncorrected* jet
+    # Give jet properties to JEC source
+    jecSrc.setJetEta(jet.Eta())
+    jecSrc.setJetPt(jet.Perp())
+    jecSrc.setJetE(jet.E())
+    jecSrc.setJetA(area)
+    jecSrc.setRho(rho)
+    jecSrc.setNPV(nPV)
+    jec = jecSrc.getCorrection() # get jet energy correction
+
+    # Give jet properties to JEC uncertainty source
+    uncSrc.setJetPhi(jet.Phi())
+    uncSrc.setJetEta(jet.Eta())
+    uncSrc.setJetPt(jet.Perp() * jec)
+    corrDn = 1. - uncSrc.getUncertainty(0) # get jet energy uncertainty (down)
+
+    uncSrc.setJetPhi(jet.Phi())
+    uncSrc.setJetEta(jet.Eta())
+    uncSrc.setJetPt(jet.Perp() * jec)
+    corrUp = 1. + uncSrc.getUncertainty(1) # get jet energy uncertainty (up)
+
+    return (jec, corrDn, corrUp)
+
+#####################################################################################
+#####################################################################################
+def getJER(jetEta, sysType):
+    """
+    Here, jetEta should be the jet pseudorapidity, and sysType is:
+        nominal : 0
+        down    : -1
+        up      : +1
+    """
+
+    if sysType not in [0, -1, 1]:
+        raise Exception('ERROR: Unable to get JER! use type=0 (nom), -1 (down), +1 (up)')
+
+    for (etamin, etamax, scale_nom, scale_uncert) in jet_energy_resolution:
+        if etamin <= abs(jetEta) < etamax:
+            if sysType < 0:
+                return scale_nom - scale_uncert
+            elif sysType > 0:
+                return scale_nom + scale_uncert
+            else:
+                return scale_nom
+    raise Exception('ERROR: Unable to get JER for jets at eta = %.3f!' % jetEta)
+
+#####################################################################################
+#####################################################################################
+class DataJEC:
+    JECList = []
+    def __init__(self,inputmap):
+        for minrun,maxrun,version in inputmap:
+            JECMap = {}
+            JECMap['jecAK4'] = createJEC('JECs/Summer/'+version, ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'], 'AK4PFchs')
+            JECMap['jecAK8'] = createJEC('JECs/Summer/'+version, ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'], 'AK8PFchs')
+            JECMap['jecUncAK4'] = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/'+version+'_Uncertainty_AK4PFchs.txt'))
+            JECMap['jecUncAK8'] = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/'+version+'_Uncertainty_AK8PFchs.txt'))
+            self.JECList.append([minrun, maxrun, JECMap])
+
+    def GetJECMap(self, run):
+        for minrun,maxrun,returnmap in self.JECList:
+            if run >= minrun and run <= maxrun:
+                return returnmap
+        raise Exception("Error! Run "+str(run)+" not found in run ranges")
+
+    def jecAK4(self, run):
+        JECMap = self.GetJECMap(run)
+        return JECMap["jecAK4"]
+
+    def jecAK8(self, run):
+        JECMap = self.GetJECMap(run)
+        return JECMap["jecAK8"]
+
+    def jecUncAK4(self, run):
+        JECMap = self.GetJECMap(run)
+        return JECMap["jecUncAK4"]
+
+    def jecUncAK8(self, run):
+        JECMap = self.GetJECMap(run)
+        return JECMap["jecUncAK8"]
+
+
+
+#####################################################################################
+#####################################################################################
+#####################################################################################
+#####################################################################################
+#####################################################################################
+
 # MC values are for the 2016 data
 muon_triggers_of_interest = [
     ["HLT_IsoMu24_v", "v4"],
@@ -154,6 +299,8 @@ def topbnv_fwlite(argv):
     gens, genLabel = Handle("std::vector<reco::GenParticle>"), "prunedGenParticles"
     #packedgens, packedgenLabel = Handle("std::vector<reco::packedGenParticle>"), "PACKEDgENpARTICLES"
     packedgens, packedgenLabel = Handle("std::vector<pat::PackedGenParticle>"), "packedGenParticles"
+    rhos, rhoLabel = Handle("double"), "fixedGridRhoAll"
+    vertices, vertexLabel = Handle("std::vector<reco::Vertex>"), "offlineSlimmedPrimaryVertices"
     genInfo, genInfoLabel = Handle("GenEventInfoProduct"), "generator"
     mets, metLabel = Handle("std::vector<pat::MET>"), "slimmedMETs"
 
@@ -322,6 +469,14 @@ def topbnv_fwlite(argv):
     meteta = array('f',[-1])
     outtree.Branch('meteta', meteta, 'meteta/F')
 
+    # Vertex stuff
+    vertexX = array('f',[-1.])
+    outtree.Branch('vertexX', vertexX, 'vertexX/F')
+    vertexY = array('f',[-1.])
+    outtree.Branch('vertexY', vertexY, 'vertexY/F')
+    vertexZ = array('f',[-1.])
+    outtree.Branch('vertexZ', vertexZ, 'vertexZ/F')
+
     # Triggers
     # We'll record 4 muon trigger bits for 2016 data
     ntrig_muon = array('i', [-1])
@@ -362,6 +517,27 @@ def topbnv_fwlite(argv):
     "DileptonMuMu":trig_dilepmumu,
     "DileptonEE":trig_dilepee
     }
+
+    #################################################################################
+    ##      ____.       __    _________                                     __  .__
+    ##     |    | _____/  |_  \_   ___ \  __________________   ____   _____/  |_|__| ____   ____   ______
+    ##     |    |/ __ \   __\ /    \  \/ /  _ \_  __ \_  __ \_/ __ \_/ ___\   __\  |/  _ \ /    \ /  ___/
+    ## /\__|    \  ___/|  |   \     \___(  <_> )  | \/|  | \/\  ___/\  \___|  | |  (  <_> )   |  \\___ \
+    ## \________|\___  >__|    \______  /\____/|__|   |__|    \___  >\___  >__| |__|\____/|___|  /____  >
+    ##               \/               \/                          \/     \/                    \/     \/
+    #################################################################################
+    ROOT.gSystem.Load('libCondFormatsJetMETObjects')
+    if options.isMC:
+        # CHANGE THIS FOR DIFFERENT MCs down the road
+        jecAK4 = createJEC('JECs/Summer/Summer16_23Sep2016V4_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK4PFchs')
+        jecAK8 = createJEC('JECs/Summer/Summer16_23Sep2016V4_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK8PFchs')
+        jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt'))
+        jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/Summer16_23Sep2016V4_MC_Uncertainty_AK8PFchs.txt'))
+    else:
+        # CHANGE THIS FOR DATA
+        DataJECs = DataJEC(jet_energy_corrections)
+
+
 
 
     #################################################################################
@@ -601,6 +777,55 @@ def topbnv_fwlite(argv):
             genWeight = genInfo.product().weight()
             evWeight *= genWeight
 
+        ## __________.__             ____   ____      .__
+        ## \______   \  |__   ____   \   \ /   /____  |  |  __ __   ____
+        ##  |       _/  |  \ /  _ \   \   Y   /\__  \ |  | |  |  \_/ __ \
+        ##  |    |   \   Y  (  <_> )   \     /  / __ \|  |_|  |  /\  ___/
+        ##  |____|_  /___|  /\____/     \___/  (____  /____/____/  \___  >
+        ##         \/     \/                        \/                 \/
+        #print("E")
+        event.getByLabel(rhoLabel, rhos)
+        # Rhos
+        if len(rhos.product()) == 0:
+            print ("Event has no rho values.")
+            return
+        else:
+            rho = rhos.product()[0]
+            if options.verbose:
+                print ('rho = {0:6.2f}'.format( rho ))
+
+
+        ## ____   ____             __                    _________      .__                 __  .__
+        ## \   \ /   /____________/  |_  ____ ___  ___  /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____
+        ##  \   Y   // __ \_  __ \   __\/ __ \\  \/  /  \_____  \_/ __ \|  | _/ __ \_/ ___\   __\  |/  _ \ /    \
+        ##   \     /\  ___/|  | \/|  | \  ___/ >    <   /        \  ___/|  |_\  ___/\  \___|  | |  (  <_> )   |  \
+        ##    \___/  \___  >__|   |__|  \___  >__/\_ \ /_______  /\___  >____/\___  >\___  >__| |__|\____/|___|  /
+        ##               \/                 \/      \/         \/     \/          \/     \/                    \/
+
+
+
+        #print("D")
+
+        event.getByLabel(vertexLabel, vertices)
+        # Vertices
+        NPV = len(vertices.product())
+        if len(vertices.product()) == 0 or vertices.product()[0].ndof() < 4:
+            if options.verbose:
+            #if 1:
+                print ("Event has no good primary vertex.")
+            vertexX[0] = -999
+            vertexY[0] = -999
+            vertexZ[0] = -999
+            return
+        else:
+            PV = vertices.product()[0]
+            vertexX[0] = PV.x()
+            vertexY[0] = PV.y()
+            vertexZ[0] = PV.z()
+        if options.verbose:
+            print ("PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (PV.x(), PV.y(), PV.z(), PV.ndof()))
+
+
         #exit()
         ##      ____.       __      _________      .__                 __  .__
         ##     |    | _____/  |_   /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____
@@ -659,8 +884,7 @@ def topbnv_fwlite(argv):
             nconstituents = jet.numberOfDaughters()
             nch = jet.chargedMultiplicity()
 
-            # Is this the b-jet tagging?
-            #print("B-tagging...: %f " % (jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")))
+            # Do some simple checks for the data
             goodJet = \
               nhf < 0.99 and \
               nef < 0.99 and \
@@ -671,14 +895,69 @@ def topbnv_fwlite(argv):
 
             if goodJet:
                 if njets2write<16:
+
+                    ##############################
+                    # Apply new JEC's
+                    ##############################
+                    if options.isMC:
+                        (newJEC, corrDn, corrUp) = getJEC(jecAK4, jecUncAK4, jetP4Raw, jet.jetArea(), rho, NPV)
+                    else:
+                        (newJEC, corrDn, corrUp) = getJEC(DataJECs.jecAK4(runnumber), DataJECs.jecUncAK4(runnumber), jetP4Raw, jet.jetArea(), rho, NPV)
+
+                    # If MC, get jet energy resolution
+                    ptsmear   = 1.0
+                    ptsmearUp = 1.0
+                    ptsmearDn = 1.0
+                    if options.isMC:
+                        # ---------------------------------------
+                        # JER
+                        # ---------------------------------------
+                        eta = jetP4Raw.Eta()
+                        if eta>=5.0:
+                            eta=4.999
+                        if eta<=-5.0:
+                            eta=-4.999
+                        smear     = getJER( eta,  0)
+                        smearUp   = getJER( eta,  1)
+                        smearDn   = getJER( eta, -1)
+                        #print "HERE WE ARE!!!!!!!!!!!"
+                        #print jetP4Raw.Perp()
+                        #print newJEC
+                        recopt    = jetP4Raw.Perp() * newJEC
+                        '''
+                        if jet.genJet() != None:
+                            genpt     = jet.genJet().pt()
+                            deltapt   = (recopt-genpt)*(smear-1.0)
+                            deltaptUp = (recopt-genpt)*(smearUp-1.0)
+                            deltaptDn = (recopt-genpt)*(smearDn-1.0)
+                            ptsmear   = max(0.0, (recopt+deltapt)/recopt)
+                            ptsmearUp = max(0.0, (recopt+deltaptUp)/recopt)
+                            ptsmearDn = max(0.0, (recopt+deltaptDn)/recopt)
+                        '''
+                    #print(newJEC,ptsmear)
+                    jetP4 = jetP4Raw * newJEC * ptsmear
+
+
                     i = njets2write
-                    jetpt[i] = jet.pt()
-                    jeteta[i] = jet.eta()
-                    jetphi[i] = jet.phi()
-                    jete[i] = jet.energy()
-                    jetpx[i] = jet.px()
-                    jetpy[i] = jet.py()
-                    jetpz[i] = jet.pz()
+
+                    # Uncorrected
+                    #jetpt[i] = jet.pt()
+                    #jeteta[i] = jet.eta()
+                    #jetphi[i] = jet.phi()
+                    #jete[i] = jet.energy()
+                    #jetpx[i] = jet.px()
+                    #jetpy[i] = jet.py()
+                    #jetpz[i] = jet.pz()
+
+                    # Corrected
+                    jetpt[i] = jetP4.Pt()
+                    jeteta[i] = jetP4.Eta()
+                    jetphi[i] = jetP4.Phi()
+                    jete[i] = jetP4.E()
+                    jetpx[i] = jetP4.Px()
+                    jetpy[i] = jetP4.Py()
+                    jetpz[i] = jetP4.Pz()
+
                     jetbtag[i] = jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")
                     # Do the loose flag.
                     jetNHF[i] = jet.neutralHadronEnergyFraction();
