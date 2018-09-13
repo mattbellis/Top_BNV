@@ -130,6 +130,7 @@ def main(filenames,outfilename=None):
             #vals_b_pt
 
             for n in range(njet):
+
                 mindR = 1e6
                 matchedjet = False
                 for gb in gen_b:
@@ -144,7 +145,7 @@ def main(filenames,outfilename=None):
                         genbjetdpt = dpt
                         mindR = gendR
                     #'''
-                    if pt[n]>0:
+                    if pt[n]>30:
                         if dpt<100 and gendR<0.3:
                             matchedjet = True
                             bjet = [e[n],px[n],py[n],pz[n],pt[n],eta[n],phi[n]]
@@ -181,7 +182,7 @@ def main(filenames,outfilename=None):
                         genbjetdpt = dpt
                         mindR = gendR
                     #'''
-                    if pt[n]>0:
+                    if pt[n]>30:
                         if dpt<100 and gendR<0.3:
                             matchedjet = True
                             nonbjets.append([e[n],px[n],py[n],pz[n],pt[n],eta[n],phi[n]])
@@ -321,6 +322,8 @@ def main(filenames,outfilename=None):
     top02 = np.array(top02)
     top12 = np.array(top12)
     dal_cuts = tbt.dalitz_boundaries(top02,top12)
+
+    print(len(topmass),len(wmass))
 
     plt.figure()
     plt.subplot(1,3,1)
