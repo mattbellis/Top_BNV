@@ -16,12 +16,12 @@ foreach dataset(DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8 \
                     WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8 \
                     DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8 \
                     DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8 \
-                    ST_t-channel_top_4f_inclusiveDecays_13TeV-powheg \
-                    ST_tW_tugFCNC_leptonDecays_Madgraph \
-                    ST_tW_tcgFCNC_leptonDecays_Madgraph \
-                    ST_s-channel_4f_InclusiveDecays_13TeV-amcatnlo-pythia8 \
-                    ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8 \
-                    ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1 \
+                    ST_t-channel_antitop_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1 \
+                    ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1 \
+                    ST_tW_antitop_5f_NoFullyHadronicDecays_13TeV-powheg_TuneCUETP8M1
+                    RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM
+                        /ST_tW_antitop_5f_NoFullyHadronicDecays_13TeV-powheg_TuneCUETP8M1/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/MINIAODSIM
+
                     )
 
     echo 

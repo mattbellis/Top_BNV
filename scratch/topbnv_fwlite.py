@@ -379,6 +379,12 @@ def topbnv_fwlite(argv):
     jetbtag = array('f', 16*[-1.])
     outtree.Branch('jetbtag', jetbtag, 'jetbtag[njet]/F')
 
+    jetarea = array('f', 16*[-1.])
+    outtree.Branch('jetarea', jetarea, 'jetarea[njet]/F')
+
+    jetjec = array('f', 16*[-1.])
+    outtree.Branch('jetjec', jetjec, 'jetjec[njet]/F')
+
     jetNHF = array('f', 16*[-1.])
     outtree.Branch('jetNHF', jetNHF, 'jetNHF[njet]/F')
     jetNEMF = array('f', 16*[-1.])
@@ -935,8 +941,9 @@ def topbnv_fwlite(argv):
                             ptsmearDn = max(0.0, (recopt+deltaptDn)/recopt)
                         '''
                     #print(newJEC,ptsmear)
+                    #print("UNCORR: ",jetP4Raw.Pt(), jetP4Raw.E(), jetP4Raw.Px(), jetP4Raw.Py(), jetP4Raw.Pz())
                     jetP4 = jetP4Raw * newJEC * ptsmear
-
+                    #print("UN    : ",jetP4.Pt(), jetP4.E(), jetP4.Px(), jetP4.Py(), jetP4.Pz())
 
                     i = njets2write
 
@@ -949,6 +956,8 @@ def topbnv_fwlite(argv):
                     #jetpy[i] = jet.py()
                     #jetpz[i] = jet.pz()
 
+                    jetjec[i] = newJEC
+
                     # Corrected
                     jetpt[i] = jetP4.Pt()
                     jeteta[i] = jetP4.Eta()
@@ -959,6 +968,8 @@ def topbnv_fwlite(argv):
                     jetpz[i] = jetP4.Pz()
 
                     jetbtag[i] = jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")
+                    jetarea[i] = jet.jetArea()
+                    #print(jetarea[i])
                     # Do the loose flag.
                     jetNHF[i] = jet.neutralHadronEnergyFraction();
                     jetNEMF[i] = jet.neutralEmEnergyFraction();
