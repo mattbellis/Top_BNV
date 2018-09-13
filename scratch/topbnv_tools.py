@@ -5,6 +5,7 @@ import pickle
 import csv
 
 TWOPI = 2*math.pi
+PI = math.pi
 
 pdgcodes = {6:"t", -6:"tbar"}
 
@@ -44,11 +45,16 @@ def deltaR(etph0, etph1,constrain0pi=True):
     dphi = etph0[1] - etph1[1]
 
     dR =  math.sqrt(deta*deta + dphi*dphi)
+    #print(dR)
 
-    if dR>np.pi:
+    if dR>TWOPI:
         #olddR = dR
-        dR = TWOPI - dR
+        dR = dR - TWOPI
         #print(olddR,dR)
+
+    if dR>PI:
+        if constrain0pi:
+            dR = TWOPI-dR
 
     return dR
 
@@ -222,13 +228,11 @@ def csvtodict(csv_filename):
     return x 
 
 ################################################################################
-# Pass in an event and a tree and return a bjet and 2 non-b jets in order to 
-# look for a top candiate
+# Pass in an event and a tree and return good jets
 ################################################################################
-def get_top_candidate_jets(tree, csvcut=0.87,ptcut=0.0):
+def get_good_jets(tree, ptcut=0.0):
 
-    bjets = []
-    nonbjets = []
+    alljets = []
 
     njet = tree.njet
     e = tree.jete
@@ -272,11 +276,30 @@ def get_top_candidate_jets(tree, csvcut=0.87,ptcut=0.0):
 
         #print(loose_jet)
         if loose_jet is True:
-            #print(jetcsv[n])
-            if jetcsv[n]>csvcut:
-                bjets.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n]])
-            else:
-                nonbjets.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n]])
+            alljets.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n], jetcsv[n]])
+
+    return alljets
+
+
+################################################################################
+# Pass a list of jets and return a bjet and 2 non-b jets in order to 
+# look for a top candiate
+################################################################################
+def get_top_candidate_jets(alljets, csvcut=0.87):
+
+    bjets = []
+    nonbjets = []
+
+    njet = len(alljets)
+
+    for n in range(njet):
+
+        csv = alljets[n][-1] # The last entry is the csv variable
+
+        if csv>csvcut:
+            bjets.append(alljets[n])
+        else:
+            nonbjets.append(alljets[n])
 
     return bjets,nonbjets
 

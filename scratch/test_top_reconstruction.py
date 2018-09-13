@@ -89,7 +89,7 @@ def main(filenames,outfilename=None):
                         mass = tbt.invmass([nbjet0,nbjet1])
                         dR = tbt.deltaR(nbjet0[5:],nbjet1[5:])
 
-                        if mass>50 and mass<100:
+                        if mass>0 and mass<1000:
                             wmass.append(mass)
 
                             wdR.append(dR)
@@ -121,9 +121,12 @@ def main(filenames,outfilename=None):
 
     print(len(topmass),len(wmass))
 
+    alpha = 0.1
+
     plt.figure()
     plt.subplot(3,2,1)
-    plt.hist(wmass,bins=100,range=(20,140))
+    #plt.hist(wmass,bins=100,range=(20,140))
+    plt.hist(wmass,bins=400,range=(0,400))
     plt.subplot(3,2,2)
     plt.hist(topmass,bins=100,range=(0,400))
     plt.subplot(3,2,3)
@@ -132,40 +135,40 @@ def main(filenames,outfilename=None):
     plt.hist(topdR_bnb,bins=100,range=(-1,7))
     plt.subplot(3,2,5)
 
-    plt.plot(wmass,wdR,'.',markersize=1.0,alpha=0.5)
+    plt.plot(wmass,wdR,'.',markersize=1.0,alpha=alpha)
     plt.xlim(20,140)
     plt.ylim(-1,7)
 
     plt.figure()
     plt.subplot(1,3,1)
-    plt.plot(top01,top02,'.',alpha=0.5,markersize=0.5)
+    plt.plot(top01,top02,'.',alpha=alpha,markersize=0.5)
     plt.xlim(0,30000)
     plt.ylim(0,30000)
 
     plt.subplot(1,3,2)
-    plt.plot(top01,top12,'.',alpha=0.5,markersize=0.5)
+    plt.plot(top01,top12,'.',alpha=alpha,markersize=0.5)
     plt.xlim(0,30000)
     plt.ylim(0,30000)
 
     plt.subplot(1,3,3)
-    plt.plot(top02,top12,'.',alpha=0.5,markersize=0.5)
+    plt.plot(top02,top12,'.',alpha=alpha,markersize=0.5)
     plt.xlim(0,30000)
     plt.ylim(0,30000)
 
     ############################################################################
     plt.figure()
     plt.subplot(1,3,1)
-    plt.plot(top01[dal_cuts],top02[dal_cuts],'.',alpha=0.5,markersize=0.5)
+    plt.plot(top01[dal_cuts],top02[dal_cuts],'.',alpha=alpha,markersize=0.5)
     plt.xlim(0,30000)
     plt.ylim(0,30000)
 
     plt.subplot(1,3,2)
-    plt.plot(top01[dal_cuts],top12[dal_cuts],'.',alpha=0.5,markersize=0.5)
+    plt.plot(top01[dal_cuts],top12[dal_cuts],'.',alpha=alpha,markersize=0.5)
     plt.xlim(0,30000)
     plt.ylim(0,30000)
 
     plt.subplot(1,3,3)
-    plt.plot(top02[dal_cuts],top12[dal_cuts],'.',alpha=0.5,markersize=0.5)
+    plt.plot(top02[dal_cuts],top12[dal_cuts],'.',alpha=alpha,markersize=0.5)
     plt.xlim(0,30000)
     plt.ylim(0,30000)
 
@@ -181,7 +184,7 @@ def main(filenames,outfilename=None):
     #plt.hist(topdR_bnb[dal_cuts],bins=100,range=(-1,7))
 
     plt.subplot(3,2,5)
-    plt.plot(wmass[dal_cuts],wdR[dal_cuts],'.',markersize=1.0,alpha=0.5)
+    plt.plot(wmass[dal_cuts],wdR[dal_cuts],'.',markersize=1.0,alpha=alpha)
     plt.xlim(20,140)
     plt.ylim(-1,7)
 

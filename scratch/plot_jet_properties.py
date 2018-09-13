@@ -57,7 +57,6 @@ def main(filenames,outfilename=None):
 
         print("Will run over %d entries" % (nentries))
 
-
         for i in range(nentries):
 
             if i%10000==0:
@@ -74,7 +73,6 @@ def main(filenames,outfilename=None):
 
             #'''
             gen_particles = tbt.get_gen_particles(tree)
-            genjets = []
             #print("----------")
             #print(gen_particles)
             ib = 0
@@ -82,15 +80,16 @@ def main(filenames,outfilename=None):
             for gen in gen_particles:
                 #if np.abs(gen['pdg'])==5 and np.abs(gen['motherpdg'])==6:
                 if gen['pdg']==5 and gen['motherpdg']==6:
+                    #print(gen)
+                    #p4 = gen['p4']
+                    #b_pt,b_eta,b_phi = tbt.xyzTOetaphi(p4[1],p4[2],p4[3])
+                    #gen_b[ib] = b_pt,b_eta,b_phi 
                     gen_b[ib] = gen['p4'][4:]
                     ib += 1 # Assume we only have 2 b-quarks coming from the tops per event
                 #if (np.abs(gen['pdg'])>=1 and np.abs(gen['pdg'])<=5) and np.abs(gen['motherpdg'])==24:
                 if (np.abs(gen['pdg'])>=1 and np.abs(gen['pdg'])<=5) and gen['motherpdg']==24:
                     gen_nonb[inonb] = gen['p4'][4:]
                     inonb += 1 # Assume we only have 2 b-quarks coming from the tops per event
-
-            genjets.append([gen_b,gen_nonb])
-            #print(genjets)
 
             #'''
 
@@ -110,103 +109,118 @@ def main(filenames,outfilename=None):
             # Jet selection from here
             # https://twiki.cern.ch/twiki/bin/view/CMS/TTbarXSecSynchronization
 
-            matchedjets = [] # Let the first be b-jets and the second be non-b-jets
+            for n in range(njet):
 
-            mj = [ [], [] ] # Hold the matched jets
-            for gvals in genjets:
-                #print("gvals")
-                #print(gvals)
-                gen_b,gen_nonb = gvals
-                #print("gens")
-                #print(gen_b)
-                #print(gen_nonb)
-                for ig,genjet in enumerate([gen_b,gen_nonb]):
+                mindR = 1e6
+                matchedjet = False
+                for gb in gen_b:
+                    etaph0 = [eta[n],phi[n]]
+                    etaph1 = [gb[1],gb[2]]
+                    
+                    gendR = tbt.deltaR(etaph0,etaph1)
+                    dpt = math.fabs(pt[n]-gb[0])
+                    # To store in TTree
+                    if gendR<mindR:
+                        genbjetdR = gendR
+                        genbjetdpt = dpt
+                        mindR = gendR
+                    #'''
+                    if pt[n]>30:
+                        if dpt<100 and gendR<0.3:
+                            matchedjet = True
+                            bjet = [e[n],px[n],py[n],pz[n],pt[n],eta[n],phi[n]]
+                            plotvals["pt"][0].append(pt[n])
+                            plotvals["eta"][0].append(eta[n])
+                            plotvals["csv"][0].append(jetcsv[n])
+                            plotvals["NHF"][0].append(NHF[n])
+                            plotvals["NEMF"][0].append(NEMF[n])
+                            plotvals["CHF"][0].append(CHF[n])
+                            plotvals["MUF"][0].append(MUF[n])
+                            plotvals["CEMF"][0].append(CEMF[n])
+                            plotvals["NC"][0].append(NC[n])
+                            plotvals["NNP"][0].append(NNP[n])
+                            plotvals["CHM"][0].append(CHM[n])
 
-                    #print("genjet")
-                    #print(genjet)
-                    for gjet in genjet:
+                if matchedjet:
+                    vals[0].append(jetcsv[n])
+                    vals[4].append(pt[n])
+                    nbsfound += 1
 
-                        dptval = 0
-                        gendRval = 0
-                        mindR = 1e6
-                        mindRidx = -1
-                        matchedjet = False
+            #print("---------")
+            for n in range(njet):
+                mindR = 1e6
+                matchedjet = False
+                for gb in gen_nonb:
+                    etaph0 = [eta[n],phi[n]]
+                    etaph1 = [gb[1],gb[2]]
+                    
+                    gendR = tbt.deltaR(etaph0,etaph1)
+                    dpt = math.fabs(pt[n]-gb[0])
+                    # To store in TTree
+                    if gendR<mindR:
+                        genbjetdR = gendR
+                        genbjetdpt = dpt
+                        mindR = gendR
+                    #'''
+                    if pt[n]>30:
+                        if dpt<100 and gendR<0.3:
+                            matchedjet = True
+                            nonbjets.append([e[n],px[n],py[n],pz[n],pt[n],eta[n],phi[n]])
+                            plotvals["pt"][1].append(pt[n])
+                            plotvals["eta"][1].append(eta[n])
+                            plotvals["csv"][1].append(jetcsv[n])
+                            plotvals["NHF"][1].append(NHF[n])
+                            plotvals["NEMF"][1].append(NEMF[n])
+                            plotvals["CHF"][1].append(CHF[n])
+                            plotvals["MUF"][1].append(MUF[n])
+                            plotvals["CEMF"][1].append(CEMF[n])
+                            plotvals["NC"][1].append(NC[n])
+                            plotvals["NNP"][1].append(NNP[n])
+                            plotvals["CHM"][1].append(CHM[n])
 
-                        for j,jet in enumerate(alljets):
-                            etaph0 = [jet[5],jet[6]] # eta and phi
-                            etaph1 = [gjet[1],gjet[2]]
-                            
-                            gendR = tbt.deltaR(etaph0,etaph1)
-                            dpt = math.fabs(jet[4]-gjet[0]) # Pts
+                if matchedjet:
+                    vals[1].append(jetcsv[n])
+                    vals[5].append(pt[n])
+                    #print(pt[n])
+                    nnonbsfound += 1
 
-                            #print(gendR,dpt)
-
-                            # To store in TTree
-                            if gendR<mindR:
-                                gendRval = gendR
-                                dptval = dpt
-                                mindR = gendR
-                                mindRidx = j
-                                #print("HERE: ",mindRidx)
-                        #'''
-                        #print("THERE")
-                        #print(mindRidx,len(alljets))
-                        #print(alljets)
-                        if mindRidx>=0 and alljets[mindRidx][4]>20: # Cut on pt maybe
-                            jet = alljets[mindRidx]
-                            if dptval<100 and gendRval<0.3:
-                                matchedjet = True
-                                mj[ig].append(jet)
-                                alljets.remove(jet) # Remove the jet if it was matched with a gen quark
-
-            #print("MJ")
-            #print(mj)
-            matchedjets.append(mj)
+                vals[1].append(jetcsv[n])
+                vals[5].append(pt[n])
+                vals[2].append(nbsfound)
+                vals[3].append(njet)
 
             #'''
             #print("=======================")
-            for mj in matchedjets:
-                bjets = mj[0]
-                nonbjets = mj[1]
-                if len(bjets)==1 and len(nonbjets)==2:
-                    bjet = bjets[0]
-                    #print(bjet)
-                    #prin[0]t(nonbjets)
+            if len(bjet)>0 and len(nonbjets)==2:
+                #print(bjet)
+                #print(nonbjets)
 
-                    vals[0].append(bjet[-1])
-                    vals[1].append(nonbjets[0][-1])
-                    vals[1].append(nonbjets[1][-1])
+                dR0 = tbt.deltaR(nonbjets[0][5:],nonbjets[1][5:])
+                dR1 = tbt.deltaR(nonbjets[0][5:],bjet[5:])
+                dR2 = tbt.deltaR(nonbjets[1][5:],bjet[5:])
 
-                    vals[4].append(bjet[4])
-                    vals[5].append(nonbjets[0][4])
-                    vals[5].append(nonbjets[1][4])
+                # Make sure the jets are not so close that they're almost merged!
+                if dR0>0.05 and dR1>0.05 and dR2>0.05:
 
-                    dR0 = tbt.deltaR(nonbjets[0][5:],nonbjets[1][5:])
-                    dR1 = tbt.deltaR(nonbjets[0][5:],bjet[5:])
-                    dR2 = tbt.deltaR(nonbjets[1][5:],bjet[5:])
+                    wdR.append(dR0)
+                    topdR_bnb.append(dR1)
+                    topdR_bnb.append(dR2)
 
-                    # Make sure the jets are not so close that they're almost merged!
-                    if dR0>0.05 and dR1>0.05 and dR2>0.05:
+                    mass = tbt.invmass(nonbjets)
+                    wmass.append(mass)
+                    mass = tbt.invmass([nonbjets[0],nonbjets[1],bjet])
+                    topmass.append(mass)
 
-                        wdR.append(dR0)
-                        topdR_bnb.append(dR1)
-                        topdR_bnb.append(dR2)
+                    mass = tbt.invmass([nonbjets[0],bjet])
+                    top01.append(mass**2)
+                    mass = tbt.invmass([nonbjets[1],bjet])
+                    top02.append(mass**2)
+                    mass = tbt.invmass([nonbjets[0],nonbjets[1]])
+                    top12.append(mass**2)
 
-                        mass = tbt.invmass(nonbjets)
-                        wmass.append(mass)
-                        mass = tbt.invmass([nonbjets[0],nonbjets[1],bjet])
-                        topmass.append(mass)
+                #print(nonbjets[1][4] - nonbjets[0][4])
 
-                        mass = tbt.invmass([nonbjets[0],bjet])
-                        top01.append(mass**2)
-                        mass = tbt.invmass([nonbjets[1],bjet])
-                        top02.append(mass**2)
-                        mass = tbt.invmass([nonbjets[0],nonbjets[1]])
-                        top12.append(mass**2)
-
-                    #print(nonbjets[1][4] - nonbjets[0][4])
-
-                #print(jet)
+            #print(jet)
             #'''
                 
 
@@ -257,7 +271,6 @@ def main(filenames,outfilename=None):
     plt.xlim(0,1.1)
     plt.ylim(0,200)
 
-    '''
     # B-jets
     plt.figure()
     keys = list(plotvals.keys())
@@ -280,7 +293,6 @@ def main(filenames,outfilename=None):
         else:
             plt.hist(plotvals[key][1],bins=100)
         plt.title(key)
-    '''
 
     plt.figure()
     plt.subplot(3,2,1)
