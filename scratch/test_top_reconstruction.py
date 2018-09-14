@@ -59,13 +59,14 @@ def main(filenames,outfilename=None):
 
         for i in range(nentries):
 
-            if i%1000==0:
+            if i%10000==0:
                 output = "Event: %d out of %d" % (i,nentries)
                 print(output)
 
             tree.GetEntry(i)
 
-            bjets,nonbjets = tbt.get_top_candidate_jets(tree,ptcut=30)
+            alljets = tbt.get_good_jets(tree,ptcut=20)
+            bjets,nonbjets = tbt.get_top_candidate_jets(alljets,csvcut=0.87)
 
             #print("-------------")
             #if len(bjets)>0 and len(nonbjets)>0:
@@ -89,7 +90,7 @@ def main(filenames,outfilename=None):
                         mass = tbt.invmass([nbjet0,nbjet1])
                         dR = tbt.deltaR(nbjet0[5:],nbjet1[5:])
 
-                        if mass>0 and mass<1000:
+                        if mass>60 and mass<105:
                             wmass.append(mass)
 
                             wdR.append(dR)

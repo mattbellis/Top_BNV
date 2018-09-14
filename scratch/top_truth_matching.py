@@ -67,7 +67,7 @@ def main(filenames,outfilename=None):
             tree.GetEntry(i)
 
             alljets = tbt.get_good_jets(tree,ptcut=0)
-            bjets,nonbjets = tbt.get_top_candidate_jets(alljets,csvcut=0.67)
+            #bjets,nonbjets = tbt.get_top_candidate_jets(alljets,csvcut=0.67)
 
             gen_b = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0] ]
             gen_nonb = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0] ]
@@ -244,7 +244,7 @@ def main(filenames,outfilename=None):
         if i>3:
             plt.hist(v,bins=200,range=(0,300))
         else:
-            plt.hist(v,bins=200)
+            plt.hist(v,bins=200,range=(0,1.1))
 
     plt.figure()
     plt.subplot(2,2,1)
@@ -282,6 +282,16 @@ def main(filenames,outfilename=None):
         plt.title(key)
     '''
 
+    top01 = np.array(top01)
+    top02 = np.array(top02)
+    top12 = np.array(top12)
+    wmass = np.array(wmass)
+    topmass = np.array(topmass)
+    wdR = np.array(wdR)
+    topdR_bnb = np.array(topdR_bnb)
+
+    dal_cuts = tbt.dalitz_boundaries(top02,top12)
+
     plt.figure()
     plt.subplot(3,2,1)
     plt.hist(wmass,bins=100,range=(20,140))
@@ -297,10 +307,22 @@ def main(filenames,outfilename=None):
     plt.xlim(20,140)
     plt.ylim(-1,7)
 
-    top01 = np.array(top01)
-    top02 = np.array(top02)
-    top12 = np.array(top12)
-    dal_cuts = tbt.dalitz_boundaries(top02,top12)
+    ####################### Dal cut
+    plt.figure()
+    plt.subplot(3,2,1)
+    plt.hist(wmass[dal_cuts],bins=100,range=(20,140))
+    plt.subplot(3,2,2)
+    plt.hist(topmass[dal_cuts],bins=100,range=(0,400))
+    plt.subplot(3,2,3)
+    plt.hist(wdR[dal_cuts],bins=100,range=(-1,7))
+    plt.subplot(3,2,4)
+    #plt.hist(topdR_bnb[dal_cuts],bins=100,range=(-1,7))
+    #plt.subplot(3,2,5)
+
+    plt.plot(wmass[dal_cuts],wdR[dal_cuts],'.',markersize=1.0,alpha=0.5)
+    plt.xlim(20,140)
+    plt.ylim(-1,7)
+
 
     print(len(topmass),len(wmass))
 

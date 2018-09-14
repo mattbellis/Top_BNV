@@ -47,6 +47,7 @@ def deltaR(etph0, etph1,constrain0pi=True):
     dR =  math.sqrt(deta*deta + dphi*dphi)
     #print(dR)
 
+    '''
     if dR>TWOPI:
         #olddR = dR
         dR = dR - TWOPI
@@ -55,6 +56,7 @@ def deltaR(etph0, etph1,constrain0pi=True):
     if dR>PI:
         if constrain0pi:
             dR = TWOPI-dR
+    '''
 
     return dR
 
@@ -168,7 +170,7 @@ def dalitz_boundaries(xval,yval,projection=2):
         #print(left_cut)
 
         # Top limit
-        b = 12000
+        b = 13000
         m = -.1750
         ymax  = m*xval + b
         top_cut = yval<ymax
