@@ -65,7 +65,7 @@ def main(filenames,outfilename=None):
 
             tree.GetEntry(i)
 
-            alljets = tbt.get_good_jets(tree,ptcut=20)
+            alljets = tbt.get_good_jets(tree,ptcut=30)
             bjets,nonbjets = tbt.get_top_candidate_jets(alljets,csvcut=0.87)
 
             #print("-------------")
@@ -74,6 +74,9 @@ def main(filenames,outfilename=None):
                 #print(nonbjets)
 
             if bjets is None or nonbjets is None:
+                continue
+
+            if len(nonbjets) < 4:
                 continue
 
             #'''
