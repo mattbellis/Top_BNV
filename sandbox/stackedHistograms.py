@@ -83,6 +83,7 @@ def main():
     plt.figure()
     #plt.subplot(3,3,1)
     plt.hist([topmassDATA,topmassMC[0],topmassMC[1]], bins, stacked=True)
+    plt.show()
     '''
     #lch.hist_err(topmass,bins=100,range=(0,600),color='k')
     plt.xlabel('Top Mass (GeV)')
@@ -178,7 +179,6 @@ def main():
     plt.savefig('csvv2.png')
     
     '''
-    plt.show()
 
     return data
 
