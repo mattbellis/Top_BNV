@@ -57,6 +57,17 @@ def angle_between_vectors(p30, p31):
 ################################################################################
 # Assume we pass in a list of 4 numbers in either a list or array
 ################################################################################
+def scalarH(p4s):
+
+    totH = 0
+    for p4 in p4s:
+        totH += np.sqrt(p4[1]*p4[1] + p4[2]*p4[2])
+
+    return totH
+
+################################################################################
+# Assume we pass in a list of 4 numbers in either a list or array
+################################################################################
 def invmass(p4s):
 
     tot = [0.0, 0.0, 0.0, 0.0]
@@ -74,6 +85,37 @@ def invmass(p4s):
     else:
         return -math.sqrt(-m2)
 
+
+################################################################################
+# Pass in x,y,z and return the pt, eta, and phi components of momentum
+################################################################################
+def pseudorapidity(x,y,z):
+
+    # Taken from ROOT
+    # https://root.cern.ch/doc/master/TVector3_8cxx_source.html
+    cos_theta = z/math.sqrt(x*x + y*y + z*z)
+    if (cos_theta*cos_theta < 1):
+        return -0.5* math.log( (1.0-cos_theta)/(1.0+cos_theta) )
+    if (z == 0):
+        return 0
+    # Warning("PseudoRapidity","transvers momentum = 0! return +/- 10e10");
+    if (z > 0):
+        return 10e10;
+    else:
+        return -10e10;
+
+
+
+################################################################################
+# Pass in x,y,z and return the pt, eta, and phi components of momentum
+################################################################################
+def xyzTOetaphi(x,y,z):
+
+    pt = math.sqrt(x*x + y*y)
+    phi = math.atan2(y,x)
+    eta = pseudorapidity(x,y,z)
+
+    return pt,eta,phi
 
 ################################################################################
 # Pass in pt, eta, and phi and return the x,y,z components of momentum
@@ -98,7 +140,7 @@ def csvtodict(csv_filename):
 
     x = dict(((d['Tag'], dict({'cross_section' : d['cross_section'],'total_events' : d['total_events'], 'completed_events' : d['completed_events'],
         'filter_eff' : d['filter_efficiency'], 'filter_eff_err' : d['filter_efficiency_error'], 'match_eff' : d['match_efficiency_error'],
-        'neg_weights' : d['negative_weights_fraction']})) for d in my_dict))
+        'neg_weights' : d['negative_weights_fraction'], 'nfiles' : d['nfiles']})) for d in my_dict))
 
     return x 
 
@@ -134,12 +176,15 @@ def get_gen_particles(tree):
     pt = tree.LHE_Pt
     eta = tree.LHE_Eta
     phi = tree.LHE_Phi
+
     
     LHE_px = []
     LHE_py = []
     LHE_pz = []
 
+    #print("In get_gen_particles -------------------")
     for i in range(len(pt)):
+        #print(pt[i], eta[i], phi[i])
         if eta[i] != 0 and phi[i] != 0:
             L_px, L_py, L_pz = etaphiTOxyz(pt[i],eta[i],phi[i])
             LHE_px.append(L_px)
@@ -252,9 +297,9 @@ def read_dictionary_file(filename):
     infile = open(filename, 'rb')
     try:
         ### RUNNING LOCALLY
-        #dictionary = pickle.load(infile,encoding='latin')
+        dictionary = pickle.load(infile,encoding='latin')
         ### RUNNING AT FERMILAB
-        dictionary = pickle.load(infile)
+        #dictionary = pickle.load(infile)
     except ValueError as detail:
         error_string = """%s
         This is most likely caused by the file being pickled with a higher protocol in Python3.x and then trying to open it with a lower protocol in 2.7.\n
@@ -288,6 +333,7 @@ def chain_pickle_files(filenames, lumi_info=None):
         filenames = [filenames]
 
     tot_lumi = 0
+    #print(lumi_info)
 
     data = {}
     for i,filename in enumerate(filenames):
@@ -364,7 +410,7 @@ def lorentz_boost(pmom, rest_frame):
     L = np.matrix([[gamma,      -gamma*betaX, -gamma*betaY, -gamma*betaZ],
                 [-gamma*betaX,  1 + x*betaX,      x*betaY,      x*betaZ],
                 [-gamma*betaY,      y*betaX,  1 + y*betaY,      y*betaZ],
-                [-gamma*betaZ,      z*betaX,      z*betaZ,  1 + z*betaZ]])
+                [-gamma*betaZ,      z*betaX,      z*betaY,  1 + z*betaZ]])
 
 
     # Moving particle that will be boosted

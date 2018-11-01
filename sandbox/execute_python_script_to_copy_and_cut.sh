@@ -21,8 +21,8 @@ cp ../../copy_and_cut_file.py .
 
 ls -ltr 
 echo
-echo python copy_and_cut_file.py ${*}
-     python copy_and_cut_file.py ${*}
+echo python copy_and_cut_file.py "${@:2}"
+     python copy_and_cut_file.py "${@:2}"
 #xrdcp nameOfOutputFile.root root://cmseos.fnal.gov//store/user/username/nameOfOutputFile.root
 echo
 ls -ltr 
@@ -30,9 +30,14 @@ ls -ltr
 #echo "Removing original files." 
 #xrdfs rm ${*}
 
-#cp outfile.pkl /eos/uscms/store/user/mbellis/script_output_files/.
-xrdcp --force TRIGGER*.root root://cmseos.fnal.gov//store/user/mbellis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/crab_DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8-MiniAOD/180222_151710/0001//.
-#/eos/uscms/store/user/mbellis
+echo "Setting out dir"
+outdir=$1
+echo $outdir
+
+
+#xrdcp --force TRIGGER*.root root://cmseos.fnal.gov//store/user/mbellis/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/crab_DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8-MiniAOD/180222_151710/0001//.
+xrdcp --force TRIGGER*.root $outdir
+
 ### remove the output file if you don't want it automatically transferred when the job ends
 #rm *.pkl
 cd ${_CONDOR_SCRATCH_DIR}

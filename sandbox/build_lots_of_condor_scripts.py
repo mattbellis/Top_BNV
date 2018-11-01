@@ -40,9 +40,7 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2):
     #exit()
 
 
-
-
-files_at_a_time = 10
+files_at_a_time = 100
 
 pwd = os.getcwd()
 # This should be something like eos_store/SingleMuon (for the data)
@@ -80,6 +78,8 @@ for s0 in subdirs0:
             files = os.listdir(path)
             rootfiles = []
             for f in files:
+                # For MC
+                #if '.root' in f and 'TRIGGER' in f:
                 if '.root' in f:
                     rootfiles.append(f)
 
@@ -104,13 +104,17 @@ for s0 in subdirs0:
             list_of_files = []
             for i in range(minnum-1,maxnum):
 
+                # For MC
+                #tempfile = "TRIGGER_APPLIED_out_file_%d.root" % (i+1)
                 tempfile = "out_file_%d.root" % (i+1)
 
                 if tempfile in rootfiles:
                     list_of_files.append(tempfile)
                 
                 if (i+1)%files_at_a_time==0:
-                    print(i)
+                    #print(i)
+
+                    print(len(list_of_files))
 
                     if len(list_of_files)>0:
                         write_out_build_file(list_of_files,topdir,s0,s1,s2)
@@ -120,7 +124,7 @@ for s0 in subdirs0:
                 write_out_build_file(list_of_files,topdir,s0,s1,s2)
 
             
-    exit()
+    #exit()
 
 
 print(topdir)
