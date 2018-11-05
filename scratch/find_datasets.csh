@@ -33,3 +33,7 @@ end
 
 # Data
 # dasgoclient --query="dataset=/SingleMuon/Run2016*03Feb2017*/MINIAOD" --format plain --limit=30
+#
+# Get a listing of filenames
+# dasgoclient --query="file dataset=/SingleMuon/Run2016B-03Feb2017*/MINIAOD" --format plain --limit=30
+#
