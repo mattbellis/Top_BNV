@@ -233,7 +233,6 @@ def main():
     plt.savefig('csvv2.png')
     
     '''
-    plt.show()
 
     return data
 
