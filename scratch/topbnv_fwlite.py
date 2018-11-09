@@ -232,8 +232,10 @@ def getUserOptions(argv):
         help='Print debugging info')
     add_option('maxevents',          default=-1,
         help='Number of events to run. -1 is all events')
-    add_option('trigType',          default="SingleMuon",
+    add_option('trigType',         default="SingleMuon", 
         help='SingleMuon, SingleElectron, etc.')
+    add_option('bdisc',          default="pfCombinedInclusiveSecondaryVertexV2BJetTags",
+        help='pfCombinedInclusiveSecondaryVertexV2BJetTags, etc.')
     add_option('isMC',          default=False, action='store_true',
         help='Running over MC. We need this for the trigger and other stuff.')
     add_option('isCrabRun',          default=False, action='store_true',
@@ -670,8 +672,9 @@ def topbnv_fwlite(argv):
 
             haveGenSolution = False
             isGenPresent = event.getByLabel( genLabel, gens )
-            print("==========================\nisGenPresent: ",isGenPresent)
-            print("==========================")
+            if options.verbose:
+                print("==========================\nisGenPresent: ",isGenPresent)
+                print("==========================")
             if isGenPresent:
                 #print(" ----------------------------- ")
                 ngen[0] = 10
@@ -681,7 +684,8 @@ def topbnv_fwlite(argv):
                 antitopQuark = None
                 found_top = False
                 found_antitop = False
-                print("------------------------------------------------------------")
+                if options.verbose:
+                    print("------------------------------------------------------------")
                 gcount = 0
                 wmenergy = 0
                 wpenergy = 0
@@ -689,12 +693,12 @@ def topbnv_fwlite(argv):
                     ##### WHEN LOOPING OVER CHECK THE HARD SCATTERING FLAG 
                     ##### TO MAKE SURE WE DON'T WORRY ABOUT TOPS THAT ARE JUST
                     ##### PROPAGATING FROM THEMSELVES
-                    print("----")
                     mother = -999
                     if gen.mother()!=None:
                         mother = gen.mother().pdgId()
-                    print( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother, gen.isLastCopy() )
-                    #if options.verbose:
+                    if options.verbose:
+                        print("----")
+                        print( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother, gen.isLastCopy() )
                     if 1:
                         genOut = "" # For debugging
                         mother = -999
@@ -703,13 +707,14 @@ def topbnv_fwlite(argv):
                             mother = gen.mother().pdgId() 
 
                             #genpdg[gcount] = gen.pdgId()
-                            genOut += 'GEN pdg id=%d pt=%+5.3f status=%d ndau: %d mother: %d isLastCopy: %d\n' % \
-                                    ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother, gen.isLastCopy() )
-                            for ndau in range(0,gen.numberOfDaughters()):
-                                genOut += "daughter pdgid: %d   pt: %f  %f\n" % (gen.daughter(ndau).pdgId(), gen.daughter(ndau).pt(), gen.daughter(ndau).mother().pt())
+                            if options.verbose:
+                                genOut += 'GEN pdg id=%d pt=%+5.3f status=%d ndau: %d mother: %d isLastCopy: %d\n' % \
+                                        ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother, gen.isLastCopy() )
+                                for ndau in range(0,gen.numberOfDaughters()):
+                                    genOut += "daughter pdgid: %d   pt: %f  %f\n" % (gen.daughter(ndau).pdgId(), gen.daughter(ndau).pt(), gen.daughter(ndau).mother().pt())
+                                print genOut
                             #'''
                             ##### FIND TOPS AND THEIR DECAYS
-                            print genOut
                             if abs(gen.pdgId()) == 6 and gen.isLastCopy():
                                 parent = gen
 
@@ -727,12 +732,13 @@ def topbnv_fwlite(argv):
 
                                 parentidx = gcount
 
-                                print(gene[gcount], genpt[gcount], geneta[gcount], genphi[gcount], genpdg[gcount], genpx[gcount], genpy[gcount], genpz[gcount], genmotherpdg[gcount], genmotheridx[gcount], genndau[gcount])
+                                if options.verbose:
+                                    print(gene[gcount], genpt[gcount], geneta[gcount], genphi[gcount], genpdg[gcount], genpx[gcount], genpy[gcount], genpz[gcount], genmotherpdg[gcount], genmotheridx[gcount], genndau[gcount])
 
                                 gcount += 1
 
-                                if parent.numberOfDaughters()==2:
-                                    for dauidx in [0,1]:
+                                if parent.numberOfDaughters()>=2:
+                                    for dauidx in range(parent.numberOfDaughters()):
                                         dau = parent.daughter(dauidx)
 
                                         gene[gcount] = dau.energy()
@@ -754,7 +760,8 @@ def topbnv_fwlite(argv):
                                         elif dau.pdgId()==24:
                                             wpenergy = dau.energy() # For matching
 
-                                        print(gene[gcount], genpt[gcount], geneta[gcount], genphi[gcount], genpdg[gcount], genpx[gcount], genpy[gcount], genpz[gcount], genmotherpdg[gcount], genmotheridx[gcount], genndau[gcount])
+                                        if options.verbose:
+                                            print(gene[gcount], genpt[gcount], geneta[gcount], genphi[gcount], genpdg[gcount], genpx[gcount], genpy[gcount], genpz[gcount], genmotherpdg[gcount], genmotheridx[gcount], genndau[gcount])
 
                             ##### FIND Ws AND THEIR DECAYS
                             elif (gen.pdgId() == 24 and gen.isLastCopy() and abs(gen.energy()-wpenergy)< 10) \
@@ -780,7 +787,8 @@ def topbnv_fwlite(argv):
                                         genmotheridx[gcount] = parentidx
                                         genndau[gcount] = dau.numberOfDaughters()
 
-                                        print(gene[gcount], genpt[gcount], geneta[gcount], genphi[gcount], genpdg[gcount], genpx[gcount], genpy[gcount], genpz[gcount], genmotherpdg[gcount], genmotheridx[gcount], genndau[gcount])
+                                        if options.verbose:
+                                            print(gene[gcount], genpt[gcount], geneta[gcount], genphi[gcount], genpdg[gcount], genpx[gcount], genpy[gcount], genpz[gcount], genmotherpdg[gcount], genmotheridx[gcount], genndau[gcount])
 
                                         gcount += 1 
 
@@ -790,8 +798,7 @@ def topbnv_fwlite(argv):
                         print ('No top quarks, not filling mttbar')
 
             #'''
-            #if options.verbose:
-            if 1:
+            if options.verbose:
                 #print(ngen)
                 for a,b,c,d,e,f,g,h,aa,bb,cc in zip( genpt, geneta, genphi, gene, genpx, genpy, genpz, genpdg, genmotheridx, genmotherpdg, genndau):
                     print(a,b,c,d,e,f,g,h,aa,bb,cc)
@@ -1177,6 +1184,7 @@ def topbnv_fwlite(argv):
             #if genOut is not None:
                 #genoutputfile.write(genOut)
 
+    outtree.Print()
     # Close the output ROOT file
     f.cd()
     f.Write()

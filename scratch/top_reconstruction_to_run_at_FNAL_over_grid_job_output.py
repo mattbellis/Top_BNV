@@ -135,13 +135,13 @@ def main(filenames,outfile=None):
 
         infile = ROOT.TFile.Open(infilename)
 
-        #f.ls()
+        infile.ls()
 
         tree = infile.Get("T")
 
-        #tree.Print()
-        #tree.Print("*jet*")
-        #exit()
+        tree.Print()
+        tree.Print("*jet*")
+        exit()
 
         nentries = tree.GetEntries()
 
@@ -304,5 +304,6 @@ if __name__=="__main__":
     args = parser.parse_args()
 
     print(args)
+
 
     main(args.infiles[0],args.outfile)
