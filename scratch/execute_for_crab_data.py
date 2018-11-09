@@ -11,8 +11,8 @@ sys.argv.append('files_to_process.txt')
 
 sys.argv.append('--isCrabRun')
 
-sys.argv.append('--trigType')
-sys.argv.append('SingleMuon')
+#sys.argv.append('--trigType')
+#sys.argv.append('SingleMuon')
 
 print sys.argv
 
