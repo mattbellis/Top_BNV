@@ -15,7 +15,8 @@ sys.argv.append('--isCrabRun')
 sys.argv.append('--isMC')
 
 sys.argv.append('--trigType')
-sys.argv.append('SingleMuon')
+#sys.argv.append('SingleMuon')
+sys.argv.append('SingleElectron')
 
 #sys.argv.append('--output')
 #sys.argv.append('output_MC_TESTING.root')

@@ -64,15 +64,10 @@ datasets = [
 ['QCD_Pt-300toInf_EMEnriched_TuneCUETP8M1_13TeV_pythia8-v1','/QCD_Pt-300toInf_EMEnriched_TuneCUETP8M1_13TeV_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM'],
 ]
 
-
-
-
-
-
 dataset = datasets[NUMBERTORUN]
 
 # Request name must be < 100 characters
-request_name = "bellis_%s" % (dataset[0])
+request_name = "bellis_SingleElectron_%s" % (dataset[0])
 
 #config.General.requestName = 'bellis_topbnv_TT_TUNE'
 #config.General.requestName = 'bellis_topbnv_RSGluonToTT'
@@ -95,7 +90,7 @@ config.Data.splitting = 'FileBased'
 #config.Data.splitting = 'Automatic'
 config.Data.unitsPerJob = 1
 
-config.Data.outLFNDirBase = '/store/user/%s/' % (getUsernameFromSiteDB())
+config.Data.outLFNDirBase = '/store/user/%s/MC/SingleElectron' % (getUsernameFromSiteDB())
 
 # This selecting some of the data
 config.Data.publication = False
