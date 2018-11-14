@@ -242,6 +242,8 @@ def getUserOptions(argv):
         help='Use this flag when running with crab on the grid')
     add_option('localInputFiles',    default=False, action='store_true',
         help='Use this flag when running with with local files')
+    add_option('disablePileup',      default=False, action='store_true',
+        help='Disable pileup reweighting')
 
     (options, args) = parser.parse_args(argv)
     argv = []
@@ -309,6 +311,7 @@ def topbnv_fwlite(argv):
     vertices, vertexLabel = Handle("std::vector<reco::Vertex>"), "offlineSlimmedPrimaryVertices"
     genInfo, genInfoLabel = Handle("GenEventInfoProduct"), "generator"
     mets, metLabel = Handle("std::vector<pat::MET>"), "slimmedMETs"
+    pileups, pileuplabel = Handle("std::vector<PileupSummaryInfo>"), "slimmedAddPileupInfo"
 
     # NEED HLT2 for 80x 2016 (maybe only TTBar?
     # https://twiki.cern.ch/twiki/bin/view/CMS/TopTrigger#Summary_for_2016_Run2016B_H_25_n
@@ -481,6 +484,14 @@ def topbnv_fwlite(argv):
     meteta = array('f',[-1])
     outtree.Branch('meteta', meteta, 'meteta/F')
 
+    # Weights
+    ev_wt = array('f', [-1])
+    outtree.Branch('ev_wt', ev_wt, 'ev_wt/F')
+    pu_wt = array('f', [-1])
+    outtree.Branch('pu_wt', pu_wt, 'pu_wt/F')
+    gen_wt = array('f', [-1])
+    outtree.Branch('gen_wt', gen_wt, 'gen_wt/F')
+
     # Vertex stuff
     vertexX = array('f',[-1.])
     outtree.Branch('vertexX', vertexX, 'vertexX/F')
@@ -550,6 +561,31 @@ def topbnv_fwlite(argv):
         DataJECs = DataJEC(jet_energy_corrections)
 
 
+    ## __________.__.__                        __________                     .__       .__     __  .__                
+    ## \______   \__|  |   ____  __ ________   \______   \ ______  _  __ ____ |__| ____ |  |___/  |_|__| ____    ____  
+    ##  |     ___/  |  | _/ __ \|  |  \____ \   |       _// __ \ \/ \/ // __ \|  |/ ___\|  |  \   __\  |/    \  / ___\ 
+    ##  |    |   |  |  |_\  ___/|  |  /  |_> >  |    |   \  ___/\     /\  ___/|  / /_/  >   Y  \  | |  |   |  \/ /_/  >
+    ##  |____|   |__|____/\___  >____/|   __/   |____|_  /\___  >\/\_/  \___  >__\___  /|___|  /__| |__|___|  /\___  / 
+    ##                        \/      |__|             \/     \/            \/  /_____/      \/             \//_____/  
+    # Obtained on lxplus using this recipe:
+    # https://twiki.cern.ch/twiki/bin/view/CMS/PileupJSONFileforData#2015_Pileup_JSON_Files
+    # cmsrel (bla bla bla)
+    # cp /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/PileUp/pileup_latest.txt .
+    # cp /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver_v2.txt .
+    # pileupCalc.py -i Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver_v2.txt \
+    #       --inputLumiJSON pileup_latest.txt --calcMode true --minBiasXsec 69000 --maxPileupBin 50 \
+    #       --numPileupBins 50 MyDataPileupHistogram.root
+    #
+    # Then we compute our pileup distribution in MC ourselves, and divide data/MC, with these commands:
+    # python makepu_fwlite.py --files inputfiles/ttjets.txt --maxevents 100000 
+    # python makepuhist.py --file_data MyDataPileupHistogram.root --file_mc pumc.root --file_out purw.root
+    #
+    
+    if options.isMC and not options.disablePileup:
+        pileupReweightFile = ROOT.TFile('purw.root', 'READ')
+        purw = pileupReweightFile.Get('pileup')
+
+
 
 
     #################################################################################
@@ -567,7 +603,9 @@ def topbnv_fwlite(argv):
     #################################################################################
     def processEvent(iev, event):
 
-        evWeight = 1.0 
+        ev_wt[0] = 1.0 
+        pu_wt[0] = 1.0 
+        gen_wt[0] = 1.0 
 
         genOut = "Event %d\n" % (iev)
         #print "GGGEEENNNNOUT...."
@@ -648,6 +686,28 @@ def topbnv_fwlite(argv):
         if not FLAG_passed_trigger:
             #print("NOT PASSING!")
             return -1
+
+        ##   __________.__.__                        __________                     .__       .__     __  .__                
+        ##   \______   \__|  |   ____  __ ________   \______   \ ______  _  __ ____ |__| ____ |  |___/  |_|__| ____    ____  
+        ##    |     ___/  |  | _/ __ \|  |  \____ \   |       _// __ \ \/ \/ // __ \|  |/ ___\|  |  \   __\  |/    \  / ___\ 
+        ##    |    |   |  |  |_\  ___/|  |  /  |_> >  |    |   \  ___/\     /\  ___/|  / /_/  >   Y  \  | |  |   |  \/ /_/  >
+        ##    |____|   |__|____/\___  >____/|   __/   |____|_  /\___  >\/\_/  \___  >__\___  /|___|  /__| |__|___|  /\___  / 
+        ##                          \/      |__|             \/     \/            \/  /_____/      \/             \//_____/  
+
+        if options.isMC:
+            event.getByLabel(pileuplabel, pileups)
+
+            TrueNumInteractions = 0
+            if len(pileups.product())>0:
+                TrueNumInteractions = pileups.product()[0].getTrueNumInteractions()
+            else:
+                print 'Event has no pileup information, setting TrueNumInteractions to 0.'
+
+            print("true num interactions:{0} ".format(TrueNumInteractions))
+            if options.isMC and not options.disablePileup:
+                pu_wt[0] = purw.GetBinContent( purw.GetXaxis().FindBin( TrueNumInteractions ) )
+                print(pu_wt[0])
+                ev_wt[0] *= pu_wt[0]
 
         ##   ________                __________.__          __
         ##  /  _____/  ____   ____   \______   \  |   _____/  |_  ______
@@ -806,8 +866,8 @@ def topbnv_fwlite(argv):
 
             # Get MC weight
             event.getByLabel( genInfoLabel, genInfo )
-            genWeight = genInfo.product().weight()
-            evWeight *= genWeight
+            gen_wt[0] = genInfo.product().weight()
+            ev_wt[0] *= gen_wt[0]
 
         ## __________.__             ____   ____      .__
         ## \______   \  |__   ____   \   \ /   /____  |  |  __ __   ____
