@@ -90,6 +90,14 @@ def main(filenames,outfile=None):
     trigger = array('i', 8*[-1])
     outtree.Branch('trigger', trigger, 'trigger[ntrigger]/I')
 
+    # Weights
+    ev_wt = array('f', [-1])
+    outtree.Branch('ev_wt', ev_wt, 'ev_wt/F')
+    pu_wt = array('f', [-1])
+    outtree.Branch('pu_wt', pu_wt, 'pu_wt/F')
+    gen_wt = array('f', [-1])
+    outtree.Branch('gen_wt', gen_wt, 'gen_wt/F')
+
 
     print("Will open files:")
     for infilenames in filenames:
@@ -182,6 +190,10 @@ def main(filenames,outfile=None):
             trigger[1] = tree.trig_muon[1]
             trigger[2] = tree.trig_muon[2]
             trigger[3] = tree.trig_muon[3]
+
+            ev_wt[0] = tree.ev_wt
+            pu_wt[0] = tree.pu_wt
+            gen_wt[0] = tree.gen_wt
 
             #data["trig_HLT_IsoMu24_accept"].append(tree.trig_HLT_IsoMu24_accept)
             #data["trig_HLT_IsoTkMu24_accept"].append(tree.trig_HLT_IsoTkMu24_accept)

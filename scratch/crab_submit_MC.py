@@ -67,7 +67,8 @@ datasets = [
 dataset = datasets[NUMBERTORUN]
 
 # Request name must be < 100 characters
-request_name = "bellis_SingleElectron_%s" % (dataset[0])
+#request_name = "bellis_SingleElectron_%s" % (dataset[0])
+request_name = "bellis_SingleMuon_%s" % (dataset[0])
 
 #config.General.requestName = 'bellis_topbnv_TT_TUNE'
 #config.General.requestName = 'bellis_topbnv_RSGluonToTT'
@@ -90,7 +91,8 @@ config.Data.splitting = 'FileBased'
 #config.Data.splitting = 'Automatic'
 config.Data.unitsPerJob = 1
 
-config.Data.outLFNDirBase = '/store/user/%s/MC/SingleElectron' % (getUsernameFromSiteDB())
+#config.Data.outLFNDirBase = '/store/user/%s/MC/SingleElectron' % (getUsernameFromSiteDB())
+config.Data.outLFNDirBase = '/store/user/%s/MC/SingleMuon' % (getUsernameFromSiteDB())
 
 # This selecting some of the data
 config.Data.publication = False
@@ -103,5 +105,5 @@ config.JobType.outputFiles = ['output.root']
 config.JobType.sendExternalFolder = True
 
 # We need that FrameworkJobReport.xml file for the output.
-config.JobType.inputFiles = ['execute_for_crab.py', 'topbnv_fwlite.py', 'FrameworkJobReport.xml','JECs']
+config.JobType.inputFiles = ['execute_for_crab.py', 'topbnv_fwlite.py', 'FrameworkJobReport.xml','JECs', 'purw.root']
 
