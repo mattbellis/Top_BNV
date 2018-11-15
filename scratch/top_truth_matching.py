@@ -44,6 +44,11 @@ def main(filenames,outfilename=None):
     top02 = []
     top12 = []
 
+    bnvtopmass = []
+    bnvtop01 = []
+    bnvtop02 = []
+    bnvtop12 = []
+
     for ifile,filename in enumerate(filenames):
 
         print("Opening file %s %d of %d" % (filename,ifile,len(filenames)))
@@ -71,26 +76,40 @@ def main(filenames,outfilename=None):
 
             gen_b = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0] ]
             gen_nonb = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0] ]
+            gen_lep = [ 0.0, 0.0, 0.0]
 
             #'''
             gen_particles = tbt.get_gen_particles(tree)
             genjets = []
             #print("----------")
-            #print(gen_particles)
+            #for gp in gen_particles:
+                #print(gp)
             ib = 0
             inonb = 0
+            # Assume that t(6) --> -13 -5 -4 and tbar (-6) --> -5 -24, -24 --> stuff 
+            # First do the hadronically decaying antitop
             for gen in gen_particles:
-                #if np.abs(gen['pdg'])==5 and np.abs(gen['motherpdg'])==6:
-                if gen['pdg']==5 and gen['motherpdg']==6:
-                    gen_b[ib] = gen['p4'][4:]
+                if gen['pdg']==-5 and gen['motherpdg']==-6:
+                    gen_b[0] = gen['p4'][4:]
+                    #ib += 1 # 
+                elif (np.abs(gen['pdg'])>=1 and np.abs(gen['pdg'])<=5) and gen['motherpdg']==-24:
+                    gen_nonb[inonb] = gen['p4'][4:]
+                    inonb += 1 # 
+
+            # Next, do the BNV stuff
+            inonb = 2
+            for gen in gen_particles:
+                if gen['pdg']==-5 and gen['motherpdg']==6:
+                    gen_b[1] = gen['p4'][4:]
                     ib += 1 # Assume we only have 2 b-quarks coming from the tops per event
-                #if (np.abs(gen['pdg'])>=1 and np.abs(gen['pdg'])<=5) and np.abs(gen['motherpdg'])==24:
-                if (np.abs(gen['pdg'])>=1 and np.abs(gen['pdg'])<=5) and gen['motherpdg']==24:
+                elif (np.abs(gen['pdg'])>=1 and np.abs(gen['pdg'])<5) and gen['motherpdg']==6:
                     gen_nonb[inonb] = gen['p4'][4:]
                     inonb += 1 # Assume we only have 2 b-quarks coming from the tops per event
+                elif (np.abs(gen['pdg'])>=11 and np.abs(gen['pdg'])<=18) and gen['motherpdg']==6:
+                    gen_lep = gen['p4'][4:]
 
             genjets.append([gen_b,gen_nonb])
-            #print(genjets)
+            #print(genjets,gen_lep)
 
             #'''
 
@@ -110,9 +129,10 @@ def main(filenames,outfilename=None):
             # Jet selection from here
             # https://twiki.cern.ch/twiki/bin/view/CMS/TTbarXSecSynchronization
 
-            matchedjets = [] # Let the first be b-jets and the second be non-b-jets
+            tophad_matchedjets = [] # Let the first be b-jets and the second be non-b-jets
+            bnvhad_matchedjets = [] # Let the first be b-jets and the second be non-b-jets
 
-            mj = [ [], [] ] # Hold the matched jets
+            mj = [ [], [] ] # Hold the tophad_matched jets
             for gvals in genjets:
                 #print("gvals")
                 #print(gvals)
@@ -120,7 +140,8 @@ def main(filenames,outfilename=None):
                 #print("gens")
                 #print(gen_b)
                 #print(gen_nonb)
-                for ig,genjet in enumerate([gen_b,gen_nonb]):
+                # For just the hadronic top first
+                for ig,genjet in enumerate([[gen_b[0]],gen_nonb[0:2]]):
 
                     #print("genjet")
                     #print(genjet)
@@ -130,7 +151,7 @@ def main(filenames,outfilename=None):
                         gendRval = 0
                         mindR = 1e6
                         mindRidx = -1
-                        matchedjet = False
+                        tophad_matchedjet = False
 
                         for j,jet in enumerate(alljets):
                             etaph0 = [jet[5],jet[6]] # eta and phi
@@ -155,17 +176,17 @@ def main(filenames,outfilename=None):
                         if mindRidx>=0 and alljets[mindRidx][4]>20: # Cut on pt maybe
                             jet = alljets[mindRidx]
                             if dptval<100 and gendRval<0.3:
-                                matchedjet = True
+                                tophad_matchedjet = True
                                 mj[ig].append(jet)
-                                alljets.remove(jet) # Remove the jet if it was matched with a gen quark
+                                alljets.remove(jet) # Remove the jet if it was tophad_matched with a gen quark
 
             #print("MJ")
             #print(mj)
-            matchedjets.append(mj)
+            tophad_matchedjets.append(mj)
 
             #'''
             #print("=======================")
-            for mj in matchedjets:
+            for mj in tophad_matchedjets:
                 bjets = mj[0]
                 nonbjets = mj[1]
                 if len(bjets)==1 and len(nonbjets)==2:
@@ -214,8 +235,8 @@ def main(filenames,outfilename=None):
         vals[i] = np.array(vals[i])
     #print(vals)
 
-    print('matched:     ',len(vals[0][vals[0]>0.67]),len(vals[0]))
-    print('not matched: ',len(vals[1][vals[1]>0.67]),len(vals[1]))
+    print('tophad_matched:     ',len(vals[0][vals[0]>0.67]),len(vals[0]))
+    print('not tophad_matched: ',len(vals[1][vals[1]>0.67]),len(vals[1]))
 
     pcut = 20
     print("Momentum cut: {0}".format(pcut))
