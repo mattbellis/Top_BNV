@@ -52,15 +52,6 @@ mc_info = {
          'match_efficiency': 0.61,
          'negative_weights_fraction': 0.1356 ########## CHECK THESE
          },
-        'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8-v2': ### Can't find proper values
-        {'dataset':'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-BS2016_BSandPUSummer16_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2/MINIAODSIM',
-         'completed_events': 1364030,
-         'total_events': 1394389,
-         'cross_section': 6104, # pb #### THERE ARE ALSO OTHER VALUES AROUND 5900
-         'filter_efficiency': 1,
-         'match_efficiency': 0.3831,
-         'negative_weights_fraction': 0.27 #### CHECK THIS!!!!!!!!!!!!!!!!!!!
-         },
         'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_ext2-v1':
         {'dataset':'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext2-v1/MINIAODSIM',
          'completed_events': 123925939,
