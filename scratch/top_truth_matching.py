@@ -130,7 +130,7 @@ def main(filenames,outfilename=None):
             # https://twiki.cern.ch/twiki/bin/view/CMS/TTbarXSecSynchronization
 
             tophad_matchedjets = [] # Let the first be b-jets and the second be non-b-jets
-            bnvhad_matchedjets = [] # Let the first be b-jets and the second be non-b-jets
+            bnv_matchedjets = [] # Let the first be b-jets and the second be non-b-jets
 
             mj = [ [], [] ] # Hold the tophad_matched jets
             for gvals in genjets:
