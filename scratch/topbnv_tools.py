@@ -517,3 +517,38 @@ def lorentz_boost(pmom, rest_frame):
     return boosted_vec
 ################################################################################
 
+def match_up_gen_quark_with_jets(genquark, recojets, jetptcut=0):
+    dptval = 0
+    dRval = 0
+    mindR = 1e6
+    mindRidx = -1
+
+    matched_jet = None
+
+    for j,jet in enumerate(recojets):
+        etaph0 = [jet[5],jet[6]] # eta and phi
+        etaph1 = [genquark[1],genquark[2]]
+
+        dR = deltaR(etaph0,etaph1)
+        dpt = math.fabs(jet[4]-genquark[0]) # Pts
+
+        if dR<mindR:
+            dRval = dR
+            dptval = dpt
+            mindR = dR
+            mindRidx = j
+
+    if mindRidx>=0 and recojets[mindRidx][4]>jetptcut: # Cut on pt maybe
+        jet = recojets[mindRidx]
+        if dptval<100 and dRval<0.3:
+            matched_jet = jet
+            recojets.remove(jet) # Remove the jet from the list if it was matched with a gen quark
+
+    
+    return matched_jet,dptval,dRval
+    
+
+
+
+
+

@@ -129,61 +129,55 @@ def main(filenames,outfilename=None):
             # Jet selection from here
             # https://twiki.cern.ch/twiki/bin/view/CMS/TTbarXSecSynchronization
 
+            #################################
             tophad_matchedjets = [] # Let the first be b-jets and the second be non-b-jets
             bnv_matchedjets = [] # Let the first be b-jets and the second be non-b-jets
 
             mj = [ [], [] ] # Hold the tophad_matched jets
+            #print("-----------")
+            #print(len(alljets))
             for gvals in genjets:
-                #print("gvals")
-                #print(gvals)
                 gen_b,gen_nonb = gvals
-                #print("gens")
-                #print(gen_b)
-                #print(gen_nonb)
                 # For just the hadronic top first
                 for ig,genjet in enumerate([[gen_b[0]],gen_nonb[0:2]]):
 
-                    #print("genjet")
-                    #print(genjet)
                     for gjet in genjet:
 
-                        dptval = 0
-                        gendRval = 0
-                        mindR = 1e6
-                        mindRidx = -1
-                        tophad_matchedjet = False
+                        matched_jet,dptval,dRval = tbt.match_up_gen_quark_with_jets(gjet, alljets, jetptcut=0)
+                        if matched_jet is not None:
+                            mj[ig].append(matched_jet)
+                        else:
+                            1
+                            #print("not matched: ",ig,dptval,dRval,gjet)
 
-                        for j,jet in enumerate(alljets):
-                            etaph0 = [jet[5],jet[6]] # eta and phi
-                            etaph1 = [gjet[1],gjet[2]]
-                            
-                            gendR = tbt.deltaR(etaph0,etaph1)
-                            dpt = math.fabs(jet[4]-gjet[0]) # Pts
 
-                            #print(gendR,dpt)
-
-                            # To store in TTree
-                            if gendR<mindR:
-                                gendRval = gendR
-                                dptval = dpt
-                                mindR = gendR
-                                mindRidx = j
-                                #print("HERE: ",mindRidx)
-                        #'''
-                        #print("THERE")
-                        #print(mindRidx,len(alljets))
-                        #print(alljets)
-                        if mindRidx>=0 and alljets[mindRidx][4]>20: # Cut on pt maybe
-                            jet = alljets[mindRidx]
-                            if dptval<100 and gendRval<0.3:
-                                tophad_matchedjet = True
-                                mj[ig].append(jet)
-                                alljets.remove(jet) # Remove the jet if it was tophad_matched with a gen quark
-
-            #print("MJ")
-            #print(mj)
             tophad_matchedjets.append(mj)
+            #print(len(alljets))
 
+            ################################################
+            bnvmj = [ [], [] ] # Hold the tophad_matched jets
+            #print("-----------")
+            #print(len(alljets))
+            for gvals in genjets:
+                gen_b,gen_nonb = gvals
+                # For just the hadronic top first
+                for ig,genjet in enumerate([[gen_b[1]],gen_nonb[2:]]):
+
+                    for gjet in genjet:
+
+                        matched_jet,dptval,dRval = tbt.match_up_gen_quark_with_jets(gjet, alljets, jetptcut=0)
+                        if matched_jet is not None:
+                            bnvmj[ig].append(matched_jet)
+                        else:
+                            1
+                            #print("not matched: ",ig,dptval,dRval,gjet)
+
+
+            bnv_matchedjets.append(bnvmj)
+            #print(len(alljets))
+
+
+            ###############################
             #'''
             #print("=======================")
             for mj in tophad_matchedjets:
@@ -230,6 +224,50 @@ def main(filenames,outfilename=None):
                 #print(jet)
             #'''
                 
+            ###############################
+            #'''
+            #print("=======================")
+            for mj in bnv_matchedjets:
+                bjets = mj[0]
+                nonbjets = mj[1]
+                if len(bjets)==1 and len(nonbjets)==2:
+                    bjet = bjets[0]
+                    #print(bjet)
+                    #prin[0]t(nonbjets)
+
+                    #vals[0].append(bjet[-1])
+                    #vals[1].append(nonbjets[0][-1])
+                    #vals[1].append(nonbjets[1][-1])
+
+                    #vals[4].append(bjet[4])
+                    #vals[5].append(nonbjets[0][4])
+                    #vals[5].append(nonbjets[1][4])
+
+                    dR0 = tbt.deltaR(nonbjets[0][5:],nonbjets[1][5:])
+                    dR1 = tbt.deltaR(nonbjets[0][5:],bjet[5:])
+                    dR2 = tbt.deltaR(nonbjets[1][5:],bjet[5:])
+
+                    # Make sure the jets are not so close that they're almost merged!
+                    if dR0>0.05 and dR1>0.05 and dR2>0.05:
+
+                        #wdR.append(dR0)
+                        #topdR_bnb.append(dR1)
+                        #topdR_bnb.append(dR2)
+
+                        #mass = tbt.invmass(nonbjets)
+                        #wmass.append(mass)
+                        mass = tbt.invmass([nonbjets[0],nonbjets[1],bjet])
+                        bnvtopmass.append(mass)
+
+                        #mass = tbt.invmass([nonbjets[0],bjet])
+                        #top01.append(mass**2)
+                        #mass = tbt.invmass([nonbjets[1],bjet])
+                        #top02.append(mass**2)
+                        #mass = tbt.invmass([nonbjets[0],nonbjets[1]])
+                        #top12.append(mass**2)
+
+                    #print(nonbjets[1][4] - nonbjets[0][4])
+
 
     for i in range(0,len(vals)):
         vals[i] = np.array(vals[i])
@@ -323,10 +361,12 @@ def main(filenames,outfilename=None):
     plt.subplot(3,2,4)
     plt.hist(topdR_bnb,bins=100,range=(-1,7))
     plt.subplot(3,2,5)
-
     plt.plot(wmass,wdR,'.',markersize=1.0,alpha=0.5)
     plt.xlim(20,140)
     plt.ylim(-1,7)
+
+    plt.subplot(3,2,6)
+    plt.hist(bnvtopmass,bins=100,range=(0,400))
 
     ####################### Dal cut
     plt.figure()
@@ -345,7 +385,7 @@ def main(filenames,outfilename=None):
     plt.ylim(-1,7)
 
 
-    print(len(topmass),len(wmass))
+    print(len(topmass),len(wmass),len(bnvmass))
 
     plt.figure()
     plt.subplot(1,3,1)
