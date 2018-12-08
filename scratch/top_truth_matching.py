@@ -72,6 +72,8 @@ def main(filenames,outfilename=None):
             tree.GetEntry(i)
 
             alljets = tbt.get_good_jets(tree,ptcut=0)
+            allmuons = tbt.get_good_muons(tree,ptcut=0)
+            #print(allmuons)
             #bjets,nonbjets = tbt.get_top_candidate_jets(alljets,csvcut=0.67)
 
             gen_b = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0] ]
@@ -132,6 +134,7 @@ def main(filenames,outfilename=None):
             #################################
             tophad_matchedjets = [] # Let the first be b-jets and the second be non-b-jets
             bnv_matchedjets = [] # Let the first be b-jets and the second be non-b-jets
+            matchedleptons = [] # 
 
             mj = [ [], [] ] # Hold the tophad_matched jets
             #print("-----------")
@@ -167,14 +170,26 @@ def main(filenames,outfilename=None):
 
                         matched_jet,dptval,dRval = tbt.match_up_gen_quark_with_jets(gjet, alljets, jetptcut=0)
                         if matched_jet is not None:
-                            bnvmj[ig].append(matched_jet)
+                            bnvmj[ig] = matched_jet
                         else:
                             1
                             #print("not matched: ",ig,dptval,dRval,gjet)
 
 
-            bnv_matchedjets.append(bnvmj)
+            bnv_matchedjets = bnvmj
             #print(len(alljets))
+
+            ################################################
+            bnvlep = [ ] # Hold the bnv matched leptons
+            #print("-----------")
+            #print(len(alljets))
+            matched_muon,dptval,dRval = tbt.match_up_gen_quark_with_jets(gen_lep, allmuons, jetptcut=0)
+            if matched_muon is not None:
+                matchedleptons = matched_muon
+            else:
+                1
+                #print("not matched: ",ig,dptval,dRval,gjet)
+
 
 
             ###############################
@@ -227,46 +242,20 @@ def main(filenames,outfilename=None):
             ###############################
             #'''
             #print("=======================")
-            for mj in bnv_matchedjets:
-                bjets = mj[0]
-                nonbjets = mj[1]
-                if len(bjets)==1 and len(nonbjets)==2:
-                    bjet = bjets[0]
-                    #print(bjet)
-                    #prin[0]t(nonbjets)
+            #print(bnv_matchedjets)
+            bjet = bnv_matchedjets[0]
+            nonbjet = bnv_matchedjets[1]
+            lep = matchedleptons
+            if len(bjet)>0 and len(nonbjet)>0 and len(lep)>0:
+                dR0 = tbt.deltaR(nonbjet[5:],matchedleptons[5:])
+                dR1 = tbt.deltaR(nonbjet[5:],bjet[5:])
+                dR2 = tbt.deltaR(matchedleptons[5:],bjet[5:])
 
-                    #vals[0].append(bjet[-1])
-                    #vals[1].append(nonbjets[0][-1])
-                    #vals[1].append(nonbjets[1][-1])
+                # Make sure the jets are not so close that they're almost merged!
+                if dR0>0.05 and dR1>0.05 and dR2>0.05:
 
-                    #vals[4].append(bjet[4])
-                    #vals[5].append(nonbjets[0][4])
-                    #vals[5].append(nonbjets[1][4])
-
-                    dR0 = tbt.deltaR(nonbjets[0][5:],nonbjets[1][5:])
-                    dR1 = tbt.deltaR(nonbjets[0][5:],bjet[5:])
-                    dR2 = tbt.deltaR(nonbjets[1][5:],bjet[5:])
-
-                    # Make sure the jets are not so close that they're almost merged!
-                    if dR0>0.05 and dR1>0.05 and dR2>0.05:
-
-                        #wdR.append(dR0)
-                        #topdR_bnb.append(dR1)
-                        #topdR_bnb.append(dR2)
-
-                        #mass = tbt.invmass(nonbjets)
-                        #wmass.append(mass)
-                        mass = tbt.invmass([nonbjets[0],nonbjets[1],bjet])
-                        bnvtopmass.append(mass)
-
-                        #mass = tbt.invmass([nonbjets[0],bjet])
-                        #top01.append(mass**2)
-                        #mass = tbt.invmass([nonbjets[1],bjet])
-                        #top02.append(mass**2)
-                        #mass = tbt.invmass([nonbjets[0],nonbjets[1]])
-                        #top12.append(mass**2)
-
-                    #print(nonbjets[1][4] - nonbjets[0][4])
+                    mass = tbt.invmass([nonbjet,bjet,matchedleptons])
+                    bnvtopmass.append(mass)
 
 
     for i in range(0,len(vals)):
@@ -367,6 +356,7 @@ def main(filenames,outfilename=None):
 
     plt.subplot(3,2,6)
     plt.hist(bnvtopmass,bins=100,range=(0,400))
+    plt.xlabel("BNV top candidate")
 
     ####################### Dal cut
     plt.figure()
@@ -385,7 +375,7 @@ def main(filenames,outfilename=None):
     plt.ylim(-1,7)
 
 
-    print(len(topmass),len(wmass),len(bnvmass))
+    print(len(topmass),len(wmass),len(bnvtopmass))
 
     plt.figure()
     plt.subplot(1,3,1)

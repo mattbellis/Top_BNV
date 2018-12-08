@@ -282,6 +282,38 @@ def get_good_jets(tree, ptcut=0.0):
 
     return alljets
 
+################################################################################
+# Pass in an event and a tree and return good muons
+################################################################################
+def get_good_muons(tree, ptcut=0.0):
+
+    allmuons = []
+
+    nmuon = tree.nmuon
+    e = tree.muone
+    px = tree.muonpx
+    py = tree.muonpy
+    pz = tree.muonpz
+    pt = tree.muonpt
+    eta = tree.muoneta
+    phi = tree.muonphi
+
+    for n in range(nmuon):
+
+        if pt[n]<ptcut:
+            continue
+
+        # Not doing lepton cleaning right now. Need to make sure DeltaR betwen 
+        # jets and leptons is>0.4. 
+        # https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
+        #loose_muon = False
+        loose_muon = True
+
+        #print(loose_muon)
+        if loose_muon is True:
+            allmuons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n]])
+
+    return allmuons
 
 ################################################################################
 # Pass a list of jets and return a bjet and 2 non-b jets in order to 
