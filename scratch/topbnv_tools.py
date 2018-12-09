@@ -63,12 +63,18 @@ def deltaR(etph0, etph1,constrain0pi=True):
 ################################################################################
 # Assume we pass in a list of 4 numbers in either a list or array
 ################################################################################
-def angle_between_vectors(p30, p31):
+def angle_between_vectors(p30, p31, transverse=False):
 
-    mag0 = math.sqrt(p30[0]*p30[0] + p30[1]*p30[1] + p30[2]*p30[2])
-    mag1 = math.sqrt(p31[0]*p31[0] + p31[1]*p31[1] + p31[2]*p31[2])
+    if transverse==False:
+        mag0 = math.sqrt(p30[0]*p30[0] + p30[1]*p30[1] + p30[2]*p30[2])
+        mag1 = math.sqrt(p31[0]*p31[0] + p31[1]*p31[1] + p31[2]*p31[2])
 
-    dot = p30[0]*p31[0] + p30[1]*p31[1] + p30[2]*p31[2]
+        dot = p30[0]*p31[0] + p30[1]*p31[1] + p30[2]*p31[2]
+    else: # Only worry about the transverse components
+        mag0 = math.sqrt(p30[0]*p30[0] + p30[1]*p30[1])
+        mag1 = math.sqrt(p31[0]*p31[0] + p31[1]*p31[1])
+
+        dot = p30[0]*p31[0] + p30[1]*p31[1]
 
     return math.acos(dot/(mag0*mag1))
 

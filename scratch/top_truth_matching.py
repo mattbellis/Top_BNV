@@ -49,6 +49,8 @@ def main(filenames,outfilename=None):
     bnvtop02 = []
     bnvtop12 = []
 
+    thetatop1top2 = []
+
     for ifile,filename in enumerate(filenames):
 
         print("Opening file %s %d of %d" % (filename,ifile,len(filenames)))
@@ -195,6 +197,7 @@ def main(filenames,outfilename=None):
             ###############################
             #'''
             #print("=======================")
+            hadtopp4 = None
             for mj in tophad_matchedjets:
                 bjets = mj[0]
                 nonbjets = mj[1]
@@ -226,6 +229,8 @@ def main(filenames,outfilename=None):
                         wmass.append(mass)
                         mass = tbt.invmass([nonbjets[0],nonbjets[1],bjet])
                         topmass.append(mass)
+                        hadtopp4 = np.array(nonbjets[0]) + np.array(nonbjets[1]) + np.array(bjet)
+                        #print(hadtopp4)
 
                         mass = tbt.invmass([nonbjets[0],bjet])
                         top01.append(mass**2)
@@ -256,6 +261,13 @@ def main(filenames,outfilename=None):
 
                     mass = tbt.invmass([nonbjet,bjet,matchedleptons])
                     bnvtopmass.append(mass)
+                    bnvtopp4 = np.array(nonbjet[0:4]) + np.array(bjet[0:4]) + np.array(matchedleptons[0:4])
+
+                    if hadtopp4 is not None:
+                        a = tbt.angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
+                        thetatop1top2.append(a)
+                        #print("here")
+                        #print(a)
 
 
     for i in range(0,len(vals)):
@@ -337,6 +349,7 @@ def main(filenames,outfilename=None):
     topmass = np.array(topmass)
     wdR = np.array(wdR)
     topdR_bnb = np.array(topdR_bnb)
+    thetatop1top2 = np.array(thetatop1top2)
 
     dal_cuts = tbt.dalitz_boundaries(top02,top12)
 
@@ -369,11 +382,13 @@ def main(filenames,outfilename=None):
     plt.subplot(3,2,4)
     #plt.hist(topdR_bnb[dal_cuts],bins=100,range=(-1,7))
     #plt.subplot(3,2,5)
-
     plt.plot(wmass[dal_cuts],wdR[dal_cuts],'.',markersize=1.0,alpha=0.5)
     plt.xlim(20,140)
     plt.ylim(-1,7)
 
+    plt.subplot(3,2,5)
+    plt.hist(thetatop1top2,bins=100,range=(-1,7))
+    plt.xlabel(r'$\theta$ top$_1$ and top_2')
 
     print(len(topmass),len(wmass),len(bnvtopmass))
 
