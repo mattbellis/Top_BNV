@@ -964,7 +964,7 @@ def topbnv_fwlite(argv):
         for i,jet in enumerate(jets.product()):
             # Get the jet p4
             jetP4Raw = ROOT.TLorentzVector( jet.px(), jet.py(), jet.pz(), jet.energy() )
-            # Get the correction that was applied at RECO level for MINIADO
+            # Get the correction that was applied at RECO level for MINIAOD
             jetJECFromMiniAOD = jet.jecFactor(0)
             # Remove the old JEC's to get raw energy
             jetP4Raw *= jetJECFromMiniAOD
