@@ -39,10 +39,12 @@ def main(filenames,outfilename=None):
     plotvars["bnvtop01"] = {"values":[], "xlabel":r"Mass $t$-jets, 0 and 1 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
     plotvars["bnvtop02"] = {"values":[], "xlabel":r"Mass $t$-jets, 0 and 2 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
     plotvars["bnvtop12"] = {"values":[], "xlabel":r"Mass $t$-jets, 1 and 2 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
-    plotvars["thetatop1top2"] = {"values":[], "xlabel":r"$\cos \theta_{T}$ between top cands", "ylabel":r"# entries","range":(-3.2,3.2)}
+    #plotvars["thetatop1top2"] = {"values":[], "xlabel":r"$\cos \theta_{T}$ between top cands", "ylabel":r"# entries","range":(-3.2,3.2)}
+    plotvars["thetatop1top2"] = {"values":[], "xlabel":r"$\cos \theta_{T}$ between top cands", "ylabel":r"# entries","range":(-1.0,1.0)}
     plotvars["leppt"] = {"values":[], "xlabel":r"Lepton $p_{\rm T}$ [GeV/c]", "ylabel":r"# entries","range":(0,150)}
     plotvars["leppmag"] = {"values":[], "xlabel":r"# Lepton $|p|$ [GeV/c]","ylabel":r"# entries","range":(0,150)}
     plotvars["metpt"] = {"values":[], "xlabel":r"Missing $E_{\rm T}$ [GeV]","ylabel":r"# entries","range":(0,150)}
+    plotvars["ncands"] = {"values":[], "xlabel":r"# of sig cands","ylabel":r"# entries","range":(0,20)}
 
     cuts = []
     ncuts = 5
@@ -63,14 +65,15 @@ def main(filenames,outfilename=None):
 
     for i in range(nentries):
 
+
         if i%10000==0:
             output = "Event: %d out of %d" % (i,nentries)
             print(output)
 
         tree.GetEntry(i)
 
-        allmuons = tbt.get_good_muons(tree,ptcut=30)
-        alljets = tbt.get_good_jets(tree,ptcut=30)
+        allmuons = tbt.get_good_muons(tree,ptcut=20)
+        alljets = tbt.get_good_jets(tree,ptcut=20)
         bjets,nonbjets = tbt.get_top_candidate_jets(alljets, csvcut=0.87)
 
         njets = len(alljets)
@@ -84,6 +87,7 @@ def main(filenames,outfilename=None):
             continue
 
         #print("===========")
+        ncands = np.zeros(ncuts,dtype=int)
         for bjetpairs in combinations(bjets,2):
             bjet = bjetpairs[0]
             for jets in combinations(nonbjets,3):
@@ -142,13 +146,14 @@ def main(filenames,outfilename=None):
 
                             if hadtopp4 is not None:
                                 a = tbt.angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
-                                #thetatop1top2 = np.cos(a)
-                                thetatop1top2 = a
+                                thetatop1top2 = np.cos(a)
+                                #thetatop1top2 = a
 
 
                                 # MAKE SOME CUTS AND STORE THE VARIABLES
                                 cut1 = hadWmass>60 and hadWmass<100
-                                cut2 = thetatop1top2>2.8
+                                #cut2 = thetatop1top2>2.8
+                                cut2 = thetatop1top2<-0.90
                                 #cut3 = bnvcsv0>0.87 or bnvcsv1>0.87
                                 #cut4 = ncharged>5
 
@@ -181,8 +186,18 @@ def main(filenames,outfilename=None):
 
                                         plotvars["metpt"]["values"][icut].append(metpt)
 
+                                        ncands[icut] += 1
+        # Fill the number of candidates now
+        for icut in range(len(cuts)):
+            plotvars["ncands"]["values"][icut].append(ncands[icut])
+
 
     ################################################################################
+    print("----")
+    #print(plotvars["ncands"]["values"])
+    for x in plotvars["ncands"]["values"]:
+        print(sum(x))
+    print("----")
     #'''
     print(len(list(plotvars.keys())))
     for icut,cut in enumerate(cuts):
@@ -191,13 +206,14 @@ def main(filenames,outfilename=None):
             plt.subplot(5,5,1+j)
 
             var = plotvars[key]
-            if key=="njets" or key=="nbjets":
+            if key=="njets" or key=="nbjets" or key=="ncands":
                 lch.hist_err(var["values"][icut],range=var["range"],bins=20,alpha=0.2,markersize=0.5)
             else:
                 lch.hist_err(var["values"][icut],range=var["range"],bins=100,alpha=0.2,markersize=0.5)
             plt.xlabel(var["xlabel"],fontsize=8)
             plt.ylabel(var["ylabel"],fontsize=8)
-            print(len(var["values"][icut]))
+            if j==0:
+                print(len(var["values"][icut]))
 
         plt.tight_layout()
 

@@ -15,6 +15,8 @@ from array import array
 
 from collections import OrderedDict
 
+import lichen.lichen as lch
+
 
 ################################################################################
 def main(filenames,outfilename=None):
@@ -55,244 +57,264 @@ def main(filenames,outfilename=None):
 
     leppt = []
 
+    hadbjetpt = []
+    hadjet0pt = []
+    hadjet1pt = []
+    bnvjet0pt = []
+    bnvbjetpt = []
+
     met = []
 
-    for ifile,filename in enumerate(filenames):
+    total_signal = 0
 
-        print("Opening file %s %d of %d" % (filename,ifile,len(filenames)))
+    tree = ROOT.TChain("T")
+    for ifile,infile in enumerate(filenames):
+        print("Opening file %s %d of %d" % (infile,ifile,len(filenames)))
+        tree.AddFile(infile)
 
-        f = ROOT.TFile.Open(filename)
-
-        tree = f.Get("T")
-        #tree.Print()
-
-        nentries = tree.GetEntries()
-
-        print("Will run over %d entries" % (nentries))
+    nentries = tree.GetEntries()
+    print("Will run over %d entries" % (nentries))
 
 
-        for i in range(nentries):
+    for i in range(nentries):
 
-            if i%10000==0:
-                output = "Event: %d out of %d" % (i,nentries)
-                print(output)
+        if i%10000==0:
+            output = "Event: %d out of %d" % (i,nentries)
+            print(output)
 
-            tree.GetEntry(i)
+        tree.GetEntry(i)
 
-            alljets = tbt.get_good_jets(tree,ptcut=0)
-            allmuons = tbt.get_good_muons(tree,ptcut=0)
-            #print(allmuons)
-            #bjets,nonbjets = tbt.get_top_candidate_jets(alljets,csvcut=0.67)
+        alljets = tbt.get_good_jets(tree,ptcut=20)
+        allmuons = tbt.get_good_muons(tree,ptcut=20)
+        #print(allmuons)
+        #bjets,nonbjets = tbt.get_top_candidate_jets(alljets,csvcut=0.67)
 
-            gen_b = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0] ]
-            gen_nonb = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0] ]
-            gen_lep = [ 0.0, 0.0, 0.0]
+        gen_b = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0] ]
+        gen_nonb = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0] ]
+        gen_lep = [ 0.0, 0.0, 0.0]
 
-            #'''
-            gen_particles = tbt.get_gen_particles(tree)
-            genjets = []
-            #print("----------")
-            #for gp in gen_particles:
-                #print(gp)
-            ib = 0
-            inonb = 0
-            # Assume that t(6) --> -13 -5 -4 and tbar (-6) --> -5 -24, -24 --> stuff 
-            # First do the hadronically decaying antitop
-            for gen in gen_particles:
-                if gen['pdg']==-5 and gen['motherpdg']==-6:
-                    gen_b[0] = gen['p4'][4:]
-                    #ib += 1 # 
-                elif (np.abs(gen['pdg'])>=1 and np.abs(gen['pdg'])<=5) and gen['motherpdg']==-24:
-                    gen_nonb[inonb] = gen['p4'][4:]
-                    inonb += 1 # 
+        #'''
+        gen_particles = tbt.get_gen_particles(tree)
+        genjets = []
+        #print("----------")
+        #for gp in gen_particles:
+            #print(gp)
+        if gen_particles[6]["pdg"]==-5 and np.abs(gen_particles[7]["pdg"])<6 and np.abs(gen_particles[8]["pdg"])<6:
+           total_signal += 1 
 
-            # Next, do the BNV stuff
-            inonb = 2
-            for gen in gen_particles:
-                if gen['pdg']==-5 and gen['motherpdg']==6:
-                    gen_b[1] = gen['p4'][4:]
-                    ib += 1 # Assume we only have 2 b-quarks coming from the tops per event
-                elif (np.abs(gen['pdg'])>=1 and np.abs(gen['pdg'])<5) and gen['motherpdg']==6:
-                    gen_nonb[inonb] = gen['p4'][4:]
-                    inonb += 1 # Assume we only have 2 b-quarks coming from the tops per event
-                elif (np.abs(gen['pdg'])>=11 and np.abs(gen['pdg'])<=18) and gen['motherpdg']==6:
-                    gen_lep = gen['p4'][4:]
+        ib = 0
+        inonb = 0
+        # Assume that t(6) --> -13 -5 -4 and tbar (-6) --> -5 -24, -24 --> stuff 
+        # First do the hadronically decaying antitop
+        for gen in gen_particles:
+            if gen['pdg']==-5 and gen['motherpdg']==-6:
+                gen_b[0] = gen['p4'][4:]
+                #ib += 1 # 
+            elif (np.abs(gen['pdg'])>=1 and np.abs(gen['pdg'])<=5) and gen['motherpdg']==-24:
+                gen_nonb[inonb] = gen['p4'][4:]
+                inonb += 1 # 
 
-            genjets.append([gen_b,gen_nonb])
-            #print(genjets,gen_lep)
+        # Next, do the BNV stuff
+        inonb = 2
+        for gen in gen_particles:
+            if gen['pdg']==-5 and gen['motherpdg']==6:
+                gen_b[1] = gen['p4'][4:]
+                ib += 1 # Assume we only have 2 b-quarks coming from the tops per event
+            elif (np.abs(gen['pdg'])>=1 and np.abs(gen['pdg'])<5) and gen['motherpdg']==6:
+                gen_nonb[inonb] = gen['p4'][4:]
+                inonb += 1 # Assume we only have 2 b-quarks coming from the tops per event
+            elif (np.abs(gen['pdg'])>=11 and np.abs(gen['pdg'])<=18) and gen['motherpdg']==6:
+                gen_lep = gen['p4'][4:]
 
+        genjets.append([gen_b,gen_nonb])
+        #print("-----------------------")
+        #print(genjets,gen_lep)
 
-            #'''
-
-            jet = []
-            nonbjets = []
-            bjet = []
-            muon = []
-            
-            # Try to match bjets
-            #print("Looking -------------------------------------------------------")
-            nj = 0
-            nbj = 0
-
-            nbsfound = 0
-            nnonbsfound = 0
-
-            # Jet selection from here
-            # https://twiki.cern.ch/twiki/bin/view/CMS/TTbarXSecSynchronization
-
-            #################################
-            tophad_matchedjets = [] # Let the first be b-jets and the second be non-b-jets
-            bnv_matchedjets = [] # Let the first be b-jets and the second be non-b-jets
-            matchedleptons = [] # 
-
-            mj = [ [], [] ] # Hold the tophad_matched jets
-            #print("-----------")
-            #print(len(alljets))
-            for gvals in genjets:
-                gen_b,gen_nonb = gvals
-                # For just the hadronic top first
-                for ig,genjet in enumerate([[gen_b[0]],gen_nonb[0:2]]):
-
-                    for gjet in genjet:
-
-                        matched_jet,dptval,dRval = tbt.match_up_gen_quark_with_jets(gjet, alljets, jetptcut=0)
-                        if matched_jet is not None:
-                            mj[ig].append(matched_jet)
-                        else:
-                            1
-                            #print("not matched: ",ig,dptval,dRval,gjet)
+        #if gen_b[0][0]>0 and gen_b[1][0]>0 and gen_nonb[0][0]>0 and gen_nonb[1][0]>0 and gen_nonb[2][0]>0 and gen_lep[0]>0:
+           #total_signal += 1 
 
 
-            tophad_matchedjets.append(mj)
-            #print(len(alljets))
+        #'''
 
-            ################################################
-            bnvmj = [ [], [] ] # Hold the tophad_matched jets
-            #print("-----------")
-            #print(len(alljets))
-            for gvals in genjets:
-                gen_b,gen_nonb = gvals
-                # For just the hadronic top first
-                for ig,genjet in enumerate([[gen_b[1]],gen_nonb[2:]]):
+        jet = []
+        nonbjets = []
+        bjet = []
+        muon = []
+        
+        # Try to match bjets
+        #print("Looking -------------------------------------------------------")
+        nj = 0
+        nbj = 0
 
-                    for gjet in genjet:
+        nbsfound = 0
+        nnonbsfound = 0
 
-                        matched_jet,dptval,dRval = tbt.match_up_gen_quark_with_jets(gjet, alljets, jetptcut=0)
-                        if matched_jet is not None:
-                            bnvmj[ig] = matched_jet
-                        else:
-                            1
-                            #print("not matched: ",ig,dptval,dRval,gjet)
+        # Jet selection from here
+        # https://twiki.cern.ch/twiki/bin/view/CMS/TTbarXSecSynchronization
+
+        #################################
+        tophad_matchedjets = [] # Let the first be b-jets and the second be non-b-jets
+        bnv_matchedjets = [] # Let the first be b-jets and the second be non-b-jets
+        matchedleptons = [] # 
+
+        mj = [ [], [] ] # Hold the tophad_matched jets
+        #print("-----------")
+        #print(len(alljets))
+        for gvals in genjets:
+            gen_b,gen_nonb = gvals
+            # For just the hadronic top first
+            for ig,genjet in enumerate([[gen_b[0]],gen_nonb[0:2]]):
+
+                for gjet in genjet:
+
+                    matched_jet,dptval,dRval = tbt.match_up_gen_quark_with_jets(gjet, alljets, jetptcut=0)
+                    if matched_jet is not None:
+                        mj[ig].append(matched_jet)
+                    else:
+                        1
+                        #print("not matched: ",ig,dptval,dRval,gjet)
 
 
-            bnv_matchedjets = bnvmj
-            #print(len(alljets))
+        tophad_matchedjets.append(mj)
+        #print(len(alljets))
 
-            ################################################
-            bnvlep = [ ] # Hold the bnv matched leptons
-            #print("-----------")
-            #print(len(alljets))
-            matched_muon,dptval,dRval = tbt.match_up_gen_quark_with_jets(gen_lep, allmuons, jetptcut=0)
-            if matched_muon is not None:
-                matchedleptons = matched_muon
-            else:
-                1
-                #print("not matched: ",ig,dptval,dRval,gjet)
+        ################################################
+        bnvmj = [ [], [] ] # Hold the tophad_matched jets
+        #print("-----------")
+        #print(len(alljets))
+        for gvals in genjets:
+            gen_b,gen_nonb = gvals
+            # For just the hadronic top first
+            for ig,genjet in enumerate([[gen_b[1]],gen_nonb[2:]]):
+
+                for gjet in genjet:
+
+                    matched_jet,dptval,dRval = tbt.match_up_gen_quark_with_jets(gjet, alljets, jetptcut=0)
+                    if matched_jet is not None:
+                        bnvmj[ig] = matched_jet
+                    else:
+                        1
+                        #print("not matched: ",ig,dptval,dRval,gjet)
+
+
+        bnv_matchedjets = bnvmj
+        #print(len(alljets))
+
+        ################################################
+        bnvlep = [ ] # Hold the bnv matched leptons
+        #print("-----------")
+        #print(len(alljets))
+        matched_muon,dptval,dRval = tbt.match_up_gen_quark_with_jets(gen_lep, allmuons, jetptcut=0)
+        if matched_muon is not None:
+            matchedleptons = matched_muon
+        else:
+            1
+            #print("not matched: ",ig,dptval,dRval,gjet)
 
 
 
-            ###############################
-            #'''
-            #print("=======================")
-            hadtopp4 = None
-            for mj in tophad_matchedjets:
-                bjets = mj[0]
-                nonbjets = mj[1]
-                if len(bjets)==1 and len(nonbjets)==2:
-                    bjet = bjets[0]
-                    #print(bjet)
-                    #prin[0]t(nonbjets)
+        ###############################
+        #'''
+        #print("=======================")
+        hadtopp4 = None
+        for mj in tophad_matchedjets:
+            bjets = mj[0]
+            nonbjets = mj[1]
+            if len(bjets)==1 and len(nonbjets)==2:
+                bjet = bjets[0]
+                #print(bjet)
+                #prin[0]t(nonbjets)
 
-                    vals[0].append(bjet[-1])
-                    vals[1].append(nonbjets[0][-1])
-                    vals[1].append(nonbjets[1][-1])
+                vals[0].append(bjet[-1])
+                vals[1].append(nonbjets[0][-1])
+                vals[1].append(nonbjets[1][-1])
 
-                    vals[4].append(bjet[4])
-                    vals[5].append(nonbjets[0][4])
-                    vals[5].append(nonbjets[1][4])
+                vals[4].append(bjet[4])
+                vals[5].append(nonbjets[0][4])
+                vals[5].append(nonbjets[1][4])
 
-                    dR0 = tbt.deltaR(nonbjets[0][5:],nonbjets[1][5:])
-                    dR1 = tbt.deltaR(nonbjets[0][5:],bjet[5:])
-                    dR2 = tbt.deltaR(nonbjets[1][5:],bjet[5:])
-
-                    # Make sure the jets are not so close that they're almost merged!
-                    if dR0>0.05 and dR1>0.05 and dR2>0.05:
-
-                        wdR.append(dR0)
-                        topdR_bnb.append(dR1)
-                        topdR_bnb.append(dR2)
-
-                        mass = tbt.invmass(nonbjets)
-                        wmass.append(mass)
-                        mass = tbt.invmass([nonbjets[0],nonbjets[1],bjet])
-                        topmass.append(mass)
-                        hadtopp4 = np.array(nonbjets[0]) + np.array(nonbjets[1]) + np.array(bjet)
-                        #print(hadtopp4)
-
-                        mass = tbt.invmass([nonbjets[0],bjet])
-                        top01.append(mass**2)
-                        mass = tbt.invmass([nonbjets[1],bjet])
-                        top02.append(mass**2)
-                        mass = tbt.invmass([nonbjets[0],nonbjets[1]])
-                        top12.append(mass**2)
-
-                        hadjetspt.append(bjet[4])
-                        hadjetspt.append(nonbjets[0][4])
-                        hadjetspt.append(nonbjets[1][4])
-
-                    #print(nonbjets[1][4] - nonbjets[0][4])
-
-                #print(jet)
-            #'''
-                
-            ###############################
-            #'''
-            #print("=======================")
-            #print(bnv_matchedjets)
-            bjet = bnv_matchedjets[0]
-            nonbjet = bnv_matchedjets[1]
-            lep = matchedleptons
-            if len(bjet)>0 and len(nonbjet)>0 and len(lep)>0:
-                dR0 = tbt.deltaR(nonbjet[5:],matchedleptons[5:])
-                dR1 = tbt.deltaR(nonbjet[5:],bjet[5:])
-                dR2 = tbt.deltaR(matchedleptons[5:],bjet[5:])
+                dR0 = tbt.deltaR(nonbjets[0][5:],nonbjets[1][5:])
+                dR1 = tbt.deltaR(nonbjets[0][5:],bjet[5:])
+                dR2 = tbt.deltaR(nonbjets[1][5:],bjet[5:])
 
                 # Make sure the jets are not so close that they're almost merged!
                 if dR0>0.05 and dR1>0.05 and dR2>0.05:
 
-                    mass = tbt.invmass([nonbjet,bjet,matchedleptons])
-                    bnvtopmass.append(mass)
-                    bnvtopp4 = np.array(nonbjet[0:4]) + np.array(bjet[0:4]) + np.array(matchedleptons[0:4])
+                    wdR.append(dR0)
+                    topdR_bnb.append(dR1)
+                    topdR_bnb.append(dR2)
 
-                    leppt.append(matchedleptons[4])
+                    mass = tbt.invmass(nonbjets)
+                    wmass.append(mass)
+                    mass = tbt.invmass([nonbjets[0],nonbjets[1],bjet])
+                    topmass.append(mass)
+                    hadtopp4 = np.array(nonbjets[0]) + np.array(nonbjets[1]) + np.array(bjet)
+                    #print(hadtopp4)
 
-                    bnvjetspt.append(bjet[4])
-                    bnvjetspt.append(nonbjet[4])
+                    mass = tbt.invmass([nonbjets[0],bjet])
+                    top01.append(mass**2)
+                    mass = tbt.invmass([nonbjets[1],bjet])
+                    top02.append(mass**2)
+                    mass = tbt.invmass([nonbjets[0],nonbjets[1]])
+                    top12.append(mass**2)
 
-                    if hadtopp4 is not None:
-                        a = tbt.angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
-                        thetatop1top2.append(a)
-                        #print("here")
-                        #print(a)
-                        met.append(tree.metpt)
+                    hadjetspt.append(bjet[4])
+                    hadjetspt.append(nonbjets[0][4])
+                    hadjetspt.append(nonbjets[1][4])
 
+                    hadjet0pt.append(nonbjets[0][4])
+                    hadjet1pt.append(nonbjets[1][4])
+                    hadbjetpt.append(bjet[4])
+
+                #print(nonbjets[1][4] - nonbjets[0][4])
+
+            #print(jet)
+        #'''
+            
+        ###############################
+        #'''
+        #print("=======================")
+        #print(bnv_matchedjets)
+        bjet = bnv_matchedjets[0]
+        nonbjet = bnv_matchedjets[1]
+        lep = matchedleptons
+        if len(bjet)>0 and len(nonbjet)>0 and len(lep)>0:
+            dR0 = tbt.deltaR(nonbjet[5:],matchedleptons[5:])
+            dR1 = tbt.deltaR(nonbjet[5:],bjet[5:])
+            dR2 = tbt.deltaR(matchedleptons[5:],bjet[5:])
+
+            # Make sure the jets are not so close that they're almost merged!
+            if dR0>0.05 and dR1>0.05 and dR2>0.05:
+
+                mass = tbt.invmass([nonbjet,bjet,matchedleptons])
+                bnvtopmass.append(mass)
+                bnvtopp4 = np.array(nonbjet[0:4]) + np.array(bjet[0:4]) + np.array(matchedleptons[0:4])
+
+                leppt.append(matchedleptons[4])
+
+                bnvjetspt.append(bjet[4])
+                bnvjetspt.append(nonbjet[4])
+
+                bnvbjetpt.append(bjet[4])
+                bnvjet0pt.append(nonbjet[4])
+
+                if hadtopp4 is not None:
+                    a = tbt.angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
+                    #thetatop1top2.append(a)
+                    thetatop1top2.append(np.cos(a))
+                    #print("here")
+                    #print(a)
+                    met.append(tree.metpt)
 
     for i in range(0,len(vals)):
         vals[i] = np.array(vals[i])
     #print(vals)
 
-    print('tophad_matched:     ',len(vals[0][vals[0]>0.67]),len(vals[0]))
-    print('not tophad_matched: ',len(vals[1][vals[1]>0.67]),len(vals[1]))
+    #print('tophad_matched:     ',len(vals[0][vals[0]>0.67]),len(vals[0]))
+    #print('not tophad_matched: ',len(vals[1][vals[1]>0.67]),len(vals[1]))
+
+    print()
+    print("Matched both: {0} out of {1} (eff: {4:0.3f}\tTotal entries: {2} ({3:.3f})".format(len(thetatop1top2),total_signal,nentries, total_signal/nentries,len(thetatop1top2)/total_signal))
 
     pcut = 20
     print("Momentum cut: {0}".format(pcut))
@@ -397,7 +419,8 @@ def main(filenames,outfilename=None):
     plt.ylim(-1,7)
 
     plt.subplot(3,2,5)
-    plt.hist(thetatop1top2,bins=100,range=(-1,7))
+    #plt.hist(thetatop1top2,bins=100,range=(-1,7))
+    plt.hist(thetatop1top2,bins=100,range=(-1,1))
     plt.xlabel(r'$\theta$ top$_1$ and top_2')
 
     print(len(topmass),len(wmass),len(bnvtopmass))
@@ -432,6 +455,41 @@ def main(filenames,outfilename=None):
     plt.xlim(0,30000)
     plt.ylim(0,30000)
 
+
+    plt.figure()
+    plt.subplot(2,2,1)
+    #plt.plot(hadjet0pt,hadjet1pt,'.',markersize=1,alpha=0.5)
+    lch.hist_2D(hadjet0pt,hadjet1pt,xbins=50,ybins=50,xrange=(0,200),yrange=(0,200))
+    plt.xlabel("had 0")
+    plt.ylabel("had 1")
+    plt.xlim(0,200)
+    plt.ylim(0,200)
+
+    plt.subplot(2,2,2)
+    #plt.plot(hadjet0pt,hadbjetpt,'.',markersize=1,alpha=0.5)
+    lch.hist_2D(hadjet0pt,hadbjetpt,xbins=50,ybins=50,xrange=(0,200),yrange=(0,200))
+    plt.xlabel("had 0")
+    plt.ylabel("had b")
+    plt.xlim(0,200)
+    plt.ylim(0,200)
+
+    plt.subplot(2,2,3)
+    #plt.plot(hadjet1pt,hadbjetpt,'.',markersize=1,alpha=0.5)
+    lch.hist_2D(hadjet1pt,hadbjetpt,xbins=50,ybins=50,xrange=(0,200),yrange=(0,200))
+    plt.xlabel("had 1")
+    plt.ylabel("had b")
+    plt.xlim(0,200)
+    plt.ylim(0,200)
+
+    plt.subplot(2,2,4)
+    #plt.plot(bnvjet0pt,bnvbjetpt,'.',markersize=1,alpha=0.5)
+    lch.hist_2D(bnvjet0pt,bnvbjetpt,xbins=50,ybins=50,xrange=(0,200),yrange=(0,200))
+    plt.xlabel("bnv 0")
+    plt.ylabel("bnv b")
+    plt.xlim(0,200)
+    plt.ylim(0,200)
+
+    plt.tight_layout()
 
 
 
