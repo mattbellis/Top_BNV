@@ -50,6 +50,12 @@ def main(filenames,outfilename=None):
     bnvtop12 = []
 
     thetatop1top2 = []
+    hadjetspt = []
+    bnvjetspt = []
+
+    leppt = []
+
+    met = []
 
     for ifile,filename in enumerate(filenames):
 
@@ -114,6 +120,7 @@ def main(filenames,outfilename=None):
 
             genjets.append([gen_b,gen_nonb])
             #print(genjets,gen_lep)
+
 
             #'''
 
@@ -239,6 +246,10 @@ def main(filenames,outfilename=None):
                         mass = tbt.invmass([nonbjets[0],nonbjets[1]])
                         top12.append(mass**2)
 
+                        hadjetspt.append(bjet[4])
+                        hadjetspt.append(nonbjets[0][4])
+                        hadjetspt.append(nonbjets[1][4])
+
                     #print(nonbjets[1][4] - nonbjets[0][4])
 
                 #print(jet)
@@ -263,11 +274,17 @@ def main(filenames,outfilename=None):
                     bnvtopmass.append(mass)
                     bnvtopp4 = np.array(nonbjet[0:4]) + np.array(bjet[0:4]) + np.array(matchedleptons[0:4])
 
+                    leppt.append(matchedleptons[4])
+
+                    bnvjetspt.append(bjet[4])
+                    bnvjetspt.append(nonbjet[4])
+
                     if hadtopp4 is not None:
                         a = tbt.angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
                         thetatop1top2.append(a)
                         #print("here")
                         #print(a)
+                        met.append(tree.metpt)
 
 
     for i in range(0,len(vals)):
@@ -306,6 +323,19 @@ def main(filenames,outfilename=None):
         else:
             plt.hist(v,bins=200,range=(0,1.1))
 
+    plt.subplot(3,3,7)
+    plt.hist(leppt,range=(0,200),bins=50)
+    plt.xlabel(r'Lepton $p_{\rm T}$')
+
+    plt.subplot(3,3,8)
+    plt.hist(hadjetspt,range=(0,200),bins=50)
+    plt.xlabel(r'Hadronic jets $p_{\rm T}$')
+
+    plt.subplot(3,3,9)
+    plt.hist(bnvjetspt,range=(0,200),bins=50)
+    plt.xlabel(r'BNV jets $p_{\rm T}$')
+
+
     plt.figure()
     plt.subplot(2,2,1)
     plt.plot(vals[0],vals[4],'.',alpha=0.5,markersize=0.5)
@@ -317,30 +347,9 @@ def main(filenames,outfilename=None):
     plt.xlim(0,1.1)
     plt.ylim(0,200)
 
-    '''
-    # B-jets
-    plt.figure()
-    keys = list(plotvals.keys())
-    for i,key in enumerate(keys):
-        plt.subplot(4,4,i+1)
-        if key=='csv':
-            plt.hist(plotvals[key][0],bins=100,range=(0,1.1))
-        else:
-            plt.hist(plotvals[key][0],bins=100)
-        plt.title(key)
-
-
-    # non-B-jets
-    plt.figure()
-    keys = list(plotvals.keys())
-    for i,key in enumerate(keys):
-        plt.subplot(4,4,i+1)
-        if key=='csv':
-            plt.hist(plotvals[key][1],bins=100,range=(0,1.1))
-        else:
-            plt.hist(plotvals[key][1],bins=100)
-        plt.title(key)
-    '''
+    plt.subplot(2,2,3)
+    plt.hist(met,range=(0,150),bins=100)
+    plt.xlabel(r'$E_{\rm T}$')
 
     top01 = np.array(top01)
     top02 = np.array(top02)
@@ -370,6 +379,7 @@ def main(filenames,outfilename=None):
     plt.subplot(3,2,6)
     plt.hist(bnvtopmass,bins=100,range=(0,400))
     plt.xlabel("BNV top candidate")
+
 
     ####################### Dal cut
     plt.figure()

@@ -29,19 +29,20 @@ def main(filenames,outfilename=None):
     plotvars["nbjets"] = {"values":[], "xlabel":r"# of $b$-jets", "ylabel":r"# entries","range":(0,20)}
     plotvars["wmass"] = {"values":[], "xlabel":r"Mass $W$-cand [GeV/c$^{2}$]", "ylabel":r"# entries","range":(0,250)}
     plotvars["wdR"] = {"values":[], "xlabel":r"$\Delta R_{\rm W-jets}$ []", "ylabel":r"# entries","range":(0.0,6.3)}
-    plotvars["topmass"] = {"values":[], "xlabel":r"Mass $t$-cand (hadronic) [GeV/c$^{2}$]", "ylabel":r"# entries","range":(0,500)}
+    plotvars["topmass"] = {"values":[], "xlabel":r"Mass $t$-cand (had) [GeV/c$^{2}$]", "ylabel":r"# entries","range":(0,400)}
     plotvars["topdR_bnb"] = {"values":[], "xlabel":r"$\Delta R$ $t$ cand, $b$ and non-$b$ jets []", "ylabel":r"# entries","range":(0,6.3)}
     plotvars["topdR_nbnb"] = {"values":[], "xlabel":r"$\Delta R$ $t$ cand, non-$b$ jets []", "ylabel":r"# entries","range":(0,6.3)}
-    plotvars["top01"] = {"values":[], "xlabel":r"Mass $t$-jets, 0 and 1 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
-    plotvars["top02"] = {"values":[], "xlabel":r"Mass $t$-jets, 0 and 1 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
-    plotvars["top12"] = {"values":[], "xlabel":r"Mass $t$-jets, 0 and 1 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
-    plotvars["bnvtopmass"] = {"values":[], "xlabel":r"Mass $t$-cand (BNV) [GeV/c$^{2}$]", "ylabel":r"# entries","range":(0,300)}
+    plotvars["top01"] = {"values":[], "xlabel":r"Mass $t$-jets, 0, 1 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
+    plotvars["top02"] = {"values":[], "xlabel":r"Mass $t$-jets, 0, 2 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
+    plotvars["top12"] = {"values":[], "xlabel":r"Mass $t$-jets, 1, 2 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
+    plotvars["bnvtopmass"] = {"values":[], "xlabel":r"Mass $t$-cand (BNV) [GeV/c$^{2}$]", "ylabel":r"# entries","range":(0,400)}
     plotvars["bnvtop01"] = {"values":[], "xlabel":r"Mass $t$-jets, 0 and 1 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
     plotvars["bnvtop02"] = {"values":[], "xlabel":r"Mass $t$-jets, 0 and 2 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
     plotvars["bnvtop12"] = {"values":[], "xlabel":r"Mass $t$-jets, 1 and 2 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
-    plotvars["thetatop1top2"] = {"values":[], "xlabel":r"$\cos \theta_{T}$ between top cands", "ylabel":r"# entries","range":(-1,1)}
-    plotvars["leppt"] = {"values":[], "xlabel":r"Lepton $p_{\rm T}$ [GeV/c]", "ylabel":r"# entries","range":(0,100)}
-    plotvars["leppmag"] = {"values":[], "xlabel":r"# Lepton $|p|$ [GeV/c]","ylabel":r"# entries","range":(0,100)}
+    plotvars["thetatop1top2"] = {"values":[], "xlabel":r"$\cos \theta_{T}$ between top cands", "ylabel":r"# entries","range":(-3.2,3.2)}
+    plotvars["leppt"] = {"values":[], "xlabel":r"Lepton $p_{\rm T}$ [GeV/c]", "ylabel":r"# entries","range":(0,150)}
+    plotvars["leppmag"] = {"values":[], "xlabel":r"# Lepton $|p|$ [GeV/c]","ylabel":r"# entries","range":(0,150)}
+    plotvars["metpt"] = {"values":[], "xlabel":r"Missing $E_{\rm T}$ [GeV]","ylabel":r"# entries","range":(0,150)}
 
     cuts = []
     ncuts = 5
@@ -68,24 +69,27 @@ def main(filenames,outfilename=None):
 
         tree.GetEntry(i)
 
-        allmuons = tbt.get_good_muons(tree,ptcut=0)
-        alljets = tbt.get_good_jets(tree,ptcut=20)
+        allmuons = tbt.get_good_muons(tree,ptcut=30)
+        alljets = tbt.get_good_jets(tree,ptcut=30)
         bjets,nonbjets = tbt.get_top_candidate_jets(alljets, csvcut=0.87)
 
         njets = len(alljets)
         nbjets = len(bjets)
         #print(njets,nbjets)
 
+        metpt = tree.metpt
+
         # We need at least 5 jets (at least 1 b jet) and 1 lepton
-        if len(alljets)<5 or len(allmuons)<1 or len(bjets)<1:
+        if len(alljets)<5 or len(allmuons)<1 or len(bjets)<2:
             continue
 
         #print("===========")
-        for bjet in bjets:
-            for jets in combinations(nonbjets,4):
+        for bjetpairs in combinations(bjets,2):
+            bjet = bjetpairs[0]
+            for jets in combinations(nonbjets,3):
                 for lepton in allmuons:
                     #print("--------")
-                    #print(jets)
+                    #print(np.array(jets).transpose()[0])
 
                     # STILL WANT TO LOOK AT DISTRIBUTION OF MOMENTA FOR THE JETS
 
@@ -101,19 +105,34 @@ def main(filenames,outfilename=None):
                         hadtopp4 = np.array(jets[0]) + np.array(jets[1]) + np.array(bjet)
 
                         mass = tbt.invmass([jets[0],bjet])
-                        hadtop01 = mass**2
+                        hadtop01 = mass#**2
                         mass = tbt.invmass([jets[1],bjet])
-                        hadtop02 = mass**2
+                        hadtop02 = mass#**2
                         mass = tbt.invmass([jets[0],jets[1]])
-                        hadtop12 = mass**2
+                        hadtop12 = mass#**2
 
                         # Now look at the BNV 
                         bnvjet0 = jets[2]
-                        bnvjet1 = jets[3]
+                        #bnvjet1 = jets[3]
+                        bnvjet1 = bjetpairs[1]
+
+                        bnvcsv0 = bnvjet0[-1]
+                        bnvcsv1 = bnvjet1[-1]
 
                         bnvdR0 = tbt.deltaR(bnvjet0[5:],lepton[5:])
                         bnvdR1 = tbt.deltaR(bnvjet1[5:],lepton[5:])
                         bnvdR2 = tbt.deltaR(bnvjet0[5:],bnvjet1[5:])
+
+                        mass = tbt.invmass([bnvjet0,lepton])
+                        bnvtop01 = mass#**2
+                        mass = tbt.invmass([bnvjet1,lepton])
+                        bnvtop02 = mass#**2
+                        mass = tbt.invmass([bnvjet0,bnvjet1])
+                        bnvtop12 = mass#**2
+
+                        leppt = lepton[4]
+                        leppmag = np.sqrt(lepton[1]**2 + lepton[2]**2 + lepton[3]**2)
+
 
                         # Make sure the jets are not so close that they're almost merged!
                         if bnvdR0>0.05 and bnvdR1>0.05 and bnvdR2>0.05:
@@ -123,36 +142,17 @@ def main(filenames,outfilename=None):
 
                             if hadtopp4 is not None:
                                 a = tbt.angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
-                                thetatop1top2 = np.cos(a)
+                                #thetatop1top2 = np.cos(a)
+                                thetatop1top2 = a
 
 
-								# MAKE SOME CUTS AND STORE THE VARIABLES
-								#cut1 = pp>2.3 and pp<2.8 and lp>2.3 and lp<2.8
-								#cut2 = dE>-0.5
-								#cut3 = r2all<0.5
-								#cut4 = ncharged>5
+                                # MAKE SOME CUTS AND STORE THE VARIABLES
+                                cut1 = hadWmass>60 and hadWmass<100
+                                cut2 = thetatop1top2>2.8
+                                #cut3 = bnvcsv0>0.87 or bnvcsv1>0.87
+                                #cut4 = ncharged>5
 
-                                '''
-                                plotvars["njets"] = {"values":[], "xlabel":r"# of jets", "ylabel":r"# entries","range":(0,20)}
-                                plotvars["nbjets"] = {"values":[], "xlabel":r"# of $b$-jets", "ylabel":r"# entries","range":(0,20)}
-                                plotvars["wmass"] = {"values":[], "xlabel":r"Mass $W$-candidate [GeV/c$^{2}$]", "ylabel":r"# entries","range":(0,150)}
-                                plotvars["wdR"] = {"values":[], "xlabel":r"$\Delta R_{\rm W-jets}$ []", "ylabel":r"# entries","range":(-7.0,7.0)}
-                                plotvars["topmass"] = {"values":[], "xlabel":r"Mass $t$-candidate (hadronic) [GeV/c$^{2}$]", "ylabel":r"# entries","range":(0,300)}
-                                plotvars["topdR_bnb"] = {"values":[], "xlabel":r"$\Delta R$ $t$ cand, $b$ and non-$b$ jets []", "ylabel":r"# entries","range":(-7,7)}
-                                plotvars["topdR_nbnb"] = {"values":[], "xlabel":r"$\Delta R $t$ cand, non-$b$ jets []", "ylabel":r"# entries","range":(0,5.5)}
-                                plotvars["top01"] = {"values":[], "xlabel":r"Mass $t$-jets, 0 and 1 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
-                                plotvars["top02"] = {"values":[], "xlabel":r"Mass $t$-jets, 0 and 1 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
-                                plotvars["top12"] = {"values":[], "xlabel":r"Mass $t$-jets, 0 and 1 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
-                                plotvars["bnvtopmass"] = {"values":[], "xlabel":r"Mass $t$-candidate (BNV) [GeV/c$^{2}$]", "ylabel":r"# entries","range":(0,300)}
-                                plotvars["bnvtop01"] = {"values":[], "xlabel":r"Mass $t$-jets, 0 and 1 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
-                                plotvars["bnvtop02"] = {"values":[], "xlabel":r"Mass $t$-jets, 0 and 2 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
-                                plotvars["bnvtop12"] = {"values":[], "xlabel":r"Mass $t$-jets, 1 and 2 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
-                                plotvars["thetatop1top2"] = {"values":[], "xlabel":r"$\cos \theta_{T}$ between top candidates", "ylabel":r"# entries","range":(-1,1)}
-                                plotvars["leppt"] = {"values":[], "xlabel":r"Lepton $p_{\rm T}$ [GeV/c]", "ylabel":r"# entries","range":(0,100)}
-                                plotvars["leppmag"] = {"values":[], "xlabel":r"# Lepton $|p|$ [GeV/c]","ylabel":r"# entries","range":(0,100)}
-                                '''
-
-                                cuts = [1]
+                                cuts = [1, cut1, cut1*cut2]#, cut1*cut2*cut3]
                                 for icut,cut in enumerate(cuts):
                                     if cut:
                                         plotvars["njets"]["values"][icut].append(njets)
@@ -170,6 +170,16 @@ def main(filenames,outfilename=None):
 
                                         plotvars["bnvtopmass"]["values"][icut].append(bnvtopmass)
 
+                                        plotvars["bnvtop01"]["values"][icut].append(bnvtop01)
+                                        plotvars["bnvtop02"]["values"][icut].append(bnvtop02)
+                                        plotvars["bnvtop12"]["values"][icut].append(bnvtop12)
+
+                                        plotvars["thetatop1top2"]["values"][icut].append(thetatop1top2)
+
+                                        plotvars["leppt"]["values"][icut].append(leppt)
+                                        plotvars["leppmag"]["values"][icut].append(leppmag)
+
+                                        plotvars["metpt"]["values"][icut].append(metpt)
 
 
     ################################################################################
@@ -184,9 +194,9 @@ def main(filenames,outfilename=None):
             if key=="njets" or key=="nbjets":
                 lch.hist_err(var["values"][icut],range=var["range"],bins=20,alpha=0.2,markersize=0.5)
             else:
-                lch.hist_err(var["values"][icut],range=var["range"],bins=50,alpha=0.2,markersize=0.5)
-            plt.xlabel(var["xlabel"],fontsize=12)
-            plt.ylabel(var["ylabel"],fontsize=12)
+                lch.hist_err(var["values"][icut],range=var["range"],bins=100,alpha=0.2,markersize=0.5)
+            plt.xlabel(var["xlabel"],fontsize=8)
+            plt.ylabel(var["ylabel"],fontsize=8)
             print(len(var["values"][icut]))
 
         plt.tight_layout()
