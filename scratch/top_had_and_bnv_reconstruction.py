@@ -90,35 +90,40 @@ def main(filenames,outfilename=None):
         ncands = np.zeros(ncuts,dtype=int)
         for bjetpairs in combinations(bjets,2):
             bjet = bjetpairs[0]
+            bnvjet0 = bjetpairs[1]
             for jets in combinations(nonbjets,3):
+                for permutation in range(3):
+                    if permutation==0:
+                        hadnonbjet0 = jets[0]
+                        hadnonbjet1 = jets[1]
+                        bnvjet1 = jets[2]
+                    elif permutation==1:
+                        hadnonbjet0 = jets[2]
+                        hadnonbjet1 = jets[0]
+                        bnvjet1 = jets[1]
+                    elif permutation==2:
+                        hadnonbjet0 = jets[1]
+                        hadnonbjet1 = jets[2]
+                        bnvjet1 = jets[0]
                 for lepton in allmuons:
-                    #print("--------")
-                    #print(np.array(jets).transpose()[0])
 
-                    # STILL WANT TO LOOK AT DISTRIBUTION OF MOMENTA FOR THE JETS
-
-                    haddR0 = tbt.deltaR(jets[0][5:],jets[1][5:])
-                    haddR1 = tbt.deltaR(jets[0][5:],bjet[5:])
-                    haddR2 = tbt.deltaR(jets[1][5:],bjet[5:])
+                    haddR0 = tbt.deltaR(hadnonbjet0[5:],hadnonbjet1[5:])
+                    haddR1 = tbt.deltaR(hadnonbjet0[5:],bjet[5:])
+                    haddR2 = tbt.deltaR(hadnonbjet1[5:],bjet[5:])
 
                     # Make sure the jets are not so close that they're almost merged!
                     if haddR0>0.05 and haddR1>0.05 and haddR2>0.05:
 
-                        hadWmass = tbt.invmass(jets[0:2])
-                        hadtopmass = tbt.invmass([jets[0],jets[1],bjet])
-                        hadtopp4 = np.array(jets[0]) + np.array(jets[1]) + np.array(bjet)
+                        hadWmass = tbt.invmass([hadnonbjet0,hadnonbjet1])
+                        hadtopmass = tbt.invmass([hadnonbjet0,hadnonbjet1,bjet])
+                        hadtopp4 = np.array(hadnonbjet0) + np.array(hadnonbjet1) + np.array(bjet)
 
-                        mass = tbt.invmass([jets[0],bjet])
+                        mass = tbt.invmass([hadnonbjet0,bjet])
                         hadtop01 = mass#**2
-                        mass = tbt.invmass([jets[1],bjet])
+                        mass = tbt.invmass([hadnonbjet1,bjet])
                         hadtop02 = mass#**2
-                        mass = tbt.invmass([jets[0],jets[1]])
+                        mass = tbt.invmass([hadnonbjet0,hadnonbjet1])
                         hadtop12 = mass#**2
-
-                        # Now look at the BNV 
-                        bnvjet0 = jets[2]
-                        #bnvjet1 = jets[3]
-                        bnvjet1 = bjetpairs[1]
 
                         bnvcsv0 = bnvjet0[-1]
                         bnvcsv1 = bnvjet1[-1]

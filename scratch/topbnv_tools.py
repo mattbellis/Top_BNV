@@ -587,6 +587,97 @@ def match_up_gen_quark_with_jets(genquark, recojets, jetptcut=0):
     
 
 
+################################################################################
+'''
+def return_event_hypothesis(leptons,bjets,nonbjets):
+
+    # We assume that the leptons/jets are arrays with the following information
+    # e,px,py,pz, pt,eta,phi, csv (for jets)
+
+    # Return information:
+    # hadtopmass, bnvtopmass, top-angles, Wmass, leptonpt, hadjetidx,bnvjetidx,lepidx
+
+    return_vals = [None,None,None,None,None,None,None,None]
+    
+	# We need at least 5 jets (at least 1 b jet) and 1 lepton
+	if len(alljets)<5 or len(leptons)<1 or len(bjets)<2:
+		return return_vals
+
+	ncands = 0
+
+	for bjetpairs in combinations(bjets,2):
+
+		bjet = bjetpairs[0]
+		bnvjet0 = bjetpairs[1]
+
+		for jets in combinations(nonbjets,3):
+            # Assign the jets
+            jetidx = [0,1,2]
+			for permutation in range(3):
+				if permutation==0:
+                    jetidx = [0,1,2]
+				elif permutation==1:
+                    jetidx = [2,0,1]
+				elif permutation==2:
+                    jetidx = [1,2,0]
+
+                hadnonbjet0 = jets[jetidx[0]]
+                hadnonbjet1 = jets[jetidx[1]]
+                bnvjet1 = jets[jetidx[2]]
+
+                # First, check the hadronic decay
+                haddR0 = tbt.deltaR(hadnonbjet0[5:],hadnonbjet1[5:])
+                haddR1 = tbt.deltaR(hadnonbjet0[5:],bjet[5:])
+                haddR2 = tbt.deltaR(hadnonbjet1[5:],bjet[5:])
+
+				# Make sure the jets are not so close that they're almost merged!
+				if haddR0>0.05 and haddR1>0.05 and haddR2>0.05:
+
+					hadWmass = tbt.invmass([hadnonbjet0,hadnonbjet1])
+					hadtopmass = tbt.invmass([hadnonbjet0,hadnonbjet1,bjet])
+					hadtopp4 = np.array(hadnonbjet0) + np.array(hadnonbjet1) + np.array(bjet)
+
+					mass = tbt.invmass([hadnonbjet0,bjet])
+					hadtop01 = mass#**2
+					mass = tbt.invmass([hadnonbjet1,bjet])
+					hadtop02 = mass#**2
+					mass = tbt.invmass([hadnonbjet0,hadnonbjet1])
+					hadtop12 = mass#**2
+
+                    # Now for the BNV candidate!
+                    for lepton in leptons:
+
+                        bnvdR0 = tbt.deltaR(bnvjet0[5:],lepton[5:])
+                        bnvdR1 = tbt.deltaR(bnvjet1[5:],lepton[5:])
+                        bnvdR2 = tbt.deltaR(bnvjet0[5:],bnvjet1[5:])
+
+                        # Make sure the jets are not so close that they're almost merged!
+                        if bnvdR0>0.05 and bnvdR1>0.05 and bnvdR2>0.05:
+
+                            mass = tbt.invmass([bnvjet0,lepton])
+                            bnvtop01 = mass#**2
+                            mass = tbt.invmass([bnvjet1,lepton])
+                            bnvtop02 = mass#**2
+                            mass = tbt.invmass([bnvjet0,bnvjet1])
+                            bnvtop12 = mass#**2
+
+                            leppt = lepton[4]
+                            leppmag = np.sqrt(lepton[1]**2 + lepton[2]**2 + lepton[3]**2)
+
+                            bnvtopmass = tbt.invmass([bnvjet0,bnvjet1,lepton])
+                            bnvtopp4 = np.array(bnvjet0[0:4]) + np.array(bnvjet1[0:4]) + np.array(lepton[0:4])
+
+                            if hadtopp4 is not None:
+                                a = tbt.angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
+                                thetatop1top2 = np.cos(a)
+                                #thetatop1top2 = a
+
+                                ncand += 1
 
 
+    return return_vals
+
+
+
+'''
 
