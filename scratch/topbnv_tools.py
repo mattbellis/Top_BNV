@@ -2,7 +2,8 @@ import math
 import numpy as np
 import ROOT 
 import pickle
-import csv
+#import csv
+from itertools import combinations
 
 TWOPI = 2*math.pi
 PI = math.pi
@@ -588,96 +589,113 @@ def match_up_gen_quark_with_jets(genquark, recojets, jetptcut=0):
 
 
 ################################################################################
-'''
-def return_event_hypothesis(leptons,bjets,nonbjets):
+def event_hypothesis(leptons,bjets,nonbjets):
 
     # We assume that the leptons/jets are arrays with the following information
     # e,px,py,pz, pt,eta,phi, csv (for jets)
 
     # Return information:
-    # hadtopmass, bnvtopmass, top-angles, Wmass, leptonpt, hadjetidx,bnvjetidx,lepidx
-
-    return_vals = [None,None,None,None,None,None,None,None]
+    # hadtopmass, bnvtopmass, top-angles, Wmass, leptonpt,bjetidx,nonbjetidx,lepidx,extras
+    return_vals = [[],[],[],[],[],[],[],[],[]]
+    extras = []
     
 	# We need at least 5 jets (at least 1 b jet) and 1 lepton
-	if len(alljets)<5 or len(leptons)<1 or len(bjets)<2:
-		return return_vals
+    if len(nonbjets)<5 or len(bjets)<2 or len(leptons)<1:
+        return return_vals
 
-	ncands = 0
+    ncands = 0
 
-	for bjetpairs in combinations(bjets,2):
+    for bjetpairs in combinations(bjets,2):
 
-		bjet = bjetpairs[0]
-		bnvjet0 = bjetpairs[1]
+        bjetidx = [0,1]
+        for bpermutation in range(2):
+            if bpermutation==0:
+                bjetidx = [0,1]
+            elif bpermutation==1:
+                bjetidx = [1,0]
 
-		for jets in combinations(nonbjets,3):
-            # Assign the jets
-            jetidx = [0,1,2]
-			for permutation in range(3):
-				if permutation==0:
-                    jetidx = [0,1,2]
-				elif permutation==1:
-                    jetidx = [2,0,1]
-				elif permutation==2:
-                    jetidx = [1,2,0]
+            bjet = bjetpairs[bjetidx[0]]
+            bnvjet0 = bjetpairs[bjetidx[1]]
 
-                hadnonbjet0 = jets[jetidx[0]]
-                hadnonbjet1 = jets[jetidx[1]]
-                bnvjet1 = jets[jetidx[2]]
+            for jets in combinations(nonbjets,3):
+                # Assign the jets
+                jetidx = [0,1,2]
+                for permutation in range(3):
+                    if permutation==0:
+                        jetidx = [0,1,2]
+                    elif permutation==1:
+                        jetidx = [2,0,1]
+                    elif permutation==2:
+                        jetidx = [1,2,0]
 
-                # First, check the hadronic decay
-                haddR0 = tbt.deltaR(hadnonbjet0[5:],hadnonbjet1[5:])
-                haddR1 = tbt.deltaR(hadnonbjet0[5:],bjet[5:])
-                haddR2 = tbt.deltaR(hadnonbjet1[5:],bjet[5:])
+                    hadnonbjet0 = jets[jetidx[0]]
+                    hadnonbjet1 = jets[jetidx[1]]
+                    bnvjet1 = jets[jetidx[2]]
 
-				# Make sure the jets are not so close that they're almost merged!
-				if haddR0>0.05 and haddR1>0.05 and haddR2>0.05:
+                    # First, check the hadronic decay
+                    haddR0 = deltaR(hadnonbjet0[5:],hadnonbjet1[5:])
+                    haddR1 = deltaR(hadnonbjet0[5:],bjet[5:])
+                    haddR2 = deltaR(hadnonbjet1[5:],bjet[5:])
 
-					hadWmass = tbt.invmass([hadnonbjet0,hadnonbjet1])
-					hadtopmass = tbt.invmass([hadnonbjet0,hadnonbjet1,bjet])
-					hadtopp4 = np.array(hadnonbjet0) + np.array(hadnonbjet1) + np.array(bjet)
+                    # Make sure the jets are not so close that they're almost merged!
+                    if haddR0>0.05 and haddR1>0.05 and haddR2>0.05:
 
-					mass = tbt.invmass([hadnonbjet0,bjet])
-					hadtop01 = mass#**2
-					mass = tbt.invmass([hadnonbjet1,bjet])
-					hadtop02 = mass#**2
-					mass = tbt.invmass([hadnonbjet0,hadnonbjet1])
-					hadtop12 = mass#**2
+                        hadWmass = invmass([hadnonbjet0,hadnonbjet1])
+                        hadtopmass = invmass([hadnonbjet0,hadnonbjet1,bjet])
+                        hadtopp4 = np.array(hadnonbjet0) + np.array(hadnonbjet1) + np.array(bjet)
 
-                    # Now for the BNV candidate!
-                    for lepton in leptons:
+                        mass = invmass([hadnonbjet0,bjet])
+                        hadtop01 = mass#**2
+                        mass = invmass([hadnonbjet1,bjet])
+                        hadtop02 = mass#**2
+                        mass = invmass([hadnonbjet0,hadnonbjet1])
+                        hadtop12 = mass#**2
 
-                        bnvdR0 = tbt.deltaR(bnvjet0[5:],lepton[5:])
-                        bnvdR1 = tbt.deltaR(bnvjet1[5:],lepton[5:])
-                        bnvdR2 = tbt.deltaR(bnvjet0[5:],bnvjet1[5:])
+                        # Now for the BNV candidate!
+                        for lepidx,lepton in enumerate(leptons):
 
-                        # Make sure the jets are not so close that they're almost merged!
-                        if bnvdR0>0.05 and bnvdR1>0.05 and bnvdR2>0.05:
+                            bnvdR0 = deltaR(bnvjet0[5:],lepton[5:])
+                            bnvdR1 = deltaR(bnvjet1[5:],lepton[5:])
+                            bnvdR2 = deltaR(bnvjet0[5:],bnvjet1[5:])
 
-                            mass = tbt.invmass([bnvjet0,lepton])
-                            bnvtop01 = mass#**2
-                            mass = tbt.invmass([bnvjet1,lepton])
-                            bnvtop02 = mass#**2
-                            mass = tbt.invmass([bnvjet0,bnvjet1])
-                            bnvtop12 = mass#**2
+                            # Make sure the jets are not so close that they're almost merged!
+                            if bnvdR0>0.05 and bnvdR1>0.05 and bnvdR2>0.05:
 
-                            leppt = lepton[4]
-                            leppmag = np.sqrt(lepton[1]**2 + lepton[2]**2 + lepton[3]**2)
+                                mass = invmass([bnvjet0,lepton])
+                                bnvtop01 = mass#**2
+                                mass = invmass([bnvjet1,lepton])
+                                bnvtop02 = mass#**2
+                                mass = invmass([bnvjet0,bnvjet1])
+                                bnvtop12 = mass#**2
 
-                            bnvtopmass = tbt.invmass([bnvjet0,bnvjet1,lepton])
-                            bnvtopp4 = np.array(bnvjet0[0:4]) + np.array(bnvjet1[0:4]) + np.array(lepton[0:4])
+                                leppt = lepton[4]
+                                leppmag = np.sqrt(lepton[1]**2 + lepton[2]**2 + lepton[3]**2)
 
-                            if hadtopp4 is not None:
-                                a = tbt.angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
-                                thetatop1top2 = np.cos(a)
-                                #thetatop1top2 = a
+                                bnvtopmass = invmass([bnvjet0,bnvjet1,lepton])
+                                bnvtopp4 = np.array(bnvjet0[0:4]) + np.array(bnvjet1[0:4]) + np.array(lepton[0:4])
 
-                                ncand += 1
+                                if hadtopp4 is not None:
+                                    a = angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
+                                    thetatop1top2 = np.cos(a)
+                                    #thetatop1top2 = a
+
+
+                                    retbjetidx = 10*bjetidx[0] + bjetidx[1]
+                                    retnonbjetidx = 100*jetidx[0] + 10*jetidx[1] + jetidx[2]
+                                    # hadtopmass, bnvtopmass, top-angles, Wmass, leptonpt,bjetidx,nonbjetidx,lepidx,extras
+                                    extras = [haddR0,haddR1,haddR2,bnvdR0,bnvdR1,bnvdR2,hadtop01,hadtop02,hadtop12,bnvtop01,bnvtop02,bnvtop12]
+                                    return_vals[0].append(hadtopmass)
+                                    return_vals[1].append(bnvtopmass)
+                                    return_vals[2].append(thetatop1top2)
+                                    return_vals[3].append(hadWmass)
+                                    return_vals[4].append(leppt)
+                                    return_vals[5].append(retbjetidx)
+                                    return_vals[6].append(retnonbjetidx)
+                                    return_vals[7].append(lepidx)
+                                    return_vals[8].append(extras)
+
 
 
     return return_vals
 
-
-
-'''
 

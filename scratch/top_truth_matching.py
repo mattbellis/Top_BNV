@@ -76,6 +76,16 @@ def main(filenames,outfilename=None):
     print("Will run over %d entries" % (nentries))
 
 
+    genmuonpt = []
+    genmuone = []
+    recomuonpt = []
+    recomuone = []
+
+    genqpt = []
+    genqe = []
+    recoqpt = []
+    recoqe = []
+
     for i in range(nentries):
 
         if i%10000==0:
@@ -88,6 +98,10 @@ def main(filenames,outfilename=None):
         allmuons = tbt.get_good_muons(tree,ptcut=20)
         #print(allmuons)
         #bjets,nonbjets = tbt.get_top_candidate_jets(alljets,csvcut=0.67)
+        for m in allmuons:
+            recomuonpt.append(m[4])
+            recomuone.append(m[0])
+
 
         gen_b = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0] ]
         gen_nonb = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0] ]
@@ -119,12 +133,18 @@ def main(filenames,outfilename=None):
         for gen in gen_particles:
             if gen['pdg']==-5 and gen['motherpdg']==6:
                 gen_b[1] = gen['p4'][4:]
+                genqe.append(gen['p4'][0])
+                genqpt.append(gen['p4'][4])
                 ib += 1 # Assume we only have 2 b-quarks coming from the tops per event
             elif (np.abs(gen['pdg'])>=1 and np.abs(gen['pdg'])<5) and gen['motherpdg']==6:
                 gen_nonb[inonb] = gen['p4'][4:]
+                genqe.append(gen['p4'][0])
+                genqpt.append(gen['p4'][4])
                 inonb += 1 # Assume we only have 2 b-quarks coming from the tops per event
             elif (np.abs(gen['pdg'])>=11 and np.abs(gen['pdg'])<=18) and gen['motherpdg']==6:
                 gen_lep = gen['p4'][4:]
+                genmuone.append(gen['p4'][0])
+                genmuonpt.append(gen['p4'][4])
 
         genjets.append([gen_b,gen_nonb])
         #print("-----------------------")
@@ -491,7 +511,29 @@ def main(filenames,outfilename=None):
 
     plt.tight_layout()
 
+    plt.figure()
+    plt.subplot(2,2,1)
+    plt.hist(genmuonpt,bins=50,range=(0,400))
+    plt.xlabel(r'Gen muon $p_{\rm T}$')
+    plt.subplot(2,2,2)
+    plt.hist(genmuone,bins=50,range=(0,400))
+    plt.xlabel(r'Gen muon $E$')
 
+    plt.subplot(2,2,3)
+    plt.hist(recomuonpt,bins=50,range=(0,400))
+    plt.xlabel(r'Reco muon $p_{\rm T}$')
+    plt.subplot(2,2,4)
+    plt.hist(recomuone,bins=50,range=(0,400))
+    plt.xlabel(r'Reco muon $E$')
+
+
+    plt.figure()
+    plt.subplot(2,2,1)
+    plt.hist(genqpt,bins=50,range=(0,400))
+    plt.xlabel(r'Gen q $p_{\rm T}$')
+    plt.subplot(2,2,2)
+    plt.hist(genqe,bins=50,range=(0,400))
+    plt.xlabel(r'Gen q $E$')
 
     plt.show()
 

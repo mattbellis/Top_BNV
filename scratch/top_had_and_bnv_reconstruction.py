@@ -72,8 +72,8 @@ def main(filenames,outfilename=None):
 
         tree.GetEntry(i)
 
-        allmuons = tbt.get_good_muons(tree,ptcut=20)
-        alljets = tbt.get_good_jets(tree,ptcut=20)
+        allmuons = tbt.get_good_muons(tree,ptcut=50)
+        alljets = tbt.get_good_jets(tree,ptcut=50)
         bjets,nonbjets = tbt.get_top_candidate_jets(alljets, csvcut=0.87)
 
         njets = len(alljets)
@@ -82,6 +82,56 @@ def main(filenames,outfilename=None):
 
         metpt = tree.metpt
 
+        #extras = [haddR0,haddR1,haddR2,bnvdR0,bnvdR1,bnvdR2,hadtop01,hadtop02,hadtop12,bnvtop01,bnvtop02,bnvtop12]
+        topology = tbt.event_hypothesis(allmuons,bjets,nonbjets)
+
+        for hadtopmass, bnvtopmass, thetatop1top2, hadWmass, leppt, bjetidx, nonbjetidx, lepidx, extras in zip(*topology[:]):
+            #print(hadtopmass)
+
+            ncands = np.zeros(ncuts,dtype=int)
+            # MAKE SOME CUTS AND STORE THE VARIABLES
+            cut1 = hadWmass>60 and hadWmass<100
+            #cut2 = thetatop1top2>2.8
+            cut2 = thetatop1top2<-0.90
+            #cut3 = bnvcsv0>0.87 or bnvcsv1>0.87
+            #cut4 = ncharged>5
+
+            cuts = [1, cut1, cut1*cut2]#, cut1*cut2*cut3]
+            for icut,cut in enumerate(cuts):
+                if cut:
+                    plotvars["njets"]["values"][icut].append(njets)
+                    plotvars["nbjets"]["values"][icut].append(nbjets)
+                    plotvars["wmass"]["values"][icut].append(hadWmass)
+                    #plotvars["wdR"]["values"][icut].append(haddR0)
+                    plotvars["topmass"]["values"][icut].append(hadtopmass)
+                    #plotvars["topdR_bnb"]["values"][icut].append(haddR0)
+                    #plotvars["topdR_nbnb"]["values"][icut].append(haddR1)
+                    #plotvars["topdR_nbnb"]["values"][icut].append(haddR2)
+
+                    #plotvars["top01"]["values"][icut].append(hadtop01)
+                    #plotvars["top02"]["values"][icut].append(hadtop02)
+                    #plotvars["top12"]["values"][icut].append(hadtop12)
+
+                    plotvars["bnvtopmass"]["values"][icut].append(bnvtopmass)
+
+                    #plotvars["bnvtop01"]["values"][icut].append(bnvtop01)
+                    #plotvars["bnvtop02"]["values"][icut].append(bnvtop02)
+                    #plotvars["bnvtop12"]["values"][icut].append(bnvtop12)
+
+                    plotvars["thetatop1top2"]["values"][icut].append(thetatop1top2)
+
+                    plotvars["leppt"]["values"][icut].append(leppt)
+                    #plotvars["leppmag"]["values"][icut].append(leppmag)
+
+                    plotvars["metpt"]["values"][icut].append(metpt)
+
+                    ncands[icut] += 1
+
+            # Fill the number of candidates now
+            for icut in range(len(cuts)):
+                plotvars["ncands"]["values"][icut].append(ncands[icut])
+
+        '''
         # We need at least 5 jets (at least 1 b jet) and 1 lepton
         if len(alljets)<5 or len(allmuons)<1 or len(bjets)<2:
             continue
@@ -195,6 +245,7 @@ def main(filenames,outfilename=None):
         # Fill the number of candidates now
         for icut in range(len(cuts)):
             plotvars["ncands"]["values"][icut].append(ncands[icut])
+        '''
 
 
     ################################################################################
