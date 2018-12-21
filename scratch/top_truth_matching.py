@@ -98,9 +98,14 @@ def main(filenames,outfilename=None):
         allmuons = tbt.get_good_muons(tree,ptcut=20)
         #print(allmuons)
         #bjets,nonbjets = tbt.get_top_candidate_jets(alljets,csvcut=0.67)
+        tempe = []
         for m in allmuons:
             recomuonpt.append(m[4])
             recomuone.append(m[0])
+            tempe.append(m[0])
+        tempe = np.sort(tempe)
+        print(tempe)
+        #print(tempe[-2:])
 
 
         gen_b = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0] ]
@@ -178,7 +183,7 @@ def main(filenames,outfilename=None):
         matchedleptons = [] # 
 
         mj = [ [], [] ] # Hold the tophad_matched jets
-        #print("-----------")
+        #print("============")
         #print(len(alljets))
         for gvals in genjets:
             gen_b,gen_nonb = gvals
@@ -190,6 +195,7 @@ def main(filenames,outfilename=None):
                     matched_jet,dptval,dRval = tbt.match_up_gen_quark_with_jets(gjet, alljets, jetptcut=0)
                     if matched_jet is not None:
                         mj[ig].append(matched_jet)
+                        #print(matched_jet[-1])
                     else:
                         1
                         #print("not matched: ",ig,dptval,dRval,gjet)
@@ -212,6 +218,7 @@ def main(filenames,outfilename=None):
                     matched_jet,dptval,dRval = tbt.match_up_gen_quark_with_jets(gjet, alljets, jetptcut=0)
                     if matched_jet is not None:
                         bnvmj[ig] = matched_jet
+                        #print(matched_jet[-1])
                     else:
                         1
                         #print("not matched: ",ig,dptval,dRval,gjet)

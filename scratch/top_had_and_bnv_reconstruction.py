@@ -4,6 +4,7 @@ import sys
 import topbnv_tools as tbt
 
 import numpy as np
+from numpy import floor
 import math
 import matplotlib.pylab as plt
 
@@ -18,6 +19,13 @@ from collections import OrderedDict
 from itertools import combinations
 
 import lichen.lichen as lch
+
+def unpack_idx(num,digits=2):
+    vals = []
+    for i in range(digits,0,-1):
+        vals.append(int(floor(num%(10**i)/10**(i-1))))
+
+    return vals
 
 
 ################################################################################
@@ -72,8 +80,8 @@ def main(filenames,outfilename=None):
 
         tree.GetEntry(i)
 
-        allmuons = tbt.get_good_muons(tree,ptcut=50)
-        alljets = tbt.get_good_jets(tree,ptcut=50)
+        allmuons = tbt.get_good_muons(tree,ptcut=20)
+        alljets = tbt.get_good_jets(tree,ptcut=30)
         bjets,nonbjets = tbt.get_top_candidate_jets(alljets, csvcut=0.87)
 
         njets = len(alljets)
@@ -88,15 +96,20 @@ def main(filenames,outfilename=None):
         for hadtopmass, bnvtopmass, thetatop1top2, hadWmass, leppt, bjetidx, nonbjetidx, lepidx, extras in zip(*topology[:]):
             #print(hadtopmass)
 
+            bidx = unpack_idx(bjetidx)
+            #print(bjetidx,bidx)
+            jidx = unpack_idx(nonbjetidx,digits=3)
+            #print(nonbjetidx,jidx)
+
             ncands = np.zeros(ncuts,dtype=int)
             # MAKE SOME CUTS AND STORE THE VARIABLES
             cut1 = hadWmass>60 and hadWmass<100
             #cut2 = thetatop1top2>2.8
-            cut2 = thetatop1top2<-0.90
-            #cut3 = bnvcsv0>0.87 or bnvcsv1>0.87
+            cut2 = thetatop1top2<-0.95
+            cut3 = metpt<20.0
             #cut4 = ncharged>5
 
-            cuts = [1, cut1, cut1*cut2]#, cut1*cut2*cut3]
+            cuts = [1, cut1, cut1*cut2, cut1*cut2*cut3]
             for icut,cut in enumerate(cuts):
                 if cut:
                     plotvars["njets"]["values"][icut].append(njets)

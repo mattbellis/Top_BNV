@@ -337,7 +337,7 @@ def get_top_candidate_jets(alljets, csvcut=0.87):
 
         csv = alljets[n][-1] # The last entry is the csv variable
 
-        if csv>csvcut:
+        if csv>csvcut or csv<-5:
             bjets.append(alljets[n])
         else:
             nonbjets.append(alljets[n])
@@ -605,32 +605,42 @@ def event_hypothesis(leptons,bjets,nonbjets):
 
     ncands = 0
 
-    for bjetpairs in combinations(bjets,2):
+    nbjets = len(bjets)
+    nnonbjets = len(nonbjets)
+
+    #print("---------")
+    for bjetindices in combinations(range(nbjets),2):
 
         bjetidx = [0,1]
         for bpermutation in range(2):
             if bpermutation==0:
-                bjetidx = [0,1]
+                bjetidx = [bjetindices[0],bjetindices[1]]
             elif bpermutation==1:
-                bjetidx = [1,0]
+                bjetidx = [bjetindices[1],bjetindices[0]]
 
-            bjet = bjetpairs[bjetidx[0]]
-            bnvjet0 = bjetpairs[bjetidx[1]]
+            #print(bjetidx)
+            bjet =    bjets[bjetidx[0]]
+            bnvjet0 = bjets[bjetidx[1]]
+            #print(bnvjet0[-1],bjet[-1])
 
-            for jets in combinations(nonbjets,3):
+            for jetindices in combinations(range(nnonbjets),3):
                 # Assign the jets
                 jetidx = [0,1,2]
                 for permutation in range(3):
                     if permutation==0:
-                        jetidx = [0,1,2]
+                        jetidx = [jetindices[0],jetindices[1],jetindices[2]]
                     elif permutation==1:
-                        jetidx = [2,0,1]
+                        jetidx = [jetindices[2],jetindices[0],jetindices[1]]
                     elif permutation==2:
-                        jetidx = [1,2,0]
+                        jetidx = [jetindices[1],jetindices[2],jetindices[0]]
 
-                    hadnonbjet0 = jets[jetidx[0]]
-                    hadnonbjet1 = jets[jetidx[1]]
-                    bnvjet1 = jets[jetidx[2]]
+                    #print(jetidx)
+                    hadnonbjet0 = nonbjets[jetidx[0]]
+                    hadnonbjet1 = nonbjets[jetidx[1]]
+                    bnvjet1 =     nonbjets[jetidx[2]]
+
+                    #print(bjet[4],bnvjet0[4],hadnonbjet0[4],hadnonbjet1[4],bnvjet1[4])
+                    #print(bjet[-1],bnvjet0[-1],hadnonbjet0[-1],hadnonbjet1[-1],bnvjet1[-1])
 
                     # First, check the hadronic decay
                     haddR0 = deltaR(hadnonbjet0[5:],hadnonbjet1[5:])
@@ -659,7 +669,12 @@ def event_hypothesis(leptons,bjets,nonbjets):
                             bnvdR2 = deltaR(bnvjet0[5:],bnvjet1[5:])
 
                             # Make sure the jets are not so close that they're almost merged!
-                            if bnvdR0>0.05 and bnvdR1>0.05 and bnvdR2>0.05:
+                            # Should I also do this here for the muons?
+                            # Not doing lepton cleaning right now. Need to make sure DeltaR betwen
+                            # jets and leptons is>0.4.
+                            # https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
+                            # TRYING DIFFERENT THINGS
+                            if bnvdR0>0.20 and bnvdR1>0.20 and bnvdR2>0.05:
 
                                 mass = invmass([bnvjet0,lepton])
                                 bnvtop01 = mass#**2
