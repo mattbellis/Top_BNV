@@ -10,7 +10,11 @@ Filters out basic information about
 
 **crab files used**
 
+Check out this code!
 
+```
+sh myscript_that_is_one_line_whatever.sh
+```
 
 
 # Step 2
