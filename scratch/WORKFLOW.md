@@ -29,5 +29,12 @@ Copy the output from condor to Siena HPC
 
 # Step 4
 
-Various scripts to run over this. 
+Various scripts to run over this. Can do this one of two different ways.
+
+## Exploratory
+These are scripts that just run over the files producing plots
+
+## Massive cluster work on Siena's HPC
+
+Produces text files of histogram entries. 
 
