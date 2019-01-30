@@ -18,20 +18,22 @@ sh myscript_that_is_one_line_whatever.sh
 
 ### Skim the data
 
-This will run ```topbnv_fwlite.py``` over all the data. 
+This procedure will run ```topbnv_fwlite.py``` over all the data. 
 
-Make sure there is a directory for the trigger for data.
+Make sure there is a directory for the trigger for data (either **SingleMuon** or **SingleElectron**).
 ```
-/uscms/homes/m/mbellis/CMSSW_8_0_26/src/Analysis/Top_BNV/scratch/SingleMuon
+/store/user/mbellis/MC/SingleMuon
 
-/uscms/homes/m/mbellis/CMSSW_8_0_26/src/Analysis/Top_BNV/scratch/SingleMuon
-
+/store/user/mbellis/MC/SingleElectron
 ```
+
+
 The files of interest to this next part are
 
 ```
 submit_many_crab_jobs.csh
 crab_submit_data.py
+crab_submit_data_Electron.py
 
 execute_for_crab_data.sh
 execute_for_crab_data.py
@@ -55,7 +57,51 @@ Then you can run
 csh submit_many_crab_jobs.csh crab_submit_data.py
 ```
 
+or 
 
+```
+csh submit_many_crab_jobs.csh crab_submit_data_Electron.py
+```
+
+
+
+### Skim the Monte Carlo
+
+Make sure there is a directory for the trigger for data (either **SingleMuon** or **SingleElectron**).
+```
+/store/user/mbellis/MC/SingleMuon
+
+/store/user/mbellis/MC/SingleElectron
+```
+
+The relevant files are
+
+```
+submit_many_crab_jobs.csh
+crab_submit_MC.py
+
+execute_for_crab.sh
+execute_for_crab.py
+```
+To get the trigger right, you want to edit ```crab_submit_MC.py``` where it says 
+
+```
+#request_name = "bellis_SingleElectron_%s" % (dataset[0])
+request_name = "bellis_SingleMuon_%s" % (dataset[0])
+```
+and
+```
+#config.Data.outLFNDirBase = '/store/user/%s/MC/SingleElectron' % (getUsernameFromSiteDB())
+config.Data.outLFNDirBase = '/store/user/%s/MC/SingleMuon' % (getUsernameFromSiteDB())
+```
+Which is where it writes the output. 
+
+You also need to edit ```execute_for_crab.py``` to check what trigger is set. 
+
+```
+sys.argv.append('SingleMuon')
+#sys.argv.append('SingleElectron')
+```
 
 
 
