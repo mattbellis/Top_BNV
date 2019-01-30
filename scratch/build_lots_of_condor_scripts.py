@@ -16,7 +16,7 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2):
 
     #outfile = "%s_%s_%s_%s.pkl" % (s0,s1,s2, tag)
     outfile = "DATA_DATASET_%s_%s.root" % (s0, tag)
-    if topdir.find('SingleMuon')>=0:
+    if topdir.find('SingleMuon_Run')>=0:
         outfile = "DATA_DATASET_%s_%s.root" % (s0, tag)
     else:
         outfile = "MC_DATASET_%s_%s.root" % (s0, tag)
@@ -61,7 +61,7 @@ subdirs0 = os.listdir(topdir)
 
 #################################################################
 # Make the output directory because we know where this will go
-outputdir = "/uscms/homes/m/mbellis/eos_store/script_output_files_NEW/{0}".format(topdir_lastname)
+outputdir = "/uscms/homes/m/mbellis/eos_store/script_output_files_Nov2018/{0}".format(topdir_lastname)
 
 print("Making output directory;")
 print(outputdir)

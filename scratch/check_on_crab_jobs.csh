@@ -1,4 +1,5 @@
-foreach file(crab_projects/*)
+#foreach file(crab_projects/*)
+foreach file($*)
 
     echo 
     echo "========================================"

@@ -19,7 +19,7 @@ print(outfiletag)
 #topdir_lastname = os.getcwd().split('/')[-1]
 #os.chdir(pwd)
 
-outputdir = "/uscms/homes/m/mbellis/eos_store/script_output_files_NEW/{0}".format(outfiletag)
+outputdir = "/uscms/homes/m/mbellis/eos_store/script_output_files_Nov2018/{0}".format(outfiletag)
 
 print(outputdir)
 
