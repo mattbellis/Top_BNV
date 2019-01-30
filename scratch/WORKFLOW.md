@@ -16,6 +16,48 @@ Check out this code!
 sh myscript_that_is_one_line_whatever.sh
 ```
 
+### Skim the data
+
+This will run ```topbnv_fwlite.py``` over all the data. 
+
+Make sure there is a directory for the trigger for data.
+```
+/uscms/homes/m/mbellis/CMSSW_8_0_26/src/Analysis/Top_BNV/scratch/SingleMuon
+
+/uscms/homes/m/mbellis/CMSSW_8_0_26/src/Analysis/Top_BNV/scratch/SingleMuon
+
+```
+The files of interest to this next part are
+
+```
+submit_many_crab_jobs.csh
+crab_submit_data.py
+
+execute_for_crab_data.sh
+execute_for_crab_data.py
+```
+
+As of now, the file ```crab_submit_data.py``` has the trigger hard coded in the dataset name. For example
+
+```
+/SingleMuon/Run2016B-03Feb2017_ver2-v2/MINIAOD
+```
+
+You want to edit ```submit_many_crab_jobs.csh``` so that it starts and ends with whichever
+datasets in ```crab_submit-data.py``` you want to submit. 
+
+Make sure that in the ```crab_project``` subdirectory, there are no directories
+with the same naming as what we're about to do. 
+
+Then you can run
+
+```
+csh submit_many_crab_jobs.csh crab_submit_data.py
+```
+
+
+
+
 
 # Step 2
 ## Run on LPC cluster with condor
