@@ -103,6 +103,14 @@ sys.argv.append('SingleMuon')
 #sys.argv.append('SingleElectron')
 ```
 
+### Checking on completion of grid jobs
+
+Can run the following script, passing in the directories in ```crab_projects``` that you want to check on. 
+
+```
+csh check_on_crab_jobs.csh crab_projects/crab_bellis_SingleElectron_*
+```
+The script can be modified to also produce the reports (see script). 
 
 
 # Step 2
