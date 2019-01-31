@@ -85,12 +85,12 @@ execute_for_crab.py
 ```
 To get the trigger right, you want to edit ```crab_submit_MC.py``` where it says 
 
-```
+```python
 #request_name = "bellis_SingleElectron_%s" % (dataset[0])
 request_name = "bellis_SingleMuon_%s" % (dataset[0])
 ```
 and
-```
+```python
 #config.Data.outLFNDirBase = '/store/user/%s/MC/SingleElectron' % (getUsernameFromSiteDB())
 config.Data.outLFNDirBase = '/store/user/%s/MC/SingleMuon' % (getUsernameFromSiteDB())
 ```
@@ -98,7 +98,7 @@ Which is where it writes the output.
 
 You also need to edit ```execute_for_crab.py``` to check what trigger is set. 
 
-```
+```python
 sys.argv.append('SingleMuon')
 #sys.argv.append('SingleElectron')
 ```
