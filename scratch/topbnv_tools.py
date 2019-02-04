@@ -596,7 +596,7 @@ def event_hypothesis(leptons,bjets,nonbjets):
 
     # Return information:
     # hadtopmass, bnvtopmass, top-angles, Wmass, leptonpt,bjetidx,nonbjetidx,lepidx,extras
-    return_vals = [[],[],[],[],[],[],[],[],[]]
+    return_vals = [[],[],[],[],[],[],[],[],[],[],[]]
     extras = []
     
 	# We need at least 5 jets (at least 1 b jet) and 1 lepton
@@ -609,6 +609,9 @@ def event_hypothesis(leptons,bjets,nonbjets):
     nnonbjets = len(nonbjets)
 
     #print("---------")
+    # FIRST TRY TO RECONSTRUCT THE HADRONICALLY DECAYING TOP
+    # NEED TO CHECK TO SEE IF THIS WORKS IF THERE IS 1 BJET
+    # For now, we know that the signal has a b-jet on that side.
     for bjetindices in combinations(range(nbjets),2):
 
         bjetidx = [0,1]
@@ -701,13 +704,15 @@ def event_hypothesis(leptons,bjets,nonbjets):
                                     extras = [haddR0,haddR1,haddR2,bnvdR0,bnvdR1,bnvdR2,hadtop01,hadtop02,hadtop12,bnvtop01,bnvtop02,bnvtop12]
                                     return_vals[0].append(hadtopmass)
                                     return_vals[1].append(bnvtopmass)
-                                    return_vals[2].append(thetatop1top2)
-                                    return_vals[3].append(hadWmass)
-                                    return_vals[4].append(leppt)
-                                    return_vals[5].append(retbjetidx)
-                                    return_vals[6].append(retnonbjetidx)
-                                    return_vals[7].append(lepidx)
-                                    return_vals[8].append(extras)
+                                    return_vals[2].append(np.sqrt(hadtopp4[1]**2+hadtopp4[2]**2))
+                                    return_vals[3].append(np.sqrt(bnvtopp4[1]**2+bnvtopp4[2]**2))
+                                    return_vals[4].append(thetatop1top2)
+                                    return_vals[5].append(hadWmass)
+                                    return_vals[6].append(leppt)
+                                    return_vals[7].append(retbjetidx)
+                                    return_vals[8].append(retnonbjetidx)
+                                    return_vals[9].append(lepidx)
+                                    return_vals[10].append(extras)
 
 
 

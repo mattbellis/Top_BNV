@@ -38,12 +38,14 @@ def main(filenames,outfilename=None):
     plotvars["wmass"] = {"values":[], "xlabel":r"Mass $W$-cand [GeV/c$^{2}$]", "ylabel":r"# entries","range":(0,250)}
     plotvars["wdR"] = {"values":[], "xlabel":r"$\Delta R_{\rm W-jets}$ []", "ylabel":r"# entries","range":(0.0,6.3)}
     plotvars["topmass"] = {"values":[], "xlabel":r"Mass $t$-cand (had) [GeV/c$^{2}$]", "ylabel":r"# entries","range":(0,400)}
+    plotvars["toppt"] = {"values":[], "xlabel":r"p$_{T}$ $t$-cand (had) [GeV/c]", "ylabel":r"# entries","range":(0,300)}
     plotvars["topdR_bnb"] = {"values":[], "xlabel":r"$\Delta R$ $t$ cand, $b$ and non-$b$ jets []", "ylabel":r"# entries","range":(0,6.3)}
     plotvars["topdR_nbnb"] = {"values":[], "xlabel":r"$\Delta R$ $t$ cand, non-$b$ jets []", "ylabel":r"# entries","range":(0,6.3)}
     plotvars["top01"] = {"values":[], "xlabel":r"Mass $t$-jets, 0, 1 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
     plotvars["top02"] = {"values":[], "xlabel":r"Mass $t$-jets, 0, 2 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
     plotvars["top12"] = {"values":[], "xlabel":r"Mass $t$-jets, 1, 2 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
     plotvars["bnvtopmass"] = {"values":[], "xlabel":r"Mass $t$-cand (BNV) [GeV/c$^{2}$]", "ylabel":r"# entries","range":(0,400)}
+    plotvars["bnvtoppt"] = {"values":[], "xlabel":r"p$_{T}$ $t$-cand (BNV) [GeV/c]", "ylabel":r"# entries","range":(0,300)}
     plotvars["bnvtop01"] = {"values":[], "xlabel":r"Mass $t$-jets, 0 and 1 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
     plotvars["bnvtop02"] = {"values":[], "xlabel":r"Mass $t$-jets, 0 and 2 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
     plotvars["bnvtop12"] = {"values":[], "xlabel":r"Mass $t$-jets, 1 and 2 [GeV/c$^2$]", "ylabel":r"# entries","range":(0,200)}
@@ -93,7 +95,7 @@ def main(filenames,outfilename=None):
         #extras = [haddR0,haddR1,haddR2,bnvdR0,bnvdR1,bnvdR2,hadtop01,hadtop02,hadtop12,bnvtop01,bnvtop02,bnvtop12]
         topology = tbt.event_hypothesis(allmuons,bjets,nonbjets)
 
-        for hadtopmass, bnvtopmass, thetatop1top2, hadWmass, leppt, bjetidx, nonbjetidx, lepidx, extras in zip(*topology[:]):
+        for hadtopmass, bnvtopmass, hadtoppt, bnvtoppt, thetatop1top2, hadWmass, leppt, bjetidx, nonbjetidx, lepidx, extras in zip(*topology[:]):
             #print(hadtopmass)
 
             bidx = unpack_idx(bjetidx)
@@ -117,6 +119,7 @@ def main(filenames,outfilename=None):
                     plotvars["wmass"]["values"][icut].append(hadWmass)
                     #plotvars["wdR"]["values"][icut].append(haddR0)
                     plotvars["topmass"]["values"][icut].append(hadtopmass)
+                    plotvars["toppt"]["values"][icut].append(hadtoppt)
                     #plotvars["topdR_bnb"]["values"][icut].append(haddR0)
                     #plotvars["topdR_nbnb"]["values"][icut].append(haddR1)
                     #plotvars["topdR_nbnb"]["values"][icut].append(haddR2)
@@ -126,6 +129,7 @@ def main(filenames,outfilename=None):
                     #plotvars["top12"]["values"][icut].append(hadtop12)
 
                     plotvars["bnvtopmass"]["values"][icut].append(bnvtopmass)
+                    plotvars["bnvtoppt"]["values"][icut].append(bnvtoppt)
 
                     #plotvars["bnvtop01"]["values"][icut].append(bnvtop01)
                     #plotvars["bnvtop02"]["values"][icut].append(bnvtop02)

@@ -54,6 +54,8 @@ def main(filenames,outfilename=None):
     thetatop1top2 = []
     hadjetspt = []
     bnvjetspt = []
+    top1pt = []
+    top2pt = []
 
     leppt = []
 
@@ -104,7 +106,7 @@ def main(filenames,outfilename=None):
             recomuone.append(m[0])
             tempe.append(m[0])
         tempe = np.sort(tempe)
-        print(tempe)
+        #print(tempe)
         #print(tempe[-2:])
 
 
@@ -332,6 +334,8 @@ def main(filenames,outfilename=None):
                     #print("here")
                     #print(a)
                     met.append(tree.metpt)
+                    top1pt.append(np.sqrt(hadtopp4[1]**2 + hadtopp4[2]**2))
+                    top2pt.append(np.sqrt(bnvtopp4[1]**2 + bnvtopp4[2]**2))
 
     for i in range(0,len(vals)):
         vals[i] = np.array(vals[i])
@@ -428,6 +432,15 @@ def main(filenames,outfilename=None):
     plt.subplot(3,2,6)
     plt.hist(bnvtopmass,bins=100,range=(0,400))
     plt.xlabel("BNV top candidate")
+
+    plt.figure()
+    plt.subplot(1,2,1)
+    plt.hist(top1pt,bins=100,range=(0,400))
+    plt.xlabel("Had top candidate pT")
+
+    plt.subplot(1,2,2)
+    plt.hist(top2pt,bins=100,range=(0,400))
+    plt.xlabel("BNV top candidate pT")
 
 
     ####################### Dal cut
