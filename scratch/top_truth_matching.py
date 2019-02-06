@@ -345,6 +345,9 @@ def main(filenames,outfilename=None):
     #print('not tophad_matched: ',len(vals[1][vals[1]>0.67]),len(vals[1]))
 
     print()
+    if total_signal==0:
+        total_signal = 1
+        print("TOTAL SIGNAL IS 0!")
     print("Matched both: {0} out of {1} (eff: {4:0.3f}\tTotal entries: {2} ({3:.3f})".format(len(thetatop1top2),total_signal,nentries, total_signal/nentries,len(thetatop1top2)/total_signal))
 
     pcut = 20

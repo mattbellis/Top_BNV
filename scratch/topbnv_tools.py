@@ -556,8 +556,11 @@ def lorentz_boost(pmom, rest_frame):
     return boosted_vec
 ################################################################################
 
-def match_up_gen_quark_with_jets(genquark, recojets, jetptcut=0):
-    dptval = 0
+# Drawing from here
+# https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePATMCMatching#Match_to_generator_particles
+# https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/TagAndProbe/plugins/ObjectViewMatcher.cc
+def match_up_gen_quark_with_jets(genquark, recojets, jetptcut=0, maxdR=0.4, maxdPtRel=3.0):
+    dPtRel = 0
     dRval = 0
     mindR = 1e6
     mindRidx = -1
@@ -569,11 +572,11 @@ def match_up_gen_quark_with_jets(genquark, recojets, jetptcut=0):
         etaph1 = [genquark[1],genquark[2]]
 
         dR = deltaR(etaph0,etaph1)
-        dpt = math.fabs(jet[4]-genquark[0]) # Pts
+        dptr = math.fabs(jet[4]-genquark[0])/SDFHLFHSKLJDFHKJDHLKSJDHFKJSHDFH # PtRel
 
         if dR<mindR:
             dRval = dR
-            dptval = dpt
+            dPtRel = dptr
             mindR = dR
             mindRidx = j
 
