@@ -15,6 +15,21 @@ pdgcodes = {6:"t", -6:"tbar"}
 # https://root.cern.ch/doc/master/TLorentzVector_8h_source.html#l00463
 # https://root.cern.ch/doc/master/TVector2_8cxx_source.html#l00101
 ################################################################################
+def angle_mod_pi(angle):
+
+    # First get it between 0 and 2 pi
+    angle = angle_mod_2pi(angle)
+    
+    if angle>PI:
+        angle = TWOPI - angle
+
+    return angle
+
+################################################################################
+# Pass in an angle in radians and get an angle back between 0 and pi
+# https://root.cern.ch/doc/master/TLorentzVector_8h_source.html#l00463
+# https://root.cern.ch/doc/master/TVector2_8cxx_source.html#l00101
+################################################################################
 def angle_mod_2pi(angle):
 
     while angle >= TWOPI:
@@ -29,7 +44,7 @@ def angle_mod_2pi(angle):
 # We pass in two array-like objects that represent eta and phi of two vectors
 # https://root.cern.ch/doc/master/TLorentzVector_8h_source.html#l00463
 ################################################################################
-def deltaR(etph0, etph1,constrain0pi=True):
+def deltaR(etph0, etph1):
 
     # constrain0pi will make sure that dR is between 0 and pi, rather than
     # 0 and 2pi, if True.
@@ -44,6 +59,8 @@ def deltaR(etph0, etph1,constrain0pi=True):
     etph1[1] = angle_mod_2pi(etph1[1])
 
     dphi = etph0[1] - etph1[1]
+    # Make sure this is between 0 and pi
+    dphi = angle_mod_pi(dphi)
 
     dR =  math.sqrt(deta*deta + dphi*dphi)
     #print(dR)
@@ -51,11 +68,13 @@ def deltaR(etph0, etph1,constrain0pi=True):
     '''
     if dR>TWOPI:
         #olddR = dR
+        print("TWOPI: ",dR, dR-TWOPI)
         dR = dR - TWOPI
         #print(olddR,dR)
 
     if dR>PI:
         if constrain0pi:
+            #print(dR,TWOPI-dR)
             dR = TWOPI-dR
     '''
 
@@ -110,6 +129,15 @@ def invmass(p4s):
     else:
         return -math.sqrt(-m2)
 
+
+################################################################################
+# Assume we pass in a list of 4 numbers in either a list or array
+################################################################################
+def calc_pT(p4):
+
+    pt = p4[1]*p4[1] + p4[2]*p4[2] 
+
+    return math.sqrt(pt)
 
 ################################################################################
 # Pass in x,y,z and return the pt, eta, and phi components of momentum
@@ -559,35 +587,44 @@ def lorentz_boost(pmom, rest_frame):
 # Drawing from here
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePATMCMatching#Match_to_generator_particles
 # https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/TagAndProbe/plugins/ObjectViewMatcher.cc
-def match_up_gen_quark_with_jets(genquark, recojets, jetptcut=0, maxdR=0.4, maxdPtRel=3.0):
-    dPtRel = 0
+def match_up_gen_with_reco(gen, recos, ptcut=0, maxdR=0.4, maxdPtRel=3.0):
+    dPtRelval = 0
     dRval = 0
     mindR = 1e6
     mindRidx = -1
 
-    matched_jet = None
+    # gen: pt, eta, phi
+    # reco: e, px, py, pz, pt, eta, phi
 
-    for j,jet in enumerate(recojets):
-        etaph0 = [jet[5],jet[6]] # eta and phi
-        etaph1 = [genquark[1],genquark[2]]
+    matched_reco = None
+
+    for j,reco in enumerate(recos):
+        etaph0 = [reco[5],reco[6]] # eta and phi
+        etaph1 = [gen[1],gen[2]]
 
         dR = deltaR(etaph0,etaph1)
-        dptr = math.fabs(jet[4]-genquark[0])/SDFHLFHSKLJDFHKJDHLKSJDHFKJSHDFH # PtRel
+        # relative Delta pT
+        #print(j,gen)
+        dPtRel = math.fabs(reco[4]-gen[0])/gen[0] # PtRel
 
         if dR<mindR:
             dRval = dR
-            dPtRel = dptr
+            dPtRelval = dPtRel
             mindR = dR
             mindRidx = j
 
-    if mindRidx>=0 and recojets[mindRidx][4]>jetptcut: # Cut on pt maybe
-        jet = recojets[mindRidx]
-        if dptval<100 and dRval<0.3:
-            matched_jet = jet
-            recojets.remove(jet) # Remove the jet from the list if it was matched with a gen quark
+    if dRval>maxdR or dPtRelval>maxdPtRel:
+        return matched_reco,-1,-1
+
+    if mindRidx>=0 and recos[mindRidx][4]>ptcut: # Cut on pt maybe
+        reco = recos[mindRidx]
+        matched_reco = reco
+        recos.remove(reco) # Remove the reco from the list if it was matched with a gen 
+        return matched_reco,dPtRelval,dRval
+    else:
+        return matched_reco,-1,-1
 
     
-    return matched_jet,dptval,dRval
     
 
 
