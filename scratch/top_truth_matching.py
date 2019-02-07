@@ -21,6 +21,24 @@ import lichen.lichen as lch
 ################################################################################
 def main(filenames,outfilename=None):
 
+    output_data = {}
+    output_data["had_m"] = []
+    output_data["had_j12_m"] = []
+    output_data["had_j13_m"] = []
+    output_data["had_j23_m"] = []
+    output_data["had_dR12_lab"] = []
+    output_data["had_dR13_lab"] = []
+    output_data["had_dR23_lab"] = []
+    output_data["had_dR1_23_lab"] = []
+    output_data["had_dRPtTop"] = []
+    output_data["had_dRPtW"] = []
+    output_data["had_dTheta12"] = []
+    output_data["had_dTheta13"] = []
+    output_data["had_dTheta23"] = []
+    output_data["had_j1_CSV"] = []
+    output_data["had_j2_CSV"] = []
+    output_data["had_j3_CSV"] = []
+
     # Loop over the files.
     vals = [[],[],[],[],[],[],[]]
 
