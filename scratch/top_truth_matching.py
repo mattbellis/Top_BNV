@@ -32,9 +32,9 @@ def main(filenames,outfilename=None):
     output_data["had_dR1_23_lab"] = []
     output_data["had_dRPtTop"] = []
     output_data["had_dRPtW"] = []
-    output_data["had_dTheta12"] = []
-    output_data["had_dTheta13"] = []
-    output_data["had_dTheta23"] = []
+    output_data["had_dTheta12_rest"] = []
+    output_data["had_dTheta13_rest"] = []
+    output_data["had_dTheta23_rest"] = []
     output_data["had_j1_CSV"] = []
     output_data["had_j2_CSV"] = []
     output_data["had_j3_CSV"] = []
@@ -244,6 +244,7 @@ def main(filenames,outfilename=None):
             dR1 = tbt.deltaR(j1[5:],j0[5:])
             dR2 = tbt.deltaR(j2[5:],j0[5:])
 
+
             # Make sure the jets are not so close that they're almost merged!
             if dR0>0.05 and dR1>0.05 and dR2>0.05:
 
@@ -273,6 +274,10 @@ def main(filenames,outfilename=None):
                 hadbjetpt.append(j0[4])
                 hadjet0pt.append(j1[4])
                 hadjet1pt.append(j2[4])
+
+                # GET ML DATA
+                tbt.vals_for_ML_training([j0,j1,j2],output_data)
+                #print(output_data)
 
             #print(jet)
         #'''
@@ -355,6 +360,12 @@ def main(filenames,outfilename=None):
             print(passed/tot,passed,tot,i)
 
 
+
+    ################################################################################
+    # Write the ML output to a pickle file
+    ################################################################################
+    ml_file = open('signal_ML_data.pickle', 'wb')
+    pickle.dump(output_data, ml_file)
 
     ################################################################################
     print("nentries: {}   len(matched bjets): {}".format(nentries,len(vals[0])))

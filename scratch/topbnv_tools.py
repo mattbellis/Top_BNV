@@ -5,6 +5,8 @@ import pickle
 #import csv
 from itertools import combinations
 
+from operator import itemgetter
+
 TWOPI = 2*math.pi
 PI = math.pi
 
@@ -757,5 +759,59 @@ def event_hypothesis(leptons,bjets,nonbjets):
 
 
     return return_vals
+
+
+################################################################################
+def vals_for_ML_training(jets,output_data):
+
+    ######### DUMP SOME INFO FOR ML TRAINING ########################
+    #print('-------------')
+    #for s in jets:
+    #print(s[4],s)
+    jets.sort(key=itemgetter(4)) # Sort by pT, the 4 (5th) index
+    jets.reverse()
+    #for s in jets:
+    #print(s[4],s)
+    j1 = jets[0]
+    j2 = jets[1]
+    j3 = jets[2]
+
+    mass = invmass([j1,j2,j3])
+    output_data['had_m'].append(mass)
+
+    mass = invmass([j1,j2])
+    output_data['had_j12_m'].append(mass**2)
+    mass = invmass([j1,j3])
+    output_data['had_j13_m'].append(mass**2)
+    mass = invmass([j2,j3])
+    output_data['had_j23_m'].append(mass**2)
+
+    # LAB FRAME ANGLES
+    dR = deltaR(j1[5:],j2[5:])
+    output_data['had_dR12_lab'].append(dR)
+    dR = deltaR(j1[5:],j3[5:])
+    output_data['had_dR13_lab'].append(dR)
+    dR = deltaR(j2[5:],j3[5:])
+    output_data['had_dR23_lab'].append(dR)
+    # MISSING ONE HERE
+
+    # REST FRAME
+    topp4 = j1[0:4]+j2[0:4]+j3[0:4]
+    topmass = 172.44
+    topp4[0] = np.sqrt(topmass**2 + topp4[1]**2 + topp4[2]**2 + topp4[3]**2)
+    rj1 = lorentz_boost(j1[0:4],topp4)
+    rj2 = lorentz_boost(j2[0:4],topp4)
+    rj3 = lorentz_boost(j3[0:4],topp4)
+    dTheta = angle_between_vectors(rj1[1:4],rj2[1:4])
+    output_data['had_dTheta12_rest'].append(dTheta)
+    dTheta = angle_between_vectors(rj1[1:4],rj3[1:4])
+    output_data['had_dTheta13_rest'].append(dTheta)
+    dTheta = angle_between_vectors(rj2[1:4],rj3[1:4])
+    output_data['had_dTheta23_rest'].append(dTheta)
+
+    # CSV b-tagging variable
+    output_data['had_j1_CSV'].append(j1[-1])
+    output_data['had_j2_CSV'].append(j2[-1])
+    output_data['had_j3_CSV'].append(j3[-1])
 
 
