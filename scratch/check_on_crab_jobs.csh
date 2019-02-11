@@ -7,7 +7,7 @@ foreach file($*)
     echo "---------- STATUS ---------"
     crab status $file
     #echo "---------- RESUBMIT ---------"
-    #crab resubmit $file
+    #crab resubmit -c $file
     #echo 
     #echo "---------- REPORT ---------"
     #crab report $file

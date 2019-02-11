@@ -72,7 +72,7 @@ request_name = "bellis_SingleMuon_%s" % (dataset[0])
 #config.General.requestName = 'bellis_topbnv_TT_TUNE'
 #config.General.requestName = 'bellis_topbnv_RSGluonToTT'
 config.General.requestName = request_name
-config.General.workArea = 'crab_projects'
+config.General.workArea = 'crab_projects/MC'
 config.General.transferOutputs = True
 config.General.transferLogs = True
 
