@@ -101,7 +101,7 @@ def main(filenames,outfilename=None):
     recoqpt = []
     recoqe = []
     
-    #nentries = 100
+    nentries = 100
 
     for i in range(nentries):
 
@@ -405,11 +405,11 @@ def main(filenames,outfilename=None):
     ################################################################################
     # Write the ML output to a pickle file
     ################################################################################
-    ml_file = open('signal_ML_data.pkl', 'wb')
+    ml_file = open('signal_SMALL_ML_data.pkl', 'wb')
     pickle.dump(output_data, ml_file)
     ml_file.close()
 
-    ml_file = open('bkg_ML_data.pkl', 'wb')
+    ml_file = open('bkg_SMALL_ML_data.pkl', 'wb')
     pickle.dump(incorrect_output_data, ml_file)
     ml_file.close()
 
