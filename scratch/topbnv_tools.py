@@ -540,6 +540,15 @@ def chain_pickle_files(filenames, lumi_info=None):
 
     return data,tot_lumi
 
+################################################################################
+# pmag: pass in a 3 vector
+################################################################################
+def pmag(p3):
+    pmag = np.sqrt(p3[0]**2 + p3[1]**2 + p3[2]**2)
+
+    return pmag
+################################################################################
+
 
 ################################################################################
 # Lorentz boost
@@ -764,27 +773,66 @@ def event_hypothesis(leptons,bjets,nonbjets):
 ################################################################################
 def vals_for_ML_training(jets,output_data):
 
-    ######### DUMP SOME INFO FOR ML TRAINING ########################
-    #print('-------------')
-    #for s in jets:
-    #print(s[4],s)
-    jets.sort(key=itemgetter(4)) # Sort by pT, the 4 (5th) index
-    jets.reverse()
-    #for s in jets:
-    #print(s[4],s)
+    # reco jets: e, px, py, pz, pt, eta, phi, csv2
     j1 = jets[0]
     j2 = jets[1]
     j3 = jets[2]
 
+    # REST FRAME
+    topp4 = j1[0:4]+j2[0:4]+j3[0:4]
+    topmass = 172.44
+    topp4[0] = np.sqrt(topmass**2 + topp4[1]**2 + topp4[2]**2 + topp4[3]**2)
+
+    tmp = lorentz_boost(j1[0:4],topp4)
+    rj1 = np.array([tmp.item(0,0),tmp.item(1,0),tmp.item(2,0),tmp.item(3,0)])
+    tmp = lorentz_boost(j2[0:4],topp4)
+    rj2 = np.array([tmp.item(0,0),tmp.item(1,0),tmp.item(2,0),tmp.item(3,0)])
+    tmp = lorentz_boost(j3[0:4],topp4)
+    rj3 = np.array([tmp.item(0,0),tmp.item(1,0),tmp.item(2,0),tmp.item(3,0)])
+
+    rj1pmag = pmag(rj1[1:4])
+    rj2pmag = pmag(rj2[1:4])
+    rj3pmag = pmag(rj3[1:4])
+
+
+
+    ######### DUMP SOME INFO FOR ML TRAINING ########################
+    #print('-------------')
+    #for s in jets:
+    #print(s[4],s)
+
+    # Sort by pt
+    #jets.sort(key=itemgetter(4)) # Sort by pT, the 4 (5th) index
+    #jets.reverse()
+    # Sort by pmag in rest frame
+    #print(rj1pmag)
+    #print(rj1pmag)
+    tmpjets = [j1,j2,j3] 
+    #print("------")
+    #print( [rj1pmag,rj2pmag,rj3pmag] )
+    #print(tmpjets[0],tmpjets[1],tmpjets[2])
+    #list1, list2 = zip(*sorted(zip([j1,j2,j3], [rj1pmag,rj2pmag,rj3pmag])))
+    sortidx = np.argsort( [rj1pmag,rj2pmag,rj3pmag])
+    j1 = tmpjets[sortidx[2]]
+    j2 = tmpjets[sortidx[1]]
+    j3 = tmpjets[sortidx[0]]
+    #print(j1,j2,j3)
+
+    #for s in jets:
+    #print(s[4],s)
+    #j1 = jets[0]
+    #j2 = jets[1]
+    #j3 = jets[2]
+#
     mass = invmass([j1,j2,j3])
     output_data['had_m'].append(mass)
 
     mass = invmass([j1,j2])
-    output_data['had_j12_m'].append(mass**2)
+    output_data['had_j12_m'].append(mass)
     mass = invmass([j1,j3])
-    output_data['had_j13_m'].append(mass**2)
+    output_data['had_j13_m'].append(mass)
     mass = invmass([j2,j3])
-    output_data['had_j23_m'].append(mass**2)
+    output_data['had_j23_m'].append(mass)
 
     # LAB FRAME ANGLES
     dR = deltaR(j1[5:],j2[5:])
@@ -793,15 +841,24 @@ def vals_for_ML_training(jets,output_data):
     output_data['had_dR13_lab'].append(dR)
     dR = deltaR(j2[5:],j3[5:])
     output_data['had_dR23_lab'].append(dR)
-    # MISSING ONE HERE
+    tmp = j2[1:4] + j3[1:4]
+    tmppt,tmpeta,tmpphi = xyzTOetaphi(tmp[0],tmp[1],tmp[2])
+    dR = deltaR(j1[5:],[tmpeta,tmpphi])
+    output_data['had_dR1_23_lab'].append(dR)
 
     # REST FRAME
     topp4 = j1[0:4]+j2[0:4]+j3[0:4]
     topmass = 172.44
     topp4[0] = np.sqrt(topmass**2 + topp4[1]**2 + topp4[2]**2 + topp4[3]**2)
+
     rj1 = lorentz_boost(j1[0:4],topp4)
     rj2 = lorentz_boost(j2[0:4],topp4)
     rj3 = lorentz_boost(j3[0:4],topp4)
+
+    rj1pmag = pmag(rj1[1:4])
+    rj2pmag = pmag(rj2[1:4])
+    rj3pmag = pmag(rj3[1:4])
+
     dTheta = angle_between_vectors(rj1[1:4],rj2[1:4])
     output_data['had_dTheta12_rest'].append(dTheta)
     dTheta = angle_between_vectors(rj1[1:4],rj3[1:4])
@@ -810,8 +867,8 @@ def vals_for_ML_training(jets,output_data):
     output_data['had_dTheta23_rest'].append(dTheta)
 
     # CSV b-tagging variable
-    output_data['had_j1_CSV'].append(j1[-1])
-    output_data['had_j2_CSV'].append(j2[-1])
-    output_data['had_j3_CSV'].append(j3[-1])
+    output_data['had_j1_CSV'].append(j1[7])
+    output_data['had_j2_CSV'].append(j2[7])
+    output_data['had_j3_CSV'].append(j3[7])
 
 

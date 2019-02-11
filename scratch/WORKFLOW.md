@@ -122,6 +122,58 @@ Produces things like
 * W candidate mass
 * Highest muon pT
 
+Start with ```build_lots_of_condor_scripts.py```. For example, to run over the SingleMuon *data*, do
+
+```
+python build_lots_of_condor_scripts.py ~/eos_store/SingleMuon
+```
+
+Before running, you should decide where you want the output to go. 
+There's a line in ```build_lots_of_condor_scripts.py``` that you can edit to set this. 
+
+```
+outputdir = "/uscms/homes/m/mbellis/eos_store/CONDOR_output_files_Feb2019/{0}".format(topdir_lastname)
+```
+
+There is also a line that controls the number of files that each job will run over
+
+```
+files_at_a_time = 100
+```
+
+Before running, you should also make sure the following directories exist. They may wind up holding many files,
+so I've created them under ```~/nobackup``` and soft-linked them to this directory. 
+
+```
+condor_scripts
+condor_log_files
+```
+
+Calling the above will then call ```build_condor_script.py``` for each job so it's worth checking it out
+to make sure it's doing what you want. 
+
+Each condor job will call ```execute_python_on_condor.sh```. This file should be edited to match the same output
+directory as in ```build_lots_of_condor_scripts.py```
+
+```
+echo xrdcp $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_Feb2019/$subdir/.
+     xrdcp $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_Feb2019/$subdir/.
+```
+
+It is ```execute_python_on_condor.py``` that will call ```top_reconstruction_to_run_at_FNAL_over_grid_job_output.py```.
+
+## Status
+
+To check on the status of jobs, from the machine where they were submitted, run
+
+```
+condor_q
+```
+
+***Note***: There are some changes to condor as of Jan 2019 which are addressed [here](https://uscms.org/uscms_at_work/computing/setup/condor_refactor.shtml)
+
+
+
 # Step 3
 
 Copy the output from condor to Siena HPC

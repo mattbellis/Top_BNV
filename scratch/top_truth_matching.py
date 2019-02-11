@@ -14,6 +14,7 @@ import argparse
 from array import array
 
 from collections import OrderedDict
+from itertools import combinations
 
 import lichen.lichen as lch
 
@@ -38,6 +39,10 @@ def main(filenames,outfilename=None):
     output_data["had_j1_CSV"] = []
     output_data["had_j2_CSV"] = []
     output_data["had_j3_CSV"] = []
+
+    incorrect_output_data = {}
+    for key in output_data.keys():
+        incorrect_output_data[key] = []
 
     # Loop over the files.
     vals = [[],[],[],[],[],[],[]]
@@ -95,10 +100,12 @@ def main(filenames,outfilename=None):
     genqe = []
     recoqpt = []
     recoqe = []
+    
+    nentries = 100
 
     for i in range(nentries):
 
-        if i%10000==0:
+        if i%1000==0:
             output = "Event: %d out of %d" % (i,nentries)
             print(output)
 
@@ -202,6 +209,16 @@ def main(filenames,outfilename=None):
             else:
                 recojets[ij] = dummy_jet
 
+        #####################################################################################
+        # Pull the non top jets out of the alljets
+        #####################################################################################
+        #print("------")
+        #if recojets[0] is not None and recojets[1] is not None and recojets[2] is not None:
+            #for r in recojets:
+                #print(r)
+            #print("---")
+            #for r in alljets:
+                #print(r)
         #'''
         #print("---")
         # Get the info about the jets that did not get matched up
@@ -281,7 +298,31 @@ def main(filenames,outfilename=None):
 
             #print(jet)
         #'''
-            
+        #######################################################
+        # Dump wrong combos for training
+        #
+        # First don't worry about substituting anything with the
+        # correct ones. 
+        #######################################################
+        tmpjets = alljets.copy()
+        while None in tmpjets:
+            tmpjets.remove(None)
+        for r in recojets[3:]:
+            if r is not None:
+                tmpjets.append(r.copy())
+        #print("=============================")
+        #for t in tmpjets:
+            #print(t)
+
+        for j0,j1,j2 in combinations(tmpjets,3):
+            #print(j0,j1,j2)
+            tbt.vals_for_ML_training([j0,j1,j2],incorrect_output_data)
+
+        #print("==============")
+        #print(output_data)
+        #print("----")
+        #print(incorrect_output_data)
+
         ###############################
         #'''
         #print("=======================")
@@ -364,8 +405,13 @@ def main(filenames,outfilename=None):
     ################################################################################
     # Write the ML output to a pickle file
     ################################################################################
-    ml_file = open('signal_ML_data.pickle', 'wb')
+    ml_file = open('signal_SMALL_ML_data.pkl', 'wb')
     pickle.dump(output_data, ml_file)
+    ml_file.close()
+
+    ml_file = open('bkg_SMALL_ML_data.pkl', 'wb')
+    pickle.dump(incorrect_output_data, ml_file)
+    ml_file.close()
 
     ################################################################################
     print("nentries: {}   len(matched bjets): {}".format(nentries,len(vals[0])))
@@ -619,7 +665,7 @@ def main(filenames,outfilename=None):
 
     plt.tight_layout()
 
-    plt.show()
+    #plt.show()
 
 
 ################################################################################
