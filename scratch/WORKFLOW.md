@@ -162,6 +162,16 @@ echo xrdcp $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_Feb
 
 It is ```execute_python_on_condor.py``` that will call ```top_reconstruction_to_run_at_FNAL_over_grid_job_output.py```.
 
+## Status
+
+To check on the status of jobs, from the machine where they were submitted, run
+
+```
+condor_q
+```
+
+***Note***: There are some changes to condor as of Jan 2019 which are addressed [here](https://uscms.org/uscms_at_work/computing/setup/condor_refactor.shtml)
+
 
 
 # Step 3
