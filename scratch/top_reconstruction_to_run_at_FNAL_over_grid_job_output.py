@@ -168,9 +168,9 @@ def main(filenames,outfile=None):
 
         tree = infile.Get("T")
 
-        tree.Print()
-        tree.Print("*jet*")
-        exit()
+        #tree.Print()
+        #tree.Print("*jet*")
+        #exit()
 
         nentries = tree.GetEntries()
 
@@ -245,7 +245,7 @@ def main(filenames,outfile=None):
             nbjet = len(bjets) # Number of b jets
             njet = len(nonbjets) # Number of not-b jets
             for n,jet in enumerate(nonbjets):
-                if n<64 and if jet[4]>jetptcut:
+                if n<64 and jet[4]>jetptcut:
                     jete[n] = jet[0]
                     jetpx[n] = jet[1]
                     jetpy[n] = jet[2]
@@ -255,7 +255,7 @@ def main(filenames,outfile=None):
                     jetphi[n] = jet[6]
                     jetcsv[n] = jet[7]
             for n,jet in enumerate(nbjets):
-                if n<64 and if jet[4]>jetptcut:
+                if n<64 and jet[4]>jetptcut:
                     bjete[n] = jet[0]
                     bjetpx[n] = jet[1]
                     bjetpy[n] = jet[2]

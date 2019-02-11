@@ -22,7 +22,9 @@ cmd += "Output = condor_log_files/bellis_%s_$(Cluster)_$(Process).stdout\n" % (o
 cmd += "Error = condor_log_files/bellis_%s_$(Cluster)_$(Process).stderr\n" % (outfile.split('.root')[0])
 cmd += "Log = condor_log_files/bellis_%s_$(Cluster)_$(Process).log\n" % (outfile.split('.root')[0])
 cmd += "notify_user = mbellis@FNAL.GOV\n"
-cmd += "x509userproxy = /tmp/x509up_u47418 \n"
+# No longer need this line 
+# https://uscms.org/uscms_at_work/computing/setup/condor_refactor.shtml
+#cmd += "x509userproxy = /tmp/x509up_u47418 \n"
 #cmd += "Arguments = --outfile %s " % (outfile)
 cmd += "Arguments = %s " % (outfile)
 for infile in infiles:
@@ -42,6 +44,7 @@ outfile.write(cmd)
 outfile.close()
 
 # Submit it
-condor_cmd = ['condor_submit', outfilename]
+condor_cmd = ['sh', 'condor_submit_script.sh', outfilename]
+print(condor_cmd)
 sp.Popen(condor_cmd,0).wait()
 

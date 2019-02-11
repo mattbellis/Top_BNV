@@ -6,6 +6,7 @@ import subprocess as sp
 import commands
 
 # Testing with
+# For data
 # python build_lots_of_condor_scripts.py ~/eos_store/SingleMuon
 
 def write_out_build_file(list_of_files,topdir,s0,s1,s2):
@@ -16,7 +17,8 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2):
 
     #outfile = "%s_%s_%s_%s.pkl" % (s0,s1,s2, tag)
     outfile = "DATA_DATASET_%s_%s.root" % (s0, tag)
-    if topdir.find('SingleMuon_Run')>=0:
+    #if topdir.find('SingleMuon_Run')>=0:
+    if topdir.find('Run2016')>=0:
         outfile = "DATA_DATASET_%s_%s.root" % (s0, tag)
     else:
         outfile = "MC_DATASET_%s_%s.root" % (s0, tag)
@@ -55,19 +57,21 @@ os.chdir(topdir)
 topdir_lastname = os.getcwd().split('/')[-1]
 os.chdir(pwd)
 
+
 subdirs0 = os.listdir(topdir)
 #print(subdirs0)
 #print(topdir_lastname)
 
 #################################################################
 # Make the output directory because we know where this will go
-outputdir = "/uscms/homes/m/mbellis/eos_store/script_output_files_Nov2018/{0}".format(topdir_lastname)
+outputdir = "/uscms/homes/m/mbellis/eos_store/CONDOR_output_files_Feb2019/{0}".format(topdir_lastname)
 
 print("Making output directory;")
 print(outputdir)
 cmds = ['mkdir',outputdir]
 #print(cmds)
 sp.Popen(cmds,0).wait()
+#exit()
 #################################################################
 
 
@@ -153,7 +157,7 @@ for s0 in subdirs0:
                 write_out_build_file(list_of_files,topdir,s0,s1,s2)
 
             
-    #exit()
+    exit()
 
 
 print(topdir)

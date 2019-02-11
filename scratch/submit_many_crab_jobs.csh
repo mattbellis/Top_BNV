@@ -1,5 +1,5 @@
 set infile = $1
-@ number = 0
+@ number = 37
 
 while ( $number < 55 )
 

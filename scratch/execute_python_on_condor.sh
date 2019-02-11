@@ -43,15 +43,15 @@ subdir=`echo $3 | awk -F"/" '{print $(NF-5)}'`
 echo "subdir: "$subdir
 echo $3
 
-#if ( ! -d  root://cmseos.fnal.gov//store/user/mbellis/script_output_files_NEW/$subdir ) then
-#echo xrdfs root://cmseos.fnal.gov//store/user/mbellis/script_output_files_NEW/$subdir mkdir
-     #xrdfs root://cmseos.fnal.gov//store/user/mbellis/script_output_files_NEW/$subdir mkdir
-#echo xrdfs root://cmseos.fnal.gov//store/user/mbellis/script_output_files_NEW/$subdir/$2 rm 
-     #xrdfs root://cmseos.fnal.gov//store/user/mbellis/script_output_files_NEW/$subdir/$2 rm 
+#if ( ! -d  root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_NEW/$subdir ) then
+#echo xrdfs root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_NEW/$subdir mkdir
+     #xrdfs root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_NEW/$subdir mkdir
+#echo xrdfs root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_NEW/$subdir/$2 rm 
+     #xrdfs root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_NEW/$subdir/$2 rm 
 
 # This directory has to already exist
-echo xrdcp $2 root://cmseos.fnal.gov//store/user/mbellis/script_output_files_Nov2018/$subdir/.
-     xrdcp $2 root://cmseos.fnal.gov//store/user/mbellis/script_output_files_Nov2018/$subdir/.
+echo xrdcp $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_Feb2019/$subdir/.
+     xrdcp $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_Feb2019/$subdir/.
 
 #/eos/uscms/store/user/mbellis
 ### remove the output file if you don't want it automatically transferred when the job ends
