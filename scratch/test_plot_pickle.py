@@ -11,6 +11,8 @@ for i,key in enumerate(data.keys()):
     plt.subplot(4,4,i+1)
     plt.hist(data[key],bins=50)
     plt.title(key)
+    print(key)
+    print(data[key][0:5])
 
 plt.tight_layout()
 plt.show()

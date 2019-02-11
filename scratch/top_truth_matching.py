@@ -364,7 +364,10 @@ def main(filenames,outfilename=None):
     ################################################################################
     # Write the ML output to a pickle file
     ################################################################################
-    ml_file = open('signal_ML_data.pickle', 'wb')
+    ml_file = open('signal_ML_data.pkl', 'wb')
+    #ml_file = open('bkg_ML_data.pkl', 'wb')
+    print(output_data.keys())
+    print(output_data['had_dR1_23_lab'][0:5])
     pickle.dump(output_data, ml_file)
 
     ################################################################################
