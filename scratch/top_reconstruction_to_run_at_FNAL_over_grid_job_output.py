@@ -41,25 +41,6 @@ def main(filenames,outfile=None):
     jetpz = array('f', 64*[-1.])
     outtree.Branch('jetpz', jetpz, 'jetpz[njet]/F')
 
-    nbjet = array('i', [-1])
-    outtree.Branch('nbjet', nbjet, 'nbjet/I')
-    bjetcsv = array('f', 64*[-1.])
-    outtree.Branch('bjetcsv', bjetcsv, 'bjetcsv[nbjet]/F')
-    bjetpt = array('f', 64*[-1.])
-    outtree.Branch('bjetpt', bjetpt, 'bjetpt[nbjet]/F')
-    bjeteta = array('f', 64*[-1.])
-    outtree.Branch('bjeteta', bjeteta, 'bjeteta[nbjet]/F')
-    bjetphi = array('f', 64*[-1.])
-    outtree.Branch('bjetphi', bjetphi, 'bjetphi[nbjet]/F')
-    bjete = array('f', 64*[-1.])
-    outtree.Branch('bjete', bjete, 'bjete[nbjet]/F')
-    bjetpx = array('f', 64*[-1.])
-    outtree.Branch('bjetpx', bjetpx, 'bjetpx[nbjet]/F')
-    bjetpy = array('f', 64*[-1.])
-    outtree.Branch('bjetpy', bjetpy, 'bjetpy[nbjet]/F')
-    bjetpz = array('f', 64*[-1.])
-    outtree.Branch('bjetpz', bjetpz, 'bjetpz[nbjet]/F')
-
     nhadtop = array('i', [-1])
     outtree.Branch('nhadtop', nhadtop, 'nhadtop/I')
     hadtopmass = array('f', 64*[-1.])
@@ -184,7 +165,7 @@ def main(filenames,outfile=None):
 
             tree.GetEntry(i)
 
-            #njet_in = tree.njet
+            njet_in = tree.njet
             #pt = tree.jetpt
             #px = tree.jetpx
             #py = tree.jetpy
@@ -229,7 +210,6 @@ def main(filenames,outfile=None):
             bjet = []
             muon = []
 
-            njet[0] = njet_in
 
             bjetcut_on_csv = 0.87
             jetptcut = 20
@@ -237,15 +217,13 @@ def main(filenames,outfile=None):
 
             allmuons = tbt.get_good_muons(tree,ptcut=muonptcut)
             alljets = tbt.get_good_jets(tree,ptcut=jetptcut)
-            bjets,nonbjets = tbt.get_top_candidate_jets(alljets, csvcut=bjetcut_on_csv)
+            #bjets,nonbjets = tbt.get_top_candidate_jets(alljets, csvcut=bjetcut_on_csv)
 
 
             #'''
             ncount = 0
-            nbjet = len(bjets) # Number of b jets
-            njet = len(nonbjets) # Number of not-b jets
-            for n,jet in enumerate(nonbjets):
-                if n<64 and jet[4]>jetptcut:
+            for n,jet in enumerate(alljets):
+                if n<64:
                     jete[n] = jet[0]
                     jetpx[n] = jet[1]
                     jetpy[n] = jet[2]
@@ -254,16 +232,6 @@ def main(filenames,outfile=None):
                     jeteta[n] = jet[5]
                     jetphi[n] = jet[6]
                     jetcsv[n] = jet[7]
-            for n,jet in enumerate(nbjets):
-                if n<64 and jet[4]>jetptcut:
-                    bjete[n] = jet[0]
-                    bjetpx[n] = jet[1]
-                    bjetpy[n] = jet[2]
-                    bjetpz[n] = jet[3]
-                    bjetpt[n] = jet[4]
-                    bjeteta[n] = jet[5]
-                    bjetphi[n] = jet[6]
-                    bjetcsv[n] = jet[7]
 
             #print("+++++++++++++++++++++++++++")
             #####################################################
@@ -292,8 +260,10 @@ def main(filenames,outfile=None):
             # Reconstruct the top quarks
             ######################################################################################
             # We need at least 5 jets (at least 1 b jet) and 1 lepton
-            if len(alljets)<5 or len(allmuons)<1 or len(bjets)<2:
+            if len(alljets)<5 or len(allmuons)<1:
                 continue
+
+            topology = tbt.event_hypothesis(allmuons,bjets,nonbjets)
 
             #print("===========")
             ncands = np.zeros(ncuts,dtype=int)
