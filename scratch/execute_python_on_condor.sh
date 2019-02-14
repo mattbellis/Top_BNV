@@ -17,9 +17,15 @@ eval `scramv1 runtime -sh` # cmsenv is an alias not on the workers
 echo "CMSSW: "$CMSSW_BASE
 echo "Arguments passed to this script are: for 1: $*"
 
-
 cp ../../top_reconstruction_to_run_at_FNAL_over_grid_job_output.py .
 cp ../../topbnv_tools.py .
+
+#######################################################################
+# Trying this
+#######################################################################
+
+subdir=$1
+shift
 
 ls -ltr 
 echo
@@ -38,10 +44,10 @@ ls -ltr
 # https://uscms.org/uscms_at_work/computing/LPC/additionalEOSatLPC.shtml
 #subdir=`echo $3 | awk -F"/" '{print $9}'`
 # THIS IS FOR MC
-subdir=`echo $3 | awk -F"/" '{print $(NF-5)}'`
+#subdir=`echo $3 | awk -F"/" '{print $(NF-5)}'`
 
 echo "subdir: "$subdir
-echo $3
+#echo $3
 
 #if ( ! -d  root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_NEW/$subdir ) then
 #echo xrdfs root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_NEW/$subdir mkdir

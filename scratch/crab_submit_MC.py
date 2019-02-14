@@ -68,6 +68,7 @@ dataset = datasets[NUMBERTORUN]
 # Request name must be < 100 characters
 #request_name = "bellis_SingleElectron_%s" % (dataset[0])
 request_name = "bellis_SingleMuon_%s" % (dataset[0])
+#request_name = "bellis_SingleMuon_ST_t_channel_antitop"
 
 #config.General.requestName = 'bellis_topbnv_TT_TUNE'
 #config.General.requestName = 'bellis_topbnv_RSGluonToTT'

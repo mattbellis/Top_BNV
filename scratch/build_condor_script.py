@@ -10,8 +10,9 @@ if not os.path.exists('./condor_log_files'):
 
 #infile_directory = "crab_SingleMuon_Run2016C-03Feb2017-v1"
 
-outfile = sys.argv[1]
-infiles = sys.argv[2:]
+topdir = sys.argv[1]
+outfile = sys.argv[2]
+infiles = sys.argv[3:]
 
 cmd = "universe = vanilla\n"
 cmd += "Executable = execute_python_on_condor.sh\n"
@@ -25,7 +26,7 @@ cmd += "notify_user = mbellis@FNAL.GOV\n"
 # No longer need this line 
 # https://uscms.org/uscms_at_work/computing/setup/condor_refactor.shtml
 #cmd += "x509userproxy = /tmp/x509up_u47418 \n"
-cmd += "Arguments = --outfile %s " % (outfile)
+cmd += "Arguments = %s --outfile %s " % (topdir,outfile)
 for infile in infiles:
     prepend = "root://cmsxrootd.fnal.gov//store/user/mbellis"
     #postpend = infile.split('mbellis')[1]
