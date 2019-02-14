@@ -640,7 +640,7 @@ def match_up_gen_with_reco(gen, recos, ptcut=0, maxdR=0.4, maxdPtRel=3.0):
 
 
 ################################################################################
-def event_hypothesis(leptons,bjets,nonbjets):
+def event_hypothesis(leptons,jets,bjetcut=0.87):
 
     # We assume that the leptons/jets are arrays with the following information
     # e,px,py,pz, pt,eta,phi, csv (for jets)
@@ -651,121 +651,145 @@ def event_hypothesis(leptons,bjets,nonbjets):
     extras = []
     
 	# We need at least 5 jets (at least 1 b jet) and 1 lepton
-    if len(nonbjets)<5 or len(bjets)<2 or len(leptons)<1:
+    if len(jets)<5 or len(leptons)<1:
         return return_vals
 
     ncands = 0
 
-    nbjets = len(bjets)
-    nnonbjets = len(nonbjets)
+    njets = len(jets)
+
+    jetindices = np.arange(njets)
 
     #print("---------")
     # FIRST TRY TO RECONSTRUCT THE HADRONICALLY DECAYING TOP
     # NEED TO CHECK TO SEE IF THIS WORKS IF THERE IS 1 BJET
     # For now, we know that the signal has a b-jet on that side.
-    for bjetindices in combinations(range(nbjets),2):
+    # Pick out 3 jets
+    for hadjetidx in combinations(jetindices,3):
 
-        bjetidx = [0,1]
-        for bpermutation in range(2):
-            if bpermutation==0:
-                bjetidx = [bjetindices[0],bjetindices[1]]
-            elif bpermutation==1:
-                bjetidx = [bjetindices[1],bjetindices[0]]
+        hadjet = [None,None,None]
 
-            #print(bjetidx)
-            bjet =    bjets[bjetidx[0]]
-            bnvjet0 = bjets[bjetidx[1]]
-            #print(bnvjet0[-1],bjet[-1])
+        # Check to see that we have 1 and only 1 b-jet combo
+        # This is just for now. We might change this later 
+        correct_combo = 0
+        for i in range(0,3):
+            hadjet[i] = jets[hadjetidx[i]]
+            if hadjet[i][-1]>=bjetcut:
+                correct_combo += 1
 
-            for jetindices in combinations(range(nnonbjets),3):
-                # Assign the jets
-                jetidx = [0,1,2]
-                for permutation in range(3):
-                    if permutation==0:
-                        jetidx = [jetindices[0],jetindices[1],jetindices[2]]
-                    elif permutation==1:
-                        jetidx = [jetindices[2],jetindices[0],jetindices[1]]
-                    elif permutation==2:
-                        jetidx = [jetindices[1],jetindices[2],jetindices[0]]
+        if correct_combo != 1:
+            continue
 
-                    #print(jetidx)
-                    hadnonbjet0 = nonbjets[jetidx[0]]
-                    hadnonbjet1 = nonbjets[jetidx[1]]
-                    bnvjet1 =     nonbjets[jetidx[2]]
+        # If this is good so far and we have good jet combinations for the hadronic top
+        # decay, then remove these jets and figure stuff out for the BNV decay
+        tempindices = list(jetindices)
+        for i in range(3):
+            tempindices.remove(hadjetidx[i])
 
-                    #print(bjet[4],bnvjet0[4],hadnonbjet0[4],hadnonbjet1[4],bnvjet1[4])
-                    #print(bjet[-1],bnvjet0[-1],hadnonbjet0[-1],hadnonbjet1[-1],bnvjet1[-1])
+        # Now generate the 2 jets needed for the BNV mix
+        for bnvjetidx in combinations(tempindices,2):
 
-                    # First, check the hadronic decay
-                    haddR0 = deltaR(hadnonbjet0[5:],hadnonbjet1[5:])
-                    haddR1 = deltaR(hadnonbjet0[5:],bjet[5:])
-                    haddR2 = deltaR(hadnonbjet1[5:],bjet[5:])
+            bnvjet = [None,None]
+
+            # Check to see that we have 1 and only 1 b-jet combo
+            # This is just for now. We might change this later 
+            correct_combo = 0
+            for i in range(0,2):
+                bnvjet[i] = jets[bnvjetidx[i]]
+                if bnvjet[i][-1]>=bjetcut:
+                    correct_combo += 1
+
+            if correct_combo != 1:
+                continue
+
+            # Right now, we're not worried about which is the bjet
+            bnvjet0 = bnvjet[0]
+            bnvjet1 = bnvjet[1]
+
+            # For the had decay, we want to try to identify the W
+            if hadjet[0][-1]>bjetcut:
+                hadbjet = hadjet[0]
+                hadnonbjet0 = hadjet[1]
+                hadnonbjet1 = hadjet[2]
+                newhadidx = [hadjetidx[0],hadjetidx[1],hadjetidx[2]]
+            elif hadjet[1][-1]>bjetcut:
+                hadbjet = hadjet[1]
+                hadnonbjet0 = hadjet[0]
+                hadnonbjet1 = hadjet[2]
+                newhadidx = [hadjetidx[1],hadjetidx[0],hadjetidx[2]]
+            elif hadjet[2][-1]>bjetcut:
+                hadbjet = hadjet[2]
+                hadnonbjet0 = hadjet[0]
+                hadnonbjet1 = hadjet[1]
+                newhadidx = [hadjetidx[2],hadjetidx[0],hadjetidx[1]]
+
+
+            # First, check the hadronic decay
+            haddR0 = deltaR(hadnonbjet0[5:],hadnonbjet1[5:])
+            haddR1 = deltaR(hadnonbjet0[5:],hadbjet[5:])
+            haddR2 = deltaR(hadnonbjet1[5:],hadbjet[5:])
+
+            # Make sure the jets are not so close that they're almost merged!
+            if haddR0>0.05 and haddR1>0.05 and haddR2>0.05:
+
+                hadWmass = invmass([hadnonbjet0,hadnonbjet1])
+                hadtopmass = invmass([hadnonbjet0,hadnonbjet1,hadbjet])
+                hadtopp4 = np.array(hadnonbjet0) + np.array(hadnonbjet1) + np.array(hadbjet)
+
+                mass = invmass([hadnonbjet0,hadbjet])
+                hadtop01 = mass#**2
+                mass = invmass([hadnonbjet1,hadbjet])
+                hadtop02 = mass#**2
+                mass = invmass([hadnonbjet0,hadnonbjet1])
+                hadtop12 = mass#**2
+
+                # Now for the BNV candidate!
+                for lepidx,lepton in enumerate(leptons):
+
+                    bnvdR0 = deltaR(bnvjet0[5:],lepton[5:])
+                    bnvdR1 = deltaR(bnvjet1[5:],lepton[5:])
+                    bnvdR2 = deltaR(bnvjet0[5:],bnvjet1[5:])
 
                     # Make sure the jets are not so close that they're almost merged!
-                    if haddR0>0.05 and haddR1>0.05 and haddR2>0.05:
+                    # Should I also do this here for the muons?
+                    # Not doing lepton cleaning right now. Need to make sure DeltaR betwen
+                    # jets and leptons is>0.4.
+                    # https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
+                    # TRYING DIFFERENT THINGS
+                    if bnvdR0>0.20 and bnvdR1>0.20 and bnvdR2>0.05:
 
-                        hadWmass = invmass([hadnonbjet0,hadnonbjet1])
-                        hadtopmass = invmass([hadnonbjet0,hadnonbjet1,bjet])
-                        hadtopp4 = np.array(hadnonbjet0) + np.array(hadnonbjet1) + np.array(bjet)
+                        mass = invmass([bnvjet0,lepton])
+                        bnvtop01 = mass#**2
+                        mass = invmass([bnvjet1,lepton])
+                        bnvtop02 = mass#**2
+                        mass = invmass([bnvjet0,bnvjet1])
+                        bnvtop12 = mass#**2
 
-                        mass = invmass([hadnonbjet0,bjet])
-                        hadtop01 = mass#**2
-                        mass = invmass([hadnonbjet1,bjet])
-                        hadtop02 = mass#**2
-                        mass = invmass([hadnonbjet0,hadnonbjet1])
-                        hadtop12 = mass#**2
+                        leppt = lepton[4]
+                        leppmag = np.sqrt(lepton[1]**2 + lepton[2]**2 + lepton[3]**2)
 
-                        # Now for the BNV candidate!
-                        for lepidx,lepton in enumerate(leptons):
+                        bnvtopmass = invmass([bnvjet0,bnvjet1,lepton])
+                        bnvtopp4 = np.array(bnvjet0[0:4]) + np.array(bnvjet1[0:4]) + np.array(lepton[0:4])
 
-                            bnvdR0 = deltaR(bnvjet0[5:],lepton[5:])
-                            bnvdR1 = deltaR(bnvjet1[5:],lepton[5:])
-                            bnvdR2 = deltaR(bnvjet0[5:],bnvjet1[5:])
-
-                            # Make sure the jets are not so close that they're almost merged!
-                            # Should I also do this here for the muons?
-                            # Not doing lepton cleaning right now. Need to make sure DeltaR betwen
-                            # jets and leptons is>0.4.
-                            # https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
-                            # TRYING DIFFERENT THINGS
-                            if bnvdR0>0.20 and bnvdR1>0.20 and bnvdR2>0.05:
-
-                                mass = invmass([bnvjet0,lepton])
-                                bnvtop01 = mass#**2
-                                mass = invmass([bnvjet1,lepton])
-                                bnvtop02 = mass#**2
-                                mass = invmass([bnvjet0,bnvjet1])
-                                bnvtop12 = mass#**2
-
-                                leppt = lepton[4]
-                                leppmag = np.sqrt(lepton[1]**2 + lepton[2]**2 + lepton[3]**2)
-
-                                bnvtopmass = invmass([bnvjet0,bnvjet1,lepton])
-                                bnvtopp4 = np.array(bnvjet0[0:4]) + np.array(bnvjet1[0:4]) + np.array(lepton[0:4])
-
-                                if hadtopp4 is not None:
-                                    a = angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
-                                    thetatop1top2 = np.cos(a)
-                                    #thetatop1top2 = a
+                        if hadtopp4 is not None:
+                            a = angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
+                            thetatop1top2 = np.cos(a)
+                            #thetatop1top2 = a
 
 
-                                    retbjetidx = 10*bjetidx[0] + bjetidx[1]
-                                    retnonbjetidx = 100*jetidx[0] + 10*jetidx[1] + jetidx[2]
-                                    # hadtopmass, bnvtopmass, top-angles, Wmass, leptonpt,bjetidx,nonbjetidx,lepidx,extras
-                                    extras = [haddR0,haddR1,haddR2,bnvdR0,bnvdR1,bnvdR2,hadtop01,hadtop02,hadtop12,bnvtop01,bnvtop02,bnvtop12]
-                                    return_vals[0].append(hadtopmass)
-                                    return_vals[1].append(bnvtopmass)
-                                    return_vals[2].append(np.sqrt(hadtopp4[1]**2+hadtopp4[2]**2))
-                                    return_vals[3].append(np.sqrt(bnvtopp4[1]**2+bnvtopp4[2]**2))
-                                    return_vals[4].append(thetatop1top2)
-                                    return_vals[5].append(hadWmass)
-                                    return_vals[6].append(leppt)
-                                    return_vals[7].append(retbjetidx)
-                                    return_vals[8].append(retnonbjetidx)
-                                    return_vals[9].append(lepidx)
-                                    return_vals[10].append(extras)
-
-
+                            # hadtopmass, bnvtopmass, top-angles, Wmass, leptonpt,bjetidx,nonbjetidx,lepidx,extras
+                            extras = [haddR0,haddR1,haddR2,bnvdR0,bnvdR1,bnvdR2,hadtop01,hadtop02,hadtop12,bnvtop01,bnvtop02,bnvtop12]
+                            return_vals[0].append(hadtopmass)
+                            return_vals[1].append(bnvtopmass)
+                            return_vals[2].append(np.sqrt(hadtopp4[1]**2+hadtopp4[2]**2))
+                            return_vals[3].append(np.sqrt(bnvtopp4[1]**2+bnvtopp4[2]**2))
+                            return_vals[4].append(thetatop1top2)
+                            return_vals[5].append(hadWmass)
+                            return_vals[6].append(leppt)
+                            return_vals[7].append(newhadidx)
+                            return_vals[8].append(bnvjetidx)
+                            return_vals[9].append(lepidx)
+                            return_vals[10].append(extras)
 
     return return_vals
 

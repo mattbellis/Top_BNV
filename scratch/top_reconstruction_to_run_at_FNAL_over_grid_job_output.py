@@ -16,7 +16,7 @@ def main(filenames,outfile=None):
 
     #filenames = sys.argv[1:]
     if outfile is None:
-        outfile = filenames[0].split('/')[-1].split('.root')[0] + "_OUTPUT.root"
+        outfile = filenames[0].split('/')[-1].split('.root')[0] + "_TOP_RECO_OUTPUT.root"
     f = ROOT.TFile(outfile, "RECREATE")
     f.cd()
 
@@ -41,30 +41,44 @@ def main(filenames,outfile=None):
     jetpz = array('f', 64*[-1.])
     outtree.Branch('jetpz', jetpz, 'jetpz[njet]/F')
 
-    nhadtop = array('i', [-1])
-    outtree.Branch('nhadtop', nhadtop, 'nhadtop/I')
+    # Had top
+    ncand = array('i', [-1])
+    outtree.Branch('ncand', ncand, 'ncand/I')
     hadtopmass = array('f', 64*[-1.])
-    outtree.Branch('hadtopmass', hadtopmass, 'hadtopmass[nhadtop]/F')
+    outtree.Branch('hadtopmass', hadtopmass, 'hadtopmass[ncand]/F')
     hadtoppt = array('f', 64*[-1.])
-    outtree.Branch('hadtoppt', hadtoppt, 'hadtoppt[nhadtop]/F')
+    outtree.Branch('hadtoppt', hadtoppt, 'hadtoppt[ncand]/F')
 
     hadtopjet0idx = array('i', 64*[-1])
-    outtree.Branch('hadtopjet0idx', hadtopjet0idx, 'hadtopjet0idx[nhadtop]/I')
+    outtree.Branch('hadtopjet0idx', hadtopjet0idx, 'hadtopjet0idx[ncand]/I')
     hadtopjet1idx = array('i', 64*[-1])
-    outtree.Branch('hadtopjet1idx', hadtopjet1idx, 'hadtopjet1idx[nhadtop]/I')
+    outtree.Branch('hadtopjet1idx', hadtopjet1idx, 'hadtopjet1idx[ncand]/I')
     hadtopjet2idx = array('i', 64*[-1])
-    outtree.Branch('hadtopjet2idx', hadtopjet2idx, 'hadtopjet2idx[nhadtop]/I')
-
-    nW = array('i', [-1])
-    outtree.Branch('nW', nW, 'nW/I')
+    outtree.Branch('hadtopjet2idx', hadtopjet2idx, 'hadtopjet2idx[ncand]/I')
 
     # Index this by number of tops
     Wmass = array('f', 64*[-1.])
-    outtree.Branch('Wmass', Wmass, 'Wmass[nhadtop]/F')
-    #Wjet1pt = array('f', 64*[-1.])
-    #outtree.Branch('Wjet1pt', Wjet1pt, 'Wjet1pt[nW]/F')
-    #Wjet2pt = array('f', 64*[-1.])
-    #outtree.Branch('Wjet2pt', Wjet2pt, 'Wjet2pt[nW]/F')
+    outtree.Branch('Wmass', Wmass, 'Wmass[ncand]/F')
+
+    # BNV top
+    bnvtopmass = array('f', 64*[-1.])
+    outtree.Branch('bnvtopmass', bnvtopmass, 'bnvtopmass[ncand]/F')
+    bnvtoppt = array('f', 64*[-1.])
+    outtree.Branch('bnvtoppt', bnvtoppt, 'bnvtoppt[ncand]/F')
+
+    bnvtopjet0idx = array('i', 64*[-1])
+    outtree.Branch('bnvtopjet0idx', bnvtopjet0idx, 'bnvtopjet0idx[ncand]/I')
+    bnvtopjet1idx = array('i', 64*[-1])
+    outtree.Branch('bnvtopjet1idx', bnvtopjet1idx, 'bnvtopjet1idx[ncand]/I')
+
+    bnvlepidx = array('i', 64*[-1])
+    outtree.Branch('bnvlepidx', bnvlepidx, 'bnvlepidx[ncand]/I')
+
+    thetatop1top2 = array('f', 64*[-1])
+    outtree.Branch('thetatop1top2', thetatop1top2, 'thetatop1top2[ncand]/F')
+
+
+
 
     nmuon = array('i', [-1])
     outtree.Branch('nmuon', nmuon, 'nmuon/I')
@@ -222,6 +236,7 @@ def main(filenames,outfile=None):
 
             #'''
             ncount = 0
+            njet[0] = 0
             for n,jet in enumerate(alljets):
                 if n<64:
                     jete[n] = jet[0]
@@ -232,6 +247,7 @@ def main(filenames,outfile=None):
                     jeteta[n] = jet[5]
                     jetphi[n] = jet[6]
                     jetcsv[n] = jet[7]
+                    njet[0] += 1
 
             #print("+++++++++++++++++++++++++++")
             #####################################################
@@ -263,90 +279,50 @@ def main(filenames,outfile=None):
             if len(alljets)<5 or len(allmuons)<1:
                 continue
 
-            topology = tbt.event_hypothesis(allmuons,bjets,nonbjets)
-
-            #print("===========")
-            ncands = np.zeros(ncuts,dtype=int)
-            for bjetpairs in combinations(enumerate(bjets),2):
-                # This returns tuples of the index and object
-                bjet = bjetpairs[0][1]
-                hadtopjet0idx = bjetpairs[0][0]
-                for jets in combinations(enumerate(nonbjets),3):
-                    for lepton in allmuons:
-
-                        hadnonbjet0 = jets[0][1]
-                        hadnonbjet1 = jets[1][1]
-                        hadtopjet0idx = jets[0][0]
-                        hadtopjet1idx = jets[1][0]
-
-                        haddR0 = tbt.deltaR(hadnonbjet0[5:],hadnonbjet1[5:])
-                        haddR1 = tbt.deltaR(hadnonbjet0[5:],bjet[5:])
-                        haddR2 = tbt.deltaR(hadnonbjet1[5:],bjet[5:])
-
-                        # Make sure the jets are not so close that they're almost merged!
-                        if haddR0>0.05 and haddR1>0.05 and haddR2>0.05:
-
-                            hadWmass = tbt.invmass([hadnonbjet0,hadnonbjet1])
-                            hadtopmass = tbt.invmass([hadnonbjet0,hadnonbjet1,bjet])
-                            hadtopp4 = np.array(hadnonbjet0) + np.array(hadnonbjet1) + np.array(bjet)
-
-                            ################################################
-                            # Now look at the BNV
-                            ################################################
-                            bnvjet0 = jets[2]
-                            #bnvjet1 = jets[3]
-                            bnvjet1 = bjetpairs[1][1]
-
-                            bnvdR0 = tbt.deltaR(bnvjet0[5:],lepton[5:])
-                            bnvdR1 = tbt.deltaR(bnvjet1[5:],lepton[5:])
-                            bnvdR2 = tbt.deltaR(bnvjet0[5:],bnvjet1[5:])
-
-                            # Make sure the jets are not so close that they're almost merged!
-                            if bnvdR0>0.05 and bnvdR1>0.05 and bnvdR2>0.05:
-
-                                bnvtopmass = tbt.invmass([bnvjet0,bnvjet1,lepton])
-                                bnvtopp4 = np.array(bnvjet0[0:4]) + np.array(bnvjet1[0:4]) + np.array(lepton[0:4])
-
-                                if hadtopp4 is not None:
-                                    a = tbt.angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
-                                    thetatop1top2 = np.cos(a)
-                                    #thetatop1top2 = a
+            topology = tbt.event_hypothesis(allmuons,alljets,bjetcut=0.87)
+            top_hadtopmass = topology[0]
+            top_bnvtopmass = topology[1]
+            top_hadtoppt = topology[2]
+            top_bnvtoppt = topology[3]
+            top_thetatop1top2 = topology[4]
+            top_hadWmass = topology[5]
+            top_leppt = topology[6]
+            top_hadjetidx = topology[7]
+            top_bnvjetidx = topology[8]
+            top_lepidx = topology[9]
+            top_extras = topology[10]
 
 
-            
-            #'''
-            topcount = 0
-            for bidx,b in enumerate(bjet):
-                for j in range(0,len(jet)-1):
-                    for k in range(j+1,len(jet)):
-                        #print(b,jet[j],jet[k])
+            ntopologies = len(top_hadtopmass)
+            ncand[0] = 0
+            for nc in range(0,ntopologies):
+                if nc>=64:
+                    continue
 
-                        #print(topcount)
-                        m = tbt.invmass([b[0:4], jet[j][0:4], jet[k][0:4]])
-                        wm = tbt.invmass([jet[j][0:4], jet[k][0:4]])
+                #print("-----")
+                #print(top_hadjetidx)
+                #print(top_bnvjetidx)
+                #print(top_hadtopmass)
 
-                        if topcount<64:
-                            topmass[topcount] = m
-                            topjet0idx[topcount] = bidx
-                            topjet1idx[topcount] = j
-                            topjet2idx[topcount] = k
+                hadtopmass[nc] = top_hadtopmass[nc]
+                hadtoppt[nc] = top_hadtoppt[nc]
+                Wmass[nc] = top_hadWmass[nc]
+                bnvtopmass[nc] = top_bnvtopmass[nc]
+                bnvtoppt[nc] = top_bnvtoppt[nc]
+                thetatop1top2[nc] = top_thetatop1top2[nc]
 
-                            Wmass[topcount] = wm
-                            Wcount += 1
-                            topcount += 1
-                            #Wjet1pt[Wcount] = jet[j][4]
-                            #Wjet2pt[Wcount] = jet[k][4]
+                hadtopjet0idx[nc] = top_hadjetidx[nc][0]
+                hadtopjet1idx[nc] = top_hadjetidx[nc][1]
+                hadtopjet2idx[nc] = top_hadjetidx[nc][2]
 
-                            #data["angles"].append(tbt.angle_between_vectors(jet[j][1:4], jet[k][1:4]))
-                            #data["dRs"].append(tbt.deltaR(jet[j][4:], jet[k][4:]))
-                            # There is only 1 MET, but we associate with every W/top candidate. 
+                bnvtopjet0idx[nc] = top_bnvjetidx[nc][0]
+                bnvtopjet1idx[nc] = top_bnvjetidx[nc][1]
+                bnvlepidx[nc] = top_lepidx[nc]
 
+                ncand[0] += 1
 
             metpt[0] = metpt_in
-            nbjet[0] = len(bjet)
-            ntop[0] = topcount
-            nW[0] = topcount
-            #'''
+            
             outtree.Fill()
 
 
