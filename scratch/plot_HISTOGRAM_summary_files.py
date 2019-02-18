@@ -43,6 +43,9 @@ def combine_bins(h,bin_edges,n=2):
 
     #print(len(bin_edges)-1/n)
 
+    if len(h)==0 or len(bin_edges)==0:
+        return h,bin_edges
+
     x = []
     y = [bin_edges[0]]
 
@@ -59,8 +62,30 @@ def combine_bins(h,bin_edges,n=2):
 ################################################################################
 def main(infiles=None):
 
-
     colors = ['k','b','r','g','y','m','c','orange']
+    mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets"]
+    datadatasets = ['Data (2016)']
+
+    infile = open(infiles[0],'r')
+    line = infile.readline()
+    names = []
+    xlabels = []
+    ylabels = []
+    while line:
+        names.append(line.split()[0])
+
+        line = infile.readline()
+
+        line = infile.readline()
+        xlabels.append(' '.join(line.split()[1:]))
+        line = infile.readline()
+        ylabels.append(' '.join(line.split()[1:]))
+        print(ylabels)
+        
+        line = infile.readline()
+
+
+    '''
     names = ['leadmupt', 'hadtopmass','Wmass','jetcsv', 'leadmupt_cut0', 'hadtopmass_cut0', 'Wmass_cut0']
     xaxislabels = [r'leading $\mu$ p_T [GeV/c]', 
                    r'Top candidate mass [GeV/c$^2$]', 
@@ -70,19 +95,22 @@ def main(infiles=None):
                    r'Top candidate mass [GeV/c$^2$]', 
                    r'$W$ candidate mass [GeV/c$^2$]'
                    ]
+    '''
 
-    mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets"]
-    datadatasets = ['Data (2016)']
 
     plots = OrderedDict()
     dataplots = OrderedDict()
-    for name in names:
+    for name,xlabel,ylabel in zip(names,xlabels,ylabels):
         plots[name] = OrderedDict()
         dataplots[name] = OrderedDict()
         for dataset in mcdatasets:
-            plots[name][dataset] = {'bin_vals':[], 'bin_edges':[]}
+            plots[name][dataset] = {'bin_vals':[], 'bin_edges':[], 'xlabel':xlabel, 'ylabel':ylabel}
         for dataset in datadatasets:
-            dataplots[name][dataset] = {'bin_vals':[], 'bin_edges':[]}
+            dataplots[name][dataset] = {'bin_vals':[], 'bin_edges':[], 'xlabel':xlabel, 'ylabel':ylabel}
+
+
+
+
 
     for i,infile in enumerate(infiles):
 
@@ -130,9 +158,15 @@ def main(infiles=None):
 
             if name in names:
 
+                print(name)
+
                 bin_vals = vals[1:]
                 vals = f.readline().split()
                 bin_edges = vals[1:]
+
+                # Just placeholders here
+                xlabels = f.readline().split()
+                ylabels = f.readline().split()
 
                 bin_vals = np.array(bin_vals).astype(float)
                 bin_edges = np.array(bin_edges).astype(float)
@@ -158,18 +192,18 @@ def main(infiles=None):
     maxvals = np.zeros(len(names))
     for i,name in enumerate(names):
         for j,dataset in enumerate(plots[name].keys()):
-            plt.subplot(3,3,1+i)
+            plt.subplot(4,4,1+i)
             #print(plots[name]['bin_vals'],plots[name]['bin_edges'])
-            #x,y = combine_bins(plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges'],n=8)
-            x,y = plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges']
+            x,y = combine_bins(plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges'],n=2)
+            #x,y = plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges']
 
             x = np.array(x); y = np.array(y)
             xbins = (y[0:-1] + y[1:])/2.
             plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color=colors[j%len(colors)])
 
         for j,dataset in enumerate(dataplots[name].keys()):
-            #x,y = combine_bins(dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges'],n=8)
-            x,y = dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges']
+            x,y = combine_bins(dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges'],n=2)
+            #x,y = dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges']
             x = np.array(x); y = np.array(y)
             xbins = (y[0:-1] + y[1:])/2.
             plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color="k")
@@ -180,11 +214,12 @@ def main(infiles=None):
             if max(x)>maxvals[i]:
                 maxvals[i] = max(x)
             '''
-        plt.xlabel(xaxislabels[i],fontsize=18)
+            plt.xlabel(dataplots[name][dataset]['xlabel'])#,fontsize=18)
+            #plt.ylabel(dataplots[name][dataset]['ylabel'])#,fontsize=18)
 
 
-    plt.legend()
-    plt.tight_layout()
+    #plt.legend()
+    #plt.tight_layout()
 
     '''
     for i,name in enumerate(names):
@@ -202,14 +237,14 @@ def main(infiles=None):
     for j,dataset in enumerate(plots[name].keys()):
         plt.plot([0,0],[0,0],color=colors[j%len(colors)],label=dataset,linewidth=8)
     plt.axis('off')
-    plt.legend(loc='center',fontsize=18)
-    plt.tight_layout()
+    plt.legend(loc='center')#,fontsize=18)
+    #plt.tight_layout()
     plt.savefig('plots/legend.png')
 
 
     plt.figure(figsize=(12,8))
     for i,name in enumerate(names):
-        plt.subplot(3,3,1+i)
+        plt.subplot(4,4,1+i)
         #plt.figure(figsize=(5,4),dpi=100)
 
         heights,bins = [],[]
@@ -232,9 +267,11 @@ def main(infiles=None):
             xbins = (y[0:-1] + y[1:])/2.
             plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color="k")
 
-        plt.xlabel(xaxislabels[i],fontsize=14)
+            #plt.xlabel(xaxislabels[i],fontsize=14)
+            plt.xlabel(dataplots[name][dataset]['xlabel'])#,fontsize=18)
+            #plt.ylabel(dataplots[name][dataset]['ylabel'])#,fontsize=18)
         #plt.legend()
-        plt.tight_layout()
+        #plt.tight_layout()
 
         figname = "plots/fig_{0}.png".format(name)
         plt.savefig(figname)
