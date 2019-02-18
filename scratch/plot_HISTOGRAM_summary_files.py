@@ -19,8 +19,9 @@ mcparamsnames = list(mc_info.keys())
 
 #print(mc_info)
 
-data_int_lumi = 35.* (1.0/1e-15) # 35 ifb --> inv barns
+data_int_lumi = 37.* (1.0/1e-15) # 35 ifb --> inv barns
 
+print(" {1:15s} {2:12s} {3:12s} {4} {0}".format("Dataset","Weight","# gen","N","cross section"))
 for key in mc_info.keys():
     entry = mc_info[key]
     Ngen = entry['completed_events']
@@ -34,6 +35,7 @@ for key in mc_info.keys():
 
     print(" {1:12.3f} {2:12} {3:12d} {4:12.2e} {0}".format(key,wt,Ngen,int(N),xsec))
 
+#exit()
 
 
 ################################################################################
@@ -59,7 +61,7 @@ def main(infiles=None):
 
 
     colors = ['k','b','r','g','y','m','c','orange']
-    names = ['leadmupt', 'topmass','Wmass','jetcsv', 'leadmupt_cut0', 'topmass_cut0', 'Wmass_cut0']
+    names = ['leadmupt', 'hadtopmass','Wmass','jetcsv', 'leadmupt_cut0', 'hadtopmass_cut0', 'Wmass_cut0']
     xaxislabels = [r'leading $\mu$ p_T [GeV/c]', 
                    r'Top candidate mass [GeV/c$^2$]', 
                    r'$W$ candidate mass [GeV/c$^2$]', 
