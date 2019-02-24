@@ -192,7 +192,7 @@ def main(infiles=None):
     maxvals = np.zeros(len(names))
     for i,name in enumerate(names):
         for j,dataset in enumerate(plots[name].keys()):
-            plt.subplot(4,4,1+i)
+            plt.subplot(5,5,1+i)
             #print(plots[name]['bin_vals'],plots[name]['bin_edges'])
             x,y = combine_bins(plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges'],n=2)
             #x,y = plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges']
@@ -244,7 +244,7 @@ def main(infiles=None):
 
     plt.figure(figsize=(12,8))
     for i,name in enumerate(names):
-        plt.subplot(4,4,1+i)
+        plt.subplot(5,5,1+i)
         #plt.figure(figsize=(5,4),dpi=100)
 
         heights,bins = [],[]
