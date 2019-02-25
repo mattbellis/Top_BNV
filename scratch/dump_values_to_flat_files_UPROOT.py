@@ -25,16 +25,17 @@ def prepare_histogram_for_output(name,bin_vals,bin_edges,xlabel="x label",ylabel
 def main(infiles=None,outfilename=None):
 
     plotvars = {}
-    plotvars["ncand"] = {"values":[], "xlabel":r"# candidates []", "ylabel":r"# entries","range":(0,100), "bins":100}
-    plotvars["leadmupt"] = {"values":[], "xlabel":r"Leading $\mu$ $p_{\rm T}$ [GeV/c]", "ylabel":r"# entries","range":(0,400), "bins":400}
-    plotvars["hadtopmass"] = {"values":[], "xlabel":r"Top candidate mass [GeV/c$^{\rm 2}$]", "ylabel":r"# entries","range":(0,800), "bins":800}
-    plotvars["pu_wt"] = {"values":[], "xlabel":r"Pileup weight []", "ylabel":r"# entries","range":(0,2), "bins":200}
+    plotvars["ncand"] = {"values":[], "weights":[], "xlabel":r"# candidates []", "ylabel":r"# entries","range":(0,100), "bins":100}
+    plotvars["leadmupt"] = {"values":[], "weights":[], "xlabel":r"Leading $\mu$ $p_{\rm T}$ [GeV/c]", "ylabel":r"# entries","range":(0,400), "bins":400}
+    plotvars["hadtopmass"] = {"values":[], "weights":[], "xlabel":r"Top candidate mass [GeV/c$^{\rm 2}$]", "ylabel":r"# entries","range":(0,800), "bins":800}
+    plotvars["pu_wt"] = {"values":[], "weights":[], "xlabel":r"Pileup weight []", "ylabel":r"# entries","range":(0,2), "bins":200}
 
     cuts = []
     ncuts = 5
     for n in range(ncuts):
         for key in plotvars.keys():
             plotvars[key]["values"].append([])
+            plotvars[key]["weights"].append([])
 
 
     #filenames = sys.argv[1:]
@@ -119,42 +120,25 @@ def main(infiles=None,outfilename=None):
                 pt2 = jetpt[hadtopjet2idx[n]]
 
                 cut2 = pt0>30 and pt1>30 and pt2>30
-
                 cuts = [1, cut1, cut1*cut2]
 
                 for icut,cut in enumerate(cuts):
                     if cut:
-                        plotvars["ncand"]["values"][icut].append(ncand)
-                        plotvars["leadmupt"]["values"][icut].append(leadmupt)
                         plotvars["hadtopmass"]["values"][icut].append(thm)
+                        plotvars["hadtopmass"]["weights"][icut].append(pu_wt)
                         plotvars["pu_wt"]["values"][icut].append(pu_wt)
+                        plotvars["pu_wt"]["weights"][icut].append(pu_wt)
 
 
                 ncuts = len(cuts)
+
+            # Variables that don't depend on the above cuts
+            for icut in range(ncuts):
+                plotvars["ncand"]["values"][icut].append(ncand)
+                plotvars["ncand"]["weights"][icut].append(pu_wt)
+                plotvars["leadmupt"]["values"][icut].append(leadmupt)
+                plotvars["leadmupt"]["weights"][icut].append(pu_wt)
             
-            '''
-            lmupt = data[b'leadmupt'][i]
-            if lmupt>25:
-                leadmupt_cut0.append(lmupt)
-
-            ncand.append(data[b'ncand'][i])
-            for n in range(data[b'ncand'][i]):
-                hadtopmass.append(data[b'hadtopmass'][i][n])
-                if lmupt>25:
-                    hadtopmass_cut0.append(data[b'hadtopmass'][i][n])
-
-            for n in range(data[b'ncand'][i]):
-                wm = data[b'Wmass'][i][n]
-                Wmass.append(wm)
-                if lmupt>25:
-                    Wmass_cut0.append(wm)
-
-            #nbjet.append(data[b'nbjet'][i])
-
-            njet.append(data[b'njet'][i])
-            for n in range(data[b'njet'][i]):
-                jetcsv.append(data[b'jetcsv'][i][n])
-            '''
 
     '''
     leadmupt = np.array(leadmupt)
@@ -186,7 +170,7 @@ def main(infiles=None,outfilename=None):
             ylabel = plotvars[key]['ylabel']
 
             # With weights
-            h,bin_edges = np.histogram(vals,bins=bins,range=r,weights=plotvars['pu_wt']['values'][n])
+            h,bin_edges = np.histogram(vals,bins=bins,range=r,weights=plotvars[key]['weights'][n])
             name = "{0}_WEIGHTS_cut{1}".format(key,n)
             print(name,bins,r)
             output += prepare_histogram_for_output(name,h,bin_edges,xlabel,ylabel)

@@ -666,7 +666,6 @@ def topbnv_fwlite(argv):
                         if options.isMC:
                             mc_selection = trigname.find(name[1]) # This is the version
 
-
                         if trigname.find(name[0]) >= 0 and mc_selection:
                             #print(trigname,trigger_type)
                             #print(iname,trigger_tree_branches[trigger_type])

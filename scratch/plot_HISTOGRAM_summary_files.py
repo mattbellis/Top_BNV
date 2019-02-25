@@ -158,7 +158,7 @@ def main(infiles=None):
 
             if name in names:
 
-                print(name)
+                #print(name)
 
                 bin_vals = vals[1:]
                 vals = f.readline().split()
