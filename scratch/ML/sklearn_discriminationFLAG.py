@@ -14,19 +14,21 @@ import pickle
 
 from sklearn_plot_results import plot_results
 
-import argparse
 # Getting some of this from here
 # https://betatim.github.io/posts/sklearn-for-TMVA-users/
 
 ################################################################################
-parser = argparse.ArgumentParser()
 
 #-db DATABSE -u USERNAME -p PASSWORD -size 20
-parser.add_argument("-events", "--events", help="Number of events to run over")
 
-args = parser.parse_args()
 
-infilenames = sys.argv[1:]
+if sys.argv[1] == "--events":
+    nevents = int(sys.argv[2])
+    infilenames = sys.argv[3:]
+else:
+    nevents = 0
+    infilenames = sys.argv[1:]
+
 if len(infilenames) != 2:
     print("Wrong number of input files!")
     print("Should be 2!")
@@ -51,27 +53,19 @@ nparams = len(param_labels)
 
 data0 = []
 data1 = []
-if type(arg.events) == int:
-    for pl in param_labels:
-        #data0.append(dict0[pl]['values'][0])
-        data0.append(dict0[pl][0:nevents])
-        #print(len(dict0[pl]['values'][0]))
 
-    for pl in param_labels:
-        #data1.append(dict1[pl]['values'][0])
-        data1.append(dict1[pl][0:nevents])
-        #print(len(dict1[pl]['values'][0]))
-else:
-    for pl in param_labels:
-        #data0.append(dict0[pl]['values'][0])
-        data0.append(dict0[pl])
-        #print(len(dict0[pl]['values'][0]))
+if nevents == 0 or nevents > len(dict0[param_labels[0]]):
+    nevents = len(dict0[param_labels[0]])
 
-    for pl in param_labels:
-        #data1.append(dict1[pl]['values'][0])
-        data1.append(dict1[pl])
-        #print(len(dict1[pl]['values'][0]))
+for pl in param_labels:
+    #data0.append(dict0[pl]['values'][0])
+    data0.append(dict0[pl][0:nevents])
+    #print(len(dict0[pl]['values'][0]))
 
+for pl in param_labels:
+    #data1.append(dict1[pl]['values'][0])
+    data1.append(dict1[pl][0:nevents])
+    #print(len(dict1[pl]['values'][0]))
 #exit()
 
 classifier_results = {}
@@ -84,6 +78,7 @@ classifier_results["data1"] = data1
 classifier_results["param_labels"] = param_labels
 classifier_results["dataset0"] = infilenames[0]
 classifier_results["dataset1"] = infilenames[1]
+classifier_results["nevents"] = nevents 
 
 ################################################################################
 # Train test split
