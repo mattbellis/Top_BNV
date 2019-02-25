@@ -288,6 +288,8 @@ if __name__=="__main__":
     dataset0name = results["dataset0"]
     dataset1name = results["dataset1"]
 
+    print("Number of events in file: ", results["nevents"])
+
     plot_results(data0,data1,dataset0name,dataset1name,param_labels,bdt,show=True)
 
 
