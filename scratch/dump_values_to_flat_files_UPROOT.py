@@ -28,6 +28,7 @@ def main(infiles=None,outfilename=None):
     plotvars["ncand"] = {"values":[], "weights":[], "xlabel":r"# candidates []", "ylabel":r"# entries","range":(0,100), "bins":100}
     plotvars["leadmupt"] = {"values":[], "weights":[], "xlabel":r"Leading $\mu$ $p_{\rm T}$ [GeV/c]", "ylabel":r"# entries","range":(0,400), "bins":400}
     plotvars["hadtopmass"] = {"values":[], "weights":[], "xlabel":r"Top candidate mass [GeV/c$^{\rm 2}$]", "ylabel":r"# entries","range":(0,800), "bins":800}
+    plotvars["Wmass"] = {"values":[], "weights":[], "xlabel":r"$W$ candidate mass [GeV/c$^{\rm 2}$]", "ylabel":r"# entries","range":(0,400), "bins":400}
     plotvars["pu_wt"] = {"values":[], "weights":[], "xlabel":r"Pileup weight []", "ylabel":r"# entries","range":(0,2), "bins":200}
 
     cuts = []
@@ -95,6 +96,7 @@ def main(infiles=None,outfilename=None):
             ncand = data[b'ncand'][i]
             leadmupt = data[b'leadmupt'][i]
             hadtopmass = data[b'hadtopmass'][i]
+            Wmass = data[b'Wmass'][i]
             hadtopjet0idx = data[b'hadtopjet0idx'][i]
             hadtopjet1idx = data[b'hadtopjet1idx'][i]
             hadtopjet2idx = data[b'hadtopjet2idx'][i]
@@ -114,18 +116,22 @@ def main(infiles=None,outfilename=None):
             for n in range(ncand):
 
                 thm = hadtopmass[n]
+                wm = Wmass[n]
 
                 pt0 = jetpt[hadtopjet0idx[n]]
                 pt1 = jetpt[hadtopjet1idx[n]]
                 pt2 = jetpt[hadtopjet2idx[n]]
 
                 cut2 = pt0>30 and pt1>30 and pt2>30
-                cuts = [1, cut1, cut1*cut2]
+                cut3 = wm>70 and wm<95
+                cuts = [1, cut1, cut1*cut2, cut1*cut2*cut3]
 
                 for icut,cut in enumerate(cuts):
                     if cut:
                         plotvars["hadtopmass"]["values"][icut].append(thm)
                         plotvars["hadtopmass"]["weights"][icut].append(pu_wt)
+                        plotvars["Wmass"]["values"][icut].append(wm)
+                        plotvars["Wmass"]["weights"][icut].append(pu_wt)
                         plotvars["pu_wt"]["values"][icut].append(pu_wt)
                         plotvars["pu_wt"]["weights"][icut].append(pu_wt)
 
