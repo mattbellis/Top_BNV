@@ -86,7 +86,7 @@ def main(infiles=None,outfilename=None):
             if i%100000==0:
                 print("{0} out of {1} entries".format(i,nentries))
 
-            if i>100000:
+            if i>1000000000:
                 break
 
             #print(data[b'nmuon'][i])
@@ -169,8 +169,8 @@ def main(infiles=None,outfilename=None):
 
 
     if outfilename == None:
-        #outfilename = "/data/physics/bellis/CMS/HISTOGRAM_FILES_FEB2019/{0}_HISTOGRAMS.txt".format(infiles[0].split('/')[-1].split('.')[0])
-        outfilename = "{0}_HISTOGRAMS.txt".format(infiles[0].split('/')[-1].split('.')[0])
+        outfilename = "/data/physics/bellis/CMS/HISTOGRAM_FILES_FEB2019/{0}_HISTOGRAMS.txt".format(infiles[0].split('/')[-1].split('.')[0])
+        #outfilename = "{0}_HISTOGRAMS.txt".format(infiles[0].split('/')[-1].split('.')[0])
     print(outfilename)
     #exit()
     outfile = open(outfilename,'w')
