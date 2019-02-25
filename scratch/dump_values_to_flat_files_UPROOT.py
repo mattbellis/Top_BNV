@@ -27,7 +27,8 @@ def main(infiles=None,outfilename=None):
     plotvars = {}
     plotvars["ncand"] = {"values":[], "weights":[], "xlabel":r"# candidates []", "ylabel":r"# entries","range":(0,100), "bins":100}
     plotvars["leadmupt"] = {"values":[], "weights":[], "xlabel":r"Leading $\mu$ $p_{\rm T}$ [GeV/c]", "ylabel":r"# entries","range":(0,400), "bins":400}
-    plotvars["hadtopmass"] = {"values":[], "weights":[], "xlabel":r"Top candidate mass [GeV/c$^{\rm 2}$]", "ylabel":r"# entries","range":(0,800), "bins":800}
+    plotvars["hadtopmass"] = {"values":[], "weights":[], "xlabel":r"Hadronic op candidate mass [GeV/c$^{\rm 2}$]", "ylabel":r"# entries","range":(0,800), "bins":800}
+    plotvars["bnvtopmass"] = {"values":[], "weights":[], "xlabel":r"BNV top candidate mass [GeV/c$^{\rm 2}$]", "ylabel":r"# entries","range":(0,800), "bins":800}
     plotvars["Wmass"] = {"values":[], "weights":[], "xlabel":r"$W$ candidate mass [GeV/c$^{\rm 2}$]", "ylabel":r"# entries","range":(0,400), "bins":400}
     plotvars["pu_wt"] = {"values":[], "weights":[], "xlabel":r"Pileup weight []", "ylabel":r"# entries","range":(0,2), "bins":200}
 
@@ -75,7 +76,7 @@ def main(infiles=None,outfilename=None):
         print(tree.keys())
         print(tree.array('nmuon'))
 
-        data = tree.arrays(["nmuon", "leadmupt", "ncand","hadtopmass","Wmass","njet","jetcsv","jetpt","hadtopjet0idx","hadtopjet1idx","hadtopjet2idx","pu_wt"])
+        data = tree.arrays(["nmuon", "leadmupt", "ncand","bnvtopmass","hadtopmass","Wmass","njet","jetcsv","jetpt","hadtopjet0idx","hadtopjet1idx","hadtopjet2idx","pu_wt"])
                            
         print(type(data))
 
@@ -95,6 +96,7 @@ def main(infiles=None,outfilename=None):
 
             ncand = data[b'ncand'][i]
             leadmupt = data[b'leadmupt'][i]
+            bnvtopmass = data[b'bnvtopmass'][i]
             hadtopmass = data[b'hadtopmass'][i]
             Wmass = data[b'Wmass'][i]
             hadtopjet0idx = data[b'hadtopjet0idx'][i]
@@ -115,6 +117,7 @@ def main(infiles=None,outfilename=None):
 
             for n in range(ncand):
 
+                tbnvm = bnvtopmass[n]
                 thm = hadtopmass[n]
                 wm = Wmass[n]
 
@@ -128,6 +131,8 @@ def main(infiles=None,outfilename=None):
 
                 for icut,cut in enumerate(cuts):
                     if cut:
+                        plotvars["bnvtopmass"]["values"][icut].append(tbnvm)
+                        plotvars["bnvtopmass"]["weights"][icut].append(pu_wt)
                         plotvars["hadtopmass"]["values"][icut].append(thm)
                         plotvars["hadtopmass"]["weights"][icut].append(pu_wt)
                         plotvars["Wmass"]["values"][icut].append(wm)
@@ -182,10 +187,10 @@ def main(infiles=None,outfilename=None):
             output += prepare_histogram_for_output(name,h,bin_edges,xlabel,ylabel)
 
             # With NO weights
-            h,bin_edges = np.histogram(vals,bins=bins,range=r)
-            name = "{0}_cut{1}".format(key,n)
-            print(name,bins,r)
-            output += prepare_histogram_for_output(name,h,bin_edges,xlabel,ylabel)
+            #h,bin_edges = np.histogram(vals,bins=bins,range=r)
+            #name = "{0}_cut{1}".format(key,n)
+            #print(name,bins,r)
+            #output += prepare_histogram_for_output(name,h,bin_edges,xlabel,ylabel)
 
 
     '''
