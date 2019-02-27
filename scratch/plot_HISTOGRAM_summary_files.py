@@ -66,9 +66,10 @@ def main(infiles=None):
     mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets"]
     datadatasets = ['Data (2016)']
 
+    # Get the information on the plots from the first infile
     infile = open(infiles[0],'r')
     line = infile.readline()
-    names = []
+    names = [] # Names of plots to make
     xlabels = []
     ylabels = []
     while line:
@@ -80,24 +81,26 @@ def main(infiles=None):
         xlabels.append(' '.join(line.split()[1:]))
         line = infile.readline()
         ylabels.append(' '.join(line.split()[1:]))
-        print(ylabels)
         
         line = infile.readline()
 
 
-    '''
-    names = ['leadmupt', 'hadtopmass','Wmass','jetcsv', 'leadmupt_cut0', 'hadtopmass_cut0', 'Wmass_cut0']
-    xaxislabels = [r'leading $\mu$ p_T [GeV/c]', 
-                   r'Top candidate mass [GeV/c$^2$]', 
-                   r'$W$ candidate mass [GeV/c$^2$]', 
-                   r'Jet CSVv2 variable',
-                   r'leading $\mu$ p_T [GeV/c]', 
-                   r'Top candidate mass [GeV/c$^2$]', 
-                   r'$W$ candidate mass [GeV/c$^2$]'
-                   ]
-    '''
 
-
+    print(names)
+    cut_strings = []
+    basenames = []
+    for name in names:
+        cut_string = name.split("_cut")[-1]
+        basename = name.split("_cut")[0]
+        if cut_string not in cut_strings:
+            cut_strings.append(cut_string)
+        if basename not in basenames:
+            basenames.append(basename)
+    print(cut_strings)
+    print(basenames)
+    #exit()
+    
+    # Build a dictionary of the histogram information
     plots = OrderedDict()
     dataplots = OrderedDict()
     for name,xlabel,ylabel in zip(names,xlabels,ylabels):
@@ -112,6 +115,7 @@ def main(infiles=None):
 
 
 
+    # Loop over the input files
     for i,infile in enumerate(infiles):
 
         wt = 1.0
@@ -189,11 +193,12 @@ def main(infiles=None):
     ############################################################################
     plt.figure(figsize=(12,8))
 
-    maxvals = np.zeros(len(names))
+
     for i,name in enumerate(names):
         for j,dataset in enumerate(plots[name].keys()):
+
             plt.subplot(7,7,1+i)
-            #print(plots[name]['bin_vals'],plots[name]['bin_edges'])
+            
             x,y = combine_bins(plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges'],n=2)
             #x,y = plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges']
 
@@ -242,9 +247,20 @@ def main(infiles=None):
     plt.savefig('plots/legend.png')
 
 
-    plt.figure(figsize=(12,8))
+    figs = []
+    for i in range(len(cut_strings)):
+        figs.append(plt.figure(figsize=(12,8)))
+
+    #plt.figure(figsize=(12,8))
     for i,name in enumerate(names):
-        plt.subplot(7,7,1+i)
+
+        cut_string = int(name.split("_cut")[-1])
+        basename = name.split("_cut")[0]
+        idx = basenames.index(basename)
+        print(name,cut_string,idx)
+
+        ax = figs[cut_string].add_subplot(3,3,1+idx)
+        plt.sca(ax)
         #plt.figure(figsize=(5,4),dpi=100)
 
         heights,bins = [],[]
