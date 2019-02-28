@@ -58,10 +58,12 @@ dict1 = pickle.load(open(infilenames[1],'rb'))
 
 param_labels = list(dict0.keys())
 
+print("original")
 print(param_labels)
-toberemoved = ['had_dRPtTop','had_dRPtW']
+toberemoved = ['had_dRPtTop','had_dRPtW', 'bnv_dRPtTop','bnv_dRPtW']
 for a in toberemoved:
     param_labels.remove(a)
+print("After removal")
 print(param_labels)
 nparams = len(param_labels)
 
@@ -73,6 +75,8 @@ data1 = []
 nevents0 = nevents
 nevents1 = nevents
 
+print(len(dict0[param_labels[0]]))
+print(len(dict1[param_labels[0]]))
 if nevents == 0 or nevents > len(dict0[param_labels[0]]):
     nevents0 = len(dict0[param_labels[0]])
 print("Will process {0} events for {1}".format(nevents0,infilenames[0]))
@@ -110,13 +114,14 @@ classifier_results["nevents"] = nevents
 # Train test split
 ################################################################################
 
+print(data0.shape,data1.shape)
 X = np.concatenate((data0.transpose(), data1.transpose()))
 y = np.concatenate((np.ones(data0.transpose().shape[0]), np.zeros(data1.transpose().shape[0])))
 print("X -----------------")
 print(type(X),X.shape)
 print(type(y),y.shape)
-print(X)
-print(y)
+#print(X)
+#print(y)
 
 skdataset = {"data":X,"target":y,"target_names":param_labels}
 
