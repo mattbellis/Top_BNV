@@ -119,7 +119,7 @@ def main(filenames,outfilename=None):
     recoqpt = []
     recoqe = []
     
-    #nentries = 1000
+    nentries = 1000
 
     for i in range(nentries):
 
@@ -260,7 +260,8 @@ def main(filenames,outfilename=None):
         #'''
         #print("=======================")
         hadtopp4 = None
-        if recojets[0] is not None and recojets[1] is not None and recojets[2] is not None:
+        good_fill = False
+        if recojets[0] is not None and recojets[1] is not None and recojets[2] is not None and recojets[3] is not None and recojets[4] is not None and matchedleptons is not None:
             j0 = np.array(recojets[0]) # b-jet
             j1 = np.array(recojets[1])
             j2 = np.array(recojets[2])
@@ -312,6 +313,7 @@ def main(filenames,outfilename=None):
 
                 # GET ML DATA
                 tbt.vals_for_ML_training([j0,j1,j2],output_data)
+                good_fill = True
                 #print(output_data)
 
             #print(jet)
@@ -362,7 +364,7 @@ def main(filenames,outfilename=None):
         #'''
         #print("=======================")
         #print(bnv_matchedjets)
-        if recojets[3] is not None and recojets[4] is not None and matchedleptons is not None:
+        if recojets[0] is not None and recojets[1] is not None and recojets[2] is not None and recojets[3] is not None and recojets[4] is not None and matchedleptons is not None:
             j0 = np.array(recojets[3]) # b-jet
             j1 = np.array(recojets[4])
             lep = np.array(matchedleptons)
@@ -406,9 +408,10 @@ def main(filenames,outfilename=None):
                     top2pt.append(np.sqrt(bnvtopp4[1]**2 + bnvtopp4[2]**2))
 
                     # GET ML DATA
-                    tbt.vals_for_ML_training([j0,j1,lep],output_data,tag='bnv')
-                    output_data['ttbar_angle'].append(np.cos(a))
-                    #print(output_data)
+                    if good_fill:
+                        tbt.vals_for_ML_training([j0,j1,lep],output_data,tag='bnv')
+                        output_data['ttbar_angle'].append(np.cos(a))
+                        #print(output_data)
 
     for i in range(0,len(vals)):
         vals[i] = np.array(vals[i])

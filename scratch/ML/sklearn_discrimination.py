@@ -90,6 +90,7 @@ print("Will process {0} events for {1}".format(nevents1,infilenames[1]))
 for pl in param_labels:
     #data0.append(dict0[pl]['values'][0])
     data0.append(dict0[pl][0:nevents0])
+    print(len(dict0[pl][0:nevents0]))
     #print(len(dict0[pl]['values'][0]))
 
 for pl in param_labels:
@@ -97,6 +98,7 @@ for pl in param_labels:
     data1.append(dict1[pl][0:nevents1])
     #print(len(dict1[pl]['values'][0]))
 #exit()
+
 
 classifier_results = {}
 
