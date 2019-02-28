@@ -353,6 +353,39 @@ def get_good_muons(tree, ptcut=0.0):
     return allmuons
 
 ################################################################################
+# Pass in an event and a tree and return good electrons
+################################################################################
+def get_good_electrons(tree, ptcut=0.0):
+
+    allelectrons = []
+
+    nelectron = tree.nelectron
+    e = tree.electrone
+    px = tree.electronpx
+    py = tree.electronpy
+    pz = tree.electronpz
+    pt = tree.electronpt
+    eta = tree.electroneta
+    phi = tree.electronphi
+
+    for n in range(nelectron):
+
+        if pt[n]<ptcut:
+            continue
+
+        # Not doing lepton cleaning right now. Need to make sure DeltaR betwen 
+        # jets and leptons is>0.4. 
+        # https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
+        #loose_electron = False
+        loose_electron = True
+
+        #print(loose_electron)
+        if loose_electron is True:
+            allelectrons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n]])
+
+    return allelectrons
+
+################################################################################
 # Pass a list of jets and return a bjet and 2 non-b jets in order to 
 # look for a top candiate
 ################################################################################

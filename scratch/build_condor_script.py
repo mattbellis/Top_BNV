@@ -22,6 +22,8 @@ cmd += "Transfer_Input_Files = topbnv_tools.py, top_reconstruction_to_run_at_FNA
 cmd += "Output = condor_log_files/bellis_%s_$(Cluster)_$(Process).stdout\n" % (outfile.split('.root')[0])
 cmd += "Error = condor_log_files/bellis_%s_$(Cluster)_$(Process).stderr\n" % (outfile.split('.root')[0])
 cmd += "Log = condor_log_files/bellis_%s_$(Cluster)_$(Process).log\n" % (outfile.split('.root')[0])
+cmd += "transfer_output_files = %s\n" % (outfile)
+cmd += "output_destination = %s/%s\n" % ('/uscms_data/d1/mbellis/CONDOR_output_files_Feb2019/',topdir)
 cmd += "notify_user = mbellis@FNAL.GOV\n"
 # No longer need this line 
 # https://uscms.org/uscms_at_work/computing/setup/condor_refactor.shtml

@@ -42,19 +42,23 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2):
     #print(list_of_files)
     #print(fullnames)
 
+
+    topdirlastdir = topdir.split('/')[-1]
+    if topdir[-1]=='/':
+        topdirlastdir = topdir.split('/')[-2]
             
-    cmd = ['python', 'build_condor_script.py', topdir, outfile]
+    cmd = ['python', 'build_condor_script.py', topdirlastdir, outfile]
     for rootfile in fullnames:
         cmd += [rootfile]
     print(cmd)
     sp.Popen(cmd,0).wait()
     
 
-    exit()
+    #exit()
 
 
-#files_at_a_time = 100
-files_at_a_time = 3
+files_at_a_time = 100
+#files_at_a_time = 3
 
 pwd = os.getcwd()
 # This should be something like eos_store/SingleMuon (for the data)
@@ -164,7 +168,7 @@ for s0 in subdirs0:
                 write_out_build_file(list_of_files,topdir,s0,s1,s2)
 
             
-    exit()
+    #exit()
 
 
 print(topdir)
