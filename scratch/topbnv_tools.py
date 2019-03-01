@@ -334,6 +334,15 @@ def get_good_muons(tree, ptcut=0.0):
     pt = tree.muonpt
     eta = tree.muoneta
     phi = tree.muonphi
+    sumchhadpt = tree.muonsumchhadpt
+    sumnhadpt = tree.muonsumnhadpt
+    sumphotEt = tree.muonsumphotEt
+    sumPUPt = tree.muonsumPUPt
+    isLoose = tree.muonisLoose
+    isMedium = tree.muonisMedium
+    PFiso = tree.muonPFiso
+
+        
 
     for n in range(nmuon):
 
@@ -344,11 +353,11 @@ def get_good_muons(tree, ptcut=0.0):
         # jets and leptons is>0.4. 
         # https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
         #loose_muon = False
-        loose_muon = True
+        loose_muon = bool(isLoose[n])
 
         #print(loose_muon)
         if loose_muon is True:
-            allmuons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n]])
+            allmuons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n], sumchhadpt[n], sumnhadpt[n], sumphotEt[n], sumPUPt[n], isLoose[n], isMedium[n], PFiso[n]])
 
     return allmuons
 
@@ -367,6 +376,10 @@ def get_good_electrons(tree, ptcut=0.0):
     pt = tree.electronpt
     eta = tree.electroneta
     phi = tree.electronphi
+    TkIso = tree.electronTkIso
+    HCIso = tree.electronHCIso
+    ECIso = tree.electronECIso
+
 
     for n in range(nelectron):
 
@@ -381,7 +394,7 @@ def get_good_electrons(tree, ptcut=0.0):
 
         #print(loose_electron)
         if loose_electron is True:
-            allelectrons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n]])
+            allelectrons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n], TkIso[n], HCIso[n], ECIso[n]])
 
     return allelectrons
 

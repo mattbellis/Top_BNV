@@ -445,7 +445,8 @@ def topbnv_fwlite(argv):
     muonisMedium = array('i', 16*[-1])
     outtree.Branch('muonisMedium', muonisMedium, 'muonisMedium[nmuon]/I')
 
-    muonPFiso = array('f', 16*[-1.]); outtree.Branch('muonPFiso', muonPFiso, 'muonPFiso[nmuon]/F')
+    muonPFiso = array('f', 16*[-1.]); 
+    outtree.Branch('muonPFiso', muonPFiso, 'muonPFiso[nmuon]/F')
 
 
     # Electrons
