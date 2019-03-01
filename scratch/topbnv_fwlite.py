@@ -655,6 +655,7 @@ def topbnv_fwlite(argv):
 
             if triggerBits.product().accept(itrig):
                 trigname = trigger_names.triggerName(itrig)
+                #print(trigname)
 
                 mc_selection = True
 
@@ -681,6 +682,7 @@ def topbnv_fwlite(argv):
 
                     #firedTrigs.append( itrig )
 
+        #exit()
         #print("PASSED!!!!!!!!!!!!!! --------------")
         # THIS SHOULD ONLY WRITE EVENTS THAT PASSED THE TRIGGER
         #print("FLAG_passed_trigger: ",FLAG_passed_trigger)

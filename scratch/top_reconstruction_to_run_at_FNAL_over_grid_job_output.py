@@ -251,11 +251,17 @@ def main(filenames,outfile=None):
             muphi = tree.muonphi
             #'''
 
-            ntrigger[0] = 4
-            trigger[0] = tree.trig_muon[0]
-            trigger[1] = tree.trig_muon[1]
-            trigger[2] = tree.trig_muon[2]
-            trigger[3] = tree.trig_muon[3]
+            if leptonflag == 'muon':
+                ntrigger[0] = 4
+                trigger[0] = tree.trig_muon[0]
+                trigger[1] = tree.trig_muon[1]
+                trigger[2] = tree.trig_muon[2]
+                trigger[3] = tree.trig_muon[3]
+            elif leptonflag == 'electron':
+                ntrigger[0] = 3
+                trigger[0] = tree.trig_electron[0]
+                trigger[1] = tree.trig_electron[1]
+                trigger[2] = tree.trig_electron[2]
 
             ev_wt[0] = tree.ev_wt
             pu_wt[0] = tree.pu_wt
