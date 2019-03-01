@@ -167,6 +167,7 @@ class DataJEC:
 #####################################################################################
 #####################################################################################
 #####################################################################################
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopTrigger
 
 # MC values are for the 2016 data
 muon_triggers_of_interest = [
@@ -516,22 +517,22 @@ def topbnv_fwlite(argv):
     ntrig_dilepmue = array('i', [-1])
     outtree.Branch('ntrig_dilepmue', ntrig_dilepmue, 'ntrig_dilepmue/I')
     trig_dilepmue = array('i',8*[-1])
-    outtree.Branch('trig_dilepmue', trig_dilepmue, 'trig_dilepmue[ntrig_electron]/I')
+    outtree.Branch('trig_dilepmue', trig_dilepmue, 'trig_dilepmue[ntrig_dilepmue]/I')
 
     ntrig_dilepemu = array('i', [-1])
     outtree.Branch('ntrig_dilepemu', ntrig_dilepemu, 'ntrig_dilepemu/I')
     trig_dilepemu = array('i',8*[-1])
-    outtree.Branch('trig_dilepemu', trig_dilepemu, 'trig_dilepemu[ntrig_electron]/I')
+    outtree.Branch('trig_dilepemu', trig_dilepemu, 'trig_dilepemu[ntrig_dilepemu]/I')
 
     ntrig_dilepmumu = array('i', [-1])
     outtree.Branch('ntrig_dilepmumu', ntrig_dilepmumu, 'ntrig_dilepmumu/I')
     trig_dilepmumu = array('i',8*[-1])
-    outtree.Branch('trig_dilepmumu', trig_dilepmumu, 'trig_dilepmumu[ntrig_electron]/I')
+    outtree.Branch('trig_dilepmumu', trig_dilepmumu, 'trig_dilepmumu[ntrig_dilepmumu]/I')
 
     ntrig_dilepee = array('i', [-1])
     outtree.Branch('ntrig_dilepee', ntrig_dilepee, 'ntrig_dilepee/I')
     trig_dilepee = array('i',8*[-1])
-    outtree.Branch('trig_dilepee', trig_dilepee, 'trig_dilepee[ntrig_electron]/I')
+    outtree.Branch('trig_dilepee', trig_dilepee, 'trig_dilepee[ntrig_dilepee]/I')
 
     trigger_tree_branches = {
     "SingleMuon":trig_muon,
