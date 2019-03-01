@@ -119,7 +119,7 @@ def main(filenames,outfilename=None):
     recoqpt = []
     recoqe = []
     
-    nentries = 1000
+    nentries = 10000
 
     for i in range(nentries):
 
@@ -282,7 +282,8 @@ def main(filenames,outfilename=None):
 
 
             # Make sure the jets are not so close that they're almost merged!
-            if dR0>0.05 and dR1>0.05 and dR2>0.05:
+            #if dR0>0.05 and dR1>0.05 and dR2>0.05:
+            if 1:
 
                 wdR.append(dR0)
                 topdR_bnb.append(dR1)
@@ -382,7 +383,8 @@ def main(filenames,outfilename=None):
             dR2 = tbt.deltaR(j1[5:],lep[5:])
 
             # Make sure the jets are not so close that they're almost merged!
-            if dR0>0.05 and dR1>0.05 and dR2>0.05:
+            #if dR0>0.05 and dR1>0.05 and dR2>0.05:
+            if 1:
 
                 mass = tbt.invmass([j0,j1,lep])
                 bnvtopmass.append(mass)
