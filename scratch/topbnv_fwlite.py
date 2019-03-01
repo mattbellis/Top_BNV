@@ -317,6 +317,11 @@ def topbnv_fwlite(argv):
     # NEED HLT2 for 80x 2016 (maybe only TTBar?
     # https://twiki.cern.ch/twiki/bin/view/CMS/TopTrigger#Summary_for_2016_Run2016B_H_25_n
     triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","", "HLT")
+    #triggerPrescales, triggerPrescalesLabel = Handle("pat::PackedTriggerPrescales"), ("PackedTriggerPrescales","", "HLT")
+    #triggerPrescales, triggerPrescalesLabel = Handle("pat::PackedTriggerPrescales"), ("TriggerUserData","", "HLT")
+    trigPrescalesHandle = Handle( "std::vector<int>")
+    trigPrescalesLabel = ("TriggerUserData", "triggerPrescaleTree")
+
 
 
 
@@ -627,8 +632,10 @@ def topbnv_fwlite(argv):
         # Triggers
         ###############################################################
         event.getByLabel(triggerBitLabel, triggerBits)
+        #event.getByLabel(triggerPrescalesLabel, triggerPrescales)
 
         trigger_names = event.object().triggerNames(triggerBits.product())
+        #trigger_prescales = event.object().triggerPrescales(triggerPrescales.product())
 
         # Get list of triggers that fired
         #firedTrigs = []
