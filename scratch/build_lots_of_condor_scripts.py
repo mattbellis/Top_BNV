@@ -76,10 +76,12 @@ subdirs0 = os.listdir(topdir)
 #################################################################
 # Make the output directory because we know where this will go
 outputdir = "/uscms/homes/m/mbellis/eos_store/CONDOR_output_files_Feb2019/{0}".format(topdir_lastname)
+#outputdir = "/store//user/mbellis/CONDOR_output_files_Feb2019/{0}".format(topdir_lastname)
 
 print("Making output directory;")
 print(outputdir)
 cmds = ['mkdir',outputdir]
+#cmds = ['eosmkdir',outputdir]
 #print(cmds)
 sp.Popen(cmds,0).wait()
 #exit()
