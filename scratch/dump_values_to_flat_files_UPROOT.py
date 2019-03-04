@@ -27,9 +27,11 @@ def main(infiles=None,outfilename=None):
     plotvars = {}
     plotvars["ncand"] = {"values":[], "weights":[], "xlabel":r"# candidates []", "ylabel":r"# entries","range":(0,100), "bins":100}
     plotvars["leadmupt"] = {"values":[], "weights":[], "xlabel":r"Leading $\mu$ $p_{\rm T}$ [GeV/c]", "ylabel":r"# entries","range":(0,400), "bins":400}
+    plotvars["leadelectronpt"] = {"values":[], "weights":[], "xlabel":r"Leading $e$ $p_{\rm T}$ [GeV/c]", "ylabel":r"# entries","range":(0,400), "bins":400}
     plotvars["hadtopmass"] = {"values":[], "weights":[], "xlabel":r"Hadronic op candidate mass [GeV/c$^{\rm 2}$]", "ylabel":r"# entries","range":(0,800), "bins":800}
     plotvars["bnvtopmass"] = {"values":[], "weights":[], "xlabel":r"BNV top candidate mass [GeV/c$^{\rm 2}$]", "ylabel":r"# entries","range":(0,800), "bins":800}
     plotvars["Wmass"] = {"values":[], "weights":[], "xlabel":r"$W$ candidate mass [GeV/c$^{\rm 2}$]", "ylabel":r"# entries","range":(0,400), "bins":400}
+    plotvars["metpt"] = {"values":[], "weights":[], "xlabel":r"$E_{T}^{\rm miss}$ [GeV]", "ylabel":r"# entries","range":(0,200), "bins":200}
     plotvars["pu_wt"] = {"values":[], "weights":[], "xlabel":r"Pileup weight []", "ylabel":r"# entries","range":(0,2), "bins":200}
 
     cuts = []
@@ -76,7 +78,7 @@ def main(infiles=None,outfilename=None):
         print(tree.keys())
         print(tree.array('nmuon'))
 
-        data = tree.arrays(["nmuon", "leadmupt", "ncand","bnvtopmass","hadtopmass","Wmass","njet","jetcsv","jetpt","hadtopjet0idx","hadtopjet1idx","hadtopjet2idx","pu_wt"])
+        data = tree.arrays(["nmuon", "leadmupt", "leadelectronpt", "ncand","bnvtopmass","hadtopmass","Wmass","njet","jetcsv","jetpt","hadtopjet0idx","hadtopjet1idx","hadtopjet2idx","pu_wt", "metpt"])
                            
         print(type(data))
 
@@ -95,7 +97,9 @@ def main(infiles=None,outfilename=None):
             #print(data[b'nmuon'][i])
 
             ncand = data[b'ncand'][i]
+            metpt = data[b'metpt'][i]
             leadmupt = data[b'leadmupt'][i]
+            leadelectronpt = data[b'leadelectronpt'][i]
             bnvtopmass = data[b'bnvtopmass'][i]
             hadtopmass = data[b'hadtopmass'][i]
             Wmass = data[b'Wmass'][i]
@@ -149,6 +153,10 @@ def main(infiles=None,outfilename=None):
                 plotvars["ncand"]["weights"][icut].append(pu_wt)
                 plotvars["leadmupt"]["values"][icut].append(leadmupt)
                 plotvars["leadmupt"]["weights"][icut].append(pu_wt)
+                plotvars["leadelectronpt"]["values"][icut].append(leadelectronpt)
+                plotvars["leadelectronpt"]["weights"][icut].append(pu_wt)
+                plotvars["metpt"]["values"][icut].append(metpt)
+                plotvars["metpt"]["weights"][icut].append(pu_wt)
             
 
     '''
