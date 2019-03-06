@@ -275,6 +275,13 @@ def plot_results(data0, data1, dataset0name, dataset1name, param_labels, bdt, sh
     plt.savefig("plots/roc_curve.png")
     
     figctt = compare_train_test(bdt, X_train, y_train, X_test, y_test)
+
+    # What features are most important?
+    feature_importances = bdt.feature_importances_
+    estimators = bdt.estimators_
+    print(len(feature_importances))
+    for f,pl in zip(feature_importances, param_labels):
+        print(f,pl)
     
     if show:
         plt.show()
