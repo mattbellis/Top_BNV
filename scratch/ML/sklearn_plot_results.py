@@ -87,6 +87,12 @@ def compare_train_test(clf, X_train, y_train, X_test, y_test, bins=30):
 ################################################################################
 def plot_results(data0, data1, dataset0name, dataset1name, param_labels, bdt, show=False):
 
+    if len(dataset0name)>24:
+        dataset0name = dataset0name[0:24]
+
+    if len(dataset1name)>24:
+        dataset1name = dataset1name[0:24]
+
     nparams = len(data0)
     ################################################################################
     # Plot the correlation matrices

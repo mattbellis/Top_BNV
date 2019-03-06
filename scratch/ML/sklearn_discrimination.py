@@ -61,7 +61,12 @@ param_labels = list(dict0.keys())
 print("original")
 print(param_labels)
 toberemoved = ['had_dRPtTop','had_dRPtW', 'bnv_dRPtTop','bnv_dRPtW']
+toberemoved += ['bnv_j12_m', 'bnv_j13_m', 'bnv_j23_m']
+toberemoved += ['bnv_dR12_lab', 'bnv_dR13_lab', 'bnv_dR23_lab', 'bnv_dR1_23_lab']
+toberemoved += ['bnv_dTheta12_rest','bnv_dTheta13_rest','bnv_dTheta23_rest']
+
 for a in toberemoved:
+    print('Removing {0} from variables to use in training'.format(a))
     param_labels.remove(a)
 print("After removal")
 print(param_labels)
@@ -77,6 +82,7 @@ nevents1 = nevents
 
 print(len(dict0[param_labels[0]]))
 print(len(dict1[param_labels[0]]))
+
 if nevents == 0 or nevents > len(dict0[param_labels[0]]):
     nevents0 = len(dict0[param_labels[0]])
 print("Will process {0} events for {1}".format(nevents0,infilenames[0]))
@@ -89,8 +95,9 @@ print("Will process {0} events for {1}".format(nevents1,infilenames[1]))
 
 for pl in param_labels:
     #data0.append(dict0[pl]['values'][0])
+    #print(nevents0,len(dict0[pl]))
+    #print(len(dict0[pl][0:nevents0]),pl)
     data0.append(dict0[pl][0:nevents0])
-    print(len(dict0[pl][0:nevents0]))
     #print(len(dict0[pl]['values'][0]))
 
 for pl in param_labels:
