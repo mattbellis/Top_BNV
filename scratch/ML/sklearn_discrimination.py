@@ -98,6 +98,7 @@ for pl in param_labels:
     #data0.append(dict0[pl]['values'][0])
     #print(nevents0,len(dict0[pl]))
     #print(len(dict0[pl][0:nevents0]),pl)
+    print(pl)
     data0.append(dict0[pl][0:nevents0])
     #print(len(dict0[pl]['values'][0]))
 
@@ -161,13 +162,14 @@ print("Accuracy: %0.5f (+/- %0.5f)",scores.mean(), scores.std())
 
 classifier_results["classifier"] = bdt
 
+# Dump all the info to file
 pickle.dump(classifier_results,outfile)
 outfile.close()
 
 # Perform grid search over all combinations
 # of these hyper-parameters
 param_grid = {"n_estimators": [50,200,400,1000],
-              "max_depth": [1, 3, 8],
+        #"max_depth": [3, 4, 5],
               'learning_rate': [0.1, 0.2, 1.]}
 
 clf = grid_search.GridSearchCV(bdt,
@@ -182,14 +184,14 @@ print(clf.best_estimator_)
 print("")
 print("Grid scores on a subset of the development set:")
 for params, mean_score, scores in clf.grid_scores_:
-    print("%0.4f (+/-%0.04f) for %r",(mean_score, scores.std(), params))
+    print("%0.4f (+/-%0.04f) for %r" % (mean_score, scores.std(), params))
 print("")
 print("With the model trained on the full development set:")
 
 y_true, y_pred = y_dev, clf.decision_function(X_dev)
-print("  It scores %0.4f on the full development set",roc_auc_score(y_true, y_pred))
+print("  It scores %0.4f on the full development set" % roc_auc_score(y_true, y_pred))
 y_true, y_pred = y_eval, clf.decision_function(X_eval)
-print("  It scores %0.4f on the full evaluation set",roc_auc_score(y_true, y_pred))
+print("  It scores %0.4f on the full evaluation set" % roc_auc_score(y_true, y_pred))
 
 
 
