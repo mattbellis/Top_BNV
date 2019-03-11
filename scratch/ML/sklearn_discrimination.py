@@ -8,6 +8,7 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.metrics import classification_report, roc_auc_score
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import roc_curve, auc, accuracy_score
+from sklearn import cross_validation, grid_search
 
 import sys
 import pickle
@@ -150,10 +151,47 @@ dt = DecisionTreeClassifier(max_depth=3)
 bdt = AdaBoostClassifier(dt, algorithm='SAMME', n_estimators=800, learning_rate=0.5)
 bdt.fit(X_train, y_train)
 
+scores = cross_validation.cross_val_score(bdt,
+                                          X_dev, y_dev,
+                                          scoring="roc_auc",
+                                          n_jobs=6,
+                                          cv=3)
+
+print("Accuracy: %0.5f (+/- %0.5f)",scores.mean(), scores.std())
+
 classifier_results["classifier"] = bdt
 
 pickle.dump(classifier_results,outfile)
 outfile.close()
+
+# Perform grid search over all combinations
+# of these hyper-parameters
+param_grid = {"n_estimators": [50,200,400,1000],
+              "max_depth": [1, 3, 8],
+              'learning_rate': [0.1, 0.2, 1.]}
+
+clf = grid_search.GridSearchCV(bdt,
+                               param_grid,
+                               cv=3,
+                               scoring='roc_auc',
+                               n_jobs=8)
+_ = clf.fit(X_dev, y_dev)
+
+print("Best parameter set found on development set:")
+print(clf.best_estimator_)
+print("")
+print("Grid scores on a subset of the development set:")
+for params, mean_score, scores in clf.grid_scores_:
+    print("%0.4f (+/-%0.04f) for %r",(mean_score, scores.std(), params))
+print("")
+print("With the model trained on the full development set:")
+
+y_true, y_pred = y_dev, clf.decision_function(X_dev)
+print("  It scores %0.4f on the full development set",roc_auc_score(y_true, y_pred))
+y_true, y_pred = y_eval, clf.decision_function(X_eval)
+print("  It scores %0.4f on the full evaluation set",roc_auc_score(y_true, y_pred))
+
+
 
 plot_results(data0, data1, infilenames[0], infilenames[1], param_labels, bdt)
 
