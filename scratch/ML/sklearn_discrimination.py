@@ -167,7 +167,6 @@ outfile.close()
 # Perform grid search over all combinations
 # of these hyper-parameters
 param_grid = {"n_estimators": [50,200,400,1000],
-              "max_depth": [1, 3, 8],
               'learning_rate': [0.1, 0.2, 1.]}
 
 clf = grid_search.GridSearchCV(bdt,
