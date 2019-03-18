@@ -9,7 +9,10 @@ data = pickle.load(infile)
 nbins = 100
 
 plt.figure()
-for i,key in enumerate(data.keys()):
+
+keys = np.sort(list(data.keys()))
+
+for i,key in enumerate(keys):
     plt.subplot(4,4,i+1)
     if key.find('had_j')>=0 and key.find('_m')>=0:
         plt.hist(data[key],bins=nbins,range=(0,200))
