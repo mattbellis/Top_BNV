@@ -1,7 +1,7 @@
 set infile = $1
-@ number = 38
+@ number = 0
 
-while ( $number < 39 )
+while ( $number < 55 )
 
     set outfile = "TMP_"`basename $infile .py`"_"$number.py
 

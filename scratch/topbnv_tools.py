@@ -334,6 +334,15 @@ def get_good_muons(tree, ptcut=0.0):
     pt = tree.muonpt
     eta = tree.muoneta
     phi = tree.muonphi
+    sumchhadpt = tree.muonsumchhadpt
+    sumnhadpt = tree.muonsumnhadpt
+    sumphotEt = tree.muonsumphotEt
+    sumPUPt = tree.muonsumPUPt
+    isLoose = tree.muonisLoose
+    isMedium = tree.muonisMedium
+    PFiso = tree.muonPFiso
+
+        
 
     for n in range(nmuon):
 
@@ -344,13 +353,50 @@ def get_good_muons(tree, ptcut=0.0):
         # jets and leptons is>0.4. 
         # https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
         #loose_muon = False
-        loose_muon = True
+        loose_muon = bool(isLoose[n])
 
         #print(loose_muon)
         if loose_muon is True:
-            allmuons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n]])
+            allmuons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n], sumchhadpt[n], sumnhadpt[n], sumphotEt[n], sumPUPt[n], isLoose[n], isMedium[n], PFiso[n]])
 
     return allmuons
+
+################################################################################
+# Pass in an event and a tree and return good electrons
+################################################################################
+def get_good_electrons(tree, ptcut=0.0):
+
+    allelectrons = []
+
+    nelectron = tree.nelectron
+    e = tree.electrone
+    px = tree.electronpx
+    py = tree.electronpy
+    pz = tree.electronpz
+    pt = tree.electronpt
+    eta = tree.electroneta
+    phi = tree.electronphi
+    TkIso = tree.electronTkIso
+    HCIso = tree.electronHCIso
+    ECIso = tree.electronECIso
+
+
+    for n in range(nelectron):
+
+        if pt[n]<ptcut:
+            continue
+
+        # Not doing lepton cleaning right now. Need to make sure DeltaR betwen 
+        # jets and leptons is>0.4. 
+        # https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
+        #loose_electron = False
+        loose_electron = True
+
+        #print(loose_electron)
+        if loose_electron is True:
+            allelectrons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n], TkIso[n], HCIso[n], ECIso[n]])
+
+    return allelectrons
 
 ################################################################################
 # Pass a list of jets and return a bjet and 2 non-b jets in order to 
@@ -795,7 +841,7 @@ def event_hypothesis(leptons,jets,bjetcut=0.87):
 
 
 ################################################################################
-def vals_for_ML_training(jets,output_data):
+def vals_for_ML_training(jets,output_data,tag="had"):
 
     # reco jets: e, px, py, pz, pt, eta, phi, csv2
     j1 = jets[0]
@@ -818,29 +864,19 @@ def vals_for_ML_training(jets,output_data):
     rj2pmag = pmag(rj2[1:4])
     rj3pmag = pmag(rj3[1:4])
 
-
-
     ######### DUMP SOME INFO FOR ML TRAINING ########################
-    #print('-------------')
-    #for s in jets:
-    #print(s[4],s)
-
-    # Sort by pt
-    #jets.sort(key=itemgetter(4)) # Sort by pT, the 4 (5th) index
-    #jets.reverse()
-    # Sort by pmag in rest frame
-    #print(rj1pmag)
-    #print(rj1pmag)
     tmpjets = [j1,j2,j3] 
-    #print("------")
-    #print( [rj1pmag,rj2pmag,rj3pmag] )
-    #print(tmpjets[0],tmpjets[1],tmpjets[2])
-    #list1, list2 = zip(*sorted(zip([j1,j2,j3], [rj1pmag,rj2pmag,rj3pmag])))
-    sortidx = np.argsort( [rj1pmag,rj2pmag,rj3pmag])
-    j1 = tmpjets[sortidx[2]]
-    j2 = tmpjets[sortidx[1]]
-    j3 = tmpjets[sortidx[0]]
-    #print(j1,j2,j3)
+    # If it is hadronic, order 3 jets, otherwise order 2 hets
+    if tag=='had':
+        sortidx = np.argsort( [rj1pmag,rj2pmag,rj3pmag])
+        j1 = tmpjets[sortidx[2]]
+        j2 = tmpjets[sortidx[1]]
+        j3 = tmpjets[sortidx[0]]
+        #print(j1,j2,j3)
+    else:
+        sortidx = np.argsort( [rj1pmag,rj2pmag])
+        j1 = tmpjets[sortidx[1]]
+        j2 = tmpjets[sortidx[0]]
 
     #for s in jets:
     #print(s[4],s)
@@ -849,26 +885,26 @@ def vals_for_ML_training(jets,output_data):
     #j3 = jets[2]
 #
     mass = invmass([j1,j2,j3])
-    output_data['had_m'].append(mass)
+    output_data[tag+'_m'].append(mass)
 
     mass = invmass([j1,j2])
-    output_data['had_j12_m'].append(mass)
+    output_data[tag+'_j12_m'].append(mass)
     mass = invmass([j1,j3])
-    output_data['had_j13_m'].append(mass)
+    output_data[tag+'_j13_m'].append(mass)
     mass = invmass([j2,j3])
-    output_data['had_j23_m'].append(mass)
+    output_data[tag+'_j23_m'].append(mass)
 
     # LAB FRAME ANGLES
     dR = deltaR(j1[5:],j2[5:])
-    output_data['had_dR12_lab'].append(dR)
+    output_data[tag+'_dR12_lab'].append(dR)
     dR = deltaR(j1[5:],j3[5:])
-    output_data['had_dR13_lab'].append(dR)
+    output_data[tag+'_dR13_lab'].append(dR)
     dR = deltaR(j2[5:],j3[5:])
-    output_data['had_dR23_lab'].append(dR)
+    output_data[tag+'_dR23_lab'].append(dR)
     tmp = j2[1:4] + j3[1:4]
     tmppt,tmpeta,tmpphi = xyzTOetaphi(tmp[0],tmp[1],tmp[2])
     dR = deltaR(j1[5:],[tmpeta,tmpphi])
-    output_data['had_dR1_23_lab'].append(dR)
+    output_data[tag+'_dR1_23_lab'].append(dR)
 
     # REST FRAME
     topp4 = j1[0:4]+j2[0:4]+j3[0:4]
@@ -884,15 +920,16 @@ def vals_for_ML_training(jets,output_data):
     rj3pmag = pmag(rj3[1:4])
 
     dTheta = angle_between_vectors(rj1[1:4],rj2[1:4])
-    output_data['had_dTheta12_rest'].append(dTheta)
+    output_data[tag+'_dTheta12_rest'].append(dTheta)
     dTheta = angle_between_vectors(rj1[1:4],rj3[1:4])
-    output_data['had_dTheta13_rest'].append(dTheta)
+    output_data[tag+'_dTheta13_rest'].append(dTheta)
     dTheta = angle_between_vectors(rj2[1:4],rj3[1:4])
-    output_data['had_dTheta23_rest'].append(dTheta)
+    output_data[tag+'_dTheta23_rest'].append(dTheta)
 
     # CSV b-tagging variable
-    output_data['had_j1_CSV'].append(j1[7])
-    output_data['had_j2_CSV'].append(j2[7])
-    output_data['had_j3_CSV'].append(j3[7])
+    output_data[tag+'_j1_CSV'].append(j1[7])
+    output_data[tag+'_j2_CSV'].append(j2[7])
+    if tag=="had":
+        output_data[tag+'_j3_CSV'].append(j3[7])
 
 

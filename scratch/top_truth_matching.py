@@ -40,6 +40,24 @@ def main(filenames,outfilename=None):
     output_data["had_j2_CSV"] = []
     output_data["had_j3_CSV"] = []
 
+    output_data["bnv_m"] = []
+    output_data["bnv_j12_m"] = []
+    output_data["bnv_j13_m"] = []
+    output_data["bnv_j23_m"] = []
+    output_data["bnv_dR12_lab"] = []
+    output_data["bnv_dR13_lab"] = []
+    output_data["bnv_dR23_lab"] = []
+    output_data["bnv_dR1_23_lab"] = []
+    output_data["bnv_dRPtTop"] = []
+    output_data["bnv_dRPtW"] = []
+    output_data["bnv_dTheta12_rest"] = []
+    output_data["bnv_dTheta13_rest"] = []
+    output_data["bnv_dTheta23_rest"] = []
+    output_data["bnv_j1_CSV"] = []
+    output_data["bnv_j2_CSV"] = []
+
+    output_data["ttbar_angle"] = []
+
     incorrect_output_data = {}
     for key in output_data.keys():
         incorrect_output_data[key] = []
@@ -101,7 +119,7 @@ def main(filenames,outfilename=None):
     recoqpt = []
     recoqe = []
     
-    nentries = 100
+    nentries = 10000
 
     for i in range(nentries):
 
@@ -242,7 +260,8 @@ def main(filenames,outfilename=None):
         #'''
         #print("=======================")
         hadtopp4 = None
-        if recojets[0] is not None and recojets[1] is not None and recojets[2] is not None:
+        good_fill = False
+        if recojets[0] is not None and recojets[1] is not None and recojets[2] is not None and recojets[3] is not None and recojets[4] is not None and matchedleptons is not None:
             j0 = np.array(recojets[0]) # b-jet
             j1 = np.array(recojets[1])
             j2 = np.array(recojets[2])
@@ -263,7 +282,8 @@ def main(filenames,outfilename=None):
 
 
             # Make sure the jets are not so close that they're almost merged!
-            if dR0>0.05 and dR1>0.05 and dR2>0.05:
+            #if dR0>0.05 and dR1>0.05 and dR2>0.05:
+            if 1:
 
                 wdR.append(dR0)
                 topdR_bnb.append(dR1)
@@ -294,6 +314,7 @@ def main(filenames,outfilename=None):
 
                 # GET ML DATA
                 tbt.vals_for_ML_training([j0,j1,j2],output_data)
+                good_fill = True
                 #print(output_data)
 
             #print(jet)
@@ -314,9 +335,26 @@ def main(filenames,outfilename=None):
         #for t in tmpjets:
             #print(t)
 
-        for j0,j1,j2 in combinations(tmpjets,3):
-            #print(j0,j1,j2)
-            tbt.vals_for_ML_training([j0,j1,j2],incorrect_output_data)
+        if len(tmpjets)>=5:
+            for j0,j1,j2 in combinations(tmpjets,3):
+                tbt.vals_for_ML_training([j0,j1,j2],incorrect_output_data)
+                tmp2jets = tmpjets.copy()
+                tmp2jets.remove(j0)
+                tmp2jets.remove(j1)
+                tmp2jets.remove(j2)
+                for j3,j4 in combinations(tmp2jets,2):
+                    j3 = np.array(j3)
+                    j4 = np.array(j4)
+                    for lep in allmuons:
+                        lep = np.array(lep)
+                        tbt.vals_for_ML_training([j0,j1,j2],incorrect_output_data,tag='had')
+                        tbt.vals_for_ML_training([j3,j4,lep],incorrect_output_data,tag='bnv')
+                        wrong_hadtopp4 = j0[0:4] + j1[0:4] + j2[0:4]
+                        #print(lep[0:4],type(lep[0:4]))
+                        wrong_bnvtopp4 = j3[0:4]+j4[0:4]+lep[0:4]
+                        a = tbt.angle_between_vectors(wrong_hadtopp4[1:4],wrong_bnvtopp4[1:4],transverse=True)
+                        incorrect_output_data['ttbar_angle'].append(np.cos(a))
+
 
         #print("==============")
         #print(output_data)
@@ -327,7 +365,7 @@ def main(filenames,outfilename=None):
         #'''
         #print("=======================")
         #print(bnv_matchedjets)
-        if recojets[3] is not None and recojets[4] is not None and matchedleptons is not None:
+        if recojets[0] is not None and recojets[1] is not None and recojets[2] is not None and recojets[3] is not None and recojets[4] is not None and matchedleptons is not None:
             j0 = np.array(recojets[3]) # b-jet
             j1 = np.array(recojets[4])
             lep = np.array(matchedleptons)
@@ -345,7 +383,8 @@ def main(filenames,outfilename=None):
             dR2 = tbt.deltaR(j1[5:],lep[5:])
 
             # Make sure the jets are not so close that they're almost merged!
-            if dR0>0.05 and dR1>0.05 and dR2>0.05:
+            #if dR0>0.05 and dR1>0.05 and dR2>0.05:
+            if 1:
 
                 mass = tbt.invmass([j0,j1,lep])
                 bnvtopmass.append(mass)
@@ -369,6 +408,12 @@ def main(filenames,outfilename=None):
                     met.append(tree.metpt)
                     top1pt.append(np.sqrt(hadtopp4[1]**2 + hadtopp4[2]**2))
                     top2pt.append(np.sqrt(bnvtopp4[1]**2 + bnvtopp4[2]**2))
+
+                    # GET ML DATA
+                    if good_fill:
+                        tbt.vals_for_ML_training([j0,j1,lep],output_data,tag='bnv')
+                        output_data['ttbar_angle'].append(np.cos(a))
+                        #print(output_data)
 
     for i in range(0,len(vals)):
         vals[i] = np.array(vals[i])
@@ -405,11 +450,13 @@ def main(filenames,outfilename=None):
     ################################################################################
     # Write the ML output to a pickle file
     ################################################################################
-    ml_file = open('signal_SMALL_ML_data.pkl', 'wb')
+    #ml_file = open('signal_SMALL_ML_data.pkl', 'wb')
+    ml_file = open('signal_ML_data.pkl', 'wb')
     pickle.dump(output_data, ml_file)
     ml_file.close()
 
-    ml_file = open('bkg_SMALL_ML_data.pkl', 'wb')
+    #ml_file = open('bkg_SMALL_ML_data.pkl', 'wb')
+    ml_file = open('bkg_ML_data.pkl', 'wb')
     pickle.dump(incorrect_output_data, ml_file)
     ml_file.close()
 

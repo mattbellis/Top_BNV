@@ -24,21 +24,21 @@ def main(filenames,outfile=None):
 
     njet = array('i', [-1])
     outtree.Branch('njet', njet, 'njet/I')
-    jetcsv = array('f', 64*[-1.])
+    jetcsv = array('f', 16*[-1.])
     outtree.Branch('jetcsv', jetcsv, 'jetcsv[njet]/F')
-    jetpt = array('f', 64*[-1.])
+    jetpt = array('f', 16*[-1.])
     outtree.Branch('jetpt', jetpt, 'jetpt[njet]/F')
-    jeteta = array('f', 64*[-1.])
+    jeteta = array('f', 16*[-1.])
     outtree.Branch('jeteta', jeteta, 'jeteta[njet]/F')
-    jetphi = array('f', 64*[-1.])
+    jetphi = array('f', 16*[-1.])
     outtree.Branch('jetphi', jetphi, 'jetphi[njet]/F')
-    jete = array('f', 64*[-1.])
+    jete = array('f', 16*[-1.])
     outtree.Branch('jete', jete, 'jete[njet]/F')
-    jetpx = array('f', 64*[-1.])
+    jetpx = array('f', 16*[-1.])
     outtree.Branch('jetpx', jetpx, 'jetpx[njet]/F')
-    jetpy = array('f', 64*[-1.])
+    jetpy = array('f', 16*[-1.])
     outtree.Branch('jetpy', jetpy, 'jetpy[njet]/F')
-    jetpz = array('f', 64*[-1.])
+    jetpz = array('f', 16*[-1.])
     outtree.Branch('jetpz', jetpz, 'jetpz[njet]/F')
 
     # Had top
@@ -77,14 +77,44 @@ def main(filenames,outfile=None):
     thetatop1top2 = array('f', 64*[-1])
     outtree.Branch('thetatop1top2', thetatop1top2, 'thetatop1top2[ncand]/F')
 
-
-
-
-    nmuon = array('i', [-1])
-    outtree.Branch('nmuon', nmuon, 'nmuon/I')
-
     metpt = array('f', [-1.])
     outtree.Branch('metpt', metpt, 'metpt/F')
+
+
+    # Muons
+    nmuon = array('i', [-1])
+    outtree.Branch('nmuon', nmuon, 'nmuon/I')
+    muonpt = array('f', 16*[-1.])
+    outtree.Branch('muonpt', muonpt, 'muonpt[nmuon]/F')
+    muoneta = array('f', 16*[-1.])
+    outtree.Branch('muoneta', muoneta, 'muoneta[nmuon]/F')
+    muonphi = array('f', 16*[-1.])
+    outtree.Branch('muonphi', muonphi, 'muonphi[nmuon]/F')
+    muone = array('f', 16*[-1.])
+    outtree.Branch('muone', muone, 'muone[nmuon]/F')
+    muonpx = array('f', 16*[-1.])
+    outtree.Branch('muonpx', muonpx, 'muonpx[nmuon]/F')
+    muonpy = array('f', 16*[-1.])
+    outtree.Branch('muonpy', muonpy, 'muonpy[nmuon]/F')
+    muonpz = array('f', 16*[-1.])
+    outtree.Branch('muonpz', muonpz, 'muonpz[nmuon]/F')
+
+    muonsumchhadpt = array('f', 16*[-1.])
+    outtree.Branch('muonsumchhadpt', muonsumchhadpt, 'muonsumchhadpt[nmuon]/F')
+    muonsumnhadpt = array('f', 16*[-1.])
+    outtree.Branch('muonsumnhadpt', muonsumnhadpt, 'muonsumnhadpt[nmuon]/F')
+    muonsumphotEt = array('f', 16*[-1.])
+    outtree.Branch('muonsumphotEt', muonsumphotEt, 'muonsumphotEt[nmuon]/F')
+    muonsumPUPt = array('f', 16*[-1.])
+    outtree.Branch('muonsumPUPt', muonsumPUPt, 'muonsumPUPt[nmuon]/F')
+    muonisLoose = array('i', 16*[-1])
+    outtree.Branch('muonisLoose', muonisLoose, 'muonisLoose[nmuon]/I')
+    muonisMedium = array('i', 16*[-1])
+    outtree.Branch('muonisMedium', muonisMedium, 'muonisMedium[nmuon]/I')
+    muonPFiso = array('f', 16*[-1.]);
+    outtree.Branch('muonPFiso', muonPFiso, 'muonPFiso[nmuon]/F')
+
+
 
     leadmupt = array('f', [-1.])
     outtree.Branch('leadmupt', leadmupt, 'leadmupt/F')
@@ -99,6 +129,48 @@ def main(filenames,outfile=None):
     outtree.Branch('subleadmueta', subleadmueta, 'subleadmueta/F')
     subleadmuphi = array('f', [-1.])
     outtree.Branch('subleadmuphi', subleadmuphi, 'subleadmuphi/F')
+
+    # Electrons
+    nelectron = array('i', [-1])
+    outtree.Branch('nelectron', nelectron, 'nelectron/I')
+    electronpt = array('f', 16*[-1.])
+    outtree.Branch('electronpt', electronpt, 'electronpt[nelectron]/F')
+    electroneta = array('f', 16*[-1.])
+    outtree.Branch('electroneta', electroneta, 'electroneta[nelectron]/F')
+    electronphi = array('f', 16*[-1.])
+    outtree.Branch('electronphi', electronphi, 'electronphi[nelectron]/F')
+    electrone = array('f', 16*[-1.])
+    outtree.Branch('electrone', electrone, 'electrone[nelectron]/F')
+    electronpx = array('f', 16*[-1.])
+    outtree.Branch('electronpx', electronpx, 'electronpx[nelectron]/F')
+    electronpy = array('f', 16*[-1.])
+    outtree.Branch('electronpy', electronpy, 'electronpy[nelectron]/F')
+    electronpz = array('f', 16*[-1.])
+    outtree.Branch('electronpz', electronpz, 'electronpz[nelectron]/F')
+
+    electronTkIso = array('f',16*[-1.])
+    outtree.Branch('electronTkIso', electronTkIso, 'electronTkIso[nelectron]/F')
+    electronHCIso = array('f',16*[-1.])
+    outtree.Branch('electronHCIso', electronHCIso, 'electronHCIso[nelectron]/F')
+    electronECIso = array('f',16*[-1.])
+    outtree.Branch('electronECIso', electronECIso, 'electronECIso[nelectron]/F')
+
+
+
+    leadelectronpt = array('f', [-1.])
+    outtree.Branch('leadelectronpt', leadelectronpt, 'leadelectronpt/F')
+    leadelectroneta = array('f', [-1.])
+    outtree.Branch('leadelectroneta', leadelectroneta, 'leadelectroneta/F')
+    leadelectronphi = array('f', [-1.])
+    outtree.Branch('leadelectronphi', leadelectronphi, 'leadelectronphi/F')
+
+    subleadelectronpt = array('f', [-1.])
+    outtree.Branch('subleadelectronpt', subleadelectronpt, 'subleadelectronpt/F')
+    subleadelectroneta = array('f', [-1.])
+    outtree.Branch('subleadelectroneta', subleadelectroneta, 'subleadelectroneta/F')
+    subleadelectronphi = array('f', [-1.])
+    outtree.Branch('subleadelectronphi', subleadelectronphi, 'subleadelectronphi/F')
+    
     #'''
 
     ntrigger = array('i', [-1])
@@ -116,40 +188,15 @@ def main(filenames,outfile=None):
 
 
     print("Will open files:")
-    for infilenames in filenames:
-        print(infilenames)
+    for filename in filenames:
+        print(filename)
 
-    '''
-    # Define our data we want to write out.
-    data = {}
-    data["topmass"] = []
-    data["wmass"] = []
-    data["csvs"] = []
-    data["angles"] = []
-    data["dRs"] = []
-    data["METpt"] = []
-    data["njets"] = []
-    data["nbjets"] = []
-    data["mumass"] = []
-    data["leadmupt"] = []
-    data["subleadmupt"] = []
-    data["leadmueta"] = []
-    data["subleadmueta"] = []
-    data["elecmass"] = []
-    data["leadelecpt"] = []
-    data["subleadelecpt"] = []
-    data["leadeleceta"] = []
-    data["subleadeleceta"] = []
-    data["leadjetpt"] = []
-    data["subleadjetpt"] = []
-    data["leadjeteta"] = []
-    data["subleadjeteta"] = []
+    # Figure out if we're processing muon or electron data
+    leptonflag = "muon"
+    if filenames[0].find('SingleElectron')>0:
+        leptonflag = "electron"
 
-    data["trig_HLT_IsoMu24_accept"] = []
-    data["trig_HLT_IsoTkMu24_accept"] = []
-    data["trig_HLT_IsoMu22_eta2p1_accept"] = []
-    data["trig_HLT_IsoTkMu22_eta2p1_accept"] = []
-    '''
+    print("Lepton flag is set to {0}".format(leptonflag))
 
 
     # Loop over the files.
@@ -191,21 +238,30 @@ def main(filenames,outfile=None):
             metpt_in = tree.metpt
 
             #'''
+            ne_in = tree.nelectron
+            ee = tree.electrone
+            ept = tree.electronpt
+            eeta = tree.electroneta
+            ephi = tree.electronphi
+
             nmu_in = tree.nmuon
             mue = tree.muone
-            mupx = tree.muonpx
-            mupy = tree.muonpy
-            mupz = tree.muonpz
             mupt = tree.muonpt
             mueta = tree.muoneta
             muphi = tree.muonphi
             #'''
 
-            ntrigger[0] = 4
-            trigger[0] = tree.trig_muon[0]
-            trigger[1] = tree.trig_muon[1]
-            trigger[2] = tree.trig_muon[2]
-            trigger[3] = tree.trig_muon[3]
+            if leptonflag == 'muon':
+                ntrigger[0] = 4
+                trigger[0] = tree.trig_muon[0]
+                trigger[1] = tree.trig_muon[1]
+                trigger[2] = tree.trig_muon[2]
+                trigger[3] = tree.trig_muon[3]
+            elif leptonflag == 'electron':
+                ntrigger[0] = 3
+                trigger[0] = tree.trig_electron[0]
+                trigger[1] = tree.trig_electron[1]
+                trigger[2] = tree.trig_electron[2]
 
             ev_wt[0] = tree.ev_wt
             pu_wt[0] = tree.pu_wt
@@ -228,17 +284,16 @@ def main(filenames,outfile=None):
             bjetcut_on_csv = 0.87
             jetptcut = 20
             muonptcut = 20
+            electronptcut = 20
 
             allmuons = tbt.get_good_muons(tree,ptcut=muonptcut)
+            allelectrons = tbt.get_good_electrons(tree,ptcut=electronptcut)
             alljets = tbt.get_good_jets(tree,ptcut=jetptcut)
-            #bjets,nonbjets = tbt.get_top_candidate_jets(alljets, csvcut=bjetcut_on_csv)
-
 
             #'''
-            ncount = 0
             njet[0] = 0
             for n,jet in enumerate(alljets):
-                if n<64:
+                if n<16:
                     jete[n] = jet[0]
                     jetpx[n] = jet[1]
                     jetpy[n] = jet[2]
@@ -249,10 +304,34 @@ def main(filenames,outfile=None):
                     jetcsv[n] = jet[7]
                     njet[0] += 1
 
+            nmuon[0] = 0
+            for n,muon in enumerate(allmuons):
+                if n<16:
+                    muone[n] = muon[0]
+                    muonpx[n] = muon[1]
+                    muonpy[n] = muon[2]
+                    muonpz[n] = muon[3]
+                    muonpt[n] = muon[4]
+                    muoneta[n] = muon[5]
+                    muonphi[n] = muon[6]
+                    nmuon[0] += 1
+
+            nelectron[0] = 0
+            for n,electron in enumerate(allelectrons):
+                if n<16:
+                    electrone[n] = electron[0]
+                    electronpx[n] = electron[1]
+                    electronpy[n] = electron[2]
+                    electronpz[n] = electron[3]
+                    electronpt[n] = electron[4]
+                    electroneta[n] = electron[5]
+                    electronphi[n] = electron[6]
+                    nelectron[0] += 1
+
             #print("+++++++++++++++++++++++++++")
             #####################################################
             # DO THIS TO SPEED THINGS UP 
-            nmuon[0] = nmu_in
+            #nmuon[0] = nmu_in
             if nmu_in>2:
                 nmu_in = 2
             #####################################################
@@ -271,15 +350,39 @@ def main(filenames,outfile=None):
                     subleadmuphi[0] = muphi[n]
             #print("+++++++++++++++++++++++++++")
             #'''
+            #####################################################
+            # DO THIS TO SPEED THINGS UP 
+            #nmuon[0] = nmu_in
+            if ne_in>2:
+                ne_in = 2
+            #####################################################
+
+            for n in range(ne_in):
+                #print(mupt[n])
+                #muon.append([mue[n],mupx[n],mupy[n],mupz[n],mueta[n],muphi[n]])
+                #mumass.append(mue[n]*mue[n] - (mupy[n]*mupy[n] + mupx[n]*mupx[n] + mupz[n]*mupz[n]))
+                if n == 0:
+                    leadelectronpt[0] = ept[n]
+                    leadelectroneta[0] = eeta[n]
+                    leadelectronphi[0] = ephi[n]
+                elif n == 1:
+                    subleadelectronpt[0] = ept[n]
+                    subleadelectroneta[0] = eeta[n]
+                    subleadelectronphi[0] = ephi[n]
+            #print("+++++++++++++++++++++++++++")
 
             ######################################################################################
             # Reconstruct the top quarks
             ######################################################################################
             # We need at least 5 jets (at least 1 b jet) and 1 lepton
-            if len(alljets)<5 or len(allmuons)<1:
+            allleptons = allmuons
+            if leptonflag=='electron':
+                allleptons = allelectrons
+
+            if len(alljets)<5 or len(allleptons)<1:
                 continue
 
-            topology = tbt.event_hypothesis(allmuons,alljets,bjetcut=0.87)
+            topology = tbt.event_hypothesis(allleptons,alljets,bjetcut=0.87)
             top_hadtopmass = topology[0]
             top_bnvtopmass = topology[1]
             top_hadtoppt = topology[2]

@@ -87,6 +87,12 @@ def compare_train_test(clf, X_train, y_train, X_test, y_test, bins=30):
 ################################################################################
 def plot_results(data0, data1, dataset0name, dataset1name, param_labels, bdt, show=False):
 
+    if len(dataset0name)>24:
+        dataset0name = dataset0name[0:24]
+
+    if len(dataset1name)>24:
+        dataset1name = dataset1name[0:24]
+
     nparams = len(data0)
     ################################################################################
     # Plot the correlation matrices
@@ -125,7 +131,7 @@ def plot_results(data0, data1, dataset0name, dataset1name, param_labels, bdt, sh
 
     plt.figure(figsize=(14,11))
     for i in range(len(param_labels)):
-        plt.subplot(5,5,1+i)
+        plt.subplot(6,6,1+i)
         x0 = data0[i]
         x1 = data1[i]
         lo0,hi0 = min(x0),max(x0)
@@ -235,24 +241,31 @@ def plot_results(data0, data1, dataset0name, dataset1name, param_labels, bdt, sh
     ################################################################################
     # Performance
     ################################################################################
+    if hasattr(bdt, "decision_function"):
+        decisionsTest = bdt.decision_function(X_test)
+        decisionsTrain = bdt.decision_function(X_train)
+    else:
+        decisionsTest = bdt.predict_proba(X_test)
+        decisionsTrain = bdt.predict_proba(X_train)
+    
     y_pred = bdt.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
-    print("Accuracy (train) for %s: %0.1f%% " % ("BDT", accuracy * 100))
+    print("Accuracy (train) for %s: %0.1f%% " %("BDT", accuracy * 100))
 
     y_predicted = bdt.predict(X_test)
     print(classification_report(y_test, y_predicted, target_names=["background", "signal"]))
-    print("Area under ROC curve: %.4f"%(roc_auc_score(y_test, bdt.decision_function(X_test))))
+    print("Area under ROC curve: %.4f"%(roc_auc_score(y_test, decisionsTest)))
 
     y_predicted = bdt.predict(X_train)
     print(classification_report(y_train, y_predicted, target_names=["background", "signal"]))
-    print("Area under ROC curve: %.4f"%(roc_auc_score(y_train, bdt.decision_function(X_train))))
+    print("Area under ROC curve: %.4f"%(roc_auc_score(y_train, decisionsTrain)))
 
     ################################################################################
     # ROC curve
     ################################################################################
-    decisions = bdt.decision_function(X_test)
+    
     # Compute ROC curve and area under the curve
-    fpr, tpr, thresholds = roc_curve(y_test, decisions)
+    fpr, tpr, thresholds = roc_curve(y_test, decisionsTest)
     roc_auc = auc(fpr, tpr)
     
     plt.figure()
@@ -269,6 +282,13 @@ def plot_results(data0, data1, dataset0name, dataset1name, param_labels, bdt, sh
     plt.savefig("plots/roc_curve.png")
     
     figctt = compare_train_test(bdt, X_train, y_train, X_test, y_test)
+
+    # What features are most important?
+    feature_importances = bdt.feature_importances_
+    estimators = bdt.estimators_
+    print(len(feature_importances))
+    for f,pl in zip(feature_importances, param_labels):
+        print(f,pl)
     
     if show:
         plt.show()

@@ -167,6 +167,7 @@ class DataJEC:
 #####################################################################################
 #####################################################################################
 #####################################################################################
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopTrigger
 
 # MC values are for the 2016 data
 muon_triggers_of_interest = [
@@ -316,6 +317,11 @@ def topbnv_fwlite(argv):
     # NEED HLT2 for 80x 2016 (maybe only TTBar?
     # https://twiki.cern.ch/twiki/bin/view/CMS/TopTrigger#Summary_for_2016_Run2016B_H_25_n
     triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","", "HLT")
+    #triggerPrescales, triggerPrescalesLabel = Handle("pat::PackedTriggerPrescales"), ("PackedTriggerPrescales","", "HLT")
+    #triggerPrescales, triggerPrescalesLabel = Handle("pat::PackedTriggerPrescales"), ("TriggerUserData","", "HLT")
+    trigPrescalesHandle = Handle( "std::vector<int>")
+    trigPrescalesLabel = ("TriggerUserData", "triggerPrescaleTree")
+
 
 
 
@@ -445,7 +451,8 @@ def topbnv_fwlite(argv):
     muonisMedium = array('i', 16*[-1])
     outtree.Branch('muonisMedium', muonisMedium, 'muonisMedium[nmuon]/I')
 
-    muonPFiso = array('f', 16*[-1.]); outtree.Branch('muonPFiso', muonPFiso, 'muonPFiso[nmuon]/F')
+    muonPFiso = array('f', 16*[-1.]); 
+    outtree.Branch('muonPFiso', muonPFiso, 'muonPFiso[nmuon]/F')
 
 
     # Electrons
@@ -515,22 +522,22 @@ def topbnv_fwlite(argv):
     ntrig_dilepmue = array('i', [-1])
     outtree.Branch('ntrig_dilepmue', ntrig_dilepmue, 'ntrig_dilepmue/I')
     trig_dilepmue = array('i',8*[-1])
-    outtree.Branch('trig_dilepmue', trig_dilepmue, 'trig_dilepmue[ntrig_electron]/I')
+    outtree.Branch('trig_dilepmue', trig_dilepmue, 'trig_dilepmue[ntrig_dilepmue]/I')
 
     ntrig_dilepemu = array('i', [-1])
     outtree.Branch('ntrig_dilepemu', ntrig_dilepemu, 'ntrig_dilepemu/I')
     trig_dilepemu = array('i',8*[-1])
-    outtree.Branch('trig_dilepemu', trig_dilepemu, 'trig_dilepemu[ntrig_electron]/I')
+    outtree.Branch('trig_dilepemu', trig_dilepemu, 'trig_dilepemu[ntrig_dilepemu]/I')
 
     ntrig_dilepmumu = array('i', [-1])
     outtree.Branch('ntrig_dilepmumu', ntrig_dilepmumu, 'ntrig_dilepmumu/I')
     trig_dilepmumu = array('i',8*[-1])
-    outtree.Branch('trig_dilepmumu', trig_dilepmumu, 'trig_dilepmumu[ntrig_electron]/I')
+    outtree.Branch('trig_dilepmumu', trig_dilepmumu, 'trig_dilepmumu[ntrig_dilepmumu]/I')
 
     ntrig_dilepee = array('i', [-1])
     outtree.Branch('ntrig_dilepee', ntrig_dilepee, 'ntrig_dilepee/I')
     trig_dilepee = array('i',8*[-1])
-    outtree.Branch('trig_dilepee', trig_dilepee, 'trig_dilepee[ntrig_electron]/I')
+    outtree.Branch('trig_dilepee', trig_dilepee, 'trig_dilepee[ntrig_dilepee]/I')
 
     trigger_tree_branches = {
     "SingleMuon":trig_muon,
@@ -625,8 +632,10 @@ def topbnv_fwlite(argv):
         # Triggers
         ###############################################################
         event.getByLabel(triggerBitLabel, triggerBits)
+        #event.getByLabel(triggerPrescalesLabel, triggerPrescales)
 
         trigger_names = event.object().triggerNames(triggerBits.product())
+        #trigger_prescales = event.object().triggerPrescales(triggerPrescales.product())
 
         # Get list of triggers that fired
         #firedTrigs = []
@@ -653,6 +662,7 @@ def topbnv_fwlite(argv):
 
             if triggerBits.product().accept(itrig):
                 trigname = trigger_names.triggerName(itrig)
+                #print(trigname)
 
                 mc_selection = True
 
@@ -679,6 +689,7 @@ def topbnv_fwlite(argv):
 
                     #firedTrigs.append( itrig )
 
+        #exit()
         #print("PASSED!!!!!!!!!!!!!! --------------")
         # THIS SHOULD ONLY WRITE EVENTS THAT PASSED THE TRIGGER
         #print("FLAG_passed_trigger: ",FLAG_passed_trigger)

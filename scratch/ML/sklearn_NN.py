@@ -7,6 +7,7 @@ import sklearn as sk
 from sklearn import datasets
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import AdaBoostClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import classification_report, roc_auc_score
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import roc_curve, auc, accuracy_score
@@ -70,7 +71,11 @@ toberemoved += ['bnv_dTheta12_rest','bnv_dTheta13_rest','bnv_dTheta23_rest']
 
 for a in toberemoved:
     print('Removing {0} from variables to use in training'.format(a))
-    param_labels.remove(a)
+    try:
+        param_labels.remove(a)
+        print('{0} removed'.format(a))
+    except:
+        print('{0} not in variables'.format(a))
 print("After removal")
 print(param_labels)
 nparams = len(param_labels)
@@ -158,7 +163,7 @@ X_train,X_test, y_train,y_test = train_test_split(X_dev, y_dev, test_size=0.33, 
 #dt = DecisionTreeClassifier(max_depth=3, min_samples_leaf=0.05*len(X_train))
 dt = DecisionTreeClassifier(max_depth=3)
 
-bdt = AdaBoostClassifier(dt, algorithm='SAMME', n_estimators=800, learning_rate=0.5)
+bdt = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
 bdt.fit(X_train, y_train)
 
 scores = cross_validation.cross_val_score(bdt,
@@ -177,6 +182,7 @@ outfile.close()
 
 # Perform grid search over all combinations
 # of these hyper-parameters
+'''
 param_grid = {"n_estimators": [50,200,400,1000],
         #"max_depth": [3, 4, 5],
               'learning_rate': [0.1, 0.2, 1.]}
@@ -201,9 +207,9 @@ y_true, y_pred = y_dev, clf.decision_function(X_dev)
 print("  It scores %0.4f on the full development set" % roc_auc_score(y_true, y_pred))
 y_true, y_pred = y_eval, clf.decision_function(X_eval)
 print("  It scores %0.4f on the full evaluation set" % roc_auc_score(y_true, y_pred))
+'''
 
 
+#plot_results(data0, data1, infilenames[0], infilenames[1], param_labels, bdt)
 
-plot_results(data0, data1, infilenames[0], infilenames[1], param_labels, bdt)
-
-plt.show()
+#plt.show()
