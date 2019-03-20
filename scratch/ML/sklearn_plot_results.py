@@ -131,7 +131,7 @@ def plot_results(data0, data1, dataset0name, dataset1name, param_labels, bdt, sh
 
     plt.figure(figsize=(14,11))
     for i in range(len(param_labels)):
-        plt.subplot(6,6,1+i)
+        plt.subplot(4,5,1+i)
         x0 = data0[i]
         x1 = data1[i]
         lo0,hi0 = min(x0),max(x0)
