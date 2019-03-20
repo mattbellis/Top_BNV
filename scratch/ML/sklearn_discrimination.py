@@ -96,6 +96,7 @@ print("Will process {0} events for {1}".format(nevents1,infilenames[1]))
 
 #exit()
 
+# To randomize the selection of events.
 index0 = np.arange(0,len(dict0[param_labels[0]]))
 index1 = np.arange(0,len(dict1[param_labels[0]]))
 

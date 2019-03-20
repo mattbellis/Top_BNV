@@ -241,10 +241,18 @@ def plot_results(data0, data1, dataset0name, dataset1name, param_labels, bdt, sh
     ################################################################################
     # Performance
     ################################################################################
+    # Difference detailed here
+    # https://stackoverflow.com/questions/36543137/whats-the-difference-between-predict-proba-and-decision-function-in-scikit-lear
+    # 
+    # Search for relevant code in this example
+    # https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html
+    print(X_test.shape, X_train.shape)
     if hasattr(bdt, "decision_function"):
+        print("HAS DECISION FUNCTION!")
         decisionsTest = bdt.decision_function(X_test)
         decisionsTrain = bdt.decision_function(X_train)
     else:
+        print("DOES NOT HAVE DECISION FUNCTION!")
         decisionsTest = bdt.predict_proba(X_test)
         decisionsTrain = bdt.predict_proba(X_train)
     
@@ -254,6 +262,7 @@ def plot_results(data0, data1, dataset0name, dataset1name, param_labels, bdt, sh
 
     y_predicted = bdt.predict(X_test)
     print(classification_report(y_test, y_predicted, target_names=["background", "signal"]))
+    print(y_test.shape, decisionsTest.shape)
     print("Area under ROC curve: %.4f"%(roc_auc_score(y_test, decisionsTest)))
 
     y_predicted = bdt.predict(X_train)

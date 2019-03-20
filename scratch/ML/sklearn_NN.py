@@ -54,7 +54,7 @@ if len(infilenames) != 2:
     print("Should be 2!")
     exit()
 
-outfilename = "CLASSIFICATION_{0}_{1}.pkl".format(infilenames[0].split('.pkl')[0],infilenames[1].split('.pkl')[0])
+outfilename = "CLASSIFICATION_MLP_{0}_{1}.pkl".format(infilenames[0].split('.pkl')[0],infilenames[1].split('.pkl')[0])
 outfile = open(outfilename,'wb')
 
 dict0 = pickle.load(open(infilenames[0],'rb'))
