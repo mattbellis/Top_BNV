@@ -251,7 +251,17 @@ def main(infiles=None):
     for i in range(len(cut_strings)):
         figs.append(plt.figure(figsize=(12,8)))
 
-    #plt.figure(figsize=(12,8))
+    # Single plots
+    single_figs = []
+    single_axes = []
+    vars_to_plot = ['hadtopmass', 'bnvtopmass', 'leadmupt', 'leadelectronpt','metpt']
+    for i in range(len(cut_strings)):
+        single_figs.append([])
+        single_axes.append([])
+        for j in range(len(vars_to_plot)):
+            single_figs[i].append(plt.figure(figsize=(4,4)))
+            single_axes[i].append(single_figs[i][j].add_subplot(1,1,1))
+
     for i,name in enumerate(names):
 
         cut_string = int(name.split("_cut")[-1])
@@ -276,6 +286,11 @@ def main(infiles=None):
         if len(heights)>0:
             mh.shh(heights,bins,color=colors,ax=plt.gca())
 
+            # Single plots
+            for k in range(len(vars_to_plot)):
+                if basename.find(vars_to_plot[k])>=0:
+                    mh.shh(heights,bins,color=colors,ax=single_axes[cut_string][k])
+
         for j,dataset in enumerate(dataplots[name].keys()):
             #x,y = combine_bins(dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges'],n=8)
             x,y = dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges']
@@ -286,13 +301,31 @@ def main(infiles=None):
             #plt.xlabel(xaxislabels[i],fontsize=14)
             plt.xlabel(dataplots[name][dataset]['xlabel'])#,fontsize=18)
             #plt.ylabel(dataplots[name][dataset]['ylabel'])#,fontsize=18)
-        #plt.legend()
-        #plt.tight_layout()
 
+            # Single plots
+            for k in range(len(vars_to_plot)):
+                if basename.find(vars_to_plot[k])>=0:
+                    plt.sca(single_axes[cut_string][k])
+                    plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color="k")
+                    plt.xlabel(dataplots[name][dataset]['xlabel'])#,fontsize=18)
+
+        #plt.legend()
+        plt.tight_layout()
         figname = "plots/fig_{0}.png".format(name)
         plt.savefig(figname)
 
-    plt.show()
+    for i in range(len(cut_strings)):
+        for j in range(len(vars_to_plot)):
+            plt.sca(single_axes[i][j])
+            plt.tight_layout()
+            if j==2 or j==3:
+                plt.xlim(0,200)
+            elif j==4:
+                plt.xlim(50,)
+            #figname = "plots/SINGLE_ELECTRON_fig_{0}_{1}.png".format(vars_to_plot[j],i)
+            figname = "plots/SINGLE_MUON_fig_{0}_{1}.png".format(vars_to_plot[j],i)
+            plt.savefig(figname)
+    #plt.show()
 
     return 1
 

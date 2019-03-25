@@ -39,11 +39,19 @@ def plot_corr_matrix(ccmat,labels,title="Correlation matrix"):
 ################################################################################
 def compare_train_test(clf, X_train, y_train, X_test, y_test, bins=30):
     decisions = []
-    for X,y in ((X_train, y_train), (X_test, y_test)):
-        d1 = clf.decision_function(X[y>0.5]).ravel()
-        d2 = clf.decision_function(X[y<0.5]).ravel()
-        decisions += [d1, d2]
-     
+
+    if hasattr(clf,"decision_function"):
+        for X,y in ((X_train, y_train), (X_test, y_test)):
+            d1 = clf.decision_function(X[y>0.5]).ravel()
+            d2 = clf.decision_function(X[y<0.5]).ravel()
+            decisions += [d1, d2]
+    else:
+        for X,y in ((X_train, y_train), (X_test, y_test)):
+            d1 = clf.predict_proba(X[y>0.5]).ravel()
+            d2 = clf.predict_proba(X[y<0.5]).ravel()
+            decisions += [d1, d2]
+
+
     low = min(np.min(d) for d in decisions)
     high = max(np.max(d) for d in decisions)
     low_high = (low,high)
@@ -131,7 +139,7 @@ def plot_results(data0, data1, dataset0name, dataset1name, param_labels, bdt, sh
 
     plt.figure(figsize=(14,11))
     for i in range(len(param_labels)):
-        plt.subplot(6,6,1+i)
+        plt.subplot(4,5,1+i)
         x0 = data0[i]
         x1 = data1[i]
         lo0,hi0 = min(x0),max(x0)
@@ -241,10 +249,18 @@ def plot_results(data0, data1, dataset0name, dataset1name, param_labels, bdt, sh
     ################################################################################
     # Performance
     ################################################################################
+    # Difference detailed here
+    # https://stackoverflow.com/questions/36543137/whats-the-difference-between-predict-proba-and-decision-function-in-scikit-lear
+    # 
+    # Search for relevant code in this example
+    # https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html
+    print(X_test.shape, X_train.shape)
     if hasattr(bdt, "decision_function"):
+        print("HAS DECISION FUNCTION!")
         decisionsTest = bdt.decision_function(X_test)
         decisionsTrain = bdt.decision_function(X_train)
     else:
+        print("DOES NOT HAVE DECISION FUNCTION!")
         decisionsTest = bdt.predict_proba(X_test)
         decisionsTrain = bdt.predict_proba(X_train)
     
@@ -254,16 +270,21 @@ def plot_results(data0, data1, dataset0name, dataset1name, param_labels, bdt, sh
 
     y_predicted = bdt.predict(X_test)
     print(classification_report(y_test, y_predicted, target_names=["background", "signal"]))
+    print(y_test.shape, decisionsTest.shape)
+    decisionsTest = [x[0] for x in decisionsTest]
+    decisionsTest = np.array(decisionsTest)
+    print(y_test.shape, decisionsTest.shape)
     print("Area under ROC curve: %.4f"%(roc_auc_score(y_test, decisionsTest)))
 
     y_predicted = bdt.predict(X_train)
     print(classification_report(y_train, y_predicted, target_names=["background", "signal"]))
+    decisionsTrain = [x[0] for x in decisionsTrain]
+    decisionsTrain = np.array(decisionsTrain)
     print("Area under ROC curve: %.4f"%(roc_auc_score(y_train, decisionsTrain)))
 
     ################################################################################
     # ROC curve
     ################################################################################
-    
     # Compute ROC curve and area under the curve
     fpr, tpr, thresholds = roc_curve(y_test, decisionsTest)
     roc_auc = auc(fpr, tpr)
@@ -294,7 +315,6 @@ def plot_results(data0, data1, dataset0name, dataset1name, param_labels, bdt, sh
         plt.show()
 
     return 0
-
 ################################################################################
     
 ################################################################################
