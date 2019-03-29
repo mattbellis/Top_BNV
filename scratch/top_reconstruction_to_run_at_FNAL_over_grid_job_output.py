@@ -383,6 +383,7 @@ def main(filenames,outfile=None):
                 continue
 
             topology = tbt.event_hypothesis(allleptons,alljets,bjetcut=0.87)
+
             top_hadtopmass = topology[0]
             top_bnvtopmass = topology[1]
             top_hadtoppt = topology[2]
