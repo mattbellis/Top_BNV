@@ -119,7 +119,7 @@ def main(filenames,outfilename=None):
     recoqpt = []
     recoqe = []
     
-    nentries = 10000
+    #nentries = 10000
 
     for i in range(nentries):
 
@@ -337,7 +337,7 @@ def main(filenames,outfilename=None):
 
         if len(tmpjets)>=5:
             for j0,j1,j2 in combinations(tmpjets,3):
-                tbt.vals_for_ML_training([j0,j1,j2],incorrect_output_data)
+                #tbt.vals_for_ML_training([j0,j1,j2],incorrect_output_data)
                 tmp2jets = tmpjets.copy()
                 tmp2jets.remove(j0)
                 tmp2jets.remove(j1)

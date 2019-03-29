@@ -120,7 +120,7 @@ def main(filenames,outfilename=None):
     recoqpt = []
     recoqe = []
     
-    nentries = 1000
+    #nentries = 1000
     jetptcut = 30
     muonptcut = 30
     electronptcut = 30
