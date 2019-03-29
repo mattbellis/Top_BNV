@@ -54,7 +54,7 @@ if len(infilenames) != 2:
     print("Should be 2!")
     exit()
 
-outfilename = "CLASSIFICATION_MLP_{0}_{1}.pkl".format(infilenames[0].split('.pkl')[0],infilenames[1].split('.pkl')[0])
+outfilename = "MLP_CLASSIFICATION_{0}_{1}.pkl".format(infilenames[0].split('.pkl')[0],infilenames[1].split('.pkl')[0])
 outfile = open(outfilename,'wb')
 
 dict0 = pickle.load(open(infilenames[0],'rb'))
@@ -172,6 +172,7 @@ scores = cross_validation.cross_val_score(bdt,
                                           n_jobs=6,
                                           cv=3)
 
+
 print("Accuracy: %0.5f (+/- %0.5f)" %(scores.mean(), scores.std()))
 
 classifier_results["classifier"] = bdt
@@ -210,6 +211,6 @@ print("  It scores %0.4f on the full evaluation set" % roc_auc_score(y_true, y_p
 '''
 
 
-#plot_results(data0, data1, infilenames[0], infilenames[1], param_labels, bdt)
+plot_results(data0, data1, infilenames[0], infilenames[1], param_labels, bdt)
 
-#plt.show()
+plt.show()
