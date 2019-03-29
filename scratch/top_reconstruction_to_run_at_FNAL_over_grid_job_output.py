@@ -10,6 +10,9 @@ import pickle
 
 import argparse
 
+from itertools import combinations
+
+
 
 ################################################################################
 def main(filenames,outfile=None):
@@ -186,6 +189,7 @@ def main(filenames,outfile=None):
     gen_wt = array('f', [-1])
     outtree.Branch('gen_wt', gen_wt, 'gen_wt/F')
 
+    #output_data = tbt.define_ML_output_data()
 
     print("Will open files:")
     for filename in filenames:
@@ -216,11 +220,15 @@ def main(filenames,outfile=None):
 
         nentries = tree.GetEntries()
 
+        nentries = 100
+
         print("Will run over %d entries" % (nentries))
+
+        total_combinations = 0
 
         for i in range(nentries):
 
-            if i%10000==0:
+            if i%100==0:
                 output = "Event: %d out of %d" % (i,nentries)
                 print(output)
 
@@ -282,9 +290,9 @@ def main(filenames,outfile=None):
 
 
             bjetcut_on_csv = 0.87
-            jetptcut = 20
-            muonptcut = 20
-            electronptcut = 20
+            jetptcut = 25
+            muonptcut = 25
+            electronptcut = 25
 
             allmuons = tbt.get_good_muons(tree,ptcut=muonptcut)
             allelectrons = tbt.get_good_electrons(tree,ptcut=electronptcut)
@@ -382,7 +390,40 @@ def main(filenames,outfile=None):
             if len(alljets)<5 or len(allleptons)<1:
                 continue
 
-            topology = tbt.event_hypothesis(allleptons,alljets,bjetcut=0.87)
+            ###################################################################
+            # Use the ML info
+            ###################################################################
+            '''
+            tmpjets = alljets.copy()
+
+            combos = 0
+            if len(tmpjets)>=5:
+                for j0,j1,j2 in combinations(tmpjets,3):
+                    tmp2jets = tmpjets.copy()
+                    tmp2jets.remove(j0)
+                    tmp2jets.remove(j1)
+                    tmp2jets.remove(j2)
+                    for j3,j4 in combinations(tmp2jets,2):
+                        j3 = np.array(j3)
+                        j4 = np.array(j4)
+                        for lep in allleptons:
+                            lep = np.array(lep)
+                            tbt.vals_for_ML_training([j0,j1,j2],output_data,tag='had')
+                            tbt.vals_for_ML_training([j3,j4,lep],output_data,tag='bnv')
+                            hadtopp4 = j0[0:4] + j1[0:4] + j2[0:4]
+                            #print(lep[0:4],type(lep[0:4]))
+                            bnvtopp4 = j3[0:4]+j4[0:4]+lep[0:4]
+                            a = tbt.angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
+                            output_data['ttbar_angle'].append(np.cos(a))
+                            #total_combinations += 1
+                            #combos += 1
+
+            '''
+
+            ###################################################################
+            topology = tbt.event_hypothesis(allleptons,alljets,bjetcut=0.0)
+            
+            #print("# of topologies: {0}    #jets: {1}    #leptons: {2}".format(len(topology[0]), len(alljets), len(allleptons)))
 
             top_hadtopmass = topology[0]
             top_bnvtopmass = topology[1]

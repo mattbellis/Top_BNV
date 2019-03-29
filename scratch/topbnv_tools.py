@@ -98,7 +98,17 @@ def angle_between_vectors(p30, p31, transverse=False):
 
         dot = p30[0]*p31[0] + p30[1]*p31[1]
 
-    return math.acos(dot/(mag0*mag1))
+    cos_val = dot/(mag0*mag1)
+    if cos_val>1.0:
+        print("dot product: {0}   mag0: {1}  mag2: {2}  dot/(mag0*mag1): {3}".format(dot,mag0,mag1,cos_val))
+        print("seting cos_val to 1.0")
+        cos_val = 1.0
+    elif cos_val<-1.0:
+        print("dot product: {0}   mag0: {1}  mag2: {2}  dot/(mag0*mag1): {3}".format(dot,mag0,mag1,cos_val))
+        print("seting cos_val to -1.0")
+        cos_val = -1.0
+        
+    return math.acos(cos_val)
 
 ################################################################################
 # Assume we pass in a list of 4 numbers in either a list or array
@@ -590,7 +600,7 @@ def chain_pickle_files(filenames, lumi_info=None):
 # pmag: pass in a 3 vector
 ################################################################################
 def pmag(p3):
-    pmag = np.sqrt(p3[0]**2 + p3[1]**2 + p3[2]**2)
+    pmag = np.sqrt(p3[0]*p3[0] + p3[1]*p3[1] + p3[2]*p3[2])
 
     return pmag
 ################################################################################
@@ -606,31 +616,43 @@ def pmag(p3):
 # print(lorentz_boost(pmom,rest_frame))
 #
 ################################################################################
-def lorentz_boost(pmom, rest_frame):
+def lorentz_boost(pmom, rest_frame, return_matrix=False, boost_matrix=None):
 
-    p = rest_frame
-    c = 1
+    L = boost_matrix
 
-    pmag = np.sqrt(p[1]**2 + p[2]**2 + p[3]**2)
-    #E = np.sqrt((pmag*c)**2 + (m*c**2)**2)
-    E = p[0]
+    # If a matrix for the boost has not been passed in, then
+    # calculate the matrix using the rest frame 4-vector
+    if boost_matrix is None:
+        p = rest_frame
+        c = 1
 
-    beta = pmag/E
-    betaX = p[1]/E
-    betaY = p[2]/E
-    betaZ = p[3]/E
+        pm = pmag(p[1:4])
+        #pmag = np.sqrt(p[1]*p[1] + p[2]*p[2] + p[3]*p[3])
+        #E = np.sqrt((pmag*c)**2 + (m*c**2)**2)
+        E = p[0]
 
-    gamma = np.sqrt(1 / (1-beta**2))
+        beta = pm/E
+        betaX = p[1]/E
+        betaY = p[2]/E
+        betaZ = p[3]/E
 
-    x = ((gamma-1) * betaX) / beta**2
-    y = ((gamma-1) * betaY) / beta**2
-    z = ((gamma-1) * betaZ) / beta**2
+        beta2 = beta*beta
 
-    L = np.matrix([[gamma,      -gamma*betaX, -gamma*betaY, -gamma*betaZ],
-                [-gamma*betaX,  1 + x*betaX,      x*betaY,      x*betaZ],
-                [-gamma*betaY,      y*betaX,  1 + y*betaY,      y*betaZ],
-                [-gamma*betaZ,      z*betaX,      z*betaY,  1 + z*betaZ]])
+        gamma = np.sqrt(1 / (1-beta2))
 
+        gamma_minus_1 = gamma-1
+
+        x = ((gamma_minus_1) * betaX) / beta2
+        y = ((gamma_minus_1) * betaY) / beta2
+        z = ((gamma_minus_1) * betaZ) / beta2
+
+        L = np.matrix([[gamma,      -gamma*betaX, -gamma*betaY, -gamma*betaZ],
+                    [-gamma*betaX,  1 + x*betaX,      x*betaY,      x*betaZ],
+                    [-gamma*betaY,      y*betaX,  1 + y*betaY,      y*betaZ],
+                    [-gamma*betaZ,      z*betaX,      z*betaY,  1 + z*betaZ]])
+
+    if return_matrix is True:
+        return L
 
     # Moving particle that will be boosted
     #vector = np.matrix([E,p[1],p[1],p[2]])
@@ -686,7 +708,7 @@ def match_up_gen_with_reco(gen, recos, ptcut=0, maxdR=0.4, maxdPtRel=3.0):
 
 
 ################################################################################
-def event_hypothesis(leptons,jets,bjetcut=0.87):
+def event_hypothesis(leptons,jets,bjetcut=0.87,verbose=False):
 
     # We assume that the leptons/jets are arrays with the following information
     # e,px,py,pz, pt,eta,phi, csv (for jets)
@@ -723,8 +745,10 @@ def event_hypothesis(leptons,jets,bjetcut=0.87):
             if hadjet[i][-1]>=bjetcut:
                 correct_combo += 1
 
+        '''
         if correct_combo != 1:
             continue
+        '''
 
         # If this is good so far and we have good jet combinations for the hadronic top
         # decay, then remove these jets and figure stuff out for the BNV decay
@@ -745,8 +769,10 @@ def event_hypothesis(leptons,jets,bjetcut=0.87):
                 if bnvjet[i][-1]>=bjetcut:
                     correct_combo += 1
 
+            '''
             if correct_combo != 1:
                 continue
+            '''
 
             # Right now, we're not worried about which is the bjet
             bnvjet0 = bnvjet[0]
@@ -853,11 +879,14 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     topmass = 172.44
     topp4[0] = np.sqrt(topmass**2 + topp4[1]**2 + topp4[2]**2 + topp4[3]**2)
 
-    tmp = lorentz_boost(j1[0:4],topp4)
+    L = lorentz_boost(j1[0:4],topp4,return_matrix=True)
+    tmp = lorentz_boost(j1[0:4],topp4,boost_matrix=L)
     rj1 = np.array([tmp.item(0,0),tmp.item(1,0),tmp.item(2,0),tmp.item(3,0)])
-    tmp = lorentz_boost(j2[0:4],topp4)
+
+    tmp = lorentz_boost(j2[0:4],topp4,boost_matrix=L)
     rj2 = np.array([tmp.item(0,0),tmp.item(1,0),tmp.item(2,0),tmp.item(3,0)])
-    tmp = lorentz_boost(j3[0:4],topp4)
+
+    tmp = lorentz_boost(j3[0:4],topp4,boost_matrix=L)
     rj3 = np.array([tmp.item(0,0),tmp.item(1,0),tmp.item(2,0),tmp.item(3,0)])
 
     rj1pmag = pmag(rj1[1:4])
@@ -911,9 +940,10 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     topmass = 172.44
     topp4[0] = np.sqrt(topmass**2 + topp4[1]**2 + topp4[2]**2 + topp4[3]**2)
 
-    rj1 = lorentz_boost(j1[0:4],topp4)
-    rj2 = lorentz_boost(j2[0:4],topp4)
-    rj3 = lorentz_boost(j3[0:4],topp4)
+    L = lorentz_boost(j1[0:4],topp4,return_matrix=True)
+    rj1 = lorentz_boost(j1[0:4],topp4,boost_matrix=L)
+    rj2 = lorentz_boost(j2[0:4],topp4,boost_matrix=L)
+    rj3 = lorentz_boost(j3[0:4],topp4,boost_matrix=L)
 
     rj1pmag = pmag(rj1[1:4])
     rj2pmag = pmag(rj2[1:4])
@@ -933,3 +963,43 @@ def vals_for_ML_training(jets,output_data,tag="had"):
         output_data[tag+'_j3_CSV'].append(j3[7])
 
 
+################################################################################
+def define_ML_output_data():
+    output_data = {}
+    output_data["had_m"] = []
+    output_data["had_j12_m"] = []
+    output_data["had_j13_m"] = []
+    output_data["had_j23_m"] = []
+    output_data["had_dR12_lab"] = []
+    output_data["had_dR13_lab"] = []
+    output_data["had_dR23_lab"] = []
+    output_data["had_dR1_23_lab"] = []
+    output_data["had_dRPtTop"] = []
+    output_data["had_dRPtW"] = []
+    output_data["had_dTheta12_rest"] = []
+    output_data["had_dTheta13_rest"] = []
+    output_data["had_dTheta23_rest"] = []
+    output_data["had_j1_CSV"] = []
+    output_data["had_j2_CSV"] = []
+    output_data["had_j3_CSV"] = []
+
+    output_data["bnv_m"] = []
+    output_data["bnv_j12_m"] = []
+    output_data["bnv_j13_m"] = []
+    output_data["bnv_j23_m"] = []
+    output_data["bnv_dR12_lab"] = []
+    output_data["bnv_dR13_lab"] = []
+    output_data["bnv_dR23_lab"] = []
+    output_data["bnv_dR1_23_lab"] = []
+    output_data["bnv_dRPtTop"] = []
+    output_data["bnv_dRPtW"] = []
+    output_data["bnv_dTheta12_rest"] = []
+    output_data["bnv_dTheta13_rest"] = []
+    output_data["bnv_dTheta23_rest"] = []
+    output_data["bnv_j1_CSV"] = []
+    output_data["bnv_j2_CSV"] = []
+
+    output_data["ttbar_angle"] = []
+
+
+    return output_data

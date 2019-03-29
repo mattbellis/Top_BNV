@@ -268,6 +268,7 @@ def plot_results(data0, data1, dataset0name, dataset1name, param_labels, bdt, sh
     accuracy = accuracy_score(y_test, y_pred)
     print("Accuracy (train) for %s: %0.1f%% " %("BDT", accuracy * 100))
 
+    '''
     y_predicted = bdt.predict(X_test)
     print(classification_report(y_test, y_predicted, target_names=["background", "signal"]))
     print(y_test.shape, decisionsTest.shape)
@@ -281,6 +282,7 @@ def plot_results(data0, data1, dataset0name, dataset1name, param_labels, bdt, sh
     decisionsTrain = [x[0] for x in decisionsTrain]
     decisionsTrain = np.array(decisionsTrain)
     print("Area under ROC curve: %.4f"%(roc_auc_score(y_train, decisionsTrain)))
+    '''
 
     ################################################################################
     # ROC curve
