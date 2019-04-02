@@ -102,6 +102,9 @@ def main(filenames,outfile=None):
     muonpz = array('f', 16*[-1.])
     outtree.Branch('muonpz', muonpz, 'muonpz[nmuon]/F')
 
+    muonq = array('f', 16*[-1.])
+    outtree.Branch('muonq', muonq, 'muonq[nmuon]/F')
+
     muonsumchhadpt = array('f', 16*[-1.])
     outtree.Branch('muonsumchhadpt', muonsumchhadpt, 'muonsumchhadpt[nmuon]/F')
     muonsumnhadpt = array('f', 16*[-1.])
@@ -151,6 +154,9 @@ def main(filenames,outfile=None):
     electronpz = array('f', 16*[-1.])
     outtree.Branch('electronpz', electronpz, 'electronpz[nelectron]/F')
 
+    electronq = array('f', 16*[-1.])
+    outtree.Branch('electronq', electronq, 'electronq[nelectron]/F')
+
     electronTkIso = array('f',16*[-1.])
     outtree.Branch('electronTkIso', electronTkIso, 'electronTkIso[nelectron]/F')
     electronHCIso = array('f',16*[-1.])
@@ -189,7 +195,19 @@ def main(filenames,outfile=None):
     gen_wt = array('f', [-1])
     outtree.Branch('gen_wt', gen_wt, 'gen_wt/F')
 
-    #output_data = tbt.define_ML_output_data()
+    ############### ML data ################################
+    output_data = tbt.define_ML_output_data()
+    root_output_data = output_data.copy()
+
+    nhypothesis = array('i',[-1])
+    outtree.Branch('nhypothesis',nhypothesis,'nhypothesis/I')
+
+    for key in output_data.keys():
+        root_output_data[key] = array('f',6400* [-1])
+        outtree.Branch(key,root_output_data[key],key+'[nhypothesis]/F')
+
+
+    #########################################################
 
     print("Will open files:")
     for filename in filenames:
@@ -220,7 +238,7 @@ def main(filenames,outfile=None):
 
         nentries = tree.GetEntries()
 
-        nentries = 100
+        nentries = 10000
 
         print("Will run over %d entries" % (nentries))
 
@@ -310,6 +328,7 @@ def main(filenames,outfile=None):
                     jeteta[n] = jet[5]
                     jetphi[n] = jet[6]
                     jetcsv[n] = jet[7]
+                    jetcsv[n] = jet[7]
                     njet[0] += 1
 
             nmuon[0] = 0
@@ -322,6 +341,14 @@ def main(filenames,outfile=None):
                     muonpt[n] = muon[4]
                     muoneta[n] = muon[5]
                     muonphi[n] = muon[6]
+                    muonsumchhadpt[n] = muon[7]
+                    muonsumnhadpt[n] = muon[8]
+                    muonsumphotEt[n] = muon[9]
+                    muonsumPUPt[n] = muon[10]
+                    muonisLoose[n] = muon[11]
+                    muonisMedium[n] = muon[12]
+                    muonPFiso[n] = muon[13]
+                    muonq[n] = muon[14]
                     nmuon[0] += 1
 
             nelectron[0] = 0
@@ -334,6 +361,10 @@ def main(filenames,outfile=None):
                     electronpt[n] = electron[4]
                     electroneta[n] = electron[5]
                     electronphi[n] = electron[6]
+                    electronTkIso[n] = electron[7]
+                    electronHCIso[n] = electron[8]
+                    electronECIso[n] = electron[9]
+                    electronq[n] = electron[10]
                     nelectron[0] += 1
 
             #print("+++++++++++++++++++++++++++")
@@ -393,13 +424,16 @@ def main(filenames,outfile=None):
             ###################################################################
             # Use the ML info
             ###################################################################
-            '''
-            tmpjets = alljets.copy()
+            #'''
+            tmpjets = alljets[:]
 
-            combos = 0
+            for key in output_data.keys():
+                output_data[key] = []
+
+            nhypothesis[0] = 0
             if len(tmpjets)>=5:
                 for j0,j1,j2 in combinations(tmpjets,3):
-                    tmp2jets = tmpjets.copy()
+                    tmp2jets = tmpjets[:]
                     tmp2jets.remove(j0)
                     tmp2jets.remove(j1)
                     tmp2jets.remove(j2)
@@ -415,10 +449,17 @@ def main(filenames,outfile=None):
                             bnvtopp4 = j3[0:4]+j4[0:4]+lep[0:4]
                             a = tbt.angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
                             output_data['ttbar_angle'].append(np.cos(a))
-                            #total_combinations += 1
-                            #combos += 1
 
-            '''
+                            nhypothesis[0] += 1
+                            #print(nhypothesis[0])
+
+            # Fill the root file of these
+            for key in output_data.keys():
+                for nh in range(len(output_data[key])):
+                    if nh<6400:
+                        #print(nh,output_data[key][nh])
+                        root_output_data[key][nh] = output_data[key][nh]
+            #'''
 
             ###################################################################
             topology = tbt.event_hypothesis(allleptons,alljets,bjetcut=0.0)

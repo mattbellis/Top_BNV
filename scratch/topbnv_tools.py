@@ -344,6 +344,7 @@ def get_good_muons(tree, ptcut=0.0):
     pt = tree.muonpt
     eta = tree.muoneta
     phi = tree.muonphi
+    q = tree.muonq
     sumchhadpt = tree.muonsumchhadpt
     sumnhadpt = tree.muonsumnhadpt
     sumphotEt = tree.muonsumphotEt
@@ -367,7 +368,7 @@ def get_good_muons(tree, ptcut=0.0):
 
         #print(loose_muon)
         if loose_muon is True:
-            allmuons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n], sumchhadpt[n], sumnhadpt[n], sumphotEt[n], sumPUPt[n], isLoose[n], isMedium[n], PFiso[n]])
+            allmuons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n], sumchhadpt[n], sumnhadpt[n], sumphotEt[n], sumPUPt[n], isLoose[n], isMedium[n], PFiso[n], q[n]])
 
     return allmuons
 
@@ -386,6 +387,7 @@ def get_good_electrons(tree, ptcut=0.0):
     pt = tree.electronpt
     eta = tree.electroneta
     phi = tree.electronphi
+    q = tree.electronq
     TkIso = tree.electronTkIso
     HCIso = tree.electronHCIso
     ECIso = tree.electronECIso
@@ -404,7 +406,7 @@ def get_good_electrons(tree, ptcut=0.0):
 
         #print(loose_electron)
         if loose_electron is True:
-            allelectrons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n], TkIso[n], HCIso[n], ECIso[n]])
+            allelectrons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n], TkIso[n], HCIso[n], ECIso[n], q[n]])
 
     return allelectrons
 
