@@ -55,11 +55,11 @@ config.Data.publication = False
 
 config.Site.storageSite = 'T3_US_FNALLPC'
 
-config.JobType.scriptExe = 'execute_for_crab_data.sh'
+config.JobType.scriptExe = 'execute_for_crab_data_SingleElectron.sh'
 
 config.JobType.outputFiles = ['output.root']
 config.JobType.sendExternalFolder = True
 
 # We need that FrameworkJobReport.xml file for the output.
-config.JobType.inputFiles = ['execute_for_crab_data.py', 'topbnv_fwlite.py', 'FrameworkJobReport.xml','JECs']
+config.JobType.inputFiles = ['execute_for_crab_data_SingleElectron.py', 'topbnv_fwlite.py', 'FrameworkJobReport.xml','JECs']
 

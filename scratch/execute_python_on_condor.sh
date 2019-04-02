@@ -51,8 +51,8 @@ echo "subdir: "$subdir
 
 # THIS WORKS WHEN WRITING TO EOS
 # This directory has to already exist
-echo xrdcp $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_Feb2019/$subdir/.
-     xrdcp $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_Feb2019/$subdir/.
+echo xrdcp -f $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_Feb2019/$subdir/.
+     xrdcp -f $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_Feb2019/$subdir/.
 
 #echo cp $2 /uscms_data/d1/mbellis/CONDOR_output_files_Feb2019/$subdir/.
 #     cp $2 /uscms_data/d1/mbellis/CONDOR_output_files_Feb2019/$subdir/.
