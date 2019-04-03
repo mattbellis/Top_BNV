@@ -9,7 +9,7 @@ while ( $number < 3 )
 
     cat $infile | sed s/NUMBERTORUN/$number/ > $outfile
 
-    crab submit $outfile
+    crab submit -c $outfile
 
     @ number += 1
 
