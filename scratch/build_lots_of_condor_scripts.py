@@ -57,7 +57,8 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2):
     #exit()
 
 
-files_at_a_time = 100
+#files_at_a_time = 100
+files_at_a_time = 10
 #files_at_a_time = 3
 
 pwd = os.getcwd()

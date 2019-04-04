@@ -747,10 +747,10 @@ def event_hypothesis(leptons,jets,bjetcut=0.87,verbose=False):
             if hadjet[i][-1]>=bjetcut:
                 correct_combo += 1
 
-        '''
+        #'''
         if correct_combo != 1:
             continue
-        '''
+        #'''
 
         # If this is good so far and we have good jet combinations for the hadronic top
         # decay, then remove these jets and figure stuff out for the BNV decay
@@ -771,15 +771,17 @@ def event_hypothesis(leptons,jets,bjetcut=0.87,verbose=False):
                 if bnvjet[i][-1]>=bjetcut:
                     correct_combo += 1
 
-            '''
+            #'''
             if correct_combo != 1:
                 continue
-            '''
+            #'''
 
             # Right now, we're not worried about which is the bjet
             bnvjet0 = bnvjet[0]
             bnvjet1 = bnvjet[1]
 
+            hadnonbjet0 = None
+            hadnonbjet1 = None
             # For the had decay, we want to try to identify the W
             if hadjet[0][-1]>bjetcut:
                 hadbjet = hadjet[0]
