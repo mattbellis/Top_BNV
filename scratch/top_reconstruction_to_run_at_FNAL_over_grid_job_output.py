@@ -238,7 +238,7 @@ def main(filenames,outfile=None):
 
         nentries = tree.GetEntries()
 
-        nentries = 10000
+        #nentries = 10000
 
         print("Will run over %d entries" % (nentries))
 
@@ -462,7 +462,7 @@ def main(filenames,outfile=None):
             #'''
 
             ###################################################################
-            topology = tbt.event_hypothesis(allleptons,alljets,bjetcut=0.0)
+            topology = tbt.event_hypothesis(allleptons,alljets,bjetcut=0.87)
             
             #print("# of topologies: {0}    #jets: {1}    #leptons: {2}".format(len(topology[0]), len(alljets), len(allleptons)))
 
