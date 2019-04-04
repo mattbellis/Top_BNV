@@ -899,7 +899,7 @@ def vals_for_ML_training(jets,output_data,tag="had"):
 
     ######### DUMP SOME INFO FOR ML TRAINING ########################
     tmpjets = [j1,j2,j3] 
-    # If it is hadronic, order 3 jets, otherwise order 2 hets
+    # If it is hadronic, order 3 jets, otherwise order 2 jets
     if tag=='had':
         sortidx = np.argsort( [rj1pmag,rj2pmag,rj3pmag])
         j1 = tmpjets[sortidx[2]]
@@ -1004,6 +1004,14 @@ def define_ML_output_data():
     output_data["bnv_j2_CSV"] = []
 
     output_data["ttbar_angle"] = []
+
+    output_data["had_jet_idx1"] = []
+    output_data["had_jet_idx2"] = []
+    output_data["had_jet_idx3"] = []
+
+    output_data["bnv_jet_idx1"] = []
+    output_data["bnv_jet_idx2"] = []
+    output_data["bnv_lep_idx"] = []
 
 
     return output_data

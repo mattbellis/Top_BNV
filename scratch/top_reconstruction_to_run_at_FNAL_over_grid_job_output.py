@@ -238,7 +238,7 @@ def main(filenames,outfile=None):
 
         nentries = tree.GetEntries()
 
-        #nentries = 10000
+        nentries = 100
 
         print("Will run over %d entries" % (nentries))
 
@@ -433,14 +433,26 @@ def main(filenames,outfile=None):
             nhypothesis[0] = 0
             if len(tmpjets)>=5:
                 for j0,j1,j2 in combinations(tmpjets,3):
+                    
+                    idx1 = alljets.index(j0)
+                    idx2 = alljets.index(j1)
+                    idx3 = alljets.index(j2)
+
                     tmp2jets = tmpjets[:]
                     tmp2jets.remove(j0)
                     tmp2jets.remove(j1)
                     tmp2jets.remove(j2)
                     for j3,j4 in combinations(tmp2jets,2):
+
+                        idx4 = alljets.index(j3)
+                        idx5 = alljets.index(j4)
+
                         j3 = np.array(j3)
                         j4 = np.array(j4)
                         for lep in allleptons:
+
+                            lep_idx = allleptons.index(lep)
+
                             lep = np.array(lep)
                             tbt.vals_for_ML_training([j0,j1,j2],output_data,tag='had')
                             tbt.vals_for_ML_training([j3,j4,lep],output_data,tag='bnv')
@@ -449,6 +461,14 @@ def main(filenames,outfile=None):
                             bnvtopp4 = j3[0:4]+j4[0:4]+lep[0:4]
                             a = tbt.angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
                             output_data['ttbar_angle'].append(np.cos(a))
+
+                            output_data["had_jet_idx1"].append(idx1)
+                            output_data["had_jet_idx2"].append(idx2)
+                            output_data["had_jet_idx3"].append(idx3)
+
+                            output_data["bnv_jet_idx1"].append(idx4)
+                            output_data["bnv_jet_idx2"].append(idx5)
+                            output_data["bnv_lep_idx"].append(lep_idx)
 
                             nhypothesis[0] += 1
                             #print(nhypothesis[0])
