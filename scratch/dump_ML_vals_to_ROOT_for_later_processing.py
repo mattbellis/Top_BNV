@@ -185,7 +185,9 @@ def main(infiles=None,ml_file=None,outfilename=None):
             tmpjets = alljets.copy()
             #print(len(tmpjets))
 
-            output_data = tbt.define_ML_output_data()
+            #output_data = tbt.define_ML_output_data()
+            for key in output_data.keys():
+                output_data[key] = []
 
             combos = 0
             #print(len(tmpjets),len(allmuons),len(allelectrons))
@@ -210,6 +212,7 @@ def main(infiles=None,ml_file=None,outfilename=None):
                             output_data['ttbar_angle'].append(np.cos(a))
                             combos += 1
 
+            '''
             if len(output_data['had_m'])>0:
                 data0 = []
                 for pl in param_labels:
@@ -235,6 +238,7 @@ def main(infiles=None,ml_file=None,outfilename=None):
                     else:
                         key_tot = 'hypothesis/{0}'.format('classifier_output')
                         event[key_tot] += dec_func.tolist()
+            '''
 
 
 
