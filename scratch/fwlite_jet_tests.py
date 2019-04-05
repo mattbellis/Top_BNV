@@ -3,6 +3,7 @@
 import ROOT, copy, sys, logging
 from array import array
 from DataFormats.FWLite import Events, Handle
+from DataFormats.FWLite import Events, Handle
 
 #####################################################################################
 #jet_energy_corrections = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC
@@ -349,6 +350,48 @@ def topbnv_fwlite(argv):
         # CHANGE THIS FOR DATA
         DataJECs = DataJEC(jet_energy_corrections)
 
+    # from within CMSSW:
+    ROOT.gSystem.Load('libCondFormatsBTauObjects') 
+    ROOT.gSystem.Load('libCondToolsBTau') 
+
+    # OR using standalone code:
+    #ROOT.gROOT.ProcessLine('.L BTagCalibrationStandalone.cpp+') 
+
+    # get the sf data loaded
+    calib = ROOT.BTagCalibration('csvv1', 'DeepCSV_2016LegacySF_V1.csv')
+
+    # making a std::vector<std::string>> in python is a bit awkward, 
+    # but works with root (needed to load other sys types):
+    v_sys = getattr(ROOT, 'vector<string>')()
+    v_sys.push_back('up')
+    v_sys.push_back('down')
+
+    # make a reader instance and load the sf data
+    
+    reader = ROOT.BTagCalibrationReader(3, "central")  # 0 is for loose op
+    reader.load(calib, 0, "comb")  # 0 is for b flavour, "comb" is the measurement type
+
+    '''reader = ROOT.BTagCalibrationReader(
+        3,              # 0 is for loose op, 1: medium, 2: tight, 3: discr. reshaping
+        "central",      # central systematic type
+        v_sys,          # vector of other sys. types
+    )    
+    reader.load(
+        calib, 
+        0,          # 0 is for b flavour, 1: FLAV_C, 2: FLAV_UDSG 
+        "comb"      # measurement type
+    )
+    # reader.load(...)     # for FLAV_C
+    # reader.load(...)     # for FLAV_UDSG
+   
+    # in your event loop
+    sf = reader.eval_auto_bounds(
+        'central',      # systematic (here also 'up'/'down' possible)
+        0,              # jet flavor
+        1.2,            # absolute value of eta
+        31.             # pt
+    )
+    '''
 
     #################################################################################
     ## ___________                    __    .____
@@ -423,7 +466,17 @@ def topbnv_fwlite(argv):
             btagvar = jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")
 
             print(i,btagvar)
+            
+        sf = reader.eval(0, 1.2, 30.)  # jet flavor, abs(eta), pt
 
+        #sf = reader.eval_auto_bounds(
+        #    'central',      # systematic (here also 'up'/'down' possible)
+        #    0,              # jet flavor
+        #    1.2,            # absolute value of eta
+        #    31.             # pt
+        #)
+        print("-----------------SF-----------------")
+        print(sf)
 
         ## ___________.__.__  .__    ___________
         ## \_   _____/|__|  | |  |   \__    ___/______   ____   ____
