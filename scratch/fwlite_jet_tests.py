@@ -369,7 +369,7 @@ def topbnv_fwlite(argv):
     # make a reader instance and load the sf data
     
     reader = ROOT.BTagCalibrationReader(3, "central")  # 0 is for loose op
-    reader.load(calib, 0, "comb")  # 0 is for b flavour, "comb" is the measurement type
+    reader.load(calib, 0, "iterativefit")  # 0 is for b flavour, "comb" is the measurement type
 
     '''reader = ROOT.BTagCalibrationReader(
         3,              # 0 is for loose op, 1: medium, 2: tight, 3: discr. reshaping
@@ -454,6 +454,8 @@ def topbnv_fwlite(argv):
         # Get the AK4 jet nearest the lepton:
         ############################################
         print("-------------")
+        print("Index, BTag, Eta, PT")
+        sf = []
         for i,jet in enumerate(jets.product()):
             # Get the jet p4
             jetP4Raw = ROOT.TLorentzVector( jet.px(), jet.py(), jet.pz(), jet.energy() )
@@ -465,9 +467,9 @@ def topbnv_fwlite(argv):
 
             btagvar = jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")
 
-            print(i,btagvar)
+            print(i,btagvar, abs(jet.eta()), jet.pt())
             
-        sf = reader.eval(0, 1.2, 30.)  # jet flavor, abs(eta), pt
+            sf.append(reader.eval(0, abs(jet.eta()), jet.pt()))  # jet flavor, abs(eta), pt
 
         #sf = reader.eval_auto_bounds(
         #    'central',      # systematic (here also 'up'/'down' possible)
