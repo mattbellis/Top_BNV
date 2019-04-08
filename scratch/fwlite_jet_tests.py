@@ -369,7 +369,9 @@ def topbnv_fwlite(argv):
     # make a reader instance and load the sf data
     
     reader = ROOT.BTagCalibrationReader(3, "central")  # 0 is for loose op
-    reader.load(calib, 0, "comb")  # 0 is for b flavour, "comb" is the measurement type
+    #reader.load(calib, 0, "comb")  # 0 is for b flavour, "comb" is the measurement type
+    reader.load(calib, ROOT.BTagEntry.FLAV_B, "comb")  # 0 is for b flavour, "comb" is the measurement type
+    print("Past the reader.load")
 
     '''reader = ROOT.BTagCalibrationReader(
         3,              # 0 is for loose op, 1: medium, 2: tight, 3: discr. reshaping
