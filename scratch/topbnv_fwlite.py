@@ -36,10 +36,10 @@ selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_medium)
         #[280919,float("inf"),"Summer16_23Sep2016V4"] ]
 
 # THESE SHOULD BE THE LATEST - 9/12/2018
-jet_energy_corrections = [ [1,276811,"Summer16_07Aug2017_V11"],
-        [276831,278801,"Summer16_07Aug2017_V11"],
-        [278802,280385,"Summer16_07Aug2017_V11"],
-        [280919,float("inf"),"Summer16_07Aug2017_V11"] ]
+jet_energy_corrections = [ [1,276811,"Summer16_07Aug2017BCD_V11_DATA"],
+        [276831,278801,"Summer16_07Aug2017EF_V11_DATA"],
+        [278802,float("inf"),"Summer16_07Aug2017GH_V11_DATA"] ]
+        
 
 #####################################################################################
 # CHECK THIS!!!!!!!!!!
@@ -62,16 +62,20 @@ jet_energy_resolution = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS
 
 #####################################################################################
 def createJEC(jecSrc, jecLevelList, jetAlgo):
+    print("Creating JECs....")
     log = logging.getLogger('JEC')
     log.info('Getting jet energy corrections for %s jets', jetAlgo)
     jecParameterList = ROOT.vector('JetCorrectorParameters')()
     # Load the different JEC levels (the order matters!)
     for jecLevel in jecLevelList:
         log.debug('  - %s jet corrections', jecLevel)
-        jecParameter = ROOT.JetCorrectorParameters('%s_%s_%s.txt' % (jecSrc, jecLevel, jetAlgo));
-        #print jecParameter
+        jec_parameter_name = ('%s_%s_%s.txt' % (jecSrc, jecLevel, jetAlgo));
+        print(jec_parameter_name)
+        jecParameter = ROOT.JetCorrectorParameters(jec_parameter_name)
+        print(jecParameter)
         jecParameterList.push_back(jecParameter)
     # Chain the JEC levels together
+    #jecParameterList.Print()
     return ROOT.FactorizedJetCorrector(jecParameterList)
 
 #####################################################################################
@@ -638,6 +642,7 @@ def topbnv_fwlite(argv):
 
         #print("PASSED!!!!!!!!!!!!!! --------------")
         # THIS SHOULD ONLY WRITE EVENTS THAT PASSED THE TRIGGER
+        #print("FLAG_passed_trigger: ",FLAG_passed_trigger)
         if not FLAG_passed_trigger:
             #print("NOT PASSING!")
             return -1
@@ -665,6 +670,8 @@ def topbnv_fwlite(argv):
 
             haveGenSolution = False
             isGenPresent = event.getByLabel( genLabel, gens )
+            print("==========================\nisGenPresent: ",isGenPresent)
+            print("==========================")
             if isGenPresent:
                 #print(" ----------------------------- ")
                 ngen[0] = 10
@@ -674,7 +681,7 @@ def topbnv_fwlite(argv):
                 antitopQuark = None
                 found_top = False
                 found_antitop = False
-                #print("------------------------------------------------------------")
+                print("------------------------------------------------------------")
                 gcount = 0
                 wmenergy = 0
                 wpenergy = 0
@@ -682,12 +689,17 @@ def topbnv_fwlite(argv):
                     ##### WHEN LOOPING OVER CHECK THE HARD SCATTERING FLAG 
                     ##### TO MAKE SURE WE DON'T WORRY ABOUT TOPS THAT ARE JUST
                     ##### PROPAGATING FROM THEMSELVES
+                    print("----")
+                    mother = -999
+                    if gen.mother()!=None:
+                        mother = gen.mother().pdgId()
+                    print( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother, gen.isLastCopy() )
                     #if options.verbose:
                     if 1:
                         genOut = "" # For debugging
                         mother = -999
                         if gen.mother() != None:
-                            '''
+                            #'''
                             mother = gen.mother().pdgId() 
 
                             #genpdg[gcount] = gen.pdgId()
@@ -695,9 +707,9 @@ def topbnv_fwlite(argv):
                                     ( gen.pdgId(), gen.pt(), gen.status(), gen.numberOfDaughters(), mother, gen.isLastCopy() )
                             for ndau in range(0,gen.numberOfDaughters()):
                                 genOut += "daughter pdgid: %d   pt: %f  %f\n" % (gen.daughter(ndau).pdgId(), gen.daughter(ndau).pt(), gen.daughter(ndau).mother().pt())
-                            '''
+                            #'''
                             ##### FIND TOPS AND THEIR DECAYS
-                            #print genOut
+                            print genOut
                             if abs(gen.pdgId()) == 6 and gen.isLastCopy():
                                 parent = gen
 
@@ -714,6 +726,8 @@ def topbnv_fwlite(argv):
                                 genndau[gcount] = parent.numberOfDaughters()
 
                                 parentidx = gcount
+
+                                print(gene[gcount], genpt[gcount], geneta[gcount], genphi[gcount], genpdg[gcount], genpx[gcount], genpy[gcount], genpz[gcount], genmotherpdg[gcount], genmotheridx[gcount], genndau[gcount])
 
                                 gcount += 1
 
@@ -740,6 +754,8 @@ def topbnv_fwlite(argv):
                                         elif dau.pdgId()==24:
                                             wpenergy = dau.energy() # For matching
 
+                                        print(gene[gcount], genpt[gcount], geneta[gcount], genphi[gcount], genpdg[gcount], genpx[gcount], genpy[gcount], genpz[gcount], genmotherpdg[gcount], genmotheridx[gcount], genndau[gcount])
+
                             ##### FIND Ws AND THEIR DECAYS
                             elif (gen.pdgId() == 24 and gen.isLastCopy() and abs(gen.energy()-wpenergy)< 10) \
                               or (gen.pdgId() ==-24 and gen.isLastCopy() and abs(gen.energy()-wmenergy)< 10):
@@ -764,6 +780,8 @@ def topbnv_fwlite(argv):
                                         genmotheridx[gcount] = parentidx
                                         genndau[gcount] = dau.numberOfDaughters()
 
+                                        print(gene[gcount], genpt[gcount], geneta[gcount], genphi[gcount], genpdg[gcount], genpx[gcount], genpy[gcount], genpz[gcount], genmotherpdg[gcount], genmotheridx[gcount], genndau[gcount])
+
                                         gcount += 1 
 
 
@@ -771,12 +789,13 @@ def topbnv_fwlite(argv):
                     if options.verbose:
                         print ('No top quarks, not filling mttbar')
 
-            '''
-            if options.verbose:
+            #'''
+            #if options.verbose:
+            if 1:
                 #print(ngen)
                 for a,b,c,d,e,f,g,h,aa,bb,cc in zip( genpt, geneta, genphi, gene, genpx, genpy, genpz, genpdg, genmotheridx, genmotherpdg, genndau):
                     print(a,b,c,d,e,f,g,h,aa,bb,cc)
-            '''
+            #'''
 
             # Get MC weight
             event.getByLabel( genInfoLabel, genInfo )
@@ -1139,6 +1158,7 @@ def topbnv_fwlite(argv):
         # loop over events in this file
         print('Tot events in this file: ' + str(events.size()))
         for iev, event in enumerate(events):
+            #print(iev)
 
             if maxevents > 0 and nevents > maxevents:
                 break
