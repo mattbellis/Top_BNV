@@ -19,8 +19,9 @@ mcparamsnames = list(mc_info.keys())
 
 #print(mc_info)
 
-data_int_lumi = 35.* (1.0/1e-15) # 35 ifb --> inv barns
+data_int_lumi = 37.* (1.0/1e-15) # 35 ifb --> inv barns
 
+print(" {1:15s} {2:12s} {3:12s} {4} {0}".format("Dataset","Weight","# gen","N","cross section"))
 for key in mc_info.keys():
     entry = mc_info[key]
     Ngen = entry['completed_events']
@@ -34,12 +35,16 @@ for key in mc_info.keys():
 
     print(" {1:12.3f} {2:12} {3:12d} {4:12.2e} {0}".format(key,wt,Ngen,int(N),xsec))
 
+#exit()
 
 
 ################################################################################
 def combine_bins(h,bin_edges,n=2):
 
     #print(len(bin_edges)-1/n)
+
+    if len(h)==0 or len(bin_edges)==0:
+        return h,bin_edges
 
     x = []
     y = [bin_edges[0]]
@@ -57,31 +62,60 @@ def combine_bins(h,bin_edges,n=2):
 ################################################################################
 def main(infiles=None):
 
-
     colors = ['k','b','r','g','y','m','c','orange']
-    names = ['leadmupt', 'topmass','Wmass','jetcsv', 'leadmupt_cut0', 'topmass_cut0', 'Wmass_cut0']
-    xaxislabels = [r'leading $\mu$ p_T [GeV/c]', 
-                   r'Top candidate mass [GeV/c$^2$]', 
-                   r'$W$ candidate mass [GeV/c$^2$]', 
-                   r'Jet CSVv2 variable',
-                   r'leading $\mu$ p_T [GeV/c]', 
-                   r'Top candidate mass [GeV/c$^2$]', 
-                   r'$W$ candidate mass [GeV/c$^2$]'
-                   ]
-
     mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets"]
     datadatasets = ['Data (2016)']
 
+    # Get the information on the plots from the first infile
+    infile = open(infiles[0],'r')
+    line = infile.readline()
+    names = [] # Names of plots to make
+    xlabels = []
+    ylabels = []
+    while line:
+        names.append(line.split()[0])
+
+        line = infile.readline()
+
+        line = infile.readline()
+        xlabels.append(' '.join(line.split()[1:]))
+        line = infile.readline()
+        ylabels.append(' '.join(line.split()[1:]))
+        
+        line = infile.readline()
+
+
+
+    print(names)
+    cut_strings = []
+    basenames = []
+    for name in names:
+        cut_string = name.split("_cut")[-1]
+        basename = name.split("_cut")[0]
+        if cut_string not in cut_strings:
+            cut_strings.append(cut_string)
+        if basename not in basenames:
+            basenames.append(basename)
+    print(cut_strings)
+    print(basenames)
+    #exit()
+    
+    # Build a dictionary of the histogram information
     plots = OrderedDict()
     dataplots = OrderedDict()
-    for name in names:
+    for name,xlabel,ylabel in zip(names,xlabels,ylabels):
         plots[name] = OrderedDict()
         dataplots[name] = OrderedDict()
         for dataset in mcdatasets:
-            plots[name][dataset] = {'bin_vals':[], 'bin_edges':[]}
+            plots[name][dataset] = {'bin_vals':[], 'bin_edges':[], 'xlabel':xlabel, 'ylabel':ylabel}
         for dataset in datadatasets:
-            dataplots[name][dataset] = {'bin_vals':[], 'bin_edges':[]}
+            dataplots[name][dataset] = {'bin_vals':[], 'bin_edges':[], 'xlabel':xlabel, 'ylabel':ylabel}
 
+
+
+
+
+    # Loop over the input files
     for i,infile in enumerate(infiles):
 
         wt = 1.0
@@ -128,9 +162,15 @@ def main(infiles=None):
 
             if name in names:
 
+                #print(name)
+
                 bin_vals = vals[1:]
                 vals = f.readline().split()
                 bin_edges = vals[1:]
+
+                # Just placeholders here
+                xlabels = f.readline().split()
+                ylabels = f.readline().split()
 
                 bin_vals = np.array(bin_vals).astype(float)
                 bin_edges = np.array(bin_edges).astype(float)
@@ -153,21 +193,22 @@ def main(infiles=None):
     ############################################################################
     plt.figure(figsize=(12,8))
 
-    maxvals = np.zeros(len(names))
+
     for i,name in enumerate(names):
         for j,dataset in enumerate(plots[name].keys()):
-            plt.subplot(3,3,1+i)
-            #print(plots[name]['bin_vals'],plots[name]['bin_edges'])
-            #x,y = combine_bins(plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges'],n=8)
-            x,y = plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges']
+
+            plt.subplot(7,7,1+i)
+            
+            x,y = combine_bins(plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges'],n=2)
+            #x,y = plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges']
 
             x = np.array(x); y = np.array(y)
             xbins = (y[0:-1] + y[1:])/2.
             plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color=colors[j%len(colors)])
 
         for j,dataset in enumerate(dataplots[name].keys()):
-            #x,y = combine_bins(dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges'],n=8)
-            x,y = dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges']
+            x,y = combine_bins(dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges'],n=2)
+            #x,y = dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges']
             x = np.array(x); y = np.array(y)
             xbins = (y[0:-1] + y[1:])/2.
             plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color="k")
@@ -178,11 +219,12 @@ def main(infiles=None):
             if max(x)>maxvals[i]:
                 maxvals[i] = max(x)
             '''
-        plt.xlabel(xaxislabels[i],fontsize=18)
+            plt.xlabel(dataplots[name][dataset]['xlabel'])#,fontsize=18)
+            #plt.ylabel(dataplots[name][dataset]['ylabel'])#,fontsize=18)
 
 
-    plt.legend()
-    plt.tight_layout()
+    #plt.legend()
+    #plt.tight_layout()
 
     '''
     for i,name in enumerate(names):
@@ -200,14 +242,35 @@ def main(infiles=None):
     for j,dataset in enumerate(plots[name].keys()):
         plt.plot([0,0],[0,0],color=colors[j%len(colors)],label=dataset,linewidth=8)
     plt.axis('off')
-    plt.legend(loc='center',fontsize=18)
-    plt.tight_layout()
+    plt.legend(loc='center')#,fontsize=18)
+    #plt.tight_layout()
     plt.savefig('plots/legend.png')
 
 
-    plt.figure(figsize=(12,8))
+    figs = []
+    for i in range(len(cut_strings)):
+        figs.append(plt.figure(figsize=(12,8)))
+
+    # Single plots
+    single_figs = []
+    single_axes = []
+    vars_to_plot = ['hadtopmass', 'bnvtopmass', 'leadmupt', 'leadelectronpt','metpt']
+    for i in range(len(cut_strings)):
+        single_figs.append([])
+        single_axes.append([])
+        for j in range(len(vars_to_plot)):
+            single_figs[i].append(plt.figure(figsize=(4,4)))
+            single_axes[i].append(single_figs[i][j].add_subplot(1,1,1))
+
     for i,name in enumerate(names):
-        plt.subplot(3,3,1+i)
+
+        cut_string = int(name.split("_cut")[-1])
+        basename = name.split("_cut")[0]
+        idx = basenames.index(basename)
+        print(name,cut_string,idx)
+
+        ax = figs[cut_string].add_subplot(3,3,1+idx)
+        plt.sca(ax)
         #plt.figure(figsize=(5,4),dpi=100)
 
         heights,bins = [],[]
@@ -223,6 +286,11 @@ def main(infiles=None):
         if len(heights)>0:
             mh.shh(heights,bins,color=colors,ax=plt.gca())
 
+            # Single plots
+            for k in range(len(vars_to_plot)):
+                if basename.find(vars_to_plot[k])>=0:
+                    mh.shh(heights,bins,color=colors,ax=single_axes[cut_string][k])
+
         for j,dataset in enumerate(dataplots[name].keys()):
             #x,y = combine_bins(dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges'],n=8)
             x,y = dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges']
@@ -230,14 +298,34 @@ def main(infiles=None):
             xbins = (y[0:-1] + y[1:])/2.
             plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color="k")
 
-        plt.xlabel(xaxislabels[i],fontsize=14)
+            #plt.xlabel(xaxislabels[i],fontsize=14)
+            plt.xlabel(dataplots[name][dataset]['xlabel'])#,fontsize=18)
+            #plt.ylabel(dataplots[name][dataset]['ylabel'])#,fontsize=18)
+
+            # Single plots
+            for k in range(len(vars_to_plot)):
+                if basename.find(vars_to_plot[k])>=0:
+                    plt.sca(single_axes[cut_string][k])
+                    plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color="k")
+                    plt.xlabel(dataplots[name][dataset]['xlabel'])#,fontsize=18)
+
         #plt.legend()
         plt.tight_layout()
-
         figname = "plots/fig_{0}.png".format(name)
         plt.savefig(figname)
 
-    plt.show()
+    for i in range(len(cut_strings)):
+        for j in range(len(vars_to_plot)):
+            plt.sca(single_axes[i][j])
+            plt.tight_layout()
+            if j==2 or j==3:
+                plt.xlim(0,200)
+            elif j==4:
+                plt.xlim(50,)
+            #figname = "plots/SINGLE_ELECTRON_fig_{0}_{1}.png".format(vars_to_plot[j],i)
+            figname = "plots/SINGLE_MUON_fig_{0}_{1}.png".format(vars_to_plot[j],i)
+            plt.savefig(figname)
+    #plt.show()
 
     return 1
 

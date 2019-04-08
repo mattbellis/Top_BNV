@@ -14,29 +14,61 @@ import argparse
 from array import array
 
 from collections import OrderedDict
+from itertools import combinations
+
+import lichen.lichen as lch
 
 
 ################################################################################
 def main(filenames,outfilename=None):
 
+    output_data = {}
+    output_data["had_m"] = []
+    output_data["had_j12_m"] = []
+    output_data["had_j13_m"] = []
+    output_data["had_j23_m"] = []
+    output_data["had_dR12_lab"] = []
+    output_data["had_dR13_lab"] = []
+    output_data["had_dR23_lab"] = []
+    output_data["had_dR1_23_lab"] = []
+    output_data["had_dRPtTop"] = []
+    output_data["had_dRPtW"] = []
+    output_data["had_dTheta12_rest"] = []
+    output_data["had_dTheta13_rest"] = []
+    output_data["had_dTheta23_rest"] = []
+    output_data["had_j1_CSV"] = []
+    output_data["had_j2_CSV"] = []
+    output_data["had_j3_CSV"] = []
+
+    output_data["bnv_m"] = []
+    output_data["bnv_j12_m"] = []
+    output_data["bnv_j13_m"] = []
+    output_data["bnv_j23_m"] = []
+    output_data["bnv_dR12_lab"] = []
+    output_data["bnv_dR13_lab"] = []
+    output_data["bnv_dR23_lab"] = []
+    output_data["bnv_dR1_23_lab"] = []
+    output_data["bnv_dRPtTop"] = []
+    output_data["bnv_dRPtW"] = []
+    output_data["bnv_dTheta12_rest"] = []
+    output_data["bnv_dTheta13_rest"] = []
+    output_data["bnv_dTheta23_rest"] = []
+    output_data["bnv_j1_CSV"] = []
+    output_data["bnv_j2_CSV"] = []
+
+    output_data["ttbar_angle"] = []
+
+    incorrect_output_data = {}
+    for key in output_data.keys():
+        incorrect_output_data[key] = []
+
     # Loop over the files.
-    vals = [[],[],[],[],[],[]]
-    plotvals = OrderedDict()
-    plotvals["pt"] = [[],[],[]]
-    plotvals["eta"] = [[],[],[]] 
-    plotvals["csv"] = [[],[],[]] 
-    plotvals["NHF"] = [[],[],[]] 
-    plotvals["NEMF"] = [[],[],[]] 
-    plotvals["CHF"] = [[],[],[]] 
-    plotvals["MUF"] = [[],[],[]] 
-    plotvals["CEMF"] = [[],[],[]] 
-    plotvals["NC"] = [[],[],[]] 
-    plotvals["NNP"] = [[],[],[]] 
-    plotvals["CHM"] = [[],[],[]]
+    vals = [[],[],[],[],[],[],[]]
 
     wmass = []
     wdR = []
     topmass = []
+    toppt = []
     topdR_bnb = []
     topdR_nbnb = []
 
@@ -44,178 +76,357 @@ def main(filenames,outfilename=None):
     top02 = []
     top12 = []
 
-    for ifile,filename in enumerate(filenames):
+    bnvtopmass = []
+    bnvtoppt = []
+    bnvtop01 = []
+    bnvtop02 = []
+    bnvtop12 = []
 
-        print("Opening file %s %d of %d" % (filename,ifile,len(filenames)))
+    thetatop1top2 = []
+    hadjetspt = []
+    bnvjetspt = []
+    top1pt = []
+    top2pt = []
 
-        f = ROOT.TFile.Open(filename)
+    leppt = []
 
-        tree = f.Get("T")
-        #tree.Print()
+    hadbjetpt = []
+    hadjet0pt = []
+    hadjet1pt = []
+    bnvjet0pt = []
+    bnvbjetpt = []
 
-        nentries = tree.GetEntries()
+    met = []
 
-        print("Will run over %d entries" % (nentries))
+    total_signal = 0
+
+    tree = ROOT.TChain("T")
+    for ifile,infile in enumerate(filenames):
+        print("Opening file %s %d of %d" % (infile,ifile,len(filenames)))
+        tree.AddFile(infile)
+
+    nentries = tree.GetEntries()
+    print("Will run over %d entries" % (nentries))
 
 
-        for i in range(nentries):
+    genmuonpt = []
+    genmuone = []
+    recomuonpt = []
+    recomuone = []
 
-            if i%10000==0:
-                output = "Event: %d out of %d" % (i,nentries)
-                print(output)
+    genqpt = []
+    genqe = []
+    recoqpt = []
+    recoqe = []
+    
+    #nentries = 10000
 
-            tree.GetEntry(i)
+    for i in range(nentries):
 
-            alljets = tbt.get_good_jets(tree,ptcut=0)
-            #bjets,nonbjets = tbt.get_top_candidate_jets(alljets,csvcut=0.67)
+        if i%1000==0:
+            output = "Event: %d out of %d" % (i,nentries)
+            print(output)
 
-            gen_b = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0] ]
-            gen_nonb = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0] ]
+        tree.GetEntry(i)
 
-            #'''
-            gen_particles = tbt.get_gen_particles(tree)
-            genjets = []
-            #print("----------")
-            #print(gen_particles)
-            ib = 0
-            inonb = 0
-            for gen in gen_particles:
-                #if np.abs(gen['pdg'])==5 and np.abs(gen['motherpdg'])==6:
-                if gen['pdg']==5 and gen['motherpdg']==6:
-                    gen_b[ib] = gen['p4'][4:]
-                    ib += 1 # Assume we only have 2 b-quarks coming from the tops per event
-                #if (np.abs(gen['pdg'])>=1 and np.abs(gen['pdg'])<=5) and np.abs(gen['motherpdg'])==24:
-                if (np.abs(gen['pdg'])>=1 and np.abs(gen['pdg'])<=5) and gen['motherpdg']==24:
-                    gen_nonb[inonb] = gen['p4'][4:]
-                    inonb += 1 # Assume we only have 2 b-quarks coming from the tops per event
+        alljets = tbt.get_good_jets(tree,ptcut=20)
+        allmuons = tbt.get_good_muons(tree,ptcut=20)
+        #print(allmuons)
+        #bjets,nonbjets = tbt.get_top_candidate_jets(alljets,csvcut=0.67)
+        tempe = []
+        for m in allmuons:
+            recomuonpt.append(m[4])
+            recomuone.append(m[0])
+            tempe.append(m[0])
+        tempe = np.sort(tempe)
+        #print(tempe)
+        #print(tempe[-2:])
 
-            genjets.append([gen_b,gen_nonb])
-            #print(genjets)
 
-            #'''
+        # First 3 will be had (b, j, j) and the last 2 will be BNV (b, j)
+        gen_jets = [ [0.0, 0.0, 0.0],  [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0] ]
+        gen_lep = [ 0.0, 0.0, 0.0]
 
-            jet = []
-            nonbjets = []
-            bjet = []
-            muon = []
-            
-            # Try to match bjets
-            #print("Looking -------------------------------------------------------")
-            nj = 0
-            nbj = 0
+        #'''
+        gen_particles = tbt.get_gen_particles(tree)
+        genjets = []
+        #print("----------")
+        #for gp in gen_particles:
+            #print(gp)
+        '''
+        if gen_particles[6]["pdg"]==-5 and np.abs(gen_particles[7]["pdg"])<6 and np.abs(gen_particles[8]["pdg"])<6:
+           total_signal += 1 
+        '''
 
-            nbsfound = 0
-            nnonbsfound = 0
+        ib = 0
+        # Assume that t(6) --> -13 -5 -4 and tbar (-6) --> -5 -24, -24 --> stuff 
+        # First do the hadronically decaying antitop
+        ihad = 1
+        for gen in gen_particles:
+            if gen['pdg']==-5 and gen['motherpdg']==-6:
+                gen_jets[0] = gen['p4'][4:]
+            elif (np.abs(gen['pdg'])>=1 and np.abs(gen['pdg'])<=5) and gen['motherpdg']==-24:
+                gen_jets[ihad] = gen['p4'][4:]
+                ihad += 1 # 
 
-            # Jet selection from here
-            # https://twiki.cern.ch/twiki/bin/view/CMS/TTbarXSecSynchronization
+        # Next, do the BNV stuff
+        for gen in gen_particles:
+            if gen['pdg']==-5 and gen['motherpdg']==6:
+                gen_jets[3] = gen['p4'][4:]
+                genqe.append(gen['p4'][0])
+                genqpt.append(gen['p4'][4])
+            elif (np.abs(gen['pdg'])>=1 and np.abs(gen['pdg'])<5) and gen['motherpdg']==6:
+                gen_jets[4] = gen['p4'][4:]
+                genqe.append(gen['p4'][0])
+                genqpt.append(gen['p4'][4])
+            elif (np.abs(gen['pdg'])>=11 and np.abs(gen['pdg'])<=18) and gen['motherpdg']==6:
+                gen_lep = gen['p4'][4:]
+                genmuone.append(gen['p4'][0])
+                genmuonpt.append(gen['p4'][4])
 
-            matchedjets = [] # Let the first be b-jets and the second be non-b-jets
+        jet = []
+        nonbjets = []
+        bjet = []
+        muon = []
+        
+        # Try to match bjets
+        #print("Looking -------------------------------------------------------")
+        nj = 0
+        nbj = 0
 
-            mj = [ [], [] ] # Hold the matched jets
-            for gvals in genjets:
-                #print("gvals")
-                #print(gvals)
-                gen_b,gen_nonb = gvals
-                #print("gens")
-                #print(gen_b)
-                #print(gen_nonb)
-                for ig,genjet in enumerate([gen_b,gen_nonb]):
+        nbsfound = 0
+        nnonbsfound = 0
 
-                    #print("genjet")
-                    #print(genjet)
-                    for gjet in genjet:
+        # Jet selection from here
+        # https://twiki.cern.ch/twiki/bin/view/CMS/TTbarXSecSynchronization
 
-                        dptval = 0
-                        gendRval = 0
-                        mindR = 1e6
-                        mindRidx = -1
-                        matchedjet = False
+        #################################
+        tophad_matchedjets = [] # Let the first be b-jets and the second be non-b-jets
+        bnv_matchedjets = [] # Let the first be b-jets and the second be non-b-jets
+        matchedleptons = [] # 
 
-                        for j,jet in enumerate(alljets):
-                            etaph0 = [jet[5],jet[6]] # eta and phi
-                            etaph1 = [gjet[1],gjet[2]]
-                            
-                            gendR = tbt.deltaR(etaph0,etaph1)
-                            dpt = math.fabs(jet[4]-gjet[0]) # Pts
+        recojets = [ None, None, None, None, None, ] # Hold the tophad_matched jets
+        # reco: e, px, py, pz, pt, eta, phi, csv2
+        dummy_jet = None#[-1, -1, -1, -1, -1, -1, -1] 
+        #print(gen_jets)
+        '''
+        print("---------")
+        for a in alljets:
+            print(a)
+        '''
+        for ij,gen in enumerate(gen_jets): 
+            # Some of the gen particles might not be assigned actually. 
+            # Might be an issue with how we grab the gen particles in the topbnv_fwlite code
+            if gen[0]==0:
+                continue
 
-                            #print(gendR,dpt)
+            #print("gen: ",ij,gen)
+            matched_jet,dptval,dRval = tbt.match_up_gen_with_reco(gen, alljets, ptcut=0)
+            if matched_jet is not None:
+                recojets[ij] = matched_jet
+            else:
+                recojets[ij] = dummy_jet
 
-                            # To store in TTree
-                            if gendR<mindR:
-                                gendRval = gendR
-                                dptval = dpt
-                                mindR = gendR
-                                mindRidx = j
-                                #print("HERE: ",mindRidx)
-                        #'''
-                        #print("THERE")
-                        #print(mindRidx,len(alljets))
-                        #print(alljets)
-                        if mindRidx>=0 and alljets[mindRidx][4]>20: # Cut on pt maybe
-                            jet = alljets[mindRidx]
-                            if dptval<100 and gendRval<0.3:
-                                matchedjet = True
-                                mj[ig].append(jet)
-                                alljets.remove(jet) # Remove the jet if it was matched with a gen quark
+        #####################################################################################
+        # Pull the non top jets out of the alljets
+        #####################################################################################
+        #print("------")
+        #if recojets[0] is not None and recojets[1] is not None and recojets[2] is not None:
+            #for r in recojets:
+                #print(r)
+            #print("---")
+            #for r in alljets:
+                #print(r)
+        #'''
+        #print("---")
+        # Get the info about the jets that did not get matched up
+        for a in alljets:
+            #print(a)
+            vals[2].append(a[-1]) 
+            vals[6].append(a[4]) 
+        #'''
+        ################################################
+        #print("-----------")
+        #print(len(alljets))
+        matched_muon,dptval,dRval = tbt.match_up_gen_with_reco(gen_lep, allmuons, ptcut=0, maxdPtRel=0.5, maxdR=0.5)
+        if matched_muon is not None:
+            matchedleptons = matched_muon
+        else:
+            matchedleptons = dummy_jet
+            #print("not matched: ",ig,dptval,dRval,gjet)
 
-            #print("MJ")
-            #print(mj)
-            matchedjets.append(mj)
 
-            #'''
-            #print("=======================")
-            for mj in matchedjets:
-                bjets = mj[0]
-                nonbjets = mj[1]
-                if len(bjets)==1 and len(nonbjets)==2:
-                    bjet = bjets[0]
-                    #print(bjet)
-                    #prin[0]t(nonbjets)
+        ###############################
+        #'''
+        #print("=======================")
+        hadtopp4 = None
+        good_fill = False
+        if recojets[0] is not None and recojets[1] is not None and recojets[2] is not None and recojets[3] is not None and recojets[4] is not None and matchedleptons is not None:
+            j0 = np.array(recojets[0]) # b-jet
+            j1 = np.array(recojets[1])
+            j2 = np.array(recojets[2])
 
-                    vals[0].append(bjet[-1])
-                    vals[1].append(nonbjets[0][-1])
-                    vals[1].append(nonbjets[1][-1])
+            # CSV2 output
+            vals[0].append(j0[-1])
+            vals[1].append(j1[-1])
+            vals[1].append(j2[-1])
 
-                    vals[4].append(bjet[4])
-                    vals[5].append(nonbjets[0][4])
-                    vals[5].append(nonbjets[1][4])
+            # pt
+            vals[4].append(j0[4])
+            vals[5].append(j1[4])
+            vals[5].append(j2[4])
 
-                    dR0 = tbt.deltaR(nonbjets[0][5:],nonbjets[1][5:])
-                    dR1 = tbt.deltaR(nonbjets[0][5:],bjet[5:])
-                    dR2 = tbt.deltaR(nonbjets[1][5:],bjet[5:])
+            dR0 = tbt.deltaR(j1[5:],j2[5:])
+            dR1 = tbt.deltaR(j1[5:],j0[5:])
+            dR2 = tbt.deltaR(j2[5:],j0[5:])
 
-                    # Make sure the jets are not so close that they're almost merged!
-                    if dR0>0.05 and dR1>0.05 and dR2>0.05:
 
-                        wdR.append(dR0)
-                        topdR_bnb.append(dR1)
-                        topdR_bnb.append(dR2)
+            # Make sure the jets are not so close that they're almost merged!
+            #if dR0>0.05 and dR1>0.05 and dR2>0.05:
+            if 1:
 
-                        mass = tbt.invmass(nonbjets)
-                        wmass.append(mass)
-                        mass = tbt.invmass([nonbjets[0],nonbjets[1],bjet])
-                        topmass.append(mass)
+                wdR.append(dR0)
+                topdR_bnb.append(dR1)
+                topdR_bnb.append(dR2)
 
-                        mass = tbt.invmass([nonbjets[0],bjet])
-                        top01.append(mass**2)
-                        mass = tbt.invmass([nonbjets[1],bjet])
-                        top02.append(mass**2)
-                        mass = tbt.invmass([nonbjets[0],nonbjets[1]])
-                        top12.append(mass**2)
+                mass = tbt.invmass([j1,j2])
+                wmass.append(mass)
+                mass = tbt.invmass([j0,j1,j2])
+                topmass.append(mass)
+                hadtopp4 = j0[0:4] + j1[0:4] + j2[0:4]
+                toppt.append(tbt.calc_pT(hadtopp4))
+                #print(hadtopp4)
 
-                    #print(nonbjets[1][4] - nonbjets[0][4])
+                mass = tbt.invmass([j0,j1])
+                top01.append(mass**2)
+                mass = tbt.invmass([j0,j2])
+                top02.append(mass**2)
+                mass = tbt.invmass([j1,j2])
+                top12.append(mass**2)
 
-                #print(jet)
-            #'''
-                
+                hadjetspt.append(j0[4])
+                hadjetspt.append(j1[4])
+                hadjetspt.append(j2[4])
+
+                hadbjetpt.append(j0[4])
+                hadjet0pt.append(j1[4])
+                hadjet1pt.append(j2[4])
+
+                # GET ML DATA
+                tbt.vals_for_ML_training([j0,j1,j2],output_data)
+                good_fill = True
+                #print(output_data)
+
+            #print(jet)
+        #'''
+        #######################################################
+        # Dump wrong combos for training
+        #
+        # First don't worry about substituting anything with the
+        # correct ones. 
+        #######################################################
+        tmpjets = alljets.copy()
+        while None in tmpjets:
+            tmpjets.remove(None)
+        for r in recojets[3:]:
+            if r is not None:
+                tmpjets.append(r.copy())
+        #print("=============================")
+        #for t in tmpjets:
+            #print(t)
+
+        if len(tmpjets)>=5:
+            for j0,j1,j2 in combinations(tmpjets,3):
+                #tbt.vals_for_ML_training([j0,j1,j2],incorrect_output_data)
+                tmp2jets = tmpjets.copy()
+                tmp2jets.remove(j0)
+                tmp2jets.remove(j1)
+                tmp2jets.remove(j2)
+                for j3,j4 in combinations(tmp2jets,2):
+                    j3 = np.array(j3)
+                    j4 = np.array(j4)
+                    for lep in allmuons:
+                        lep = np.array(lep)
+                        tbt.vals_for_ML_training([j0,j1,j2],incorrect_output_data,tag='had')
+                        tbt.vals_for_ML_training([j3,j4,lep],incorrect_output_data,tag='bnv')
+                        wrong_hadtopp4 = j0[0:4] + j1[0:4] + j2[0:4]
+                        #print(lep[0:4],type(lep[0:4]))
+                        wrong_bnvtopp4 = j3[0:4]+j4[0:4]+lep[0:4]
+                        a = tbt.angle_between_vectors(wrong_hadtopp4[1:4],wrong_bnvtopp4[1:4],transverse=True)
+                        incorrect_output_data['ttbar_angle'].append(np.cos(a))
+
+
+        #print("==============")
+        #print(output_data)
+        #print("----")
+        #print(incorrect_output_data)
+
+        ###############################
+        #'''
+        #print("=======================")
+        #print(bnv_matchedjets)
+        if recojets[0] is not None and recojets[1] is not None and recojets[2] is not None and recojets[3] is not None and recojets[4] is not None and matchedleptons is not None:
+            j0 = np.array(recojets[3]) # b-jet
+            j1 = np.array(recojets[4])
+            lep = np.array(matchedleptons)
+
+            # CSV2 output
+            vals[0].append(j0[-1])
+            vals[1].append(j1[-1])
+
+            # pt
+            vals[4].append(j0[4])
+            vals[5].append(j1[4])
+
+            dR0 = tbt.deltaR(j0[5:],j1[5:])
+            dR1 = tbt.deltaR(j0[5:],lep[5:])
+            dR2 = tbt.deltaR(j1[5:],lep[5:])
+
+            # Make sure the jets are not so close that they're almost merged!
+            #if dR0>0.05 and dR1>0.05 and dR2>0.05:
+            if 1:
+
+                mass = tbt.invmass([j0,j1,lep])
+                bnvtopmass.append(mass)
+                bnvtopp4 = j0[0:4]+j1[0:4]+lep[0:4]
+                bnvtoppt.append(tbt.calc_pT(bnvtopp4))
+
+                leppt.append(lep[4])
+
+                bnvjetspt.append(j0[4])
+                bnvjetspt.append(j1[4])
+
+                bnvbjetpt.append(j0[4])
+                bnvjet0pt.append(j1[4])
+
+                if hadtopp4 is not None:
+                    a = tbt.angle_between_vectors(hadtopp4[1:4],bnvtopp4[1:4],transverse=True)
+                    #thetatop1top2.append(a)
+                    thetatop1top2.append(np.cos(a))
+                    #print("here")
+                    #print(a)
+                    met.append(tree.metpt)
+                    top1pt.append(np.sqrt(hadtopp4[1]**2 + hadtopp4[2]**2))
+                    top2pt.append(np.sqrt(bnvtopp4[1]**2 + bnvtopp4[2]**2))
+
+                    # GET ML DATA
+                    if good_fill:
+                        tbt.vals_for_ML_training([j0,j1,lep],output_data,tag='bnv')
+                        output_data['ttbar_angle'].append(np.cos(a))
+                        #print(output_data)
 
     for i in range(0,len(vals)):
         vals[i] = np.array(vals[i])
     #print(vals)
 
-    print('matched:     ',len(vals[0][vals[0]>0.67]),len(vals[0]))
-    print('not matched: ',len(vals[1][vals[1]>0.67]),len(vals[1]))
+    #print('tophad_matched:     ',len(vals[0][vals[0]>0.67]),len(vals[0]))
+    #print('not tophad_matched: ',len(vals[1][vals[1]>0.67]),len(vals[1]))
+
+    print()
+    if total_signal==0:
+        total_signal = 1
+        print("TOTAL SIGNAL IS 0!")
+    print("Matched both: {0} out of {1} (eff: {4:0.3f}\tTotal entries: {2} ({3:.3f})".format(len(thetatop1top2),total_signal,nentries, total_signal/nentries,len(thetatop1top2)/total_signal))
 
     pcut = 20
     print("Momentum cut: {0}".format(pcut))
@@ -237,15 +448,64 @@ def main(filenames,outfilename=None):
 
 
     ################################################################################
+    # Write the ML output to a pickle file
+    ################################################################################
+    #ml_file = open('signal_SMALL_ML_data.pkl', 'wb')
+    ml_file = open('signal_ML_data.pkl', 'wb')
+    pickle.dump(output_data, ml_file)
+    ml_file.close()
 
-    plt.figure()
-    for i,v in enumerate(vals):
-        plt.subplot(3,3,i+1)
-        if i>3:
-            plt.hist(v,bins=200,range=(0,300))
-        else:
-            plt.hist(v,bins=200,range=(0,1.1))
+    #ml_file = open('bkg_SMALL_ML_data.pkl', 'wb')
+    ml_file = open('bkg_ML_data.pkl', 'wb')
+    pickle.dump(incorrect_output_data, ml_file)
+    ml_file.close()
 
+    ################################################################################
+    print("nentries: {}   len(matched bjets): {}".format(nentries,len(vals[0])))
+
+    plt.figure(figsize=(6,4))
+    plt.subplot(2,3,1)
+    plt.hist(vals[0],bins=200,range=(0,1.1))
+    plt.xlabel('CSV2 matched b-jets')
+    plt.subplot(2,3,2)
+    plt.hist(vals[1],bins=200,range=(0,1.1))
+    plt.xlabel('CSV2 matched not-b-jets')
+    plt.subplot(2,3,3)
+    plt.hist(vals[2],bins=200,range=(0,1.1))
+    plt.xlabel('CSV2 not matched jets')
+
+    plt.subplot(2,3,4)
+    plt.hist(vals[4],bins=200,range=(0,300))
+    plt.xlabel('pT matched b-jets')
+    plt.subplot(2,3,5)
+    plt.hist(vals[5],bins=200,range=(0,300))
+    plt.xlabel('pT matched not-b-jets')
+    plt.subplot(2,3,6)
+    plt.hist(vals[6],bins=200,range=(0,300))
+    plt.xlabel('pT not matched jets')
+
+    plt.tight_layout()
+
+    ############
+    plt.figure(figsize=(8,3))
+    plt.subplot(1,3,1)
+    plt.hist(leppt,range=(0,200),bins=50)
+    plt.xlabel(r'Lepton $p_{\rm T}$')
+
+    plt.subplot(1,3,2)
+    plt.hist(hadjetspt,range=(0,200),bins=50)
+    plt.xlabel(r'Hadronic jets $p_{\rm T}$')
+
+    plt.subplot(1,3,3)
+    plt.hist(bnvjetspt,range=(0,200),bins=50)
+    plt.xlabel(r'BNV jets $p_{\rm T}$')
+
+    plt.tight_layout()
+
+    ################
+
+
+    '''
     plt.figure()
     plt.subplot(2,2,1)
     plt.plot(vals[0],vals[4],'.',alpha=0.5,markersize=0.5)
@@ -257,30 +517,11 @@ def main(filenames,outfilename=None):
     plt.xlim(0,1.1)
     plt.ylim(0,200)
 
+    plt.subplot(2,2,3)
+    plt.hist(met,range=(0,150),bins=100)
+    plt.xlabel(r'$E_{\rm T}$')
     '''
-    # B-jets
-    plt.figure()
-    keys = list(plotvals.keys())
-    for i,key in enumerate(keys):
-        plt.subplot(4,4,i+1)
-        if key=='csv':
-            plt.hist(plotvals[key][0],bins=100,range=(0,1.1))
-        else:
-            plt.hist(plotvals[key][0],bins=100)
-        plt.title(key)
 
-
-    # non-B-jets
-    plt.figure()
-    keys = list(plotvals.keys())
-    for i,key in enumerate(keys):
-        plt.subplot(4,4,i+1)
-        if key=='csv':
-            plt.hist(plotvals[key][1],bins=100,range=(0,1.1))
-        else:
-            plt.hist(plotvals[key][1],bins=100)
-        plt.title(key)
-    '''
 
     top01 = np.array(top01)
     top02 = np.array(top02)
@@ -289,25 +530,72 @@ def main(filenames,outfilename=None):
     topmass = np.array(topmass)
     wdR = np.array(wdR)
     topdR_bnb = np.array(topdR_bnb)
+    thetatop1top2 = np.array(thetatop1top2)
 
     dal_cuts = tbt.dalitz_boundaries(top02,top12)
 
-    plt.figure()
-    plt.subplot(3,2,1)
+    plt.figure(figsize=(6,6))
+    plt.subplot(3,3,1)
     plt.hist(wmass,bins=100,range=(20,140))
-    plt.subplot(3,2,2)
-    plt.hist(topmass,bins=100,range=(0,400))
-    plt.subplot(3,2,3)
-    plt.hist(wdR,bins=100,range=(-1,7))
-    plt.subplot(3,2,4)
-    plt.hist(topdR_bnb,bins=100,range=(-1,7))
-    plt.subplot(3,2,5)
+    plt.xlabel('W mass')
 
+    plt.subplot(3,3,2)
+    plt.hist(topmass,bins=100,range=(0,400))
+    plt.xlabel('Hadronic top mass')
+
+    plt.subplot(3,3,3)
+    plt.hist(wdR,bins=100,range=(-1,7))
+    plt.xlabel('W dR')
+
+    plt.subplot(3,3,4)
+    plt.hist(topdR_bnb,bins=100,range=(-1,7))
+    plt.xlabel('dR between b and non-b jets (had)')
+
+    plt.subplot(3,3,5)
     plt.plot(wmass,wdR,'.',markersize=1.0,alpha=0.5)
+    plt.xlabel('W dR vs. W mass')
     plt.xlim(20,140)
     plt.ylim(-1,7)
 
+    plt.subplot(3,3,7)
+    plt.hist(thetatop1top2,bins=100,range=(-1,1))
+    plt.xlabel(r'$\theta$ top$_1$ and top_2')
+
+    plt.subplot(3,3,8)
+    plt.hist(toppt,bins=100,range=(0,300))
+    plt.xlabel(r'Hadronic top p$_T$')
+
+    plt.subplot(3,3,9)
+    plt.hist(bnvtoppt,bins=100,range=(0,300))
+    plt.xlabel(r'BNV top p$_T$')
+
+    plt.tight_layout()
+
+    #########
+
+    plt.figure(figsize=(6,4))
+    plt.subplot(2,2,1)
+    plt.hist(topmass,bins=100,range=(0,400))
+    plt.xlabel("Hadronic top candidate")
+
+    plt.subplot(2,2,2)
+    plt.hist(bnvtopmass,bins=100,range=(0,400))
+    plt.xlabel("BNV top candidate")
+
+
+    plt.subplot(2,2,3)
+    plt.hist(top1pt,bins=100,range=(0,400))
+    plt.xlabel("Had top candidate pT")
+
+    plt.subplot(2,2,4)
+    plt.hist(top2pt,bins=100,range=(0,400))
+    plt.xlabel("BNV top candidate pT")
+
+    plt.tight_layout()
+
+
     ####################### Dal cut
+    '''
     plt.figure()
     plt.subplot(3,2,1)
     plt.hist(wmass[dal_cuts],bins=100,range=(20,140))
@@ -318,13 +606,16 @@ def main(filenames,outfilename=None):
     plt.subplot(3,2,4)
     #plt.hist(topdR_bnb[dal_cuts],bins=100,range=(-1,7))
     #plt.subplot(3,2,5)
-
     plt.plot(wmass[dal_cuts],wdR[dal_cuts],'.',markersize=1.0,alpha=0.5)
     plt.xlim(20,140)
     plt.ylim(-1,7)
 
+    plt.subplot(3,2,5)
+    #plt.hist(thetatop1top2,bins=100,range=(-1,7))
+    plt.hist(thetatop1top2,bins=100,range=(-1,1))
+    plt.xlabel(r'$\theta$ top$_1$ and top_2')
 
-    print(len(topmass),len(wmass))
+    print(len(topmass),len(wmass),len(bnvtopmass))
 
     plt.figure()
     plt.subplot(1,3,1)
@@ -357,9 +648,71 @@ def main(filenames,outfilename=None):
     plt.ylim(0,30000)
 
 
+    plt.figure()
+    plt.subplot(2,2,1)
+    #plt.plot(hadjet0pt,hadjet1pt,'.',markersize=1,alpha=0.5)
+    lch.hist_2D(hadjet0pt,hadjet1pt,xbins=50,ybins=50,xrange=(0,200),yrange=(0,200))
+    plt.xlabel("had 0")
+    plt.ylabel("had 1")
+    plt.xlim(0,200)
+    plt.ylim(0,200)
 
+    plt.subplot(2,2,2)
+    #plt.plot(hadjet0pt,hadbjetpt,'.',markersize=1,alpha=0.5)
+    lch.hist_2D(hadjet0pt,hadbjetpt,xbins=50,ybins=50,xrange=(0,200),yrange=(0,200))
+    plt.xlabel("had 0")
+    plt.ylabel("had b")
+    plt.xlim(0,200)
+    plt.ylim(0,200)
 
-    plt.show()
+    plt.subplot(2,2,3)
+    #plt.plot(hadjet1pt,hadbjetpt,'.',markersize=1,alpha=0.5)
+    lch.hist_2D(hadjet1pt,hadbjetpt,xbins=50,ybins=50,xrange=(0,200),yrange=(0,200))
+    plt.xlabel("had 1")
+    plt.ylabel("had b")
+    plt.xlim(0,200)
+    plt.ylim(0,200)
+
+    plt.subplot(2,2,4)
+    #plt.plot(bnvjet0pt,bnvbjetpt,'.',markersize=1,alpha=0.5)
+    lch.hist_2D(bnvjet0pt,bnvbjetpt,xbins=50,ybins=50,xrange=(0,200),yrange=(0,200))
+    plt.xlabel("bnv 0")
+    plt.ylabel("bnv b")
+    plt.xlim(0,200)
+    plt.ylim(0,200)
+
+    plt.tight_layout()
+    '''
+
+    plt.figure()
+    plt.subplot(2,2,1)
+    plt.hist(genmuonpt,bins=50,range=(0,400))
+    plt.xlabel(r'Gen muon $p_{\rm T}$')
+    plt.subplot(2,2,2)
+    plt.hist(genmuone,bins=50,range=(0,400))
+    plt.xlabel(r'Gen muon $E$')
+
+    plt.subplot(2,2,3)
+    plt.hist(recomuonpt,bins=50,range=(0,400))
+    plt.xlabel(r'Reco muon $p_{\rm T}$')
+    plt.subplot(2,2,4)
+    plt.hist(recomuone,bins=50,range=(0,400))
+    plt.xlabel(r'Reco muon $E$')
+
+    plt.tight_layout()
+
+    #######
+    plt.figure()
+    plt.subplot(2,2,1)
+    plt.hist(genqpt,bins=50,range=(0,400))
+    plt.xlabel(r'Gen q $p_{\rm T}$')
+    plt.subplot(2,2,2)
+    plt.hist(genqe,bins=50,range=(0,400))
+    plt.xlabel(r'Gen q $E$')
+
+    plt.tight_layout()
+
+    #plt.show()
 
 
 ################################################################################

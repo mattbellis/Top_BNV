@@ -17,20 +17,30 @@ eval `scramv1 runtime -sh` # cmsenv is an alias not on the workers
 echo "CMSSW: "$CMSSW_BASE
 echo "Arguments passed to this script are: for 1: $*"
 
-cp ../../top_reconstruction_to_run_at_FNAL_over_grid_job_output.py .
-cp ../../topbnv_tools.py .
+outputfile=$1
 
-#######################################################################
-# Trying this
-#######################################################################
-
-subdir=$1
 shift
+
+
+cp ../../topbnv_fwlite.py .
+cp ../../topbnv_tools.py .
+cp ../../execute_python_on_condor_fwlite_for_signal_MC.sh .
+cp ../../execute_for_condor_signal_MC.py .
+cp ../../PSet.py .
+cp -r ../../JECs .
 
 ls -ltr 
 echo
-echo python top_reconstruction_to_run_at_FNAL_over_grid_job_output.py ${*}
-     python top_reconstruction_to_run_at_FNAL_over_grid_job_output.py ${*}
+#echo python topbnv_fwlite.py ${*}
+#     python topbnv_fwlite.py ${*}
+touch files_to_process.txt
+for i in ${*}
+do
+echo $i >> files_to_process.txt
+done
+
+echo python execute_for_condor_signal_MC.py '--output' ${outputfile} #${*}
+     python execute_for_condor_signal_MC.py '--output' ${outputfile} #${*}
 #xrdcp nameOfOutputFile.root root://cmseos.fnal.gov//store/user/username/nameOfOutputFile.root
 echo
 ls -ltr 
@@ -42,23 +52,20 @@ ls -ltr
 ########################################################################################
 # Making use of xrdcp
 # https://uscms.org/uscms_at_work/computing/LPC/additionalEOSatLPC.shtml
-#subdir=`echo $3 | awk -F"/" '{print $9}'`
-# THIS IS FOR MC
-#subdir=`echo $3 | awk -F"/" '{print $(NF-5)}'`
+subdir=`echo $3 | awk -F"/" '{print $(NF-1)}'`
 
 echo "subdir: "$subdir
-#echo $3
 
-# THIS WORKS WHEN WRITING TO EOS
+#if ( ! -d  root://cmseos.fnal.gov//store/user/mbellis/script_output_files_NEW/$subdir ) then
+#echo xrdfs root://cmseos.fnal.gov//store/user/mbellis/script_output_files_NEW/$subdir mkdir
+     #xrdfs root://cmseos.fnal.gov//store/user/mbellis/script_output_files_NEW/$subdir mkdir
+#echo xrdfs root://cmseos.fnal.gov//store/user/mbellis/script_output_files_NEW/$subdir/$2 rm 
+     #xrdfs root://cmseos.fnal.gov//store/user/mbellis/script_output_files_NEW/$subdir/$2 rm 
+
 # This directory has to already exist
-echo xrdcp -f $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_Feb2019/$subdir/.
-     xrdcp -f $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_Feb2019/$subdir/.
-
-#echo cp $2 /uscms_data/d1/mbellis/CONDOR_output_files_Feb2019/$subdir/.
-#     cp $2 /uscms_data/d1/mbellis/CONDOR_output_files_Feb2019/$subdir/.
-
-#echo cp $2 ${_CONDOR_SCRATCH_DIR}/.
-#     cp $2 ${_CONDOR_SCRATCH_DIR}/.
+#outputfile=`ls -tr *.root | tail -1` 
+echo xrdcp $outputfile root://cmseos.fnal.gov//store/user/mbellis/script_output_files_NEW/$subdir/.
+     xrdcp $outputfile root://cmseos.fnal.gov//store/user/mbellis/script_output_files_NEW/$subdir/.
 
 #/eos/uscms/store/user/mbellis
 ### remove the output file if you don't want it automatically transferred when the job ends
