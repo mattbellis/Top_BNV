@@ -5,6 +5,10 @@ from array import array
 from DataFormats.FWLite import Events, Handle
 from DataFormats.FWLite import Events, Handle
 
+# NEED THIS FOR DEEP CSV STUFF?
+from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+
+
 #####################################################################################
 #jet_energy_corrections = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC
 #    [1,276811,"Spring16_23Sep2016BCDV2_DATA"],
@@ -350,6 +354,18 @@ def topbnv_fwlite(argv):
         # CHANGE THIS FOR DATA
         DataJECs = DataJEC(jet_energy_corrections)
 
+    # GETTING DEEP CSV WORKING
+    #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD2016#B_tagging
+    # "This exercise shows how to access b tag discriminators stored in miniAOD here. In some cases it may be necessary to rerun the b-tag sequence from MiniAOD. For instance, to test a new discriminator. In order to rebuild the b-tag discriminators from the information stored in MiniAOD, we need to update the jet information. It is not needed anymore to recluster the jets from scratch, as in older versions of CMSSW. The new updateJetCollection tool can be used, as shown here. In some cases it may be necessary to rerun the b-tag sequence from MiniAOD for a jet collection which is not included in the MiniAOD files. ONLY in this case it is still needed to remake jets and then remake PAT jets from them, as shown here."
+    '''
+    updateJetCollection( process,
+                  jetSource = cms.InputTag('slimmedJets'),
+                     labelName = 'UpdatedJEC',
+                        jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']), 'None')  # Update: Safe to always add 'L2L3Residual' as MC contains dummy L2L3Residual corrections (always set to 1)
+                        )
+    
+    '''
+
     # from within CMSSW:
     ROOT.gSystem.Load('libCondFormatsBTauObjects') 
     ROOT.gSystem.Load('libCondToolsBTau') 
@@ -370,7 +386,8 @@ def topbnv_fwlite(argv):
     
     reader = ROOT.BTagCalibrationReader(3, "central")  # 0 is for loose op
     #reader.load(calib, 0, "comb")  # 0 is for b flavour, "comb" is the measurement type
-    reader.load(calib, ROOT.BTagEntry.FLAV_B, "comb")  # 0 is for b flavour, "comb" is the measurement type
+    #reader.load(calib, ROOT.BTagEntry.FLAV_B, "comb")  # 0 is for b flavour, "comb" is the measurement type
+    reader.load(calib, 0, "iterativefit")  # 0 is for b flavour, "comb" is the measurement type
     print("Past the reader.load")
 
     '''reader = ROOT.BTagCalibrationReader(
@@ -456,6 +473,8 @@ def topbnv_fwlite(argv):
         # Get the AK4 jet nearest the lepton:
         ############################################
         print("-------------")
+        print("Index, BTag, Eta, PT")
+        sf = []
         for i,jet in enumerate(jets.product()):
             # Get the jet p4
             jetP4Raw = ROOT.TLorentzVector( jet.px(), jet.py(), jet.pz(), jet.energy() )
@@ -467,9 +486,9 @@ def topbnv_fwlite(argv):
 
             btagvar = jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")
 
-            print(i,btagvar)
+            print(i,btagvar, abs(jet.eta()), jet.pt())
             
-        sf = reader.eval(0, 1.2, 30.)  # jet flavor, abs(eta), pt
+            sf.append(reader.eval(0, abs(jet.eta()), jet.pt()))  # jet flavor, abs(eta), pt
 
         #sf = reader.eval_auto_bounds(
         #    'central',      # systematic (here also 'up'/'down' possible)
