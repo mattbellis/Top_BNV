@@ -13,7 +13,7 @@ from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer1
 # Need to do this globally because there's a warning associated with the attribute, isPOGApproved
 # that doesn't need to be there but would get called every time we called this from the event
 # loop!
-selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_medium)
+#selectElectron = VIDElectronSelector(cutBasedElectronID_Summer16_80X_V1_medium)
 
 #import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-loose as electron_loose
 #import RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff.cutBasedElectronID-Summer16-80X-V1-medium as electron_medium
@@ -1172,8 +1172,10 @@ def topbnv_fwlite(argv):
 
 
                 #print("Here! ----  A")
-                passSelection = selectElectron( electron, event )
-                #print(passSelection,type(passSelection))
+                #passSelection = selectElectron( electron, event )
+                # New for 9_4_X?
+                passSelection = electron.electronID("cutBasedElectronID-Summer16-80X-V1-loose")
+                print(passSelection,type(passSelection))
                 #print("Here! ----  B")
                 if passSelection and i<16: # we're only keeping 16 electrons
                    electronpt[i] = electron.pt()

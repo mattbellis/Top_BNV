@@ -9,7 +9,12 @@ import FWCore.ParameterSet.Config as cms
 # MC
 #infilename = "/store/mc/RunIISummer16MiniAODv2/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/0693E0E7-97BE-E611-B32F-0CC47A78A3D8.root"
 # Data
-infilename = "/store/data/Run2016B/SingleMuon/MINIAOD/03Feb2017_ver2-v2/100000/F2F21546-04EB-E611-9AB6-0025905B8600.root"
+#infilename = "/store/data/Run2016B/SingleMuon/MINIAOD/03Feb2017_ver2-v2/100000/F2F21546-04EB-E611-9AB6-0025905B8600.root"
+###################################
+# CMSSW_9_4_0 data
+#infilename = "/store/data/Run2016B/SingleMuon/MINIAOD/17Jul2018_ver2-v1/50000/987DBBE0-B48B-E811-8A7E-0CC47A0AD6C4.root"
+# CMSSW_9_4_0 MC
+infilename = "/store/mc/RunIISummer16MiniAODv3/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3-v1/110000/B22320DB-EBBC-E811-A987-14187763B811.root"
 
 outdir = "/eos/uscms/store/user/mbellis/MINIAOD"
 names = infilename.split('/')
