@@ -374,6 +374,7 @@ def topbnv_fwlite(argv):
     #ROOT.gROOT.ProcessLine('.L BTagCalibrationStandalone.cpp+') 
 
     # get the sf data loaded
+    '''
     calib = ROOT.BTagCalibration('csvv1', 'DeepCSV_2016LegacySF_V1.csv')
 
     # making a std::vector<std::string>> in python is a bit awkward, 
@@ -389,6 +390,7 @@ def topbnv_fwlite(argv):
     #reader.load(calib, ROOT.BTagEntry.FLAV_B, "comb")  # 0 is for b flavour, "comb" is the measurement type
     reader.load(calib, 0, "iterativefit")  # 0 is for b flavour, "comb" is the measurement type
     print("Past the reader.load")
+    '''
 
     '''reader = ROOT.BTagCalibrationReader(
         3,              # 0 is for loose op, 1: medium, 2: tight, 3: discr. reshaping
@@ -473,7 +475,7 @@ def topbnv_fwlite(argv):
         # Get the AK4 jet nearest the lepton:
         ############################################
         print("-------------")
-        print("Index, BTag, Eta, PT")
+        print("{0:10} {1:10} {2:10} {3:10} {4:10} {5:10}".format("Index", "probb", "probb", "sum", "eta", "pt"))
         sf = []
         for i,jet in enumerate(jets.product()):
             # Get the jet p4
@@ -484,11 +486,13 @@ def topbnv_fwlite(argv):
             jetP4Raw *= jetJECFromMiniAOD
             # Apply jet ID
 
-            btagvar = jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")
+            #btagvar = jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")
+            btagvar_probb = jet.bDiscriminator("pfDeepCSVJetTags:probb")
+            btagvar_probbb = jet.bDiscriminator("pfDeepCSVJetTags:probbb")
 
-            print(i,btagvar, abs(jet.eta()), jet.pt())
+            print("{0:10d} {1:10.3f} {2:10.3f} {3:10.3f} {4:10.3f} {5:10.3f}".format(i,btagvar_probb,btagvar_probbb, btagvar_probb+btagvar_probbb, abs(jet.eta()), jet.pt()))
             
-            sf.append(reader.eval(0, abs(jet.eta()), jet.pt()))  # jet flavor, abs(eta), pt
+            #sf.append(reader.eval(0, abs(jet.eta()), jet.pt()))  # jet flavor, abs(eta), pt
 
         #sf = reader.eval_auto_bounds(
         #    'central',      # systematic (here also 'up'/'down' possible)
@@ -496,8 +500,8 @@ def topbnv_fwlite(argv):
         #    1.2,            # absolute value of eta
         #    31.             # pt
         #)
-        print("-----------------SF-----------------")
-        print(sf)
+        #print("-----------------SF-----------------")
+        #print(sf)
 
         ## ___________.__.__  .__    ___________
         ## \_   _____/|__|  | |  |   \__    ___/______   ____   ____
