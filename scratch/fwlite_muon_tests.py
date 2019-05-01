@@ -18,28 +18,28 @@ def topbnv_fwlite(argv):
     options = fwlite_tools.getUserOptions(argv)
     ROOT.gROOT.Macro("rootlogon.C")
 
-    jets, jetLabel = Handle("std::vector<pat::Jet>"), "slimmedJets"
+    muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons"
 
     f = ROOT.TFile(options.output, "RECREATE")
     f.cd()
 
     outtree = ROOT.TTree("T", "Our tree of everything")
 
-    # Jets
-    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchoolLPC2018Jets
-    jetdata = {}
-    jetdata['njet'] = ['jetpt', 'jeteta', 'jetphi', 'jete', 'jetpx', 'jetpy', 'jetpz']
-    jetdata['njet'] += ['jetbtag0', 'jetbtag1', 'jetbtagsum']
-    jetdata['njet'] += ['jetarea', 'jetjec', 'jetNHF', 'jetNEMF', 'jetCHF', 'jetCHM', 'jetMUF', 'jetCEMF']
-    jetdata['njet'] += ['jetNumConst', 'jetNumNeutralParticles']
+    # Muons
+    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchoolLPC2018Muons
+    # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2
+    muondata = {}
+    muondata['nmuon'] = ['muonpt', 'muoneta', 'muonphi', 'muone', 'muonpx', 'muonpy', 'muonpz', 'muonq']
+    muondata['nmuon'] += ['muonsumchhadpt', 'muonsumnhadpt', 'muonsumphotEt', 'muonsumPUPt', 'muonisLoose']
+    muondata['nmuon'] += ['muonisMedium', 'muonPFiso'] # These are nominally integers
 
     outdata = {}
-    for key in jetdata.keys():
+    for key in muondata.keys():
 
         outdata[key] = array('i', [-1])
         outtree.Branch(key, outdata[key], key+"/I")
 
-        for branch in jetdata[key]:
+        for branch in muondata[key]:
             outdata[branch] = array('f', 16*[-1.])
             outtree.Branch(branch, outdata[branch], '{0}[{1}]/F'.format(branch,key))
 
@@ -64,9 +64,9 @@ def topbnv_fwlite(argv):
     #################################################################################
     def processEvent(iev, event):
 
-        event.getByLabel (jetLabel, jets)          # For b-tagging
+        event.getByLabel (muonLabel, muons)          # For b-tagging
 
-        fwlite_tools.process_jets(jets, outdata, verbose=options.verbose)
+        fwlite_tools.process_muons(muons, outdata, verbose=options.verbose)
 
 
         ## ___________.__.__  .__    ___________
