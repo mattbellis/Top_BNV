@@ -28,10 +28,13 @@ def topbnv_fwlite(argv):
     # Muons
     # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchoolLPC2018Muons
     # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2
+    # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Muon_Identification
     muondata = {}
     muondata['nmuon'] = ['muonpt', 'muoneta', 'muonphi', 'muone', 'muonpx', 'muonpy', 'muonpz', 'muonq']
-    muondata['nmuon'] += ['muonsumchhadpt', 'muonsumnhadpt', 'muonsumphotEt', 'muonsumPUPt', 'muonisLoose']
-    muondata['nmuon'] += ['muonisMedium', 'muonPFiso'] # These are nominally integers
+    muondata['nmuon'] += ['muonsumchhadpt', 'muonsumnhadpt', 'muonsumphotEt', 'muonsumPUPt']
+    muondata['nmuon'] += ['muonIsLoose', 'muonIsMedium', 'muonIsTight', 'muonPFiso'] 
+    muondata['nmuon'] += ['muonPFIsoLoose', 'muonPFIsoMedium', 'muonPFIsoTight'] 
+    muondata['nmuon'] += ['muonMvaLoose', 'muonMvaMedium', 'muonMvaTight'] 
 
     outdata = {}
     for key in muondata.keys():
@@ -42,6 +45,7 @@ def topbnv_fwlite(argv):
         for branch in muondata[key]:
             outdata[branch] = array('f', 16*[-1.])
             outtree.Branch(branch, outdata[branch], '{0}[{1}]/F'.format(branch,key))
+
 
     '''
     njet = array('i', [-1])
@@ -64,7 +68,7 @@ def topbnv_fwlite(argv):
     #################################################################################
     def processEvent(iev, event):
 
-        event.getByLabel (muonLabel, muons)          # For b-tagging
+        event.getByLabel (muonLabel, muons)          
 
         fwlite_tools.process_muons(muons, outdata, verbose=options.verbose)
 

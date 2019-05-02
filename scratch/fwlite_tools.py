@@ -144,8 +144,12 @@ def process_jets(jets, outdata, verbose=False):
 def process_muons(muons, outdata, verbose=False): 
 
     if verbose:
-        print("-------------")
-        print("{0:10} {1:10} {2:10}".format("Index", "eta", "pt"))
+        output = "-------------\n"
+        output += "{0:10} {1:10} {2:10}".format("Index", "eta", "pt")
+        output += "{0:12} {1:12} {2:12} ".format('muonIsLoose', 'muonIsMedium', 'muonIsTight')
+        output += "{0:15} {1:15} {2:15} ".format('muonPFIsoLoose', 'muonPFIsoMedium', 'muonPFIsoTight')
+        output += "{0:12} {1:12} {2:12} ".format('muonMvaLoose', 'muonMvaMedium', 'muonMvaTight')
+        print(output)
     
     i=0
     for i,muon in enumerate(muons.product()):
@@ -153,9 +157,6 @@ def process_muons(muons, outdata, verbose=False):
         # We're only going to look at the first 16 muons
         if i>=16:
             break
-
-        if verbose:
-            print("{0:10d} {1:10.3f} {2:10.3f}".format(i, abs(muon.eta()), muon.pt()))
 
         outdata['muone'][i] = muon.energy()
         outdata['muonpx'][i] = muon.px()
@@ -175,15 +176,115 @@ def process_muons(muons, outdata, verbose=False):
         outdata['muonsumphotEt'][i] = pfi.sumPhotonEt
         outdata['muonsumPUPt'][i] = pfi.sumPUPt
 
-        outdata['muonisLoose'][i] = int(muon.isLooseMuon())
-        outdata['muonisMedium'][i] = int(muon.isMediumMuon())
+        # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Muon_selectors_Since_9_4_X
+        # https://github.com/cms-sw/cmssw/blob/CMSSW_9_4_X/DataFormats/MuonReco/interface/Muon.h#L188-L212
+        outdata['muonIsLoose'][i] = muon.passed(muon.CutBasedIdLoose)
+        outdata['muonIsMedium'][i] = muon.passed(muon.CutBasedIdMedium)
+        outdata['muonIsTight'][i] = muon.passed(muon.CutBasedIdTight)
 
         outdata['muonPFiso'][i] = (outdata['muonsumchhadpt'][i] + max(0., outdata['muonsumnhadpt'][i] + outdata['muonsumphotEt'][i] - 0.5*outdata['muonsumPUPt'][i]))/outdata['muonpt'][i]
 
 
+        outdata['muonPFIsoLoose'][i] = muon.passed(muon.PFIsoLoose)
+        outdata['muonPFIsoMedium'][i] = muon.passed(muon.PFIsoMedium)
+        outdata['muonPFIsoTight'][i] = muon.passed(muon.PFIsoTight)
+
+        outdata['muonMvaLoose'][i] = muon.passed(muon.MvaLoose)
+        outdata['muonMvaMedium'][i] = muon.passed(muon.MvaMedium)
+        outdata['muonMvaTight'][i] = muon.passed(muon.MvaTight)
+
+        if verbose:
+            output = "{0:10d} {1:10.3f} {2:10.3f} ".format(i, abs(muon.eta()), muon.pt())
+            output += "{0:12.3f} {1:12.3f} {2:12.3f} ".format(outdata['muonIsLoose'][i], outdata['muonIsMedium'][i], outdata['muonIsTight'][i])
+            output += "{0:15.3f} {1:15.3f} {2:15.3f} ".format(outdata['muonPFIsoLoose'][i], outdata['muonPFIsoMedium'][i], outdata['muonPFIsoTight'][i])
+            output += "{0:12.3f} {1:12.3f} {2:12.3f} ".format(outdata['muonMvaLoose'][i], outdata['muonMvaMedium'][i], outdata['muonMvaTight'][i])
+            print(output)
+
     outdata['nmuon'][0] = i
 
 
+
+
+################################################################################
+# Pass in a slimmedElectrons object
+################################################################################
+def process_electrons(electrons, outdata, verbose=False): 
+
+    # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
+    # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2#Recipe_for_FWLite
+
+    if verbose:
+        print("-------------")
+        print("{0:10} {1:10} {2:10} {3:10} {4:10} {5:10}".format("Index", "eta", "pt", "loose", "medium", "tight"))
+    
+    i=0
+    for i,electron in enumerate(electrons.product()):
+
+        # We're only going to look at the first 16 electrons
+        if i>=16:
+            break
+
+        outdata['electrone'][i] = electron.energy()
+        outdata['electronpx'][i] = electron.px()
+        outdata['electronpy'][i] = electron.py()
+        outdata['electronpz'][i] = electron.pz()
+
+        outdata['electronpt'][i] = electron.pt()
+        outdata['electroneta'][i] = electron.eta()
+        outdata['electronphi'][i] = electron.phi()
+
+        outdata['electronq'][i] = electron.charge()
+
+        outdata['electronIsLoose'][i] = electron.electronID("cutBasedElectronID-Summer16-80X-V1-loose")
+        outdata['electronIsMedium'][i] = electron.electronID("cutBasedElectronID-Summer16-80X-V1-medium")
+        outdata['electronIsTight'][i] = electron.electronID("cutBasedElectronID-Summer16-80X-V1-tight")
+
+        outdata['electronTkIso'][i] = electron.dr03TkSumPt()
+        outdata['electronHCIso'][i] = electron.dr03HcalTowerSumEt()
+        outdata['electronECIso'][i] = electron.dr03EcalRecHitSumEt()
+
+        if verbose:
+            print("{0:10d} {1:10.3f} {2:10.3f} {3:10.3f} {4:10.3f} {5:10.3f}".format(i, abs(electron.eta()), electron.pt(), outdata['electronIsLoose'][i], outdata['electronIsMedium'][i],outdata['electronIsTight'][i],  ))
+
+
+    outdata['nelectron'][0] = i
+
+
+
+################################################################################
+# Pass in a slimmedElectrons object
+################################################################################
+def process_vertices(vertices, outdata, verbose=False): 
+
+    PV = None # Primary vertex
+    # Vertices
+
+    outdata['nvertex'][0] = len(vertices.product())
+
+    if len(vertices.product()) == 0 or vertices.product()[0].ndof() < 4:
+        if verbose:
+            print ("Event has no good primary vertex.")
+        return PV
+    else:
+        PV = vertices.product()[0]
+        if verbose:
+            print("--------------\nPrimary vertex first")
+            print("PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (PV.x(), PV.y(), PV.z(), PV.ndof()))
+
+        for i,vertex in enumerate(vertices.product()):
+
+            if i>=16:
+                break
+
+            outdata['vertexX'][i] = vertex.x()
+            outdata['vertexY'][i] = vertex.y()
+            outdata['vertexZ'][i] = vertex.z()
+            outdata['vertexndof'][i] = vertex.ndof()
+
+        if verbose:
+            print ("PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (vertex.x(), vertex.y(), vertex.z(), vertex.ndof()))
+
+        outdata['nvertex'][0] = i
 
 
 

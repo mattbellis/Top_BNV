@@ -18,7 +18,7 @@ def topbnv_fwlite(argv):
     options = fwlite_tools.getUserOptions(argv)
     ROOT.gROOT.Macro("rootlogon.C")
 
-    electrons, electronLabel = Handle("std::vector<pat::Electron>"), "slimmedElectrons"
+    vertices, vertexLabel = Handle("std::vector<reco::Vertex>"), "offlineSlimmedPrimaryVertices"
 
 
     f = ROOT.TFile(options.output, "RECREATE")
@@ -26,21 +26,18 @@ def topbnv_fwlite(argv):
 
     outtree = ROOT.TTree("T", "Our tree of everything")
 
-    # Electrons
-    # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
-    # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCMSDataAnalysisSchoolLPC2018egamma
-    electrondata = {}
-    electrondata['nelectron'] = ['electronpt', 'electroneta', 'electronphi', 'electrone', 'electronpx', 'electronpy', 'electronpz', 'electronq']
-    electrondata['nelectron'] += ['electronTkIso', 'electronHCIso', 'electronECIso']
-    electrondata['nelectron'] += ['electronIsLoose', 'electronIsMedium', 'electronIsTight'] # These are nominally integers
+    ############################################################################
+    # Vertex 
+    ############################################################################
+    vertexdata = {}
+    vertexdata['nvertex'] = ['vertexX', 'vertexY', 'vertexZ', 'vertexndof']
 
     outdata = {}
-    for key in electrondata.keys():
-
+    for key in vertexdata.keys():
         outdata[key] = array('i', [-1])
         outtree.Branch(key, outdata[key], key+"/I")
 
-        for branch in electrondata[key]:
+        for branch in vertexdata[key]:
             outdata[branch] = array('f', 16*[-1.])
             outtree.Branch(branch, outdata[branch], '{0}[{1}]/F'.format(branch,key))
 
@@ -65,9 +62,14 @@ def topbnv_fwlite(argv):
     #################################################################################
     def processEvent(iev, event):
 
-        event.getByLabel (electronLabel, electrons)          
+        event.getByLabel(vertexLabel, vertices)
 
-        fwlite_tools.process_electrons(electrons, outdata, verbose=options.verbose)
+        PV = fwlite_tools.process_vertices(vertices, outdata, verbose=options.verbose)
+
+        # Should do this first. We shouldn't analyze events that don't have a
+        # good primary vertex
+        if PV is None:
+            return 0
 
 
         ## ___________.__.__  .__    ___________
