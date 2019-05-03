@@ -57,8 +57,13 @@ def getUserOptions(argv):
         help='Number of events to run. -1 is all events')
     add_option('isCrabRun',          default=False, action='store_true',
         help='Use this flag when running with crab on the grid')
+    add_option('isMC',          default=False, action='store_true',
+        help='Running over MC. We need this for the trigger and other stuff.')
     add_option('localInputFiles',    default=False, action='store_true',
         help='Use this flag when running with with local files')
+    add_option('disablePileup',      default=False, action='store_true',
+        help='Disable pileup reweighting')
+
 
 
     (options, args) = parser.parse_args(argv)
@@ -252,7 +257,7 @@ def process_electrons(electrons, outdata, verbose=False):
 
 
 ################################################################################
-# Pass in a slimmedElectrons object
+# Pass in a slimmedPrimaryVertices object
 ################################################################################
 def process_vertices(vertices, outdata, verbose=False): 
 
@@ -266,6 +271,8 @@ def process_vertices(vertices, outdata, verbose=False):
             print ("Event has no good primary vertex.")
         return PV
     else:
+        # This assigning of the first entry to the primary vertex (PV) is something we
+        # took from other code, but I don't actually know if it's true. 
         PV = vertices.product()[0]
         if verbose:
             print("--------------\nPrimary vertex first")
@@ -273,7 +280,7 @@ def process_vertices(vertices, outdata, verbose=False):
 
         for i,vertex in enumerate(vertices.product()):
 
-            if i>=16:
+            if i>=64:
                 break
 
             outdata['vertexX'][i] = vertex.x()
@@ -281,10 +288,61 @@ def process_vertices(vertices, outdata, verbose=False):
             outdata['vertexZ'][i] = vertex.z()
             outdata['vertexndof'][i] = vertex.ndof()
 
-        if verbose:
-            print ("PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (vertex.x(), vertex.y(), vertex.z(), vertex.ndof()))
+            if verbose:
+                print ("      x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (vertex.x(), vertex.y(), vertex.z(), vertex.ndof()))
 
         outdata['nvertex'][0] = i
+
+    return PV
+
+
+################################################################################
+# Pass in a slimmedMETs object
+################################################################################
+def process_mets(mets, outdata, verbose=False): 
+
+    #######################################################################
+    # MET, Missing energy in transverse plane
+    # https://indico.cern.ch/event/662371/contributions/2823187/attachments/1574267/2496977/PileupMET_DAS2018LPC.pdf
+    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchoolLPC2018METandPileupExercise
+    #######################################################################
+    
+    met = mets.product().front()
+
+    outdata['metpt'][0] = met.pt()
+    outdata['metphi'][0] = met.phi()
+
+    if verbose:
+        print("{0:10} {1:10}".format("metpt", "metphi"))
+        print("{0:10.3f} {1:10.3f}".format(outdata["metpt"][0], outdata["metphi"][0]))
+
+
+
+
+
+################################################################################
+# Pass in a slimmedAddPileupInfo object
+################################################################################
+def process_pileup(pileups, outdata, purw, options, verbose=False): 
+
+    # https://github.com/mattbellis/Top_BNV/blob/master/scratch/MAKE_ALL_THE_PILEUP_INFO.md
+    outdata['pu_wt'][0] = -1
+
+    TrueNumInteractions = 0
+    if len(pileups.product())>0:
+        TrueNumInteractions = pileups.product()[0].getTrueNumInteractions()
+    else:
+        print 'Event has no pileup information, setting TrueNumInteractions to 0.'
+
+    if options.isMC and not options.disablePileup and purw is not None:
+        outdata['pu_wt'][0] = purw.GetBinContent( purw.GetXaxis().FindBin( TrueNumInteractions ) )
+
+        if verbose:
+            print("Num interactions/pileup reweighting {0:10} {1:10}".format(TrueNumInteractions, outdata['pu_wt'][0]))
+
+    else:
+        outdata['pu_wt'][0] = 1.0
+
 
 
 

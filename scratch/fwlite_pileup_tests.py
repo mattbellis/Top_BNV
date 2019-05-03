@@ -18,7 +18,7 @@ def topbnv_fwlite(argv):
     options = fwlite_tools.getUserOptions(argv)
     ROOT.gROOT.Macro("rootlogon.C")
 
-    vertices, vertexLabel = Handle("std::vector<reco::Vertex>"), "offlineSlimmedPrimaryVertices"
+    pileups, pileuplabel = Handle("std::vector<PileupSummaryInfo>"), "slimmedAddPileupInfo"
 
 
     f = ROOT.TFile(options.output, "RECREATE")
@@ -27,19 +27,14 @@ def topbnv_fwlite(argv):
     outtree = ROOT.TTree("T", "Our tree of everything")
 
     ############################################################################
-    # Vertex 
+    # MET 
     ############################################################################
-    vertexdata = {}
-    vertexdata['nvertex'] = ['vertexX', 'vertexY', 'vertexZ', 'vertexndof']
+    pudata = ['pu_wt']
 
     outdata = {}
-    for key in vertexdata.keys():
-        outdata[key] = array('i', [-1])
-        outtree.Branch(key, outdata[key], key+"/I")
-
-        for branch in vertexdata[key]:
-            outdata[branch] = array('f', 64*[-1.])
-            outtree.Branch(branch, outdata[branch], '{0}[{1}]/F'.format(branch,key))
+    for key in pudata:
+        outdata[key] = array('f', [-1])
+        outtree.Branch(key, outdata[key], key+"/F")
 
     '''
     njet = array('i', [-1])
@@ -48,6 +43,13 @@ def topbnv_fwlite(argv):
     jetpt = array('f', 16*[-1.])
     outtree.Branch('jetpt', jetpt, 'jetpt[njet]/F')
     '''
+
+    purw = None # pileup reweighting histogram
+    if options.isMC and not options.disablePileup:
+        pileupReweightFile = ROOT.TFile('purw.root', 'READ')
+        purw = pileupReweightFile.Get('pileup')
+
+
 
     #################################################################################
     ## ___________                    __    .____
@@ -62,15 +64,10 @@ def topbnv_fwlite(argv):
     #################################################################################
     def processEvent(iev, event):
 
-        event.getByLabel(vertexLabel, vertices)
+        if options.isMC:
+            event.getByLabel(pileuplabel, pileups)
 
-        PV = fwlite_tools.process_vertices(vertices, outdata, verbose=options.verbose)
-
-        # Should do this first. We shouldn't analyze events that don't have a
-        # good primary vertex
-        if PV is None:
-            return 0
-
+            fwlite_tools.process_pileup(pileups, outdata, purw, options, verbose=options.verbose)
 
         ## ___________.__.__  .__    ___________
         ## \_   _____/|__|  | |  |   \__    ___/______   ____   ____

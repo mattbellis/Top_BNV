@@ -18,8 +18,7 @@ def topbnv_fwlite(argv):
     options = fwlite_tools.getUserOptions(argv)
     ROOT.gROOT.Macro("rootlogon.C")
 
-    vertices, vertexLabel = Handle("std::vector<reco::Vertex>"), "offlineSlimmedPrimaryVertices"
-
+    mets, metLabel = Handle("std::vector<pat::MET>"), "slimmedMETs"
 
     f = ROOT.TFile(options.output, "RECREATE")
     f.cd()
@@ -27,19 +26,14 @@ def topbnv_fwlite(argv):
     outtree = ROOT.TTree("T", "Our tree of everything")
 
     ############################################################################
-    # Vertex 
+    # MET 
     ############################################################################
-    vertexdata = {}
-    vertexdata['nvertex'] = ['vertexX', 'vertexY', 'vertexZ', 'vertexndof']
+    metdata = ['metpt', 'metphi']
 
     outdata = {}
-    for key in vertexdata.keys():
-        outdata[key] = array('i', [-1])
-        outtree.Branch(key, outdata[key], key+"/I")
-
-        for branch in vertexdata[key]:
-            outdata[branch] = array('f', 64*[-1.])
-            outtree.Branch(branch, outdata[branch], '{0}[{1}]/F'.format(branch,key))
+    for key in metdata:
+        outdata[key] = array('f', [-1])
+        outtree.Branch(key, outdata[key], key+"/F")
 
     '''
     njet = array('i', [-1])
@@ -62,15 +56,9 @@ def topbnv_fwlite(argv):
     #################################################################################
     def processEvent(iev, event):
 
-        event.getByLabel(vertexLabel, vertices)
+        event.getByLabel( metLabel, mets )
 
-        PV = fwlite_tools.process_vertices(vertices, outdata, verbose=options.verbose)
-
-        # Should do this first. We shouldn't analyze events that don't have a
-        # good primary vertex
-        if PV is None:
-            return 0
-
+        fwlite_tools.process_mets(mets, outdata, verbose=options.verbose)
 
         ## ___________.__.__  .__    ___________
         ## \_   _____/|__|  | |  |   \__    ___/______   ____   ____
