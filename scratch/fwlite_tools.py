@@ -240,16 +240,16 @@ def process_electrons(electrons, outdata, verbose=False):
 
         outdata['electronq'][i] = electron.charge()
 
-        outdata['electronIsLoose'][i] = electron.electronID("cutBasedElectronID-Summer16-80X-V1-loose")
-        outdata['electronIsMedium'][i] = electron.electronID("cutBasedElectronID-Summer16-80X-V1-medium")
-        outdata['electronIsTight'][i] = electron.electronID("cutBasedElectronID-Summer16-80X-V1-tight")
+        outdata['electronIsLoose'][i] = int(electron.electronID("cutBasedElectronID-Summer16-80X-V1-loose"))
+        outdata['electronIsMedium'][i] = int(electron.electronID("cutBasedElectronID-Summer16-80X-V1-medium"))
+        outdata['electronIsTight'][i] = int(electron.electronID("cutBasedElectronID-Summer16-80X-V1-tight"))
 
         outdata['electronTkIso'][i] = electron.dr03TkSumPt()
         outdata['electronHCIso'][i] = electron.dr03HcalTowerSumEt()
         outdata['electronECIso'][i] = electron.dr03EcalRecHitSumEt()
 
         if verbose:
-            print("{0:10d} {1:10.3f} {2:10.3f} {3:10.3f} {4:10.3f} {5:10.3f}".format(i, abs(electron.eta()), electron.pt(), outdata['electronIsLoose'][i], outdata['electronIsMedium'][i],outdata['electronIsTight'][i],  ))
+            print("{0:10d} {1:10.3f} {2:10.3f} {3:10d} {4:10d} {5:10d}".format(i, abs(electron.eta()), electron.pt(), outdata['electronIsLoose'][i], outdata['electronIsMedium'][i],outdata['electronIsTight'][i],  ))
 
 
     outdata['nelectron'][0] = i

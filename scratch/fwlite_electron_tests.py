@@ -30,9 +30,12 @@ def topbnv_fwlite(argv):
     # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
     # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCMSDataAnalysisSchoolLPC2018egamma
     electrondata = {}
-    electrondata['nelectron'] = ['electronpt', 'electroneta', 'electronphi', 'electrone', 'electronpx', 'electronpy', 'electronpz', 'electronq']
-    electrondata['nelectron'] += ['electronTkIso', 'electronHCIso', 'electronECIso']
-    electrondata['nelectron'] += ['electronIsLoose', 'electronIsMedium', 'electronIsTight'] # These are nominally integers
+    electrondata['nelectron'] = {}
+    electrondata['nelectron']['F'] = ['electronpt', 'electroneta', 'electronphi', 'electrone', 'electronpx', 'electronpy', 'electronpz', 'electronq']
+    electrondata['nelectron']['F'] += ['electronTkIso', 'electronHCIso', 'electronECIso']
+    electrondata['nelectron']['I'] = ['electronIsLoose', 'electronIsMedium', 'electronIsTight'] # These are nominally integers
+
+    datatypes = {"F":['f',-1.0], "I":['i',-1]}
 
     outdata = {}
     for key in electrondata.keys():
@@ -40,9 +43,12 @@ def topbnv_fwlite(argv):
         outdata[key] = array('i', [-1])
         outtree.Branch(key, outdata[key], key+"/I")
 
-        for branch in electrondata[key]:
-            outdata[branch] = array('f', 16*[-1.])
-            outtree.Branch(branch, outdata[branch], '{0}[{1}]/F'.format(branch,key))
+        print(key)
+        for datatype in electrondata[key]:
+            print(datatype)
+            for branch in electrondata[key][datatype]:
+                outdata[branch] = array(datatypes[datatype][0], 16*[datatypes[datatype][1]])
+                outtree.Branch(branch, outdata[branch], '{0}[{1}]/{2}'.format(branch,key,datatype))
 
     '''
     njet = array('i', [-1])
