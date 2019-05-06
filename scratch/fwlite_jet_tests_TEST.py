@@ -1,6 +1,7 @@
 # Much of this is from the B2G data analysis school code
 #####################################################################################
 import fwlite_tools
+from fwlite_tools import jet_energy_corrections, jet_energy_correction_GT_for_MC 
 
 import ROOT, sys
 from array import array
@@ -18,7 +19,12 @@ def topbnv_fwlite(argv):
     options = fwlite_tools.getUserOptions(argv)
     ROOT.gROOT.Macro("rootlogon.C")
 
+    # Need these for the jec and jes
+    vertices, vertexLabel = Handle("std::vector<reco::Vertex>"), "offlineSlimmedPrimaryVertices"
+    rhos, rhoLabel = Handle("double"), "fixedGridRhoAll"
+
     jets, jetLabel = Handle("std::vector<pat::Jet>"), "slimmedJets"
+
 
     f = ROOT.TFile(options.output, "RECREATE")
     f.cd()
@@ -43,6 +49,20 @@ def topbnv_fwlite(argv):
             outdata[branch] = array('f', 16*[-1.])
             outtree.Branch(branch, outdata[branch], '{0}[{1}]/F'.format(branch,key))
 
+    ############################################################################
+    # Vertex 
+    ############################################################################
+    vertexdata = {}
+    vertexdata['nvertex'] = ['vertexX', 'vertexY', 'vertexZ', 'vertexndof']
+
+    for key in vertexdata.keys():
+        outdata[key] = array('i', [-1])
+        outtree.Branch(key, outdata[key], key+"/I")
+
+        for branch in vertexdata[key]:
+            outdata[branch] = array('f', 64*[-1.])
+            outtree.Branch(branch, outdata[branch], '{0}[{1}]/F'.format(branch,key))
+
     '''
     njet = array('i', [-1])
     outtree.Branch('njet', njet, 'njet/I')
@@ -51,7 +71,21 @@ def topbnv_fwlite(argv):
     outtree.Branch('jetpt', jetpt, 'jetpt[njet]/F')
     '''
 
-    #################################################################################
+
+
+    ############################################################################
+    # Set things up to do jet energy corrections later
+    ############################################################################
+    ROOT.gSystem.Load('libCondFormatsJetMETObjects')
+    if options.isMC:
+        # CHANGE THIS FOR DIFFERENT MCs down the road
+        jecAK4 = fwlite_tools.createJEC('JECs/Summer/'+jet_energy_correction_GT_for_MC, ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK4PFchs')
+        jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/'+jet_energy_correction_GT_for_MC+'_Uncertainty_AK4PFchs.txt'))
+    else:
+        # CHANGE THIS FOR DATA
+        DataJECs = fwlite_tools.DataJEC(jet_energy_corrections)
+
+
     ## ___________                    __    .____
     ## \_   _____/__  __ ____   _____/  |_  |    |    ____   ____ ______
     ##  |    __)_\  \/ // __ \ /    \   __\ |    |   /  _ \ /  _ \\____ \
@@ -64,9 +98,26 @@ def topbnv_fwlite(argv):
     #################################################################################
     def processEvent(iev, event):
 
-        event.getByLabel (jetLabel, jets)          # For b-tagging
+        runnumber = event.eventAuxiliary().run()
 
-        fwlite_tools.process_jets(jets, outdata, verbose=options.verbose)
+        event.getByLabel(vertexLabel, vertices)
+        event.getByLabel(rhoLabel, rhos)
+
+        event.getByLabel (jetLabel, jets)          
+
+        # Need the number of vertices and rho for jet energy corrections and smearing
+        PV,NPV = fwlite_tools.process_vertices(vertices, outdata, verbose=options.verbose)
+        if PV is None:
+            return 0
+
+        rho = fwlite_tools.process_rhos(rhos, verbose=options.verbose)
+        if rho is None:
+            return 0
+
+        if options.isMC:
+            fwlite_tools.process_jets(jets, outdata, options, jecAK4=jecAK4, jecUncAK4=jecUncAK4, runnumber=runnumber, rho=rho, NPV=NPV, verbose=options.verbose)
+        else:
+            fwlite_tools.process_jets(jets, outdata, options, DataJECs=DataJECs, runnumber=runnumber, rho=rho, NPV=NPV, verbose=options.verbose)
 
 
         ## ___________.__.__  .__    ___________

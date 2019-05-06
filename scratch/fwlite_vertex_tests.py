@@ -64,7 +64,7 @@ def topbnv_fwlite(argv):
 
         event.getByLabel(vertexLabel, vertices)
 
-        PV = fwlite_tools.process_vertices(vertices, outdata, verbose=options.verbose)
+        PV,NPV = fwlite_tools.process_vertices(vertices, outdata, verbose=options.verbose)
 
         # Should do this first. We shouldn't analyze events that don't have a
         # good primary vertex
