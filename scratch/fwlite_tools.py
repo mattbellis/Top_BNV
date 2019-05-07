@@ -61,6 +61,8 @@ def getUserOptions(argv):
         help='Running over MC. We need this for the trigger and other stuff.')
     add_option('localInputFiles',    default=False, action='store_true',
         help='Use this flag when running with with local files')
+    add_option('trigType',         default="SingleMuon",
+        help='SingleMuon, SingleElectron, etc.')
     add_option('disablePileup',      default=False, action='store_true',
         help='Disable pileup reweighting')
 
@@ -201,6 +203,60 @@ class DataJEC:
         JECMap = self.GetJECMap(run)
         return JECMap["jecUncAK8"]
 
+
+################################################################################
+#####################################################################################
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopTrigger
+################################################################################
+# Triggers
+################################################################################
+
+# MC values are for the 2016 data
+muon_triggers_of_interest = [
+    ["HLT_IsoMu24_v", "v4"],
+    ["HLT_IsoTkMu24_v","v4"],
+    #["HLT_IsoMu22_eta2p1_v","v4"],
+    #["HLT_IsoTkMu22_eta2p1_v","v4"]
+    ]
+
+electron_triggers_of_interest = [
+    #["HLT_Ele32_eta2p1_WPTight_Gsf_v", "v8"],
+    ["HLT_Ele27_WPTight_Gsf_v", "v7"],
+    #["HLT_Ele25_eta2p1_WPTight_Gsf_v", "v7"]
+    ]
+
+dilepmue_triggers_of_interest = [
+    ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v", "v9"],
+    ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "v4"]
+]
+
+dilepemu_triggers_of_interest = [
+    ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "v9"],
+    ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v", ""],
+    ["HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "v3"],
+    ["HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v", "v4"]
+]
+
+dilepmumu_triggers_of_interest = [
+    ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v", "v7"],
+    ["HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v", "v6"]
+    ]
+
+dilepee_triggers_of_interest = [
+    ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "v9"],
+    ["HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v", "v8"]
+    ]
+
+triggers_of_interest = [
+["SingleMuon",muon_triggers_of_interest],
+["SingleElectron",electron_triggers_of_interest],
+["DileptonMuE",dilepmue_triggers_of_interest],
+["DileptonEMu",dilepemu_triggers_of_interest],
+["DileptonMuMu",dilepmumu_triggers_of_interest],
+["DileptonEE",dilepee_triggers_of_interest]
+]
+
+################################################################################
 
 
 
@@ -586,6 +642,90 @@ def process_pileup(pileups, outdata, purw, options, verbose=False):
 
     else:
         outdata['pu_wt'][0] = 1.0
+
+
+
+################################################################################
+# Pass in a triggerResults object
+################################################################################
+def process_triggers(triggerBits, triggerPrescales, trigger_names, trigger_tree_branches, outdata, options, verbose=False): 
+
+    # Get list of triggers that fired
+    outdata['ntrig_muon'][0] = len(muon_triggers_of_interest)
+    outdata['ntrig_electron'][0] = len(electron_triggers_of_interest)
+    outdata['ntrig_dilepmue'][0] = len(dilepmue_triggers_of_interest)
+    outdata['ntrig_dilepemu'][0] = len(dilepemu_triggers_of_interest)
+    outdata['ntrig_dilepmumu'][0] = len(dilepmumu_triggers_of_interest)
+    outdata['ntrig_dilepee'][0] = len(dilepee_triggers_of_interest)
+
+    print()
+    print(triggerBits)
+    print(type(triggerBits))
+    print(triggerBits.product())
+    print()
+    print(triggerPrescales)
+    print(type(triggerPrescales))
+    print(triggerPrescales.product())
+    trigger_prescales = triggerPrescales.product()
+
+    #print("------- Triggers ---------")
+    # Zero out the triggers
+    for toi in triggers_of_interest:
+
+        trigger_type = toi[0]
+        trigger_bit_names = toi[1]
+
+        for iname,name in enumerate(trigger_bit_names):
+            trigger_tree_branches[trigger_type][iname] = 0 # Didn't fire!
+            if verbose:
+                print("Zeroing out {0} {1}".format(trigger_type, name))
+
+    # Run over the triggers and see what fired
+    FLAG_passed_trigger = False
+    # Loop over *all* the stored triggers
+    for itrig in xrange(triggerBits.product().size()):
+
+        if triggerBits.product().accept(itrig):
+            trigname = trigger_names.triggerName(itrig)
+
+            prescale = trigger_prescales.getPrescaleForIndex(itrig)
+            print(prescale)
+
+
+            if verbose:
+                print("Checking on trigger {0}".format(trigname))
+
+            mc_selection = True
+
+            # Loop over the triggers that we are interested in
+            for toi in triggers_of_interest:
+
+                # trigger_type is our labeling of SingleMuon, SingleElectron, etc.
+                trigger_type = toi[0]
+                trigger_bit_names = toi[1]
+
+                for iname,name in enumerate(trigger_bit_names):
+
+                    if options.isMC:
+                        mc_selection = trigname.find(name[1]) # This is the version, like v4, v6, etc.
+
+                    if trigname.find(name[0]) >= 0 and mc_selection:
+                        #print(trigname,trigger_type)
+                        #print(iname,trigger_tree_branches[trigger_type])
+                        #print(iname,trigger_tree_branches[trigger_type].Name())
+                        trigger_tree_branches[trigger_type][iname] = 1 # Fired!
+                        if trigger_type == options.trigType:
+                            FLAG_passed_trigger = True
+                            if verbose:
+                                print("PASSED TRIGGER REQUIREMENT for {0} {1}".format(trigger_type, name[0]))
+                        #else:
+                            #trigger_tree_branches[trigger_type][iname] = 0 # Didn't fire!
+
+
+    return FLAG_passed_trigger
+
+
+
 
 
 
