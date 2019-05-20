@@ -378,10 +378,10 @@ def topbnv_fwlite(argv):
         runnumber = event.eventAuxiliary().run()
 
         if options.verbose:
-            print "\nProcessing %d: run %6d, lumi %4d, event %12d" % \
+            print( "\nProcessing %d: run %6d, lumi %4d, event %12d" % \
                   (iev,event.eventAuxiliary().run(), \
                   event.eventAuxiliary().luminosityBlock(), \
-                  event.eventAuxiliary().event())
+                  event.eventAuxiliary().event()))
 
         ##      ____.       __      _________      .__                 __  .__
         ##     |    | _____/  |_   /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____
