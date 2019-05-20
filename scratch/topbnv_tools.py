@@ -747,10 +747,10 @@ def event_hypothesis(leptons,jets,bjetcut=0.87,verbose=False):
             if hadjet[i][-1]>=bjetcut:
                 correct_combo += 1
 
-        '''
+        #'''
         if correct_combo != 1:
             continue
-        '''
+        #'''
 
         # If this is good so far and we have good jet combinations for the hadronic top
         # decay, then remove these jets and figure stuff out for the BNV decay
@@ -771,15 +771,17 @@ def event_hypothesis(leptons,jets,bjetcut=0.87,verbose=False):
                 if bnvjet[i][-1]>=bjetcut:
                     correct_combo += 1
 
-            '''
+            #'''
             if correct_combo != 1:
                 continue
-            '''
+            #'''
 
             # Right now, we're not worried about which is the bjet
             bnvjet0 = bnvjet[0]
             bnvjet1 = bnvjet[1]
 
+            hadnonbjet0 = None
+            hadnonbjet1 = None
             # For the had decay, we want to try to identify the W
             if hadjet[0][-1]>bjetcut:
                 hadbjet = hadjet[0]
@@ -897,7 +899,7 @@ def vals_for_ML_training(jets,output_data,tag="had"):
 
     ######### DUMP SOME INFO FOR ML TRAINING ########################
     tmpjets = [j1,j2,j3] 
-    # If it is hadronic, order 3 jets, otherwise order 2 hets
+    # If it is hadronic, order 3 jets, otherwise order 2 jets
     if tag=='had':
         sortidx = np.argsort( [rj1pmag,rj2pmag,rj3pmag])
         j1 = tmpjets[sortidx[2]]
@@ -1002,6 +1004,14 @@ def define_ML_output_data():
     output_data["bnv_j2_CSV"] = []
 
     output_data["ttbar_angle"] = []
+
+    output_data["had_jet_idx1"] = []
+    output_data["had_jet_idx2"] = []
+    output_data["had_jet_idx3"] = []
+
+    output_data["bnv_jet_idx1"] = []
+    output_data["bnv_jet_idx2"] = []
+    output_data["bnv_lep_idx"] = []
 
 
     return output_data
