@@ -1,10 +1,14 @@
-
+import pickle
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookCRAB3Tutorial
 
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 config = config()
 
+filename = open('datasets.pkl', 'rb')
+datasets = pickle.load(filename)
+
 #dataset = ["DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
+'''
 datasets = [
 ['DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8-v1','/DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM'],
 ['DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8-v2','/DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2/MINIAODSIM'],
@@ -62,6 +66,7 @@ datasets = [
 ['QCD_Pt-170to300_EMEnriched_TuneCUETP8M1_13TeV_pythia8-v1','/QCD_Pt-170to300_EMEnriched_TuneCUETP8M1_13TeV_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM'],
 ['QCD_Pt-300toInf_EMEnriched_TuneCUETP8M1_13TeV_pythia8-v1','/QCD_Pt-300toInf_EMEnriched_TuneCUETP8M1_13TeV_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM'],
 ]
+'''
 
 dataset = datasets[NUMBERTORUN]
 
