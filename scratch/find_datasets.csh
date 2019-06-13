@@ -48,7 +48,7 @@ foreach dataset(DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8 \
 
 end
 
-python make_short_name.py $1
+#python make_short_name.py $1
 
 
 # Data

@@ -69,6 +69,7 @@ datasets = [
 '''
 
 dataset = datasets[NUMBERTORUN]
+print(dataset)
 
 # Request name must be < 100 characters
 #request_name = "bellis_SingleElectron_%s" % (dataset[0])
@@ -85,7 +86,7 @@ config.General.transferLogs = True
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'PSet.py'
 
-config.Data.inputDataset = dataset[1]
+config.Data.inputDataset = "/{0}".format(dataset[1])
 #config.Data.inputDataset = '/RSGluonToTT_M-3000_TuneCUETP8M1_13TeV-pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM'
 #config.Data.inputDataset = '/GenericTTbar/HC-CMSSW_5_3_1_START53_V5-v1/GEN-SIM-RECO'
 #config.Data.inputDataset = '/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM'
