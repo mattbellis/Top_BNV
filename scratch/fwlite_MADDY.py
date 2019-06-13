@@ -5,6 +5,8 @@ from array import array
 from DataFormats.FWLite import Events, Handle
 from DataFormats.FWLite import Events, Handle
 
+from fwlite_tools import jet_energy_corrections, jet_energy_correction_GT_for_MC 
+
 import fwlite_tools
 
 # NEED THIS FOR DEEP CSV STUFF?
@@ -264,59 +266,21 @@ def topbnv_fwlite(argv):
     #################################################################################
     #################################################################################
     # Jets
-    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchoolLPC2018Jets
-    njet = array('i', [-1])
-    outtree.Branch('njet', njet, 'njet/I')
+    jetdata = {}
+    jetdata['njet'] = ['jetpt', 'jeteta', 'jetphi', 'jete', 'jetpx', 'jetpy', 'jetpz']
+    jetdata['njet'] += ['jetbtag0', 'jetbtag1', 'jetbtagsum']
+    jetdata['njet'] += ['jetarea', 'jetjec', 'jetNHF', 'jetNEMF', 'jetCHF', 'jetCHM', 'jetMUF', 'jetCEMF']
+    jetdata['njet'] += ['jetNumConst', 'jetNumNeutralParticles']
 
-    jetpt = array('f', 16*[-1.])
-    outtree.Branch('jetpt', jetpt, 'jetpt[njet]/F')
-    jeteta = array('f', 16*[-1.])
-    outtree.Branch('jeteta', jeteta, 'jeteta[njet]/F')
-    jetphi = array('f', 16*[-1.])
-    outtree.Branch('jetphi', jetphi, 'jetphi[njet]/F')
-    jetpx = array('f', 16*[-1.])
-    outtree.Branch('jetpx', jetpx, 'jetpx[njet]/F')
-    jetpy = array('f', 16*[-1.])
-    outtree.Branch('jetpy', jetpy, 'jetpy[njet]/F')
-    jetpz = array('f', 16*[-1.])
-    outtree.Branch('jetpz', jetpz, 'jetpz[njet]/F')
-    jete = array('f', 16*[-1.])
-    outtree.Branch('jete', jete, 'jete[njet]/F')
+    outJets = {}
+    for key in jetdata.keys():
 
-    jetbtag = array('f', 16*[-1.])
-    outtree.Branch('jetbtag', jetbtag, 'jetbtag[njet]/F')
+        outJets[key] = array('i', [-1])
+        outtree.Branch(key, outJets[key], key+"/I")
 
-    jetarea = array('f', 16*[-1.])
-    outtree.Branch('jetarea', jetarea, 'jetarea[njet]/F')
-
-    jetjec = array('f', 16*[-1.])
-    outtree.Branch('jetjec', jetjec, 'jetjec[njet]/F')
-
-    jetNHF = array('f', 16*[-1.])
-    outtree.Branch('jetNHF', jetNHF, 'jetNHF[njet]/F')
-    jetNEMF = array('f', 16*[-1.])
-    outtree.Branch('jetNEMF', jetNEMF, 'jetNEMF[njet]/F')
-    jetCHF = array('f', 16*[-1.])
-    outtree.Branch('jetCHF', jetCHF, 'jetCHF[njet]/F')
-    jetMUF = array('f', 16*[-1.])
-    outtree.Branch('jetMUF', jetMUF, 'jetMUF[njet]/F')
-    jetCEMF = array('f', 16*[-1.])
-    outtree.Branch('jetCEMF', jetCEMF, 'jetCEMF[njet]/F')
-    jetNumConst = array('f', 16*[-1.])
-    outtree.Branch('jetNumConst', jetNumConst, 'jetNumConst[njet]/F')
-    jetNumNeutralParticles = array('f', 16*[-1.])
-    outtree.Branch('jetNumNeutralParticles', jetNumNeutralParticles, 'jetNumNeutralParticles[njet]/F')
-    jetCHM = array('f', 16*[-1.])
-    outtree.Branch('jetCHM', jetCHM, 'jetCHM[njet]/F')
-
-    # Weights
-    ev_wt = array('f', [-1])
-    outtree.Branch('ev_wt', ev_wt, 'ev_wt/F')
-    pu_wt = array('f', [-1])
-    outtree.Branch('pu_wt', pu_wt, 'pu_wt/F')
-    gen_wt = array('f', [-1])
-    outtree.Branch('gen_wt', gen_wt, 'gen_wt/F')
-
+        for branch in jetdata[key]:
+            outJets[branch] = array('f', 16*[-1.])
+            outtree.Branch(branch, outJets[branch], '{0}[{1}]/F'.format(branch,key))
 
     #################################################################################
     #################################################################################
@@ -381,10 +345,33 @@ def topbnv_fwlite(argv):
         outMET[key] = array('f', [-1])
         outtree.Branch(key, outMET[key], key+"/F")
 
+    #################################################################################
+    #################################################################################
+    # Pileup
+
+    pudata = ['pu_wt']
+
+    outPileup = {}
+    for key in pudata:
+        outPileup[key] = array('f', [-1])
+        outtree.Branch(key, outPileup[key], key+"/F")
+
+    '''
+    njet = array('i', [-1])
+    outtree.Branch('njet', njet, 'njet/I')
+    jetpt = array('f', 16*[-1.])
+    outtree.Branch('jetpt', jetpt, 'jetpt[njet]/F')
+    '''
+
+    purw = None # pileup reweighting histogram
+    if options.isMC and not options.disablePileup:
+        pileupReweightFile = ROOT.TFile('purw.root', 'READ')
+        purw = pileupReweightFile.Get('pileup')
+
 
     #################################################################################
     #################################################################################
-    # Vertex/Trigger
+    # Trigger
 
     trigdata = {}
     trigdata['ntrig_muon'] = ['trig_muon']
@@ -414,8 +401,22 @@ def topbnv_fwlite(argv):
         "DileptonEE":outTriggers['trig_dilepee']
     }
 
+    #################################################################################
+    #################################################################################
+    # Vertex
 
+    vertexdata = {}
+    vertexdata['nvertex'] = ['vertexX', 'vertexY', 'vertexZ', 'vertexndof']
 
+    outVertex = {}
+    for key in vertexdata.keys():
+        outVertex[key] = array('i', [-1])
+        outtree.Branch(key, outVertex[key], key+"/I")
+
+        for branch in vertexdata[key]:
+            outVertex[branch] = array('f', 64*[-1.])
+            outtree.Branch(branch, outVertex[branch], '{0}[{1}]/F'.format(branch,key))
+    
 
 
           ## ######## ########     ######   #######  ########  ########  ########  ######  ######## ####  #######  ##    ##  ######  
@@ -424,7 +425,7 @@ def topbnv_fwlite(argv):
           ## ######      ##       ##       ##     ## ########  ########  ######   ##          ##     ##  ##     ## ## ## ##  ######  
     ##    ## ##          ##       ##       ##     ## ##   ##   ##   ##   ##       ##          ##     ##  ##     ## ##  ####       ## 
     ##    ## ##          ##       ##    ## ##     ## ##    ##  ##    ##  ##       ##    ##    ##     ##  ##     ## ##   ### ##    ## 
-    ######  ########    ##        ######   #######  ##     ## ##     ## ########  ######     ##    ####  #######  ##    ##  ######  
+     ######  ########    ##        ######   #######  ##     ## ##     ## ########  ######     ##    ####  #######  ##    ##  ######  
     
     
     ROOT.gSystem.Load('libCondFormatsJetMETObjects')
@@ -465,15 +466,13 @@ def topbnv_fwlite(argv):
     def processEvent(iev, event):
         
         ###########################################################################
-        ###########################################################################
-        # Vertex/Trigger
-
+        # Trigger
         event.getByLabel(triggerBitLabel, triggerBits)
         event.getByLabel(triggerPrescalesLabel, triggerPrescales )
 
         trigger_names = event.object().triggerNames(triggerBits.product())
 
-        FLAG_passed_trigger = fwlite_tools.process_triggers(triggerBits, triggerPrescales, trigger_names, trigger_tree_branches, outdata, options, verbose=options.verbose)
+        FLAG_passed_trigger = fwlite_tools.process_triggers(triggerBits, triggerPrescales, trigger_names, trigger_tree_branches, outTriggers, options, verbose=options.verbose)
 
         # Should do this early. We shouldn't analyze events that don't
         # pass any of the relevant triggers
@@ -481,94 +480,66 @@ def topbnv_fwlite(argv):
             return 0
 
         ###########################################################################
-        ###########################################################################
         # If trigger test is passed, process event
 
-        ev_wt[0] = 1.0
-        pu_wt[0] = 1.0
-        gen_wt[0] = 1.0
+        ###########################################################################
+        # Vertex
+        event.getByLabel(vertexLabel, vertices)
+        PV,NPV = fwlite_tools.process_vertices(vertices, outVertex, verbose=options.verbose)
 
-        genOut = "Event %d\n" % (iev)
-        #print "GGGEEENNNNOUT...."
-        #print genOut
+        # Should do this first. We shouldn't analyze events that don't have a
+        # good primary vertex
+        if PV is None:
+            return 0
 
-        #event.getByLabel(triggerBitLabel, triggerBits)
-        #event.getByLabel(metfiltBitLabel, metfiltBits)
+        ###########################################################################
+        # Muons
+        event.getByLabel (muonLabel, muons)
+        fwlite_tools.process_muons(muons, outMuons, verbose=options.verbose)
+
+        ###########################################################################
+        # Electrons
+        event.getByLabel (electronLabel, electrons)
+        fwlite_tools.process_electrons(electrons, outElectrons, verbose=options.verbose)
+        
+        ###########################################################################
+        # Pileup
+        if options.isMC:
+            event.getByLabel(pileuplabel, pileups)
+            fwlite_tools.process_pileup(pileups, outPileup, purw, options, verbose=options.verbose)
+
+        ###########################################################################
+        # MET
+        event.getByLabel( metLabel, mets )
+        fwlite_tools.process_mets(mets, outMET, verbose=options.verbose)
+        
+        ###########################################################################
+        # Rhos
+        event.getByLabel(rhoLabel, rhos)
+        rho = fwlite_tools.process_rhos(rhos, verbose=options.verbose)
+        if rho is None:
+            return 0
+        
+        ###########################################################################
+        # Jets
         runnumber = event.eventAuxiliary().run()
+        event.getByLabel(vertexLabel, vertices)
+        event.getByLabel (jetLabel, jets)
+
+        if options.isMC:
+            fwlite_tools.process_jets(jets, outJets, options, jecAK4=jecAK4, jecUncAK4=jecUncAK4, runnumber=runnumber, rho=rho, NPV=NPV, verbose=options.verbose)
+        else:
+            fwlite_tools.process_jets(jets, outJets, options, DataJECs=DataJECs, runnumber=runnumber, rho=rho, NPV=NPV, verbose=options.verbose)
+
+        
+        
+        genOut = "Event %d\n" % (iev)
 
         if options.verbose:
             print( "\nProcessing %d: run %6d, lumi %4d, event %12d" % \
                   (iev,event.eventAuxiliary().run(), \
                   event.eventAuxiliary().luminosityBlock(), \
                   event.eventAuxiliary().event()))
-
-
-              ## ######## ########     ######  ######## ##       ########  ######  ######## ####  #######  ##    ## 
-              ## ##          ##       ##    ## ##       ##       ##       ##    ##    ##     ##  ##     ## ###   ## 
-              ## ##          ##       ##       ##       ##       ##       ##          ##     ##  ##     ## ####  ## 
-              ## ######      ##        ######  ######   ##       ######   ##          ##     ##  ##     ## ## ## ## 
-        ##    ## ##          ##             ## ##       ##       ##       ##          ##     ##  ##     ## ##  #### 
-        ##    ## ##          ##       ##    ## ##       ##       ##       ##    ##    ##     ##  ##     ## ##   ### 
-         ######  ########    ##        ######  ######## ######## ########  ######     ##    ####  #######  ##    ## 
-
-        # In addition, we must perform "lepton-jet" cleaning.
-        # This is because the PF leptons are actually counted in the
-        # list of particles sent to the jet clustering.
-        # Therefore, we need to loop over the jet constituents and
-        # remove the lepton.
-        #
-        # Jet info
-        # https://twiki.cern.ch/twiki/bin/view/CMS/TopJME#Jets_AN2
-        # Jet selection
-        # https://twiki.cern.ch/twiki/bin/view/CMS/TTbarXSecSynchronization
-
-        # use getByLabel, just like in cmsRun
-        event.getByLabel (jetLabel, jets)          # For b-tagging
-
-
-        ############################################
-        # Get the AK4 jet nearest the lepton:
-        ############################################
-        print("-------------")
-        print("{0:10} {1:10} {2:10} {3:10} {4:10} {5:10}".format("Index", "probb", "probb", "sum", "eta", "pt"))
-        sf = []
-        for i,jet in enumerate(jets.product()):
-            # Get the jet p4
-            jetP4Raw = ROOT.TLorentzVector( jet.px(), jet.py(), jet.pz(), jet.energy() )
-            # Get the correction that was applied at RECO level for MINIAOD
-            jetJECFromMiniAOD = jet.jecFactor(0)
-            # Remove the old JEC's to get raw energy
-            jetP4Raw *= jetJECFromMiniAOD
-            # Apply jet ID
-
-            btagvar_probb = jet.bDiscriminator("pfDeepCSVJetTags:probb")
-            btagvar_probbb = jet.bDiscriminator("pfDeepCSVJetTags:probbb")
-
-            print("{0:10d} {1:10.3f} {2:10.3f} {3:10.3f} {4:10.3f} {5:10.3f}".format(i,btagvar_probb,btagvar_probbb, btagvar_probb+btagvar_probbb, abs(jet.eta()), jet.pt()))
-
-
-
-        ###########################################################################
-        ###########################################################################
-        # Muons
-
-        event.getByLabel (muonLabel, muons)
-        fwlite_tools.process_muons(muons, outMuons, verbose=options.verbose)
-
-        ###########################################################################
-        ###########################################################################
-        # Electrons
-
-        event.getByLabel (electronLabel, electrons)
-        fwlite_tools.process_electrons(electrons, outElectrons, verbose=options.verbose)
-
-        ###########################################################################
-        ###########################################################################
-        # MET
-
-        event.getByLabel( metLabel, mets )
-        fwlite_tools.process_mets(mets, outMET, verbose=options.verbose)
-
 
 
 
