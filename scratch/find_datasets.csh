@@ -43,12 +43,13 @@ foreach dataset(DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8 \
                     )
     echo $dataset
     #dasgoclient --query="dataset=/$dataset*/*Summer16*/MINIAODSIM" --format plain --limit=30
-    dasgoclient --query="dataset=/$dataset*/*RunIISummer16MiniAODv3*94X_mcRun2_asymptotic_v3*/MINIAODSIM" --format plain --limit=30 >> $1
+    dasgoclient --query="dataset=/$dataset/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3*/MINIAODSIM" --format plain --limit=30 >> $1
+    dasgoclient --query="dataset=/$dataset/RunIISummer16MiniAODv3_94X_mcRun2_asymptotic_v3*/MINIAODSIM" --format plain --limit=30 >> $1
 
 
 end
 
-#python make_short_name.py $1
+python make_short_name.py $1
 
 
 # Data
