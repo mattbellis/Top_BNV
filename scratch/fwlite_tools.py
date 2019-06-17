@@ -59,14 +59,14 @@ def getUserOptions(argv):
         help='Use this flag when running with crab on the grid')
     add_option('isMC',          default=False, action='store_true',
         help='Running over MC. We need this for the trigger and other stuff.')
+    add_option('year',          default="2016", 
+        help='Year of dataset (2016, 2017, 2018)')
     add_option('localInputFiles',    default=False, action='store_true',
         help='Use this flag when running with with local files')
     add_option('trigType',         default="SingleMuon",
         help='SingleMuon, SingleElectron, etc.')
     add_option('disablePileup',      default=False, action='store_true',
         help='Disable pileup reweighting')
-
-
 
     (options, args) = parser.parse_args(argv)
     argv = []
@@ -79,12 +79,20 @@ def getUserOptions(argv):
 #####################################################################################
 # Jet energy correction files for data
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECDataMC#2016_Data
-jet_energy_corrections = [ [1,276811,"Summer16_07Aug2017BCD_V11_DATA"],
+# To get the intervals of validity (those first numbers, one can go here
+# https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2016Analysis
+jet_energy_corrections = {"2016": [ [1,276811,"Summer16_07Aug2017BCD_V11_DATA"],
                            [276831,278801,"Summer16_07Aug2017EF_V11_DATA"],
-                          [278802,float("inf"),"Summer16_07Aug2017GH_V11_DATA"] ]
-  
+                          [278802,float("inf"),"Summer16_07Aug2017GH_V11_DATA"] ],
 
-jet_energy_correction_GT_for_MC = "Summer16_07Aug2017_V11_MC"
+                          "2017": [ [1,299329,"Fall17_17Nov2017B_V32_DATA"],
+                           [299337,302029,"Fall17_17Nov2017C_V32_DATA"],
+                           [302030,304826,"Fall17_17Nov2017DE_V32_DATA"],
+                          [304911,306462,"Fall17_17Nov2017F_V32_DATA"] ]
+                          }
+  
+jet_energy_correction_GT_for_MC = {"2016":"Summer16_07Aug2017_V11_MC", 
+                                   "2017":"Fall17_17Nov2017_V32_MC"}
 
 #####################################################################################
 # This *should* be correct now
@@ -174,11 +182,11 @@ def getJER(jetEta, sysType):
 #####################################################################################
 class DataJEC:
     JECList = []
-    def __init__(self,inputmap):
+    def __init__(self,inputmap,year='2016'):
         for minrun,maxrun,version in inputmap:
             JECMap = {}
-            JECMap['jecAK4'] = createJEC('JECs/Summer/'+version, ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'], 'AK4PFchs')
-            JECMap['jecUncAK4'] = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/'+version+'_Uncertainty_AK4PFchs.txt'))
+            JECMap['jecAK4'] = createJEC('JECs/'+year+'/'+version, ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'], 'AK4PFchs')
+            JECMap['jecUncAK4'] = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/'+year+'/'+version+'_Uncertainty_AK4PFchs.txt'))
             self.JECList.append([minrun, maxrun, JECMap])
 
     def GetJECMap(self, run):
