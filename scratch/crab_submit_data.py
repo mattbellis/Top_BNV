@@ -61,5 +61,5 @@ config.JobType.outputFiles = ['output.root']
 config.JobType.sendExternalFolder = True
 
 # We need that FrameworkJobReport.xml file for the output.
-config.JobType.inputFiles = ['execute_for_crab_data.py', 'topbnv_fwlite.py', 'FrameworkJobReport.xml','JECs']
+config.JobType.inputFiles = ['execute_for_crab_data.py', 'topbnv_fwlite.py', 'FrameworkJobReport.xml','JECs', 'fwlite_tools.py']
 
