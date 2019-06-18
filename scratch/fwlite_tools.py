@@ -14,6 +14,8 @@ def getInputFiles(options):
     result = []
     with open(options.input, 'r') as fpInput:
         for lfn in fpInput:
+            if lfn[0]=="#":
+                continue
             print("lfn: ")
             print(lfn)
             lfn = lfn.strip()
@@ -79,6 +81,8 @@ def getUserOptions(argv):
 #####################################################################################
 # Jet energy correction files for data
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECDataMC#2016_Data
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECDataMC#2017_Data
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECDataMC#2018_Data
 # To get the intervals of validity (those first numbers, one can go here
 # https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2016Analysis
 jet_energy_corrections = {"2016": [ [1,276811,"Summer16_07Aug2017BCD_V11_DATA"],
@@ -88,18 +92,28 @@ jet_energy_corrections = {"2016": [ [1,276811,"Summer16_07Aug2017BCD_V11_DATA"],
                           "2017": [ [1,299329,"Fall17_17Nov2017B_V32_DATA"],
                            [299337,302029,"Fall17_17Nov2017C_V32_DATA"],
                            [302030,304826,"Fall17_17Nov2017DE_V32_DATA"],
-                          [304911,306462,"Fall17_17Nov2017F_V32_DATA"] ]
+                          [304911,306462,"Fall17_17Nov2017F_V32_DATA"] ],
+
+                          "2018": [ [1,316995,"Autumn18_RunA_V8_DATA"],
+                           [316998,319312,"Autumn18_RunB_V8_DATA"],
+                           [319313,320393,"Autumn18_RunC_V8_DATA"],
+                          [320394,325273,"Autumn18_RunD_V8_DATA"] ]
                           }
   
 jet_energy_correction_GT_for_MC = {"2016":"Summer16_07Aug2017_V11_MC", 
-                                   "2017":"Fall17_17Nov2017_V32_MC"}
+                                   "2017":"Fall17_17Nov2017_V32_MC",
+                                   "2018":"Autumn18_V8_MC"}
 
 #####################################################################################
 # This *should* be correct now
 # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
 # https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution#2016_data
+# https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution#2018_data
 #####################################################################################
-jet_energy_resolution = [
+# Columns are
+# Low-eta,  High-eta,  Data/MC SF,  uncertainty
+jet_energy_resolution = {
+        "2016": [
         (0.000, 0.522, 1.1595, 0.0645), 
         (0.522, 0.783, 1.1948, 0.0652), 
         (0.783, 1.131, 1.1464, 0.0632), 
@@ -113,7 +127,41 @@ jet_energy_resolution = [
         (2.853, 2.964, 1.7788, 0.2008), 
         (2.964, 3.139, 1.1869, 0.1243), 
         (3.139, 5.191, 1.1922, 0.1488), 
+        ], 
+
+        "2017": [
+        (0.000, 0.522, 1.1432, 0.0222), 
+        (0.522, 0.783, 1.1815, 0.0484), 
+        (0.783, 1.131, 1.0989, 0.0456), 
+        (1.131, 1.305, 1.1137, 0.1397), 
+        (1.305, 1.740, 1.1307, 0.1470), 
+        (1.740, 1.930, 1.1600, 0.0976), 
+        (1.930, 2.043, 1.2393, 0.1909), 
+        (2.043, 2.322, 1.2604, 0.1501), 
+        (2.322, 2.500, 1.4085, 0.2020), 
+        (2.500, 2.893, 1.9909, 0.5684), 
+        (2.853, 2.964, 2.2923, 0.3743), 
+        (2.964, 3.139, 1.1296, 0.1089), 
+        (3.139, 5.191, 1.1542, 0.1524), 
+        ],
+
+        "2018": [
+        (0.000, 0.522, 1.15 , 0.043), 
+        (0.522, 0.783, 1.134, 0.08 ), 
+        (0.783, 1.131, 1.102, 0.052), 
+        (1.131, 1.305, 1.134, 0.112), 
+        (1.305, 1.740, 1.104, 0.211), 
+        (1.740, 1.930, 1.149, 0.159), 
+        (1.930, 2.043, 1.148, 0.209), 
+        (2.043, 2.322, 1.114, 0.191), 
+        (2.322, 2.500, 1.347, 0.274), 
+        (2.500, 2.893, 2.137, 0.524), 
+        (2.853, 2.964, 1.65 , 0.941), 
+        (2.964, 3.139, 1.225, 0.194), 
+        (3.139, 5.191, 1.082, 0.198), 
         ]
+
+        }
 
 #####################################################################################
 def createJEC(jecSrc, jecLevelList, jetAlgo):
@@ -158,7 +206,7 @@ def getJEC(jecSrc, uncSrc, jet, area, rho, nPV): # get JEC and uncertainty for a
 
     return (jec, corrDn, corrUp)
 #####################################################################################
-def getJER(jetEta, sysType):
+def getJER(jetEta, sysType, year="2016"):
     """
     Here, jetEta should be the jet pseudorapidity, and sysType is:
         nominal : 0
@@ -169,7 +217,7 @@ def getJER(jetEta, sysType):
     if sysType not in [0, -1, 1]:
         raise Exception('ERROR: Unable to get JER! use type=0 (nom), -1 (down), +1 (up)')
 
-    for (etamin, etamax, scale_nom, scale_uncert) in jet_energy_resolution:
+    for (etamin, etamax, scale_nom, scale_uncert) in jet_energy_resolution[year]:
         if etamin <= abs(jetEta) < etamax:
             if sysType < 0:
                 return scale_nom - scale_uncert
@@ -215,22 +263,29 @@ class DataJEC:
 ################################################################################
 #####################################################################################
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopTrigger
+# https://twiki.cern.ch/twiki/bin/view/CMS/TopTriggerYear2016
+# https://twiki.cern.ch/twiki/bin/view/CMS/TopTriggerYear2017 
+# https://twiki.cern.ch/twiki/bin/view/CMS/TopTriggerYear2018 
 ################################################################################
 # Triggers
 ################################################################################
 
 # MC values are for the 2016 data
 muon_triggers_of_interest = [
-    ["HLT_IsoMu24_v", "v4"],
+    ["HLT_IsoMu24_v", "v4"], # 2016 and 2018
     ["HLT_IsoTkMu24_v","v4"],
-    #["HLT_IsoMu22_eta2p1_v","v4"],
-    #["HLT_IsoTkMu22_eta2p1_v","v4"]
+    ["HLT_IsoMu22_eta2p1_v","v4"],
+    ["HLT_IsoTkMu22_eta2p1_v","v4"],
+    ["HLT_IsoMu24_eta2p1_v","v"], # Maybe for 2017 data?
+    ["HLT_IsoMu27_v","v"] # Maybe for 2017 data?
     ]
 
 electron_triggers_of_interest = [
-    #["HLT_Ele32_eta2p1_WPTight_Gsf_v", "v8"],
+    ["HLT_Ele32_eta2p1_WPTight_Gsf_v", "v8"],
     ["HLT_Ele27_WPTight_Gsf_v", "v7"],
-    #["HLT_Ele25_eta2p1_WPTight_Gsf_v", "v7"]
+    ["HLT_Ele25_eta2p1_WPTight_Gsf_v", "v7"],
+    ["HLT_Ele35_WPTight_Gsf_v", "v"], # 2017
+    ["HLT_Ele32_WPTight_Gsf_v", "v"] # 2017
     ]
 
 dilepmue_triggers_of_interest = [
@@ -337,9 +392,9 @@ def process_jets(jets, outdata, options, runnumber=None, jecAK4=None, jecUncAK4=
                 eta=4.999
             if eta<=-5.0:
                 eta=-4.999
-            smear     = getJER( eta,  0)
-            smearUp   = getJER( eta,  1)
-            smearDn   = getJER( eta, -1)
+            smear     = getJER( eta,  0, options.year)
+            smearUp   = getJER( eta,  1, options.year)
+            smearDn   = getJER( eta, -1, options.year)
             #print "HERE WE ARE!!!!!!!!!!!"
             #print jetP4Raw.Perp()
             #print newJEC
@@ -666,6 +721,7 @@ def process_triggers(triggerBits, triggerPrescales, trigger_names, trigger_tree_
     outdata['ntrig_dilepmumu'][0] = len(dilepmumu_triggers_of_interest)
     outdata['ntrig_dilepee'][0] = len(dilepee_triggers_of_interest)
 
+    '''
     print()
     print(triggerBits)
     print(type(triggerBits))
@@ -674,6 +730,7 @@ def process_triggers(triggerBits, triggerPrescales, trigger_names, trigger_tree_
     print(triggerPrescales)
     print(type(triggerPrescales))
     print(triggerPrescales.product())
+    '''
     trigger_prescales = triggerPrescales.product()
 
     #print("------- Triggers ---------")
@@ -697,7 +754,7 @@ def process_triggers(triggerBits, triggerPrescales, trigger_names, trigger_tree_
             trigname = trigger_names.triggerName(itrig)
 
             prescale = trigger_prescales.getPrescaleForIndex(itrig)
-            print(prescale)
+            #print(prescale)
 
 
             if verbose:
