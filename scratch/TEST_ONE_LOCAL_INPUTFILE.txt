@@ -1,1 +1,1 @@
-/eos/uscms/store/user/mbellis/MINIAOD/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_RunIISummer16MiniAODv3_PUMoriond17_94X_mcRun2_asymptotic_v3-v1_100events.root
+/eos/uscms/store/user/mbellis/MINIAOD/100_events/TT_TuneCH3_13TeV-powheg-herwig7_testrun_RunIIFall17MiniAODv2_PU2017_12Apr2018_94X_mc2017_realistic_v14-v1_30000_F87E612B-0E8A-E911-9950-AC1F6B23C7DC.root
