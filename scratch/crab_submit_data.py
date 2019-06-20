@@ -17,7 +17,7 @@ datasets = ['/SingleMuon/Run2016B-03Feb2017_ver2-v2/MINIAOD',
 
 dataset = datasets[NUMBERTORUN]
 
-request_name = "bellis_TESTING_%s" % (dataset.split('/')[2])
+request_name = "bellis_SingleMuon_%s" % (dataset.split('/')[2])
 
 #config.General.requestName = 'bellis_topbnv_TT_TUNE'
 #config.General.requestName = 'bellis_topbnv_RSGluonToTT'
@@ -61,5 +61,5 @@ config.JobType.outputFiles = ['output.root']
 config.JobType.sendExternalFolder = True
 
 # We need that FrameworkJobReport.xml file for the output.
-config.JobType.inputFiles = ['execute_for_crab_data.py', 'topbnv_fwlite.py', 'FrameworkJobReport.xml','JECs']
+config.JobType.inputFiles = ['execute_for_crab_data.py', 'topbnv_fwlite.py', 'FrameworkJobReport.xml','JECs', 'fwlite_tools.py']
 

@@ -5,204 +5,12 @@ from array import array
 from DataFormats.FWLite import Events, Handle
 from DataFormats.FWLite import Events, Handle
 
-from fwlite_tools import jet_energy_corrections, jet_energy_correction_GT_for_MC 
+from fwlite_tools import jet_energy_corrections, jet_energy_correction_GT_for_MC, DataJEC
 
 import fwlite_tools
 
 # NEED THIS FOR DEEP CSV STUFF?
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-
-
-
-# https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECDataMC
-#####################################################################################
-# CHECK THIS!!!!!!!!!!
-#####################################################################################
-jet_energy_resolution = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
-                (0.0, 0.5, 1.109, 0.008),
-                (0.5, 0.8, 1.138, 0.013),
-                (0.8, 1.1, 1.114, 0.013),
-                (1.1, 1.3, 1.123, 0.024),
-                (1.3, 1.7, 1.084, 0.011),
-                (1.7, 1.9, 1.082, 0.035),
-                (1.9, 2.1, 1.140, 0.047),
-                (2.1, 2.3, 1.067, 0.053),
-                (2.3, 2.5, 1.177, 0.041),
-                (2.5, 2.8, 1.364, 0.039),
-                (2.8, 3.0, 1.857, 0.071),
-                (3.0, 3.2, 1.328, 0.022),
-                (3.2, 5.0, 1.160, 0.029),
-                                                            ]
-
-#####################################################################################
-#####################################################################################
-def createJEC(jecSrc, jecLevelList, jetAlgo):
-    print("Creating JECs....")
-    log = logging.getLogger('JEC')
-    log.info('Getting jet energy corrections for %s jets', jetAlgo)
-    jecParameterList = ROOT.vector('JetCorrectorParameters')()
-    # Load the different JEC levels (the order matters!)
-    for jecLevel in jecLevelList:
-        log.debug('  - %s jet corrections', jecLevel)
-        jec_parameter_name = ('%s_%s_%s.txt' % (jecSrc, jecLevel, jetAlgo));
-        print(jec_parameter_name)
-        jecParameter = ROOT.JetCorrectorParameters(jec_parameter_name)
-        print(jecParameter)
-        jecParameterList.push_back(jecParameter)
-    # Chain the JEC levels together
-    #jecParameterList.Print()
-    return ROOT.FactorizedJetCorrector(jecParameterList)
-
-#####################################################################################
-#####################################################################################
-def getJEC(jecSrc, uncSrc, jet, area, rho, nPV): # get JEC and uncertainty for an *uncorrected* jet
-    # Give jet properties to JEC source
-    jecSrc.setJetEta(jet.Eta())
-    jecSrc.setJetPt(jet.Perp())
-    jecSrc.setJetE(jet.E())
-    jecSrc.setJetA(area)
-    jecSrc.setRho(rho)
-    jecSrc.setNPV(nPV)
-    jec = jecSrc.getCorrection() # get jet energy correction
-
-    # Give jet properties to JEC uncertainty source
-    uncSrc.setJetPhi(jet.Phi())
-    uncSrc.setJetEta(jet.Eta())
-    uncSrc.setJetPt(jet.Perp() * jec)
-    corrDn = 1. - uncSrc.getUncertainty(0) # get jet energy uncertainty (down)
-
-    uncSrc.setJetPhi(jet.Phi())
-    uncSrc.setJetEta(jet.Eta())
-    uncSrc.setJetPt(jet.Perp() * jec)
-    corrUp = 1. + uncSrc.getUncertainty(1) # get jet energy uncertainty (up)
-
-    return (jec, corrDn, corrUp)
-
-#####################################################################################
-#####################################################################################
-def getJER(jetEta, sysType):
-    """
-    Here, jetEta should be the jet pseudorapidity, and sysType is:
-        nominal : 0
-        down    : -1
-        up      : +1
-    """
-
-    if sysType not in [0, -1, 1]:
-        raise Exception('ERROR: Unable to get JER! use type=0 (nom), -1 (down), +1 (up)')
-
-    for (etamin, etamax, scale_nom, scale_uncert) in jet_energy_resolution:
-        if etamin <= abs(jetEta) < etamax:
-            if sysType < 0:
-                return scale_nom - scale_uncert
-            elif sysType > 0:
-                return scale_nom + scale_uncert
-            else:
-                return scale_nom
-    raise Exception('ERROR: Unable to get JER for jets at eta = %.3f!' % jetEta)
-
-#####################################################################################
-#####################################################################################
-class DataJEC:
-    JECList = []
-    def __init__(self,inputmap):
-        for minrun,maxrun,version in inputmap:
-            JECMap = {}
-            JECMap['jecAK4'] = createJEC('JECs/Summer/'+version, ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'], 'AK4PFchs')
-            JECMap['jecAK8'] = createJEC('JECs/Summer/'+version, ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'], 'AK8PFchs')
-            JECMap['jecUncAK4'] = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/'+version+'_Uncertainty_AK4PFchs.txt'))
-            JECMap['jecUncAK8'] = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/'+version+'_Uncertainty_AK8PFchs.txt'))
-            self.JECList.append([minrun, maxrun, JECMap])
-
-    def GetJECMap(self, run):
-        for minrun,maxrun,returnmap in self.JECList:
-            if run >= minrun and run <= maxrun:
-                return returnmap
-        raise Exception("Error! Run "+str(run)+" not found in run ranges")
-
-    def jecAK4(self, run):
-        JECMap = self.GetJECMap(run)
-        return JECMap["jecAK4"]
-
-    def jecAK8(self, run):
-        JECMap = self.GetJECMap(run)
-        return JECMap["jecAK8"]
-
-    def jecUncAK4(self, run):
-        JECMap = self.GetJECMap(run)
-        return JECMap["jecUncAK4"]
-
-    def jecUncAK8(self, run):
-        JECMap = self.GetJECMap(run)
-        return JECMap["jecUncAK8"]
-
-#####################################################################################
-#####################################################################################
-# Command line parsing
-#####################################################################################
-def getUserOptions(argv):
-    from optparse import OptionParser
-    parser = OptionParser()
-
-    def add_option(option, **kwargs):
-        parser.add_option('--' + option, dest=option, **kwargs)
-
-    add_option('input',              default='',
-        help='Name of file with list of input files')
-    add_option('output',             default='output.root',
-        help='Name of output file')
-    add_option('verbose',            default=False, action='store_true',
-        help='Print debugging info')
-    add_option('maxevents',          default=-1,
-        help='Number of events to run. -1 is all events')
-    add_option('trigType',         default="SingleMuon",
-        help='SingleMuon, SingleElectron, etc.')
-    add_option('bdisc',          default="pfCombinedInclusiveSecondaryVertexV2BJetTags",
-        help='pfCombinedInclusiveSecondaryVertexV2BJetTags, etc.')
-    add_option('isMC',          default=False, action='store_true',
-        help='Running over MC. We need this for the trigger and other stuff.')
-    add_option('isCrabRun',          default=False, action='store_true',
-        help='Use this flag when running with crab on the grid')
-    add_option('localInputFiles',    default=False, action='store_true',
-        help='Use this flag when running with with local files')
-    add_option('disablePileup',      default=False, action='store_true',
-        help='Disable pileup reweighting')
-
-    (options, args) = parser.parse_args(argv)
-    argv = []
-
-    print ('===== Command line options =====')
-    print (options)
-    print ('================================')
-    return options
-
-#####################################################################################
-#####################################################################################
-def getInputFiles(options):
-    result = []
-    with open(options.input, 'r') as fpInput:
-        for lfn in fpInput:
-            print("lfn: ")
-            print(lfn)
-            lfn = lfn.strip()
-            print(lfn)
-            if lfn:
-                if not options.isCrabRun:
-                    if options.localInputFiles:
-                        pfn = lfn
-                        print('pfn: ')
-                        print(pfn)
-                    else:
-                        #pfn = 'file:/pnfs/desy.de/cms/tier2/' + lfn
-                        pfn = 'root://cmsxrootd-site.fnal.gov/' + lfn
-                else:
-                    #pfn = 'root://cmsxrootd-site.fnal.gov/' + lfn
-                    pfn = 'root://xrootd-cms.infn.it/' + lfn
-                print ('Adding ' + pfn)
-                result.append(pfn)
-    print(result)
-    return result
-
 
 
 #####################################################################################
@@ -217,7 +25,7 @@ def topbnv_fwlite(argv):
     ##       ##  ##  ## ##        ##     ##    ##          ##    ##    ##    ##     ## ##       ##       
     ##        ###  ###  ######## ####    ##    ########     ######     ##     #######  ##       ##       
 
-    options = getUserOptions(argv)
+    options = fwlite_tools.getUserOptions(argv)
     ROOT.gROOT.Macro("rootlogon.C")
 
     #print argv
@@ -431,13 +239,11 @@ def topbnv_fwlite(argv):
     ROOT.gSystem.Load('libCondFormatsJetMETObjects')
     if options.isMC:
         # CHANGE THIS FOR DIFFERENT MCs down the road
-        jecAK4 = createJEC('JECs/Summer/Summer16_23Sep2016V4_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK4PFchs')
-        jecAK8 = createJEC('JECs/Summer/Summer16_23Sep2016V4_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK8PFchs')
-        jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt'))
-        jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Summer/Summer16_23Sep2016V4_MC_Uncertainty_AK8PFchs.txt'))
+        jecAK4 = fwlite_tools.createJEC('JECs/'+options.year+'/'+jet_energy_correction_GT_for_MC[options.year], ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK4PFchs')
+        jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/'+options.year+'/'+jet_energy_correction_GT_for_MC[options.year]+'_Uncertainty_AK4PFchs.txt'))
     else:
         # CHANGE THIS FOR DATA
-        DataJECs = DataJEC(jet_energy_corrections)
+        DataJECs = DataJEC(jet_energy_corrections[options.year], options.year)
     
     
     # from within CMSSW:
@@ -565,7 +371,7 @@ def topbnv_fwlite(argv):
     #genoutputfile = open("generator_information.dat",'w')
     nevents = 0
     maxevents = int(options.maxevents)
-    for ifile in getInputFiles(options):
+    for ifile in fwlite_tools.getInputFiles(options):
         print ('Processing file ' + ifile)
         events = Events (ifile)
         if maxevents > 0 and nevents > maxevents:
