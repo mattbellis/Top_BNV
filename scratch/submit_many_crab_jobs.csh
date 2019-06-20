@@ -16,7 +16,7 @@ while ( $number < 7 )
 
     cat $infile | sed s/NUMBERTORUN/$number/ | sed s/TRIGGERGOESHERE/$trigger/ | sed s/YEARGOESHERE/$year/ > $outfile
 
-    #crab submit -c $outfile
+    crab submit -c $outfile
 
     @ number += 1
 

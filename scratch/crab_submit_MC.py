@@ -56,7 +56,8 @@ config.Data.publication = False
 
 config.Site.storageSite = 'T3_US_FNALLPC'
 
-config.JobType.scriptExe = 'execute_for_crab.sh {0} {1}'.format{year, trigger}
+config.JobType.scriptExe = 'execute_for_crab.sh'
+config.JobType.scriptArgs = ['year={0}'.format(year), 'trigger={0}'.format(trigger)]
 
 config.JobType.outputFiles = ['output.root']
 config.JobType.sendExternalFolder = True
