@@ -26,7 +26,8 @@ foreach dataset( #DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8 \
                                                 echo $dataset
                                                 echo $tag
                                                 
-                                                dasgoclient --query="file dataset=/$dataset/$tag*/MINIAODSIM" --format plain --limit=30 > LIST_OF_SOME_MC_XROOTD_FOR_PILEUP_"$dataset".txt
+                                                #dasgoclient --query="file dataset=/$dataset/$tag*/MINIAODSIM" --format plain --limit=30 > LIST_OF_SOME_MC_XROOTD_FOR_PILEUP_"$dataset".txt
+                                                dasgoclient --query="file dataset=/TT_TuneCH3_13TeV-powheg-herwig7_testrun/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM" --format plain --limit=30 > LIST_OF_SOME_MC_XROOTD_FOR_PILEUP_"$dataset"_2017.txt
                                                 
                                                 end
 

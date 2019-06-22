@@ -15,7 +15,8 @@ foreach dataset(#DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8 \
 
 echo $dataset
 
-    python makepu_fwlite.py --files LIST_OF_SOME_MC_XROOTD_FOR_PILEUP_"$dataset".txt --maxevents 500000 --outname pumc_"$dataset".root
+python makepu_fwlite.py --files LIST_OF_SOME_MC_XROOTD_FOR_PILEUP_"$dataset".txt --maxevents 500000 --outname pumc_"$dataset".root
+    #python makepu_fwlite.py --files LIST_OF_SOME_MC_XROOTD_FOR_PILEUP_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_2017.txt --maxevents 500000 --outname pumc_"$dataset"_2017.root
     
 
 end

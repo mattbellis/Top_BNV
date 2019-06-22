@@ -63,5 +63,6 @@ config.JobType.outputFiles = ['output.root']
 config.JobType.sendExternalFolder = True
 
 # We need that FrameworkJobReport.xml file for the output.
-config.JobType.inputFiles = ['execute_for_crab.py', 'topbnv_fwlite.py', 'FrameworkJobReport.xml','JECs', 'purw.root', 'fwlite_tools.py']
+config.JobType.inputFiles = ['execute_for_crab.py', 'topbnv_fwlite.py', 'FrameworkJobReport.xml','JECs', 'purw_{0}.root'.format(year), 'fwlite_tools.py']
+#config.JobType.inputFiles = ['execute_for_crab.py', 'topbnv_fwlite.py', 'FrameworkJobReport.xml','JECs', 'PileupHistogram-goldenJSON-13tev-{0}.root'.format(year), 'fwlite_tools.py']
 
