@@ -24,6 +24,7 @@ with open(f[0]+'.pkl', 'wb') as fp:
 
 for data in datasets:
     prepid = os.popen('dasgoclient --query="mcm dataset=/'+data[1]+'"').read()
+    print(prepid)
     data.append(prepid)
 '''
 with open('datasets.csv', 'w') as myfile:

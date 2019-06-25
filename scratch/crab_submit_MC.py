@@ -4,7 +4,9 @@ import pickle
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 config = config()
 
-filename = open('datasets.pkl', 'rb')
+year = sys.argv[2]
+
+filename = open('datasets'+year+'.pkl', 'rb')
 datasets = pickle.load(filename)
 
 #dataset = ["DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
