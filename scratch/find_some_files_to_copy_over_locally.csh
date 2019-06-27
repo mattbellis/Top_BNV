@@ -13,9 +13,9 @@ set data_date = "31Mar2018"
 #set MCtag = "RunIIFal17MiniAODv2"
 #set GTMC = "94X_mc2017_realistic_v14"
 # 2017
-#set tag = "RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14" 
+set tag = "RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14" 
 # 2018
-set tag = "RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15"
+#set tag = "RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15"
 
 foreach dataset( ZZ_Tune \
                     ZZ_Tune \

@@ -37,7 +37,9 @@ csh make_puhists_for_MC.csh
 * We'll use one of them for our reweighting file.
 
 ```
-python makepuhist.py --file_data pudata_2016.root --file_mc pumc_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.root --file_out purw.root
+#python makepuhist.py --file_data pudata_2016.root --file_mc pumc_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.root --file_out purw.root
+python makepuhist.py --file_data PileupHistogram-goldenJSON-13tev-2016.root --file_mc pumc_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.root --file_out purw_2016.root
+python makepuhist.py --file_data PileupHistogram-goldenJSON-13tev-2017.root --file_mc pumc_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_2017.root --file_out purw_2017.root
 ```
 
 # Reweighting

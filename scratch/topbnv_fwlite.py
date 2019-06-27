@@ -173,7 +173,8 @@ def topbnv_fwlite(argv):
 
     purw = None # pileup reweighting histogram
     if options.isMC and not options.disablePileup:
-        pileupReweightFile = ROOT.TFile('purw.root', 'READ')
+        pileupReweightFile = ROOT.TFile('purw_{0}.root'.format(options.year), 'READ')
+        #pileupReweightFile = ROOT.TFile('PileupHistogram-goldenJSON-13tev-{0}.root'.format(options.year), 'READ')
         purw = pileupReweightFile.Get('pileup')
 
 
