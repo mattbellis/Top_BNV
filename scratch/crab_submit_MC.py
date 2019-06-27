@@ -4,8 +4,9 @@ import pickle
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 config = config()
 
-year = sys.argv[2]
+#year = sys.argv[2]
 
+year = "YEARGOESHERE"
 filename = open('datasets'+year+'.pkl', 'rb')
 datasets = pickle.load(filename)
 
@@ -19,14 +20,13 @@ datasets = [
 
 dataset = datasets[NUMBERTORUN]
 trigger = "TRIGGERGOESHERE"
-year = "YEARGOESHERE"
 print(dataset)
 print(trigger)
 print(year)
 
 # Request name must be < 100 characters
 #request_name = "bellis_SingleElectron_%s" % (dataset[0])
-request_name = "bellis_{0}_{1}_{2}".format(year,trigger,dataset[0])
+request_name = "bellis_{0}_{1}_{2}".format(year,trigger,dataset[0][0:50])
 
 #config.General.requestName = 'bellis_topbnv_TT_TUNE'
 #config.General.requestName = 'bellis_topbnv_RSGluonToTT'
