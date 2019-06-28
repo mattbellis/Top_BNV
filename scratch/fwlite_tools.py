@@ -561,9 +561,11 @@ def process_electrons(electrons, outdata, year='2016', verbose=False):
         #outdata['electronIsLoose'][i] = int(electron.electronID("cutBasedElectronID-Summer16-80X-V1-loose"))
         #outdata['electronIsMedium'][i] = int(electron.electronID("cutBasedElectronID-Summer16-80X-V1-medium"))
         #outdata['electronIsTight'][i] = int(electron.electronID("cutBasedElectronID-Summer16-80X-V1-tight"))
-        outdata['electronIsLoose'][i] = int(electron.electronID("cutBasedElectronID-Fall17-94X-V2-loose"))
-        outdata['electronIsMedium'][i] = int(electron.electronID("cutBasedElectronID-Fall17-94X-V2-medium"))
-        outdata['electronIsTight'][i] = int(electron.electronID("cutBasedElectronID-Fall17-94X-V2-tight"))
+        # Do we have to change this to V2 at some point?
+        # https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2#Working_points_for_94X_and_later
+        outdata['electronIsLoose'][i] = int(electron.electronID("cutBasedElectronID-Fall17-94X-V1-loose"))
+        outdata['electronIsMedium'][i] = int(electron.electronID("cutBasedElectronID-Fall17-94X-V1-medium"))
+        outdata['electronIsTight'][i] = int(electron.electronID("cutBasedElectronID-Fall17-94X-V1-tight"))
 
         outdata['electronTkIso'][i] = electron.dr03TkSumPt()
         outdata['electronHCIso'][i] = electron.dr03HcalTowerSumEt()
