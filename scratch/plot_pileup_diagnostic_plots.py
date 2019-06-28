@@ -43,13 +43,13 @@ for count,year in enumerate(['2016','2017','2018']):
     if year=='2016':
         datafilename = 'pumc_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_2016.root'
     elif year=='2017':
-        #datafilename = 'pumc_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_2017.root'
-        datafilename = 'pumc_TTToSemiLeptonic_2017.root'
+        datafilename = 'pumc_TTToHadronic_2017.root'
+        #datafilename = 'pumc_TTToSemiLeptonic_2017.root'
         #datafilename = 'pumc_TTTo2L2Nu_2017.root'
     elif year=='2018':
-        datafilename = 'pumc_TTToSemiLeptonic_2018.root'
+        #datafilename = 'pumc_TTToSemiLeptonic_2018.root'
         #datafilename = 'pumc_TTTo2L2Nu_2018.root'
-        #datafilename = 'pumc_TTToHadronic_2018.root'
+        datafilename = 'pumc_TTToHadronic_2018.root'
 
     if not os.path.exists(datafilename):
         continue
@@ -93,7 +93,7 @@ for count,year in enumerate(['2016','2017','2018']):
         continue
     x,y,yerr = pudata[year].x, pudata[year].y, pudata[year].yerr
     plt.errorbar(x,y,yerr=yerr,fmt=markertypes[count],label=year)
-    plt.xlabel('# of interactions/vertices',fontsize=14)
+    plt.xlabel('Mean number of interactions per crossing',fontsize=14)
 plt.legend(fontsize=24)
 plt.title("Data",fontsize=18)
 plt.tight_layout()
@@ -106,7 +106,7 @@ for count,year in enumerate(['2016','2017','2018']):
         continue
     x,y,yerr = pumc[year].x, pumc[year].y, pumc[year].yerr
     plt.errorbar(x,y,yerr=yerr,fmt=markertypes[count],label=year)
-    plt.xlabel('# of interactions/vertices',fontsize=14)
+    plt.xlabel('Mean number of interactions per crossing',fontsize=14)
 plt.legend(fontsize=24)
 plt.title("MC",fontsize=18)
 plt.tight_layout()
@@ -118,11 +118,11 @@ for count,year in enumerate(['2016','2017','2018']):
         continue
     x,y,yerr = purw[year].x, purw[year].y, purw[year].yerr
     plt.errorbar(x,y,yerr=yerr,fmt=markertypes[count],label=year)
-    plt.xlabel('# of interactions/vertices',fontsize=14)
+    plt.xlabel('Mean number of interactions per crossing',fontsize=14)
     plt.ylim(0,3)
 plt.plot([-1,101],[1,1],'k--')
 plt.legend(fontsize=24)
-plt.title("Reweighting (???/???)",fontsize=18)
+plt.title("Reweighting (Data/MC)",fontsize=18)
 plt.tight_layout()
 
 
