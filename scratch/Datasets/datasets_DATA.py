@@ -9,16 +9,16 @@ datasets = {'2016':
         '/TRIGGER/Run2016H-17Jul2018-v1/MINIAOD'
         ],
         '2017':
-           ['/TRIGGER/Run2017B-31Mar2018-v1/MINIAOD',
-            '/TRIGGER/Run2017C-31Mar2018-v1/MINIAOD',
-            '/TRIGGER/Run2017D-31Mar2018-v1/MINIAOD',
-            '/TRIGGER/Run2017E-31Mar2018-v1/MINIAOD',
-            '/TRIGGER/Run2017F-31Mar2018-v1/MINIAOD'],
+       ['/TRIGGER/Run2017B-31Mar2018-v1/MINIAOD',
+        '/TRIGGER/Run2017C-31Mar2018-v1/MINIAOD',
+        '/TRIGGER/Run2017D-31Mar2018-v1/MINIAOD',
+        '/TRIGGER/Run2017E-31Mar2018-v1/MINIAOD',
+        '/TRIGGER/Run2017F-31Mar2018-v1/MINIAOD'],
        '2018':
-            ['/TRIGGER/Run2018A-17Sep2018-v2/MINIAOD',
-            '/TRIGGER/Run2018B-17Sep2018-v1/MINIAOD',
-            '/TRIGGER/Run2018C-17Sep2018-v1/MINIAOD',
-            '/TRIGGER/Run2018D-30Apr2019-v1/MINIAOD' # Not sure about ths one, but let's try
+        ['/TRIGGER/Run2018A-17Sep2018-v2/MINIAOD',
+        '/TRIGGER/Run2018B-17Sep2018-v1/MINIAOD',
+        '/TRIGGER/Run2018C-17Sep2018-v1/MINIAOD',
+        '/TRIGGER/Run2018D-30Apr2019-v1/MINIAOD' # Not sure about ths one, but let's try
             ]
     }
 
