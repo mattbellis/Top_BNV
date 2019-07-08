@@ -291,7 +291,9 @@ def get_good_jets(tree, ptcut=0.0):
     pt = tree.jetpt
     eta = tree.jeteta
     phi = tree.jetphi
-    jetcsv = tree.jetbtag
+    jetbtag0 = tree.jetbtag0
+    jetbtag1 = tree.jetbtag1
+    jetbtagsum = tree.jetbtagsum
     NHF = tree.jetNHF
     NEMF = tree.jetNEMF
     CHF = tree.jetCHF
@@ -325,7 +327,7 @@ def get_good_jets(tree, ptcut=0.0):
 
         #print(loose_jet)
         if loose_jet is True:
-            alljets.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n], jetcsv[n]])
+            alljets.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n], jetbtag0[n], jetbtag1[n], jetbtagsum[n]])
 
     return alljets
 
@@ -349,8 +351,9 @@ def get_good_muons(tree, ptcut=0.0):
     sumnhadpt = tree.muonsumnhadpt
     sumphotEt = tree.muonsumphotEt
     sumPUPt = tree.muonsumPUPt
-    isLoose = tree.muonisLoose
-    isMedium = tree.muonisMedium
+    isLoose = tree.muonIsLoose
+    isMedium = tree.muonIsMedium
+    isTight = tree.muonIsTight
     PFiso = tree.muonPFiso
 
         
@@ -368,7 +371,7 @@ def get_good_muons(tree, ptcut=0.0):
 
         #print(loose_muon)
         if loose_muon is True:
-            allmuons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n], sumchhadpt[n], sumnhadpt[n], sumphotEt[n], sumPUPt[n], isLoose[n], isMedium[n], PFiso[n], q[n]])
+            allmuons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n], sumchhadpt[n], sumnhadpt[n], sumphotEt[n], sumPUPt[n], isLoose[n], isMedium[n], isTight[n], PFiso[n], q[n]])
 
     return allmuons
 
@@ -388,6 +391,9 @@ def get_good_electrons(tree, ptcut=0.0):
     eta = tree.electroneta
     phi = tree.electronphi
     q = tree.electronq
+    isLoose = tree.electronIsLoose
+    isMedium = tree.electronIsMedium
+    isTight = tree.electronIsTight
     TkIso = tree.electronTkIso
     HCIso = tree.electronHCIso
     ECIso = tree.electronECIso
@@ -406,7 +412,7 @@ def get_good_electrons(tree, ptcut=0.0):
 
         #print(loose_electron)
         if loose_electron is True:
-            allelectrons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n], TkIso[n], HCIso[n], ECIso[n], q[n]])
+            allelectrons.append([e[n], px[n], py[n], pz[n], pt[n], eta[n], phi[n], TkIso[n], HCIso[n], ECIso[n], q[n], isLoose[n], isMedium[n], isTight[n]])
 
     return allelectrons
 
@@ -960,11 +966,17 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     dTheta = angle_between_vectors(rj2[1:4],rj3[1:4])
     output_data[tag+'_dTheta23_rest'].append(dTheta)
 
-    # CSV b-tagging variable
-    output_data[tag+'_j1_CSV'].append(j1[7])
-    output_data[tag+'_j2_CSV'].append(j2[7])
+    # DeepCSV b-tagging variable
+    output_data[tag+'_j1_btag0'].append(j1[7])
+    output_data[tag+'_j2_btag0'].append(j2[7])
+    output_data[tag+'_j1_btag1'].append(j1[8])
+    output_data[tag+'_j2_btag1'].append(j2[8])
+    output_data[tag+'_j1_btagsum'].append(j1[9])
+    output_data[tag+'_j2_btagsum'].append(j2[9])
     if tag=="had":
-        output_data[tag+'_j3_CSV'].append(j3[7])
+        output_data[tag+'_j3_btag0'].append(j3[7])
+        output_data[tag+'_j3_btag1'].append(j3[8])
+        output_data[tag+'_j3_btagsum'].append(j3[9])
 
 
 ################################################################################
@@ -983,9 +995,15 @@ def define_ML_output_data():
     output_data["had_dTheta12_rest"] = []
     output_data["had_dTheta13_rest"] = []
     output_data["had_dTheta23_rest"] = []
-    output_data["had_j1_CSV"] = []
-    output_data["had_j2_CSV"] = []
-    output_data["had_j3_CSV"] = []
+    output_data["had_j1_btag0"] = []
+    output_data["had_j2_btag0"] = []
+    output_data["had_j3_btag0"] = []
+    output_data["had_j1_btag1"] = []
+    output_data["had_j2_btag1"] = []
+    output_data["had_j3_btag1"] = []
+    output_data["had_j1_btagsum"] = []
+    output_data["had_j2_btagsum"] = []
+    output_data["had_j3_btagsum"] = []
 
     output_data["bnv_m"] = []
     output_data["bnv_j12_m"] = []
@@ -1000,8 +1018,12 @@ def define_ML_output_data():
     output_data["bnv_dTheta12_rest"] = []
     output_data["bnv_dTheta13_rest"] = []
     output_data["bnv_dTheta23_rest"] = []
-    output_data["bnv_j1_CSV"] = []
-    output_data["bnv_j2_CSV"] = []
+    output_data["bnv_j1_btag0"] = []
+    output_data["bnv_j2_btag0"] = []
+    output_data["bnv_j1_btag1"] = []
+    output_data["bnv_j2_btag1"] = []
+    output_data["bnv_j1_btagsum"] = []
+    output_data["bnv_j2_btagsum"] = []
 
     output_data["ttbar_angle"] = []
 
