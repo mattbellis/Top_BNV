@@ -1,5 +1,5 @@
 # 2017 MC
-#/eos/uscms/store/user/mbellis/MINIAOD/100_events/TT_TuneCH3_13TeV-powheg-herwig7_testrun_RunIIFall17MiniAODv2_PU2017_12Apr2018_94X_mc2017_realistic_v14-v1_30000_F87E612B-0E8A-E911-9950-AC1F6B23C7DC.root
+#/eos/uscms/store/user/mbellis/MINIAOD/100_events/ZZ_TuneCP5_13TeV-pythia8_RunIIFall17MiniAODv2_PU2017_12Apr2018_94X_mc2017_realistic_v14-v1_90000_BEF8F00E-DC41-E811-B90F-008CFAC93EE0.root
 # 2018
 #/eos/uscms/store/user/mbellis/MINIAOD/100_events/TTToHadronic_TuneCP5_13TeV-powheg-pythia8_RunIIAutumn18MiniAOD_102X_upgrade2018_realistic_v15-v1_60000_84347EC0-60B4-5145-8F92-37F1975CA79D.root
 /eos/uscms/store/user/mbellis/MINIAOD/100_events/ZZ_TuneCP5_13TeV-pythia8_RunIIAutumn18MiniAOD_102X_upgrade2018_realistic_v15-v2_110000_98E05B95-FE95-464E-89B5-01B8E09F884D.root

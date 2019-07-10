@@ -7,7 +7,7 @@ config = config()
 #year = sys.argv[2]
 
 year = "YEARGOESHERE"
-filename = open('datasets'+year+'.pkl', 'rb')
+filename = open('Datasets/datasets'+year+'.pkl', 'rb')
 datasets = pickle.load(filename)
 
 #dataset = ["DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
@@ -26,7 +26,7 @@ print(year)
 
 # Request name must be < 100 characters
 #request_name = "bellis_SingleElectron_%s" % (dataset[0])
-request_name = "bellis_{0}_{1}_{2}".format(year,trigger,dataset[0][0:50])
+request_name = "{0}_{1}_{2}".format(trigger,dataset[0][0:50],dataset[0][-5:])
 
 #config.General.requestName = 'bellis_topbnv_TT_TUNE'
 #config.General.requestName = 'bellis_topbnv_RSGluonToTT'

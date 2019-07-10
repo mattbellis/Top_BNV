@@ -528,12 +528,15 @@ def process_muons(muons, outdata, verbose=False):
 ################################################################################
 # Pass in a slimmedElectrons object
 ################################################################################
-def process_electrons(electrons, outdata, verbose=False): 
+def process_electrons(electrons, outdata, year='2016', verbose=False): 
 
     # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
     # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2#Recipe_for_FWLite
+    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2#Working_points_for_94X_and_later
 
     if verbose:
+        print("-------------")
+        print("Electrons")
         print("-------------")
         print("{0:10} {1:10} {2:10} {3:10} {4:10} {5:10}".format("Index", "eta", "pt", "loose", "medium", "tight"))
     
@@ -555,9 +558,14 @@ def process_electrons(electrons, outdata, verbose=False):
 
         outdata['electronq'][i] = electron.charge()
 
-        outdata['electronIsLoose'][i] = int(electron.electronID("cutBasedElectronID-Summer16-80X-V1-loose"))
-        outdata['electronIsMedium'][i] = int(electron.electronID("cutBasedElectronID-Summer16-80X-V1-medium"))
-        outdata['electronIsTight'][i] = int(electron.electronID("cutBasedElectronID-Summer16-80X-V1-tight"))
+        #outdata['electronIsLoose'][i] = int(electron.electronID("cutBasedElectronID-Summer16-80X-V1-loose"))
+        #outdata['electronIsMedium'][i] = int(electron.electronID("cutBasedElectronID-Summer16-80X-V1-medium"))
+        #outdata['electronIsTight'][i] = int(electron.electronID("cutBasedElectronID-Summer16-80X-V1-tight"))
+        # Do we have to change this to V2 at some point?
+        # https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2#Working_points_for_94X_and_later
+        outdata['electronIsLoose'][i] = int(electron.electronID("cutBasedElectronID-Fall17-94X-V1-loose"))
+        outdata['electronIsMedium'][i] = int(electron.electronID("cutBasedElectronID-Fall17-94X-V1-medium"))
+        outdata['electronIsTight'][i] = int(electron.electronID("cutBasedElectronID-Fall17-94X-V1-tight"))
 
         outdata['electronTkIso'][i] = electron.dr03TkSumPt()
         outdata['electronHCIso'][i] = electron.dr03HcalTowerSumEt()
@@ -742,7 +750,8 @@ def process_triggers(triggerBits, triggerPrescales, trigger_names, trigger_tree_
 
         for iname,name in enumerate(trigger_bit_names):
             trigger_tree_branches[trigger_type][iname] = 0 # Didn't fire!
-            if verbose:
+            #if verbose:
+            if 0:
                 print("Zeroing out {0} {1}".format(trigger_type, name))
 
     # Run over the triggers and see what fired
@@ -757,7 +766,8 @@ def process_triggers(triggerBits, triggerPrescales, trigger_names, trigger_tree_
             #print(prescale)
 
 
-            if verbose:
+            #if verbose:
+            if 0:
                 print("Checking on trigger {0}".format(trigname))
 
             mc_selection = True

@@ -1,4 +1,4 @@
-foreach file(crab_projects/**)
+foreach file(crab_projects/MC/2016/**)
 
     echo 
     echo "========================================"
@@ -9,7 +9,7 @@ foreach file(crab_projects/**)
 
     echo 
     echo "---------- RESUBMIT ---------"
-    crab resubmit -c $file
+    crab resubmit -d $file
     echo 
     echo
 
