@@ -9,7 +9,7 @@ foreach file(crab_projects/MC/2016/**)
 
     echo 
     echo "---------- RESUBMIT ---------"
-    crab resubmit -d $file
+    crab resubmit $file
     echo 
     echo
 

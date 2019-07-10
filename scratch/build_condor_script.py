@@ -11,13 +11,11 @@ if not os.path.exists('./condor_log_files'):
 
 #infile_directory = "crab_SingleMuon_Run2016C-03Feb2017-v1"
 
-topdir = sys.argv[1]
+#output_destination = '/uscms/homes/m/mbellis/nobackup/CONDOR_output_files_Feb2019/{0}/MC/year/process'.format(topdir)
+# This should be the directory path *under*the above output destination
+outputsubdir = sys.argv[1]
 outfile = sys.argv[2]
 infiles = sys.argv[3:]
-
-#output_destination = '/uscms/homes/m/mbellis/nobackup/CONDOR_output_files_Feb2019/{0}'.format(topdir)
-#if not os.path.exists(output_destination):
-#    os.makedirs(output_destination)
 
 cmd = "universe = vanilla\n"
 cmd += "Executable = execute_python_on_condor.sh\n"
@@ -34,11 +32,12 @@ cmd += "notify_user = mbellis@FNAL.GOV\n"
 # No longer need this line 
 # https://uscms.org/uscms_at_work/computing/setup/condor_refactor.shtml
 #cmd += "x509userproxy = /tmp/x509up_u47418 \n"
-cmd += "Arguments = %s --outfile %s " % (topdir,outfile)
+cmd += "Arguments = %s --outfile %s " % (outputsubdir,outfile)
 for infile in infiles:
     prepend = "root://cmsxrootd.fnal.gov//store/user/mbellis"
     #postpend = infile.split('mbellis')[1]
-    postpend = infile.split('eos_store')[1]
+    #postpend = infile.split('eos_store')[1]
+    postpend = infile # This should work with the new system, July 2019
     filename = "%s/%s " % (prepend, postpend)
     cmd += filename 
 cmd += "\n"
@@ -46,13 +45,13 @@ cmd += "Queue 1\n"
 
 print(cmd)
 
-outfilename = "cdr_temp_%s.jdl" % (outfile.split('.root')[0])
-outfile = open(outfilename,'w')
-outfile.write(cmd)
-outfile.close()
+jdloutfilename = "cdr_temp_%s.jdl" % (outfile.split('.root')[0])
+jdloutfile = open(jdloutfilename,'w')
+jdloutfile.write(cmd)
+jdloutfile.close()
 
 # Submit it
-condor_cmd = ['sh', 'condor_submit_script.sh', outfilename]
+condor_cmd = ['sh', 'condor_submit_script.sh', jdloutfilename]
 print(condor_cmd)
 sp.Popen(condor_cmd,0).wait()
 

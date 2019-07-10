@@ -270,8 +270,9 @@ def main(filenames,outfile=None):#,leptonflag='muon'):
         #exit()
 
         nentries = tree.GetEntries()
+        print("TTree has %d entries" % (nentries))
 
-        nentries = 100
+        #nentries = 100
 
         print("Will run over %d entries" % (nentries))
 
@@ -279,7 +280,7 @@ def main(filenames,outfile=None):#,leptonflag='muon'):
 
         for i in range(nentries):
 
-            if i%100==0:
+            if i%10==0:
                 output = "Event: %d out of %d" % (i,nentries)
                 print(output)
 
@@ -338,9 +339,9 @@ def main(filenames,outfile=None):#,leptonflag='muon'):
 
 
             bjetcut_on_csv = 0.87
-            jetptcut = 15
-            muonptcut = 15
-            electronptcut = 15
+            jetptcut = 20
+            muonptcut = 20
+            electronptcut = 20
 
             allmuons = tbt.get_good_muons(tree,ptcut=muonptcut)
             allelectrons = tbt.get_good_electrons(tree,ptcut=electronptcut)
