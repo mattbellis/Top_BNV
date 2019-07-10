@@ -1,5 +1,6 @@
 from ROOT import RooRealVar, RooDataSet, RooGaussian, RooPlot, RooFit
 from ROOT import TCanvas, TAxis
+import ROOT
 
 # S e t u p   m o d e l
 # ---------------------
@@ -26,7 +27,7 @@ sigma.setVal(3)
 gauss.plotOn(xframe, RooFit.LineColor(2))
 
 # Generate data (1000 events in x in a gaussian)
-data = gauss.generate(x, 10000)
+data = gauss.generate(ROOT.RooArgSet(x), 10000)
 
 # Make another frame
 xframe2 = x.frame()
@@ -41,3 +42,20 @@ mean.Print()
 sigma.Print()
 
 c = TCanvas("rf101_basics", "rf101_basics", 800, 400)
+
+c.Divide(2)
+c.cd(1)
+ROOT.gPad.SetLeftMargin(0.15)
+xframe.GetYaxis().SetTitleOffset(1.6)
+xframe.Draw()
+#c.cd(2)
+#ROOT.gPad.SetLeftMargin(0.15)
+#xframe2.GetYaxis().SetTitleOffset(1.6)
+#xframe2.Draw()
+
+
+
+
+
+
+
