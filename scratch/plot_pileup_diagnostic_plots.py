@@ -41,15 +41,16 @@ for count,year in enumerate(['2016','2017','2018']):
     x,y,yerr = [],[],[]
     datafilename = 'pumc_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_{0}.root'.format(year)
     if year=='2016':
-        datafilename = 'pumc_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_2016.root'
+        #datafilename = 'pumc_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_2016.root'
+        datafilename = 'pumc_TTToHadronic_2016.root'
     elif year=='2017':
         datafilename = 'pumc_TTToHadronic_2017.root'
         #datafilename = 'pumc_TTToSemiLeptonic_2017.root'
         #datafilename = 'pumc_TTTo2L2Nu_2017.root'
     elif year=='2018':
+        datafilename = 'pumc_TTToHadronic_2018.root'
         #datafilename = 'pumc_TTToSemiLeptonic_2018.root'
         #datafilename = 'pumc_TTTo2L2Nu_2018.root'
-        datafilename = 'pumc_TTToHadronic_2018.root'
 
     if not os.path.exists(datafilename):
         continue
@@ -97,6 +98,7 @@ for count,year in enumerate(['2016','2017','2018']):
 plt.legend(fontsize=24)
 plt.title("Data",fontsize=18)
 plt.tight_layout()
+plt.savefig('plots/pu_diagnostics_data.png')
 
 
 # MC
@@ -110,6 +112,7 @@ for count,year in enumerate(['2016','2017','2018']):
 plt.legend(fontsize=24)
 plt.title("MC",fontsize=18)
 plt.tight_layout()
+plt.savefig('plots/pu_diagnostics_mc.png')
 
 # Ratios
 plt.figure()
@@ -124,6 +127,7 @@ plt.plot([-1,101],[1,1],'k--')
 plt.legend(fontsize=24)
 plt.title("Reweighting (Data/MC)",fontsize=18)
 plt.tight_layout()
+plt.savefig('plots/pu_diagnostics_rw.png')
 
 
 
