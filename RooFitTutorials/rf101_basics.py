@@ -53,6 +53,13 @@ xframe.Draw()
 #xframe2.GetYaxis().SetTitleOffset(1.6)
 #xframe2.Draw()
 
+## Wait for input to keep the GUI (which lives on a ROOT event dispatcher) alive
+if __name__ == '__main__':
+    rep = ''
+    while not rep in [ 'q', 'Q' ]:
+        rep = input( 'enter "q" to quit: ' )
+        if 1 < len(rep):
+            rep = rep[0]
 
 
 
