@@ -8,7 +8,7 @@ import commands
 
 def make_directory(outputdir):
     #outputdir = "/uscms/homes/m/mbellis/eos_store/CONDOR_output_files_2019/{0}/{1}/{2}".format(mc_or_data,year,trigger)
-    print("\nMaking output directory;")
+    print("\nMaking directory................")
     print(outputdir)
     cmds = ['mkdir','-p',outputdir]
     print(cmds)
@@ -29,6 +29,7 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2,s3):
     print(topdir)
     print(s0,s1,s2)
     print(list_of_files[0])
+    destinationdir = '{0}/{1}/{2}/{3}'.format(topdir,s1,s2,s3)
 
     #outfile = "%s_%s_%s_%s.pkl" % (s0,s1,s2, tag)
     outfile = "DATA_DATASET_%s_%s.root" % (s0, tag)
@@ -46,7 +47,7 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2,s3):
     #startdir = topdir.split('/')[-2:]
     fullnames = []
     for f in list_of_files:
-        newname = "%s/%s/%s/%s" % (topdir,s2,s3,f)
+        newname = "{0}/{1}/{2}/{3}/{4}".format(topdir,s1,s2,s3,f)
         fullnames.append(newname)
 
     #print(list_of_files)
@@ -57,14 +58,14 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2,s3):
     #if topdir[-1]=='/':
         #topdirlastdir = topdir.split('/')[-2]
             
-    cmd = ['python', 'build_condor_script.py', topdir, outfile]
+    cmd = ['python', 'build_condor_script.py', destinationdir, outfile]
     for rootfile in fullnames:
         cmd += [rootfile]
     print(cmd)
     sp.Popen(cmd,0).wait()
     
 
-    #exit()
+    exit()
 
 
 #files_at_a_time = 100
@@ -117,17 +118,18 @@ print(subdirs0)
 
 for s0 in subdirs0:
 
+    # I DON'T WANT TO RUN ON CERTAIN ONES
+    if s0.find('WW')<0:
+        print("Skipping....")
+        print(s0)
+        continue 
+
     path = "%s/%s" % (topdir,s0)
 
-    outputsubdir = "{0}/{1}".format(outputtopsubdir,s0)
-    outputdir = "{0}/{1}".format(outputdir, s0)
-    make_directory(outputdir)
+    #outputsubdir = "{0}/{1}".format(outputtopsubdir,s0)
+    #outputdir = "{0}/{1}".format(outputdir, s0)
+    #make_directory(outputdir)
 
-    # I DON'T WANT TO RUN ON THE OLD STUFF FOR NOW
-    if path.find('crab_SingleMuon')>0:
-        print("Skipping....")
-        print(path)
-        continue 
 
     print("----------\nDatasets of that process\n--------------")
     print(path+'\n')
@@ -136,10 +138,10 @@ for s0 in subdirs0:
 
     for s1 in subdirs1:
 
-        outputsubdir = "{0}/{1}/{2}".format(outputtopsubdir,s0,s1)
+        outputsubdir = "{0}/{1}".format(outputtopsubdir,s0)
         print("OUTPUTSUBDIR: ", outputsubdir)
-        outputdir = "{0}/{1}/{2}".format(outputdir, s0, s1)
-        make_directory(outputdir)
+        #outputdir = "{0}/{1}/{2}".format(outputdir, s0, s1)
+        #make_directory(outputdir)
 
         # This should get us the 180122, stuff
         path = "%s/%s/%s" % (topdir,s0,s1)
@@ -160,6 +162,9 @@ for s0 in subdirs0:
             print(subdirs3)
 
             for s3 in subdirs3:
+
+                outputdir = "{0}/{1}/{2}/{3}/{4}/{5}".format(outputtopdir, outputtopsubdir, s0, s1, s2, s3)
+                make_directory(outputdir)
 
                 # This should get us the outfiles!
                 path = "%s/%s/%s/%s/%s" % (topdir,s0,s1,s2,s3)
