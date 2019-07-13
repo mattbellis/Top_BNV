@@ -65,7 +65,7 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2,s3):
     sp.Popen(cmd,0).wait()
     
 
-    exit()
+    #exit()
 
 
 #files_at_a_time = 100
@@ -119,13 +119,21 @@ print(subdirs0)
 for s0 in subdirs0:
 
     # I DON'T WANT TO RUN ON CERTAIN ONES
-    if s0.find('WW')<0:
+    #if s0.find('WW')<0:
+    if 0:
         print("Skipping....")
         print(s0)
         continue 
 
     path = "%s/%s" % (topdir,s0)
 
+
+    # The TTX files take a long time to run so only run on 1 file
+    # at a time
+    if s0.find('TT')>=0:
+        files_at_a_time = 1
+    else:
+        files_at_a_time = 10
     #outputsubdir = "{0}/{1}".format(outputtopsubdir,s0)
     #outputdir = "{0}/{1}".format(outputdir, s0)
     #make_directory(outputdir)

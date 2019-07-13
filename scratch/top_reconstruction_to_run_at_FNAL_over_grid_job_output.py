@@ -339,9 +339,9 @@ def main(filenames,outfile=None):#,leptonflag='muon'):
 
 
             bjetcut_on_csv = 0.87
-            jetptcut = 20
-            muonptcut = 20
-            electronptcut = 20
+            jetptcut = 25
+            muonptcut = 25
+            electronptcut = 25
 
             allmuons = tbt.get_good_muons(tree,ptcut=muonptcut)
             allelectrons = tbt.get_good_electrons(tree,ptcut=electronptcut)
