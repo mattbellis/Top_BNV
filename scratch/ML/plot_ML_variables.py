@@ -88,7 +88,7 @@ def main(infiles=None):
         print(vals)
         vals = vals[(vals>-100)*(vals<1000)]
         lo = 0
-        hi = 1000
+        hi = 10000
         if key.find('dR')>=0:
             lo = -10; hi = 10
         elif key.find('dTheta')>=0:
