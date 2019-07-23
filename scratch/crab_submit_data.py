@@ -4,25 +4,29 @@
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 config = config()
 
-datasets = ['/SingleMuon/Run2016B-03Feb2017_ver2-v2/MINIAOD',
-        '/SingleMuon/Run2016C-03Feb2017-v1/MINIAOD',
-        '/SingleMuon/Run2016D-03Feb2017-v1/MINIAOD',
-        '/SingleMuon/Run2016E-03Feb2017-v1/MINIAOD',
-        '/SingleMuon/Run2016F-03Feb2017-v1/MINIAOD',
-        '/SingleMuon/Run2016G-03Feb2017-v1/MINIAOD',
-        '/SingleMuon/Run2016H-03Feb2017_ver2-v1/MINIAOD',
-        '/SingleMuon/Run2016H-03Feb2017_ver3-v1/MINIAOD'
-        ]
+import sys
+sys.path.append('Datasets')
+import datasets_DATA
 
+year = "YEARGOESHERE"
+trigger = "TRIGGERGOESHERE"
+print(trigger)
+print(year)
 
-dataset = datasets[NUMBERTORUN]
+dataset = datasets_DATA.datasets[year][NUMBERTORUN]
+dataset = dataset.replace('TRIGGER',trigger)
 
-request_name = "bellis_TESTING_%s" % (dataset.split('/')[2])
+print("DATASET!")
+print(dataset)
+
+#request_name = "bellis_SingleMuon_%s" % (dataset.split('/')[2])
+request_name = "bellis_{0}_{1}_{2}".format(year,trigger,dataset.split('/')[2])
 
 #config.General.requestName = 'bellis_topbnv_TT_TUNE'
 #config.General.requestName = 'bellis_topbnv_RSGluonToTT'
 config.General.requestName = request_name
-config.General.workArea = 'crab_projects'
+config.General.workArea = 'crab_projects/Data/{0}'.format(year)
+#config.General.workArea = '/uscms_data/d3/mbellis/crab_projects/Data/{0}'.format(year)
 config.General.transferOutputs = True
 config.General.transferLogs = True
 
@@ -46,9 +50,20 @@ config.Data.unitsPerJob = 1
 # Submitting from CERN
 #config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 # Submitting from FNAL
-config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
+lumiMaskFiles = {'2016':
+'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt', 
+                 '2017':
+'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions17/13TeV/Final/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt',
+                 '2018':
+'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/PromptReco/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt'
+}
+config.Data.lumiMask = lumiMaskFiles[year]
+print(config.Data.lumiMask)
+#config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 
-config.Data.outLFNDirBase = '/store/user/%s/' % (getUsernameFromSiteDB())
+#config.Data.outLFNDirBase = '/store/user/%s/' % (getUsernameFromSiteDB())
+config.Data.outLFNDirBase = '/store/user/{0}/Data/{1}/{2}'.format(getUsernameFromSiteDB(), year, trigger)
+
 
 # This selecting some of the data
 config.Data.publication = False
@@ -61,5 +76,5 @@ config.JobType.outputFiles = ['output.root']
 config.JobType.sendExternalFolder = True
 
 # We need that FrameworkJobReport.xml file for the output.
-config.JobType.inputFiles = ['execute_for_crab_data.py', 'topbnv_fwlite.py', 'FrameworkJobReport.xml','JECs']
+config.JobType.inputFiles = ['execute_for_crab_data.py', 'topbnv_fwlite.py', 'FrameworkJobReport.xml','JECs', 'fwlite_tools.py']
 

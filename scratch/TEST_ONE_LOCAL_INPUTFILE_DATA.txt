@@ -1,0 +1,2 @@
+#/eos/uscms/store/user/mbellis/MINIAOD/100_events/SingleMuon_Run2017B_31Mar2018-v1_80000_54F30BE9-423C-E811-A315-0CC47A7C3410.root
+/eos/uscms/store/user/mbellis/MINIAOD/100_events/SingleMuon_Run2018A_17Sep2018-v2_00000_11697BCC-C4AB-204B-91A9-87F952F9F2C6.root

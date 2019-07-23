@@ -22,9 +22,9 @@ This procedure will run ```topbnv_fwlite.py``` over all the data.
 
 Make sure there is a directory for the trigger for data (either **SingleMuon** or **SingleElectron**).
 ```
-/store/user/mbellis/MC/SingleMuon
+eosls /store/user/mbellis/MC/SingleMuon
 
-/store/user/mbellis/MC/SingleElectron
+eosls /store/user/mbellis/MC/SingleElectron
 ```
 
 
@@ -69,9 +69,9 @@ csh submit_many_crab_jobs.csh crab_submit_data_Electron.py
 
 Make sure there is a directory for the trigger for data (either **SingleMuon** or **SingleElectron**).
 ```
-/store/user/mbellis/MC/SingleMuon
+eosls /store/user/mbellis/MC/SingleMuon
 
-/store/user/mbellis/MC/SingleElectron
+eosls /store/user/mbellis/MC/SingleElectron
 ```
 
 The relevant files are

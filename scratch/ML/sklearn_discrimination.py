@@ -105,15 +105,14 @@ random.shuffle(index1)
 
 for pl in param_labels:
     #data0.append(dict0[pl]['values'][0])
-    #print(nevents0,len(dict0[pl]))
+    print(pl,len(dict0[pl]))
     #print(len(dict0[pl][0:nevents0]),pl)
-    print(pl)
     data0.append([dict0[pl][x] for x in index0[0:nevents0]])
     #print(len(dict0[pl]['values'][0]))
 
 for pl in param_labels:
     #data1.append(dict1[pl]['values'][0])
-    print(pl)
+    print(pl,len(dict1[pl]))
     data1.append([dict1[pl][x] for x in index1[0:nevents1]])
     #print(len(dict1[pl]['values'][0]))
 #exit()

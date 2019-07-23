@@ -1,13 +1,21 @@
 set infile = $1
-@ number = 0
+@ number = 42
 
-while ( $number < 55 )
+set trigger = "SingleMuon"
+#set trigger = "SingleElectron"
+#set trigger = "EGamma" # Use this for 2018
 
-    set outfile = "TMP_"`basename $infile .py`"_"$number.py
+set year = "2016"
+#set year = "2017"
+#set year = "2018"
+
+while ( $number < 44 )
+
+    set outfile = "TMP_"`basename $infile .py`"_"$number$trigger$year.py
 
     echo $outfile
 
-    cat $infile | sed s/NUMBERTORUN/$number/ > $outfile
+    cat $infile | sed s/NUMBERTORUN/$number/ | sed s/TRIGGERGOESHERE/$trigger/ | sed s/YEARGOESHERE/$year/ > $outfile
 
     crab submit -c $outfile
 

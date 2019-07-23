@@ -29,12 +29,12 @@ def main(infiles=None):
     nentries = chain.GetEntries()
 
     leadmupt = []
-    topmass = []
+    hadtopmass = []
     Wmass = []
-    jetcsv = []
+    jetbtag0 = []
     njet = []
     nbjet = []
-    ntop = []
+    ncand = []
     nmuon = []
 
     for i in range(nentries):
@@ -51,56 +51,53 @@ def main(infiles=None):
         nmuon.append(chain.nmuon)
         leadmupt.append(chain.leadmupt)
 
-        ntop.append(chain.ntop)
-        for n in range(chain.ntop):
-            topmass.append(chain.topmass[n])
-
-        for n in range(chain.nW):
+        ncand.append(chain.ncand)
+        for n in range(chain.ncand):
+            hadtopmass.append(chain.hadtopmass[n])
             Wmass.append(chain.Wmass[n])
 
-        nbjet.append(chain.nbjet)
+        #nbjet.append(chain.nbjet)
 
         njet.append(chain.njet)
         for n in range(chain.njet):
-            jetcsv.append(chain.jetcsv[n])
+            jetbtag0.append(chain.jetbtag0[n])
 
     leadmupt = np.array(leadmupt)
-    topmass = np.array(topmass)
+    hadtopmass = np.array(hadtopmass)
     Wmass = np.array(Wmass)
-    jetcsv = np.array(jetcsv)
+    jetbtag0 = np.array(jetbtag0)
     njet = np.array(njet)
-    nbjet = np.array(nbjet)
-    ntop = np.array(ntop)
+    #nbjet = np.array(nbjet)
+    ncand = np.array(ncand)
     nmuon = np.array(nmuon)
 
     plt.figure(figsize=(12,8))
 
     plt.subplot(2,3,1)
-    lch.hist_err(leadmupt[leadmupt<200],bins=400,alpha=0.2)
+    lch.hist(leadmupt[leadmupt<200],bins=400,alpha=0.2)
 
     plt.subplot(2,3,2)
-    lch.hist_err(topmass[topmass<1200],bins=400,alpha=0.2)
+    lch.hist(hadtopmass[hadtopmass<1200],bins=400,alpha=0.2)
 
     plt.subplot(2,3,3)
-    lch.hist_err(Wmass[Wmass<1200],bins=400,range=(0,400),alpha=0.2)
+    lch.hist(Wmass[Wmass<1200],bins=400,range=(0,400),alpha=0.2)
 
     plt.subplot(2,3,4)
-    lch.hist_err(Wmass[(Wmass>40)*(Wmass<150)],bins=100,alpha=0.2)
+    lch.hist(Wmass[(Wmass>40)*(Wmass<150)],bins=100,alpha=0.2)
 
     plt.subplot(2,3,5)
-    lch.hist_err(njet,bins=20,range=(0,20),alpha=0.2)
+    lch.hist(njet,bins=20,range=(0,20),alpha=0.2)
 
     plt.subplot(2,3,6)
-    lch.hist_err(nbjet,bins=8,range=(0,8),alpha=0.2)
-
-    #lch.hist_err(jetcsv,bins=400)
+    #lch.hist(nbjet,bins=8,range=(0,8),alpha=0.2)
+    lch.hist(jetbtag0,bins=400, alpha=0.2)
 
     plt.figure(figsize=(12,8))
     plt.subplot(2,3,1)
-    lch.hist_err(ntop,bins=20,range=(0,20),alpha=0.2)
+    lch.hist(ncand,bins=20,range=(0,20),alpha=0.2)
 
     plt.subplot(2,3,2)
-    lch.hist_err(nmuon,bins=20,range=(0,20),alpha=0.2)
+    lch.hist(nmuon,bins=20,range=(0,20),alpha=0.2)
 
 
     plt.show()

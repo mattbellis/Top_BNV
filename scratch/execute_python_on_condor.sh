@@ -5,8 +5,10 @@ echo "System software: `cat /etc/redhat-release`" #Operating System on that node
 source /cvmfs/cms.cern.ch/cmsset_default.sh  ## if a tcsh script, use .csh instead of .sh
 export SCRAM_ARCH=slc6_amd64_gcc630
 #eval `scramv1 project CMSSW CMSSW_9_3_2`
-eval `scramv1 project CMSSW CMSSW_8_0_26`
-cd CMSSW_8_0_26/src/
+#eval `scramv1 project CMSSW CMSSW_8_0_26`
+#cd CMSSW_8_0_26/src/
+eval `scramv1 project CMSSW CMSSW_10_2_0`
+cd CMSSW_10_2_0/src/
 pwd
 ls -l 
 echo "HERE"
@@ -51,8 +53,8 @@ echo "subdir: "$subdir
 
 # THIS WORKS WHEN WRITING TO EOS
 # This directory has to already exist
-echo xrdcp $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_Feb2019/$subdir/.
-     xrdcp $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_Feb2019/$subdir/.
+echo xrdcp -f $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_2019/$subdir/.
+     xrdcp -f $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_2019/$subdir/.
 
 #echo cp $2 /uscms_data/d1/mbellis/CONDOR_output_files_Feb2019/$subdir/.
 #     cp $2 /uscms_data/d1/mbellis/CONDOR_output_files_Feb2019/$subdir/.
@@ -64,5 +66,6 @@ echo xrdcp $2 root://cmseos.fnal.gov//store/user/mbellis/CONDOR_output_files_Feb
 ### remove the output file if you don't want it automatically transferred when the job ends
 rm *.root
 cd ${_CONDOR_SCRATCH_DIR}
-rm -rf CMSSW_8_0_26
+#rm -rf CMSSW_8_0_26
+rm -rf CMSSW_10_2_0
 
