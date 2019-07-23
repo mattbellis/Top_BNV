@@ -26,6 +26,7 @@ def main(infiles=None):
     chain.Show(10)
 
     nentries = chain.GetEntries()
+    print("nentries: {0}".format(nentries))
 
     names = {'njet':-1}
     names.update({'jetpt':-1,'jeteta':-1, 'jetphi':-1, 'jete':-1, 'jetpx':-1, 'jetpy':-1, 'jetpz':-1})
@@ -58,6 +59,7 @@ def main(infiles=None):
     for i in range(nentries):
 
         chain.GetEntry(i)
+        leaves = chain.GetListOfLeaves()
 
         if i%1000==0:
             print("{0} out of {1} entries".format(i,nentries))
