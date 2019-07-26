@@ -9,3 +9,4 @@ dataset = pkl.load(open(infilename,'rb'))
 
 for i,d in enumerate(dataset):
     print(i,d)
+    print(dataset[d])

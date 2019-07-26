@@ -85,7 +85,10 @@ years_and_triggers = {'2016':['SingleMuon','SingleElectron'],
 mc_or_data = mc_or_data_options[0]
 year = '2016'
 trigger = years_and_triggers[year][0]
+
 topdir = '/uscms/homes/m/mbellis/eos_store/{0}/{1}/{2}'.format(mc_or_data, year, trigger)
+#if mc_or_data=='Data':
+#    topdir = '/uscms/homes/m/mbellis/eos_store/{0}/{1}/{2}/{2}'.format(mc_or_data, year, trigger)
 
 print("topdir: %s" % (topdir))
 os.chdir(topdir)
