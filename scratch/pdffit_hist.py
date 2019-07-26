@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import numpy as np
 
 import sys
@@ -10,66 +9,94 @@ import ROOT
 
 def main(infiles=None):
 
+    ROOT.gROOT.Reset()
+    
     c1 = ROOT.TCanvas("LeadMuPT","LeadMuPT",1000,1000)
-    c1.Divide(len(infiles))
 
     leadmupt= ROOT.RooRealVar("leadmupt","leadmupt",0,300)
-    frame= leadmupt.frame()
+    aset= ROOT.RooArgSet(leadmupt,"aset")
 
-    leg = ROOT.TLegend(0.8,.9,0.8,0.9)
-    leg.SetBorderSize(0)
-    leg.SetFillColor(0)
-    leg.SetFillStyle(0)
-    leg.SetTextFont(42)
-    #leg.SetTextSize(.015)
+    fit_param0 = ROOT.RooRealVar("fit_param0","fit_param0",.5,0,3)
 
+    frame = leadmupt.frame()
 
     c = 0
+
+    data  = ROOT.TObjArray()
+    mc    = ROOT.TObjArray()
+    files = ROOT.TObjArray()
+    trees = ROOT.TObjArray()
+    asets = ROOT.TObjArray()
+    hists = ROOT.TObjArray()
+    hpdfs = ROOT.TObjArray()
+    dh    = ROOT.TObjArray()
+
     for infile in infiles:
-        c1.cd(c)
-        c += 1
 
         if "MC" in infile:
             t = "MC"
         else:
             t = "Data"
 
-        f = ROOT.TFile.Open(infile)
-        Tree = f.Get(f.GetListOfKeys().At(0).GetName())
+        files.Add(ROOT.TFile.Open(infile))
+        f = files[c]
+        
+        trees.Add(f.Get(f.GetListOfKeys().At(0).GetName()))
+        Tree = trees[c]
 
         nentries = Tree.GetEntries()
 
-        aset= ROOT.RooArgSet(leadmupt,"aset")
-        data= ROOT.RooDataSet("data","data",aset)
+        if "MC" in infile:
+            #mc.Add(ROOT.RooDataSet("MC","MC",aset))
+            t = "MC"
+        else:
+            #data.Add(ROOT.RooDataSet("Data","Data",aset))
+            t = "Data"
+
+        hists.Add(ROOT.TH1F(t,t,50,0,300))
 
         x = []
-        print(nentries)
         for n in range (nentries):
             Tree.GetEntry(n)
             x.append(getattr(Tree,"leadmupt"))
         
+        tmp = ROOT.RooDataSet("Data","Data",aset)
         for n in range(nentries):
             leadmupt.setVal(x[n])
-            data.add(aset)
-
-        data.plotOn(frame, ROOT.RooFit.MarkerColor(c))
-
-        leg.AddEntry(data,t,"p")
-        '''
-        if c > 1:
-            frame.Draw("same")
+            tmp.add(aset)
+        
+        if t == "MC":
+            mc.Add(tmp)
+            hists.Add(tmp.binnedClone())
         else:
-            frame.Draw()
+            data.Add(tmp)
+            hists.Add(tmp.binnedClone())
 
-        ROOT.gPad.Update()
-        '''
-        ROOT.gPad.SetLeftMargin(0.15)
-        frame.GetYaxis().SetTitleOffset(1.6)
+        dh.Add(ROOT.RooDataHist("dh","dh",aset,tmp,0))
+        dh[c].plotOn(frame, ROOT.RooFit.Name(t),ROOT.RooFit.MarkerColor(c+1),ROOT.RooFit.LineColor(c+1))
+        
+        if t == "MC":
+            hpdfs.Add(ROOT.RooHistPdf("histpdf"+str(c),"histpdf1"+str(c),aset,tmp.binnedClone(),0))
 
-        frame.Draw()
+        c += 1
 
-    leg.Draw()
+
+    temp = ROOT.RooArgSet()
+    for i in range(hpdfs.GetEntries()):
+        temp.add(hpdfs[i])
+
+    pdfs = ROOT.RooArgList(temp)
     
+    sum = ROOT.RooAddPdf("sum","model",pdfs,ROOT.RooArgList(fit_param0))
+    m = sum.fitTo(data[0])
+    sum.plotOn(frame,ROOT.RooFit.LineColor(6))
+
+    ROOT.gPad.SetLeftMargin(0.15)
+    frame.GetYaxis().SetTitleOffset(1.6)
+    
+
+    frame.Draw()
+    #ROOT.gPad.Update()
 
     rep = ''
     while not rep in [ 'q', 'Q' ]:
