@@ -13,8 +13,8 @@ def write_output_file(infile, tag, batchfilename):
     output += "#$ -N bellis_%s\n" % (tag)
     output += "#$ -j y\n"
     output += "#$ -o bellis_$JOB_ID_%s.log\n"% (tag)
-    output += "#$ -q sos.q\n"
-    #output += "#$ -q allsmp.q\n"
+    #output += "#$ -q sos.q\n"
+    output += "#$ -q allsmp.q\n"
     output += "\n"
     output += "# To run the simulation do from the command line:\n"
     output += "# qsub <thisfilename>\n"
@@ -37,7 +37,8 @@ def write_output_file(infile, tag, batchfilename):
     #output += "echo \"outputfile: \" $outputfilename\n"
     output += "\n"
     output += "cd /home/mbellis//Top_BNV/scratch/ \n"
-    output += "python dump_values_to_flat_files_UPROOT.py \\\n"
+    #output += "python dump_values_to_flat_files_UPROOT.py \\\n"
+    output += "python dump_values_to_flat_files_ROOT.py \\\n"
     output += "\t{0}\n".format(infile)
     output += "\n"
     output += "date \n"
@@ -63,7 +64,7 @@ def main():
 
     for infile in infiles:
 
-        infile_tag = infile.split('/')[-1].split(',root')[0]
+        infile_tag = '{0}_{1}_{2}'.format(infile.split('/')[-6], infile.split('/')[-4], infile.split('/')[-1].split(',root')[0])
 
         tag = "{0}_{1}".format(mastertag,infile_tag)
 

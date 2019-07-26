@@ -29,6 +29,10 @@ def main(infiles=None,outfilename=None):
     plotvars["ncand"] = {"values":[], "weights":[], "xlabel":r"# candidates []", "ylabel":r"# entries","range":(0,100), "bins":100}
     plotvars["leadmupt"] = {"values":[], "weights":[], "xlabel":r"Leading $\mu$ $p_{\rm T}$ [GeV/c]", "ylabel":r"# entries","range":(0,400), "bins":400}
     plotvars["leadelectronpt"] = {"values":[], "weights":[], "xlabel":r"Leading $e$ $p_{\rm T}$ [GeV/c]", "ylabel":r"# entries","range":(0,400), "bins":400}
+    plotvars["leadmueta"] = {"values":[], "weights":[], "xlabel":r"Leading $\mu$ $\eta$ []", "ylabel":r"# entries","range":(-4,4), "bins":400}
+    plotvars["leadelectroneta"] = {"values":[], "weights":[], "xlabel":r"Leading $e$ $\eta$ []", "ylabel":r"# entries","range":(-4,4), "bins":400}
+    plotvars["leadmuphi"] = {"values":[], "weights":[], "xlabel":r"Leading $\mu$ $\phi$ []", "ylabel":r"# entries","range":(-4,4), "bins":400}
+    plotvars["leadelectronphi"] = {"values":[], "weights":[], "xlabel":r"Leading $e$ $\phi$ []", "ylabel":r"# entries","range":(-4,4), "bins":400}
     plotvars["hadtopmass"] = {"values":[], "weights":[], "xlabel":r"Hadronic op candidate mass [GeV/c$^{\rm 2}$]", "ylabel":r"# entries","range":(0,800), "bins":800}
     plotvars["bnvtopmass"] = {"values":[], "weights":[], "xlabel":r"BNV top candidate mass [GeV/c$^{\rm 2}$]", "ylabel":r"# entries","range":(0,800), "bins":800}
     plotvars["Wmass"] = {"values":[], "weights":[], "xlabel":r"$W$ candidate mass [GeV/c$^{\rm 2}$]", "ylabel":r"# entries","range":(0,400), "bins":400}
@@ -94,6 +98,11 @@ def main(infiles=None,outfilename=None):
         metpt = t.metpt
         leadmupt = t.leadmupt
         leadelectronpt = t.leadelectronpt
+        leadmueta = t.leadmueta
+        leadelectroneta = t.leadelectroneta
+        leadmuphi = t.leadmuphi
+        leadelectronphi = t.leadelectronphi
+
         bnvtopmass = t.bnvtopmass
         hadtopmass = t.hadtopmass
         Wmass = t.Wmass
@@ -102,6 +111,10 @@ def main(infiles=None,outfilename=None):
         hadtopjet2idx = t.hadtopjet2idx
         jetpt = t.jetpt
         pu_wt = t.pu_wt
+
+        # Do this for data because there will be no pileup reweighting
+        if pu_wt< 0.0:
+            pu_wt = 1.0
 
         wts.append(pu_wt)
 
@@ -138,9 +151,30 @@ def main(infiles=None,outfilename=None):
                     plotvars["pu_wt"]["values"][icut].append(pu_wt)
                     plotvars["pu_wt"]["weights"][icut].append(pu_wt)
 
+                    plotvars["ncand"]["values"][icut].append(ncand)
+                    plotvars["ncand"]["weights"][icut].append(pu_wt)
+
+                    plotvars["leadmupt"]["values"][icut].append(leadmupt)
+                    plotvars["leadmupt"]["weights"][icut].append(pu_wt)
+                    plotvars["leadelectronpt"]["values"][icut].append(leadelectronpt)
+                    plotvars["leadelectronpt"]["weights"][icut].append(pu_wt)
+
+                    plotvars["leadmueta"]["values"][icut].append(leadmueta)
+                    plotvars["leadmueta"]["weights"][icut].append(pu_wt)
+                    plotvars["leadelectroneta"]["values"][icut].append(leadelectroneta)
+                    plotvars["leadelectroneta"]["weights"][icut].append(pu_wt)
+
+                    plotvars["leadmuphi"]["values"][icut].append(leadmuphi)
+                    plotvars["leadmuphi"]["weights"][icut].append(pu_wt)
+                    plotvars["leadelectronphi"]["values"][icut].append(leadelectronphi)
+                    plotvars["leadelectronphi"]["weights"][icut].append(pu_wt)
+
+                    plotvars["metpt"]["values"][icut].append(metpt)
+                    plotvars["metpt"]["weights"][icut].append(pu_wt)
 
             ncuts = len(cuts)
 
+        '''
         # Variables that don't depend on the above cuts
         for icut in range(ncuts):
             plotvars["ncand"]["values"][icut].append(ncand)
@@ -151,6 +185,7 @@ def main(infiles=None,outfilename=None):
             plotvars["leadelectronpt"]["weights"][icut].append(pu_wt)
             plotvars["metpt"]["values"][icut].append(metpt)
             plotvars["metpt"]["weights"][icut].append(pu_wt)
+        '''
         
 
     '''
@@ -166,8 +201,8 @@ def main(infiles=None,outfilename=None):
 
 
     if outfilename == None:
-        outfilename = "/data/physics/bellis/CMS/HISTOGRAM_FILES_2019/{0}_HISTOGRAMS.txt".format(infiles[0].split('/')[-1].split('.')[0])
-        #outfilename = "{0}_HISTOGRAMS.txt".format(infiles[0].split('/')[-1].split('.')[0])
+        outfilename = "{0}_TRIGGER_{1}_dataset_{2}_HISTOGRAMS.txt".format(infiles[0].split('/')[-1].split('.')[0], infiles[0].split('/')[-6], infiles[0].split('/')[-4], )
+        outfilename = "/data/physics/bellis/CMS/HISTOGRAM_FILES_2019/{0}".format(outfilename)
         #outfilename = "TEST_HIST.txt"
     print(outfilename)
     #exit()
