@@ -11,21 +11,29 @@ import pickle
 
 import myhist as mh
 
-from simple_MCinfo import mc_info
+#from simple_MCinfo import mc_info
 
 from collections import OrderedDict
 
-mcparamsnames = list(mc_info.keys())
+mc_info = pickle.load(open('MCInfo.pkl','rb'))
+
 
 #print(mc_info)
 
 data_int_lumi = 37.* (1.0/1e-15) # 35 ifb --> inv barns
 
-print(" {1:15s} {2:12s} {3:12s} {4} {0}".format("Dataset","Weight","# gen","N","cross section"))
-for key in mc_info.keys():
+print(" {1:15s} {2:15s} {3:15s} {4:8}      {0}".format("Dataset","Weight","# gen","N","cross section"))
+keys = list(mc_info.keys())
+for key in keys:
+
+    # We need this step because we had to truncate some of the dataset names
+    newkey = key
+    if len(key)>=50:
+        newkey = key[0:50]+'_'+key[-5:]
+
     entry = mc_info[key]
-    Ngen = entry['completed_events']
-    xsec = entry['cross_section']*1e-12 # pb --> barns
+    Ngen = float(entry['completed_events'])
+    xsec = float(entry['crosssection'])*1e-12 # pb --> barns
 
     N = xsec * data_int_lumi
 
@@ -33,7 +41,14 @@ for key in mc_info.keys():
 
     mc_info[key]['weight'] = wt
 
-    print(" {1:12.3f} {2:12} {3:12d} {4:12.2e} {0}".format(key,wt,Ngen,int(N),xsec))
+    print(" {1:12.3f} {2:15} {3:15d} {4:12.2e}      {0}".format(key,wt,Ngen,int(N),xsec))
+
+    mc_info[newkey] = mc_info.pop(key)
+    #del mc_info[key]
+
+mcparamsnames = list(mc_info.keys())
+print(mc_info.keys())
+
 
 #exit()
 
@@ -84,6 +99,10 @@ def main(infiles=None):
         
         line = infile.readline()
 
+    #print(names)
+    #print(xlabels)
+    #print(ylabels)
+
 
 
     print(names)
@@ -119,10 +138,13 @@ def main(infiles=None):
     for i,infile in enumerate(infiles):
 
         wt = 1.0
+        #print("---------")
+        #print(infile)
         for name in mcparamsnames:
+            #print(name)
             if infile.find(name)>=0:
                 wt = mc_info[name]['weight']
-        print(wt,infile)
+        print(i,wt,infile)
 
         isData = False
 
@@ -153,6 +175,11 @@ def main(infiles=None):
         while(1):
 
             vals = f.readline().split()
+            #print("==========")
+            #print(vals)
+
+
+
             if len(vals)==0:
                 break
 
@@ -172,6 +199,10 @@ def main(infiles=None):
                 xlabels = f.readline().split()
                 ylabels = f.readline().split()
 
+                #print("-----")
+                #print(xlabels,ylabels)
+                #print(bin_edges)
+                #print(bin_vals)
                 bin_vals = np.array(bin_vals).astype(float)
                 bin_edges = np.array(bin_edges).astype(float)
 
@@ -254,7 +285,7 @@ def main(infiles=None):
     # Single plots
     single_figs = []
     single_axes = []
-    vars_to_plot = ['hadtopmass', 'bnvtopmass', 'leadmupt', 'leadelectronpt','metpt']
+    vars_to_plot = ['hadtopmass', 'bnvtopmass', 'leadmupt', 'leadelectronpt','metpt', 'leadmueta', 'leadmuphi', 'leadelectroneta', 'leadelectronphi']
     for i in range(len(cut_strings)):
         single_figs.append([])
         single_axes.append([])
@@ -269,7 +300,7 @@ def main(infiles=None):
         idx = basenames.index(basename)
         print(name,cut_string,idx)
 
-        ax = figs[cut_string].add_subplot(3,3,1+idx)
+        ax = figs[cut_string].add_subplot(7,7,1+idx)
         plt.sca(ax)
         #plt.figure(figsize=(5,4),dpi=100)
 
