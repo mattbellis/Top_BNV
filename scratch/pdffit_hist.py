@@ -82,16 +82,18 @@ def main(infiles=None):
 
 
     temp = ROOT.RooArgSet()
-    for i in range(hpdfs.GetEntries()):
-        temp.add(hpdfs[i])
 
-    pdfs = ROOT.RooArgList(temp)
-    
-    sum = ROOT.RooAddPdf("sum","model",pdfs,ROOT.RooArgList(fit_param0))
-    m = sum.fitTo(data[0])
-    sum.plotOn(frame,ROOT.RooFit.LineColor(6))
+    if hpdfs.GetEntries() >  1:
+        for i in range(hpdfs.GetEntries()):
+            temp.add(hpdfs[i])
 
-    ROOT.gPad.SetLeftMargin(0.15)
+        pdfs = ROOT.RooArgList(temp)
+        
+        sum = ROOT.RooAddPdf("sum","model",pdfs,ROOT.RooArgList(fit_param0))
+        m = sum.fitTo(data[0])
+        sum.plotOn(frame,ROOT.RooFit.LineColor(6))
+
+    #ROOT.gPad.SetLeftMargin(0.15)
     frame.GetYaxis().SetTitleOffset(1.6)
     
 
