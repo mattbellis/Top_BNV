@@ -52,31 +52,42 @@ def main(infiles=None):
         else:
             #data.Add(ROOT.RooDataSet("Data","Data",aset))
             t = "Data"
-
-        hists.Add(ROOT.TH1F(t,t,50,0,300))
+        th1 = ROOT.TH1F(t+str(c),t+str(c),50,0,300)
+        hists.Add(th1)
 
         x = []
         for n in range (nentries):
             Tree.GetEntry(n)
             x.append(getattr(Tree,"leadmupt"))
         
-        tmp = ROOT.RooDataSet("Data","Data",aset)
+        #tmp = ROOT.RooDataSet("Data","Data",aset)
+        tmp = ROOT.RooAbsData("Data","Data",aset)
         for n in range(nentries):
-            leadmupt.setVal(x[n])
-            tmp.add(aset)
+            if x[n] < 300 and x[n] > 0:
+                leadmupt.setVal(x[n])
+                tmp.add(aset)
+                hists[c].Fill(x[n])
         
+        """
         if t == "MC":
             mc.Add(tmp)
             hists.Add(tmp.binnedClone())
         else:
             data.Add(tmp)
             hists.Add(tmp.binnedClone())
+        """
 
         dh.Add(ROOT.RooDataHist("dh","dh",aset,tmp,0))
-        dh[c].plotOn(frame, ROOT.RooFit.Name(t),ROOT.RooFit.MarkerColor(c+1),ROOT.RooFit.LineColor(c+1))
+        dh[c].plotOn(frame, ROOT.RooFit.Name(t),ROOT.RooFit.LineColor(c+1))
+        #hists[c].plotOn(frame, ROOT.RooFit.Name(t),ROOT.RooFit.LineColor(c+1))
         
-        if t == "MC":
-            hpdfs.Add(ROOT.RooHistPdf("histpdf"+str(c),"histpdf1"+str(c),aset,tmp.binnedClone(),0))
+        hists[c].Draw()
+
+        hpdfs.Add(ROOT.RooHistPdf("histpdf"+str(c),"histpdf1"+str(c),aset,tmp.binnedClone(),0))
+        
+        hpdfs[c].fitTo(data)
+        
+        hpdfs[c].plotOn(frame)
 
         c += 1
 
