@@ -34,7 +34,7 @@ while(1):
 
 #print(jobs)
 # Why is this last?????
-print('{0:70} {1:6s} {2:6s} {3:6s} {4:6s} {5:6s} {6:6s}'.format('jobname', 'nfiles', 'finished', 'failed', 'running', 'transferring', 'idle'))
+print('{0:75} {1:6s} {2:6s} {3:6s} {4:6s} {5:12s} {6:6s}'.format('jobname', 'nfiles', 'finished', 'failed', 'running', 'transferring', 'idle'))
 
 for job in jobs:
-    print('{0:70} {1:6d} {2:-6.1f} {3:-6.1f} {4:-6.1f} {5:-6.1f} {6:-6.1f}'.format(job['jobname'], job['nfiles'], job['finished'], job['failed'], job['running'], job['transferring'], job['idle']))
+    print('{0:75} {1:6d} {2:-6.1f} {3:-6.1f} {4:-6.1f} {5:-12.1f} {6:-6.1f}'.format(job['jobname'], job['nfiles'], job['finished'], job['failed'], job['running'], job['transferring'], job['idle']))

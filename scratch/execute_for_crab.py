@@ -1,10 +1,10 @@
 import sys
 import PSet
-files = []
-outfile = file( 'files_to_process.txt', 'w')
-for ifile in PSet.process.source.fileNames :    
-    outfile.write( ifile + '\n' )
-outfile.close()
+#files = []
+#outfile = file( 'files_to_process.txt', 'w')
+#for ifile in PSet.process.source.fileNames :    
+    #outfile.write( ifile + '\n' )
+#outfile.close()
 
 sys.argv.append('--input')
 #sys.argv.append('files_to_process_TESTING.txt')
@@ -22,6 +22,8 @@ sys.argv.append('--isMC')
 #sys.argv.append('output_MC_TESTING.root')
 
 print sys.argv
+
+exit()
 
 from topbnv_fwlite import *
 

@@ -5,7 +5,14 @@ import subprocess as sp
 
 import commands
 
+################################################################################
+# Just run with
+# 
+# python <this script name>
+################################################################################
 
+
+################################################################################
 def make_directory(outputdir):
     #outputdir = "/uscms/homes/m/mbellis/eos_store/CONDOR_output_files_2019/{0}/{1}/{2}".format(mc_or_data,year,trigger)
     print("\nMaking directory................")
@@ -14,12 +21,10 @@ def make_directory(outputdir):
     print(cmds)
     sp.Popen(cmds,0).wait()
     print('\n')
+################################################################################
 
-# Testing with
-# For data
-# python build_lots_of_condor_scripts.py ~/eos_store/SingleMuon
-
-def write_out_build_file(list_of_files,topdir,s0,s1,s2,s3):
+################################################################################
+def write_out_build_file(list_of_files,topdir,s0,s1,s2,s3, submit_job=True,logfile='LOG_default.log'):
 
     lo = list_of_files[0].split('_')[-1].split('.root')[0]
     hi = list_of_files[-1].split('_')[-1].split('.root')[0]
@@ -62,10 +67,20 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2,s3):
     for rootfile in fullnames:
         cmd += [rootfile]
     print(cmd)
-    sp.Popen(cmd,0).wait()
-    
+    if submit_job:
+        sp.Popen(cmd,0).wait()
+
+    # Write to logfile
+    logfile.write('{0}/{1}\n'.format(destinationdir,outfile))
 
     #exit()
+################################################################################
+
+submit_job_flag = True
+if len(sys.argv)>1:
+    submit_job_flag = sys.argv[1]
+    if submit_job_flag == 'False':
+        submit_job_flag = False
 
 
 #files_at_a_time = 100
@@ -83,8 +98,8 @@ years_and_triggers = {'2016':['SingleMuon','SingleElectron'],
                       }
 
 mc_or_data = mc_or_data_options[0]
-year = '2016'
-trigger = years_and_triggers[year][0]
+year = '2018'
+trigger = years_and_triggers[year][1]
 
 topdir = '/uscms/homes/m/mbellis/eos_store/{0}/{1}/{2}'.format(mc_or_data, year, trigger)
 #if mc_or_data=='Data':
@@ -98,6 +113,12 @@ os.chdir(pwd)
 subdirs0 = os.listdir(topdir)
 #print(subdirs0)
 #print(topdir_lastname)
+
+################
+# Log file
+################
+logfilename = 'LOG_CONDOR_{0}_{1}_{2},log'.format(mc_or_data,year,trigger)
+logfile = open(logfilename,'w')
 
 #################################################################
 # Make the output directory because we know where this will go
@@ -122,8 +143,8 @@ print(subdirs0)
 for s0 in subdirs0:
 
     # I DON'T WANT TO RUN ON CERTAIN ONES
-    #if s0.find('WW')<0:
-    if 0:
+    if s0.find('DY')>=0 or s0.find('QCD')>=0:
+    #if 0:
         print("Skipping....")
         print(s0)
         continue 
@@ -224,14 +245,15 @@ for s0 in subdirs0:
                         #print(len(list_of_files))
 
                         if len(list_of_files)>0:
-                            write_out_build_file(list_of_files,outputsubdir,s0,s1,s2,s3)
+                            write_out_build_file(list_of_files,outputsubdir,s0,s1,s2,s3,submit_job=submit_job_flag,logfile=logfile)
                             list_of_files[:] = []
 
                 if len(list_of_files)>0:
-                    write_out_build_file(list_of_files,outputsubdir,s0,s1,s2,s3)
+                    write_out_build_file(list_of_files,outputsubdir,s0,s1,s2,s3,submit_job=submit_job_flag,logfile=logfile)
 
                 
         #exit()
 
 
 print(topdir)
+logfile.close()
