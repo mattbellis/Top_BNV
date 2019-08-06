@@ -515,6 +515,8 @@ def main(filenames,outfile=None):#,leptonflag='muon'):
                     if nh<6400:
                         #print(nh,output_data[key][nh])
                         root_output_data[key][nh] = output_data[key][nh]
+                    else:
+                        nhypothesis[0] = 6400
             #'''
 
             ###################################################################

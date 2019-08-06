@@ -8,6 +8,7 @@ parser = OptionParser()
 import ROOT 
 
 def main(infiles=None):
+    for infile in infiles:
 
     ROOT.gROOT.Reset()
     
@@ -46,6 +47,27 @@ def main(infiles=None):
 
         nentries = Tree.GetEntries()
 
+        leadmupt= ROOT.RooRealVar("leadmupt","leadmupt",0,1)
+        aset= ROOT.RooArgSet(leadmupt,"aset")
+        data= ROOT.RooDataSet("data","data",aset)
+
+        for n in range (nentries):
+            Tree.GetEntry()
+
+            leadmupt.setVal(Tree.leadmupt)
+            data.add(aset)
+
+        frame= leadmupt.frame()
+        data.plotOn(frame)
+        frame.Draw()
+
+
+## Wait for input to keep the GUI (which lives on a ROOT event dispatcher) alive
+if __name__ == '__main__':
+    infiles = sys.argv[1:]
+    main(infiles)
+        aset= ROOT.RooArgSet(leadmupt,"aset")
+        data= ROOT.RooDataSet("data","data",aset)
         if "MC" in infile:
             #mc.Add(ROOT.RooDataSet("MC","MC",aset))
             t = "MC"
