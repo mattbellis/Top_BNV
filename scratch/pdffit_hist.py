@@ -60,8 +60,8 @@ def main(infiles=None):
             Tree.GetEntry(n)
             x.append(getattr(Tree,"leadmupt"))
         
-        #tmp = ROOT.RooDataSet("Data","Data",aset)
-        tmp = ROOT.RooAbsData("Data","Data",aset)
+        tmp = ROOT.RooDataSet("Data","Data",aset)
+        #tmp = ROOT.RooAbsData("Data","Data",aset)
         for n in range(nentries):
             if x[n] < 300 and x[n] > 0:
                 leadmupt.setVal(x[n])
@@ -83,11 +83,19 @@ def main(infiles=None):
         
         hists[c].Draw()
 
-        hpdfs.Add(ROOT.RooHistPdf("histpdf"+str(c),"histpdf1"+str(c),aset,tmp.binnedClone(),0))
+
+
+        #hpdfs.Add(ROOT.RooHistPdf("histpdf"+str(c),"histpdf1"+str(c),aset,tmp.binnedClone(),0))
+        hpdfs.Add(ROOT.RooHistPdf("histpdf"+str(c),"histpdf1"+str(c),aset,tmp.binnedClone(),1))
         
-        hpdfs[c].fitTo(data)
+        print(type(hpdfs[c]))
         
-        hpdfs[c].plotOn(frame)
+        #hpdfs[c].fitTo(data)
+        
+        #hpdfs[c].plotOn(frame)
+        
+        tmp.plotOn(frame)
+        hpdfs[c].Draw()
 
         c += 1
 
