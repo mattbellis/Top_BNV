@@ -72,26 +72,27 @@ def main(infiles=None):
             th11.Fill(x1[n])
 
     dh1 = ROOT.RooDataHist("dh1","dh1",aset,data,0)
-    dh1.plotOn(frame, ROOT.RooFit.Name("Data1"),ROOT.RooFit.LineColor(2))
+    dh1.plotOn(frame, ROOT.RooFit.Name("DataPlot"),ROOT.RooFit.LineColor(2))
 
     th11.Draw()
 
     hpdf1 = ROOT.RooHistPdf("histpdf1","histpdf1",aset,data.binnedClone(),0)
     
-    c = RooAbsReal()
+    c = ROOT.RooRealVar("c","c",-100,100)
 
-    combdata = RooDataSet()
-    combdata.append(tmp)
-    combdata.append(data)
+    combdata = ROOT.RooDataSet("data","combined data",ROOT.RooArgSet(leadmupt),\
+        ROOT.RooFit.Import("Data",tmp),ROOT.RooFit.Import("Data1",data))
 
-    addpdf = RooAddPdf("Sum","Sum",hpdf,hpdf1,c)
+    addpdf = ROOT.RooAddPdf("Sum","Sum",hpdf,hpdf1,c)
 
-    m = addpdf.fitTo(combdata,ROOT.RooFit.Save())
+    #m = addpdf.fitTo(combdata,ROOT.RooLinkedList(0),ROOT.RooFit.Extended())
+    #m = addpdf.fitTo(combdata,ROOT.RooLinkedList(0))
+    addpdf.fitTo(combdata)
 
     #hpdf.plotOn(frame)
     
-    tmp.plotOn(frame)
-    data.plotOn(frame)
+    #tmp.plotOn(frame)
+    #data.plotOn(frame)
     hpdf.Draw()
     hpdf1.Draw()
     addpdf.Draw()
