@@ -15,7 +15,8 @@ import myhist as mh
 
 from collections import OrderedDict
 
-mc_info = pickle.load(open('MCInfo.pkl','rb'))
+#mc_info = pickle.load(open('MCInfo.pkl','rb'))
+mc_info = pickle.load(open('MCInfo_2017.pkl','rb'))
 
 
 #print(mc_info)
@@ -228,7 +229,7 @@ def main(infiles=None):
     for i,name in enumerate(names):
         for j,dataset in enumerate(plots[name].keys()):
 
-            plt.subplot(7,7,1+i)
+            plt.subplot(10,10,1+i)
             
             x,y = combine_bins(plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges'],n=2)
             #x,y = plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges']
