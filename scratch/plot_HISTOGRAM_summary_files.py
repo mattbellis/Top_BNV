@@ -50,9 +50,7 @@ for key in keys:
 mcparamsnames = list(mc_info.keys())
 print(mc_info.keys())
 
-
 #exit()
-
 
 ################################################################################
 def combine_bins(h,bin_edges,n=2):
@@ -78,9 +76,11 @@ def combine_bins(h,bin_edges,n=2):
 ################################################################################
 def main(infiles=None):
 
-    colors = ['k','b','r','g','y','m','c','orange']
-    mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets"]
+    #colors = ['k','b','r','g','y','m','c','orange', '#fff8dc', '#d2b48c', '#a52a2a']
+    colors = ['y','b','r','g','y','m','c','orange', 'b', 'r', 'g']
+    mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets", "TTTo2L2Nu", "TTToHadronic", "TTToSemiLeptonic"]
     datadatasets = ['Data (2016)']
+    #datadatasets = ['Data (2017)']
 
     # Get the information on the plots from the first infile
     infile = open(infiles[0],'r')
