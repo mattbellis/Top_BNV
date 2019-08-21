@@ -76,11 +76,17 @@ def combine_bins(h,bin_edges,n=2):
 ################################################################################
 def main(infiles=None):
 
-    #colors = ['k','b','r','g','y','m','c','orange', '#fff8dc', '#d2b48c', '#a52a2a']
-    colors = ['y','b','r','g','y','m','c','orange', 'b', 'r', 'g']
+    colors = ['k','b','r','g','y','m','c','orange', '#fff8dc', '#d2b48c', '#a52a2a']
+    #colors = ['k','b','r','g','y','m','c','orange', 'b', 'r', 'g', 'y']
     mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets", "TTTo2L2Nu", "TTToHadronic", "TTToSemiLeptonic"]
     datadatasets = ['Data (2016)']
     #datadatasets = ['Data (2017)']
+
+    print("# mcdatasets   {0}".format(len(mcdatasets)))
+    print("# datadatasets {0}".format(len(datadatasets)))
+    print("# colors       {0}".format(len(colors)))
+
+    #exit()
 
     # Get the information on the plots from the first infile
     infile = open(infiles[0],'r')
@@ -237,6 +243,7 @@ def main(infiles=None):
             x = np.array(x); y = np.array(y)
             xbins = (y[0:-1] + y[1:])/2.
             plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color=colors[j%len(colors)])
+            print(dataset,j,j%len(colors),colors[j%len(colors)])
 
         for j,dataset in enumerate(dataplots[name].keys()):
             x,y = combine_bins(dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges'],n=2)
@@ -306,22 +313,24 @@ def main(infiles=None):
         #plt.figure(figsize=(5,4),dpi=100)
 
         heights,bins = [],[]
+        tempcolors = []
         for j,dataset in enumerate(plots[name].keys()):
             #print(dataset)
             if len(plots[name][dataset]['bin_vals'])>0:
                 heights.append(plots[name][dataset]['bin_vals'])
                 bins.append(plots[name][dataset]['bin_edges'])
+                tempcolors.append(colors[j%len(colors)])
                 plt.plot([0,0],[0,0],color=colors[j%len(colors)],label=dataset)
 
         #print(heights)
         #print(bins)
         if len(heights)>0:
-            mh.shh(heights,bins,color=colors,ax=plt.gca())
+            mh.shh(heights,bins,color=tempcolors,ax=plt.gca())
 
             # Single plots
             for k in range(len(vars_to_plot)):
                 if basename.find(vars_to_plot[k])>=0:
-                    mh.shh(heights,bins,color=colors,ax=single_axes[cut_string][k])
+                    mh.shh(heights,bins,color=tempcolors,ax=single_axes[cut_string][k])
 
         for j,dataset in enumerate(dataplots[name].keys()):
             #x,y = combine_bins(dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges'],n=8)
