@@ -110,6 +110,12 @@ def main(infiles=None):
     #print(xlabels)
     #print(ylabels)
 
+    # Get some info for the tag
+    infilename = infiles[0]
+    trigger = infilename.split('TRIGGER_')[1].split('_')[0]
+    year = infilename.split('YEAR_')[1].split('_')[0]
+    tag = 'TRIGGER_{0}_YEAR_{1}'.format(trigger,year)
+
 
 
     print(names)
@@ -283,7 +289,7 @@ def main(infiles=None):
     plt.axis('off')
     plt.legend(loc='center')#,fontsize=18)
     #plt.tight_layout()
-    plt.savefig('plots/legend.png')
+    plt.savefig('plots/legend_{0}.png'.format(tag))
 
 
     figs = []
@@ -352,7 +358,7 @@ def main(infiles=None):
 
         #plt.legend()
         plt.tight_layout()
-        figname = "plots/fig_{0}.png".format(name)
+        figname = "plots/fig_{0}_{1}.png".format(name,tag)
         plt.savefig(figname)
 
     for i in range(len(cut_strings)):
@@ -364,7 +370,7 @@ def main(infiles=None):
             elif j==4:
                 plt.xlim(50,)
             #figname = "plots/SINGLE_ELECTRON_fig_{0}_{1}.png".format(vars_to_plot[j],i)
-            figname = "plots/SINGLE_MUON_fig_{0}_{1}.png".format(vars_to_plot[j],i)
+            figname = "plots/SINGLE_MUON_fig_{0}_{1}_{2}.png".format(vars_to_plot[j],i,tag)
             plt.savefig(figname)
     #plt.show()
 
