@@ -15,7 +15,8 @@ import myhist as mh
 
 from collections import OrderedDict
 
-mc_info = pickle.load(open('MCInfo.pkl','rb'))
+#mc_info = pickle.load(open('MCInfo.pkl','rb'))
+mc_info = pickle.load(open('MCInfo_2017.pkl','rb'))
 
 
 #print(mc_info)
@@ -49,9 +50,7 @@ for key in keys:
 mcparamsnames = list(mc_info.keys())
 print(mc_info.keys())
 
-
 #exit()
-
 
 ################################################################################
 def combine_bins(h,bin_edges,n=2):
@@ -77,9 +76,17 @@ def combine_bins(h,bin_edges,n=2):
 ################################################################################
 def main(infiles=None):
 
-    colors = ['k','b','r','g','y','m','c','orange']
-    mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets"]
+    colors = ['k','b','r','g','y','m','c','orange', '#fff8dc', '#d2b48c', '#a52a2a']
+    #colors = ['k','b','r','g','y','m','c','orange', 'b', 'r', 'g', 'y']
+    mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets", "TTTo2L2Nu", "TTToHadronic", "TTToSemiLeptonic"]
     datadatasets = ['Data (2016)']
+    #datadatasets = ['Data (2017)']
+
+    print("# mcdatasets   {0}".format(len(mcdatasets)))
+    print("# datadatasets {0}".format(len(datadatasets)))
+    print("# colors       {0}".format(len(colors)))
+
+    #exit()
 
     # Get the information on the plots from the first infile
     infile = open(infiles[0],'r')
@@ -102,6 +109,12 @@ def main(infiles=None):
     #print(names)
     #print(xlabels)
     #print(ylabels)
+
+    # Get some info for the tag
+    infilename = infiles[0]
+    trigger = infilename.split('TRIGGER_')[1].split('_')[0]
+    year = infilename.split('YEAR_')[1].split('_')[0]
+    tag = 'TRIGGER_{0}_YEAR_{1}'.format(trigger,year)
 
 
 
@@ -228,7 +241,7 @@ def main(infiles=None):
     for i,name in enumerate(names):
         for j,dataset in enumerate(plots[name].keys()):
 
-            plt.subplot(7,7,1+i)
+            plt.subplot(10,10,1+i)
             
             x,y = combine_bins(plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges'],n=2)
             #x,y = plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges']
@@ -236,6 +249,7 @@ def main(infiles=None):
             x = np.array(x); y = np.array(y)
             xbins = (y[0:-1] + y[1:])/2.
             plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color=colors[j%len(colors)])
+            print(dataset,j,j%len(colors),colors[j%len(colors)])
 
         for j,dataset in enumerate(dataplots[name].keys()):
             x,y = combine_bins(dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges'],n=2)
@@ -275,7 +289,7 @@ def main(infiles=None):
     plt.axis('off')
     plt.legend(loc='center')#,fontsize=18)
     #plt.tight_layout()
-    plt.savefig('plots/legend.png')
+    plt.savefig('plots/legend_{0}.png'.format(tag))
 
 
     figs = []
@@ -305,22 +319,24 @@ def main(infiles=None):
         #plt.figure(figsize=(5,4),dpi=100)
 
         heights,bins = [],[]
+        tempcolors = []
         for j,dataset in enumerate(plots[name].keys()):
             #print(dataset)
             if len(plots[name][dataset]['bin_vals'])>0:
                 heights.append(plots[name][dataset]['bin_vals'])
                 bins.append(plots[name][dataset]['bin_edges'])
+                tempcolors.append(colors[j%len(colors)])
                 plt.plot([0,0],[0,0],color=colors[j%len(colors)],label=dataset)
 
         #print(heights)
         #print(bins)
         if len(heights)>0:
-            mh.shh(heights,bins,color=colors,ax=plt.gca())
+            mh.shh(heights,bins,color=tempcolors,ax=plt.gca())
 
             # Single plots
             for k in range(len(vars_to_plot)):
                 if basename.find(vars_to_plot[k])>=0:
-                    mh.shh(heights,bins,color=colors,ax=single_axes[cut_string][k])
+                    mh.shh(heights,bins,color=tempcolors,ax=single_axes[cut_string][k])
 
         for j,dataset in enumerate(dataplots[name].keys()):
             #x,y = combine_bins(dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges'],n=8)
@@ -342,7 +358,7 @@ def main(infiles=None):
 
         #plt.legend()
         plt.tight_layout()
-        figname = "plots/fig_{0}.png".format(name)
+        figname = "plots/fig_{0}_{1}.png".format(name,tag)
         plt.savefig(figname)
 
     for i in range(len(cut_strings)):
@@ -354,7 +370,7 @@ def main(infiles=None):
             elif j==4:
                 plt.xlim(50,)
             #figname = "plots/SINGLE_ELECTRON_fig_{0}_{1}.png".format(vars_to_plot[j],i)
-            figname = "plots/SINGLE_MUON_fig_{0}_{1}.png".format(vars_to_plot[j],i)
+            figname = "plots/SINGLE_MUON_fig_{0}_{1}_{2}.png".format(vars_to_plot[j],i,tag)
             plt.savefig(figname)
     #plt.show()
 

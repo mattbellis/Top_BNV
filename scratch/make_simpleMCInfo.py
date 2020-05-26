@@ -23,6 +23,6 @@ for row in csvReader:
     else:
         first = False
 
-with open('MCInfo.pkl', 'wb') as fp:
+with open('MCInfo_2017.pkl', 'wb') as fp:
     pickle.dump(info, fp)
 
