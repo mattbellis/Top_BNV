@@ -17,4 +17,6 @@ dasgoclient --query="dataset=/SingleMuon/*UL*/NANOAOD" --format plain --limit=30
 #/SingleMuon/Run2017F-UL2017_02Dec2019-v1/NANOAOD
 
 dasgoclient --query="dataset=/SingleMuon/*UL*16*/MINIAOD" --format plain --limit=100
+dasgoclient --query="dataset=/TTTo*TuneCP5_13TeV-powheg-pythia8/RunIISummer19UL17NanoAOD-106X_mc2017_realistic_v6-v*/NANOAODSIM" --format plain --limit=100
+dasgoclient --query="dataset=/TT*Jet*/*UL*/NANOAODSIM" --format plain --limit=100
 
