@@ -39,7 +39,9 @@ def write_out_build_file(list_of_files,topdir,s0,s1,s2,s3, submit_job=True,logfi
     #outfile = "%s_%s_%s_%s.pkl" % (s0,s1,s2, tag)
     outfile = "DATA_DATASET_%s_%s.root" % (s0, tag)
     #if topdir.find('SingleMuon_Run')>=0:
-    if topdir.find('Run2016')>=0 or s0.find('Run2016')>0 or s1.find('Run2016')>0 or s2.find('Run2016')>0:
+    if topdir.find('Run2016')>=0 or s0.find('Run2016')>0 or s1.find('Run2016')>0 or s2.find('Run2016')>0 or  \
+       topdir.find('Run2017')>=0 or s0.find('Run2017')>0 or s1.find('Run2017')>0 or s2.find('Run2017')>0 or  \
+       topdir.find('Run2018')>=0 or s0.find('Run2018')>0 or s1.find('Run2018')>0 or s2.find('Run2018')>0:
         outfile = "DATA_DATASET_%s_%s.root" % (s0, tag)
     else:
         outfile = "MC_DATASET_%s_%s.root" % (s0, tag)
@@ -97,9 +99,9 @@ years_and_triggers = {'2016':['SingleMuon','SingleElectron'],
                       '2018':['SingleMuon','EGamma']
                       }
 
-mc_or_data = mc_or_data_options[0]
-year = '2018'
-trigger = years_and_triggers[year][1]
+mc_or_data = mc_or_data_options[1]
+year = '2017'
+trigger = years_and_triggers[year][0]
 
 topdir = '/uscms/homes/m/mbellis/eos_store/{0}/{1}/{2}'.format(mc_or_data, year, trigger)
 #if mc_or_data=='Data':

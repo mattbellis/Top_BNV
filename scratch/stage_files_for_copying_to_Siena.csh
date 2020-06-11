@@ -25,7 +25,7 @@ echo "Will be copying files to "
 echo "/uscms_data/d1/mbellis/CONDOR_output_files_2019/$dataMC/$year/$trigger"
 echo 
 echo 'Is this OK?'
-exit()
+#exit()
 
 set files = `eosls /store/user/mbellis/CONDOR_output_files_2019/$dataMC/$year/$trigger`
 
@@ -35,8 +35,8 @@ foreach file ( $files )
     set first_char = `echo $file | awk '{print substr($1,1,1)}'`
     echo $first_char
 
-    #if ( $first_char == 'T' ) then
-    if ( $first_char != 'T' ) then
+    if ( $first_char == 'T' ) then
+    #if ( $first_char != 'T' ) then
 
         echo python copyfiles.py T3_US_FNALLPC CONDOR_output_files_2019/$dataMC/$year/$trigger/$file local /uscms_data/d1/mbellis/CONDOR_output_files_2019/$dataMC/$year/$trigger/$file -p xrootd --depth 10
              python copyfiles.py T3_US_FNALLPC CONDOR_output_files_2019/$dataMC/$year/$trigger/$file local /uscms_data/d1/mbellis/CONDOR_output_files_2019/$dataMC/$year/$trigger/$file -p xrootd --depth 10

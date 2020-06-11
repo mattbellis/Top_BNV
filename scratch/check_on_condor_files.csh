@@ -11,7 +11,7 @@ while ( $i < = $#v )
     #echo $filename_to_check
     #eosls -l $filename_to_check
     set bytes = `eosls -l $filename_to_check | awk '{print $5}'`
-    #echo $bytes
+    echo $bytes
     if ( `echo $bytes | egrep '[:alpha:]|[:cntrl:]|[:graph:]|[:punct:]'` ) then
         # variable's not numeric 
         echo "Variable $bytes is NOT numeric"
