@@ -31,6 +31,22 @@ a = awkward.flatten(events.Jet.pt[events.Jet.pt>15])
 
 mask = events.L1.SingleMu22==True
 
+jets = events.Jet
+print(len(jets))
 events[mask]
+
+jets = events[mask].Jet
+muons = events[mask].Muon
+print(len(jets))
+print(len(muons))
+
+mask_jet = jets.btagDeepB > 0.5
+
+jets[mask_jet].pt
+
+jets[3][0].pt
+
+jets.counts
+
 
 
