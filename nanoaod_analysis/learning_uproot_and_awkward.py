@@ -48,5 +48,12 @@ jets[3][0].pt
 
 jets.counts
 
+for jet,muon in zip(jets,muons):
+    print(len(jet))
+    print(jet)
+    print(len(muon))
+    print(muons)
+    
+
 
 

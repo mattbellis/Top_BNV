@@ -1,3 +1,13 @@
+import numpy as np
+from itertools import combinations
+import math
+
+from operator import itemgetter
+
+import pandas as pd
+
+TWOPI = 2*math.pi
+PI = math.pi
 ################################################################################
 #####################################################################################
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopTrigger
@@ -71,6 +81,300 @@ triggers_of_interest = [
 #["DileptonEE",dilepee_triggers_of_interest]
 #]
 
+pdgcodes = {6:"t", -6:"tbar"}
+
+################################################################################
+# Lorentz boost
+# 
+# Test code
+
+# pmom = [200, 90,50,50]
+# rest_frame = pmom
+# print(lorentz_boost(pmom,rest_frame))
+#
+################################################################################
+def lorentz_boost(p4, rest_frame_p4, return_matrix=False, boost_matrix=None):
+
+    pmom = [0,0,0,0]
+    if type(p4) != list:
+        pmom[0] = p4.e
+        pmom[1] = p4.pz
+        pmom[2] = p4.py
+        pmom[3] = p4.pz
+    else:
+        pmom = list(p4)
+
+    rest_frame = [0,0,0,0]
+    if type(rest_frame_p4) != list:
+        rest_frame[0] = rest_frame_p4.e
+        rest_frame[1] = rest_frame_p4.pz
+        rest_frame[2] = rest_frame_p4.py
+        rest_frame[3] = rest_frame_p4.pz
+    else:
+        rest_frame = list(rest_frame_p4)
+
+    L = boost_matrix
+
+    # If a matrix for the boost has not been passed in, then
+    # calculate the matrix using the rest frame 4-vector
+    if boost_matrix is None:
+        p = rest_frame
+        c = 1
+
+        pm = pmag(p[1:4])
+        #pmag = np.sqrt(p[1]*p[1] + p[2]*p[2] + p[3]*p[3])
+        #E = np.sqrt((pmag*c)**2 + (m*c**2)**2)
+        E = p[0]
+
+        beta = pm/E
+        betaX = p[1]/E
+        betaY = p[2]/E
+        betaZ = p[3]/E
+
+        beta2 = beta*beta
+
+        gamma = np.sqrt(1 / (1-beta2))
+
+        gamma_minus_1 = gamma-1
+
+        x = ((gamma_minus_1) * betaX) / beta2
+        y = ((gamma_minus_1) * betaY) / beta2
+        z = ((gamma_minus_1) * betaZ) / beta2
+
+        L = np.matrix([[gamma,      -gamma*betaX, -gamma*betaY, -gamma*betaZ],
+                    [-gamma*betaX,  1 + x*betaX,      x*betaY,      x*betaZ],
+                    [-gamma*betaY,      y*betaX,  1 + y*betaY,      y*betaZ],
+                    [-gamma*betaZ,      z*betaX,      z*betaY,  1 + z*betaZ]])
+
+    if return_matrix is True:
+        return L
+
+    # Moving particle that will be boosted
+    #vector = np.matrix([E,p[1],p[1],p[2]])
+    vector = np.matrix(pmom)
+
+    boosted_vec = L*np.matrix.transpose(vector)
+
+    return boosted_vec
+################################################################################
+
+# Drawing from here
+# https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePATMCMatching#Match_to_generator_particles
+# https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/TagAndProbe/plugins/ObjectViewMatcher.cc
+
+################################################################################
+# Pass in an angle in radians and get an angle back between 0 and pi
+# https://root.cern.ch/doc/master/TLorentzVector_8h_source.html#l00463
+# https://root.cern.ch/doc/master/TVector2_8cxx_source.html#l00101
+#
+# We can think of this as for when we need the "absolute" angle between
+# two vectors. It can never be greater than pi and should never be less than 0.
+################################################################################
+def angle_mod_pi(angle):
+
+    # First get it between 0 and 2 pi
+    angle = angle_mod_2pi(angle)
+    
+    if angle>PI:
+        angle = TWOPI - angle
+
+    return angle
+
+################################################################################
+# Pass in an angle in radians and get an angle back between 0 and 2pi
+# https://root.cern.ch/doc/master/TLorentzVector_8h_source.html#l00463
+# https://root.cern.ch/doc/master/TVector2_8cxx_source.html#l00101
+################################################################################
+def angle_mod_2pi(angle):
+
+    while angle >= TWOPI:
+        angle -= TWOPI
+
+    while angle < 0:
+        angle += TWOPI
+
+    return angle
+
+################################################################################
+# We pass in two array-like objects that represent eta and phi of two vectors
+# https://root.cern.ch/doc/master/TLorentzVector_8h_source.html#l00463
+################################################################################
+def deltaR(p40, p41):
+
+    # constrain0pi will make sure that dR is between 0 and pi, rather than
+    # 0 and 2pi, if True.
+
+    deta = p40['eta'] - p41['eta']
+
+    # Assume phi is in the second entry
+    # First make sure it is between 0 and 2pi
+    # https://root.cern.ch/doc/master/TVector2_8cxx_source.html#l00101
+    phi0 = angle_mod_2pi(p40['phi'])
+    phi1 = angle_mod_2pi(p41['phi'])
+
+    dphi = phi0 - phi1
+    # Make sure this is between 0 and pi
+    dphi = angle_mod_pi(dphi)
+
+    dR =  math.sqrt(deta*deta + dphi*dphi)
+
+    return dR
+
+################################################################################
+# Assume we pass in a list of 4 numbers in either a list or array
+################################################################################
+def angle_between_vectors(p40, p41, transverse=False):
+
+    if type(p40)!=list and type(p40)!=np.matrix:
+        px0 = p40.px
+        py0 = p40.py
+        pz0 = p40.pz
+
+        px1 = p41.px
+        py1 = p41.py
+        pz1 = p41.pz
+    else:
+        px0 = p40[1]
+        py0 = p40[2]
+        pz0 = p40[3]
+
+        px1 = p41[1]
+        py1 = p41[2]
+        pz1 = p41[3]
+
+
+    if transverse==False:
+        mag0 = math.sqrt(px0*px0 + py0*py0 + pz0*pz0)
+        mag1 = math.sqrt(px1*px1 + py1*py1 + pz1*pz1)
+
+        dot = px0*px1 + py0*py1 + pz0*pz1
+    else: # Only worry about the transverse components
+        mag0 = math.sqrt(px0*px0 + py0*py0)
+        mag1 = math.sqrt(px1*px1 + py1*py1)
+
+        dot = px0*px1 + py0*py1
+
+    cos_val = dot/(mag0*mag1)
+
+    if cos_val>1.0:
+        print("dot product: {0}   mag0: {1}  mag2: {2}  dot/(mag0*mag1): {3}".format(dot,mag0,mag1,cos_val))
+        print("seting cos_val to 1.0")
+        cos_val = 1.0
+    elif cos_val<-1.0:
+        print("dot product: {0}   mag0: {1}  mag2: {2}  dot/(mag0*mag1): {3}".format(dot,mag0,mag1,cos_val))
+        print("seting cos_val to -1.0")
+        cos_val = -1.0
+        
+    return math.acos(cos_val)
+
+################################################################################
+# Assume we pass in a list of 4 numbers in either a list or array
+################################################################################
+def scalarH(p4s):
+
+    totH = 0
+    for p4 in p4s:
+        totH += np.sqrt(p4[1]*p4[1] + p4[2]*p4[2])
+
+    return totH
+
+################################################################################
+# pmag: pass in a 3 vector
+################################################################################
+def pmag(p3):
+    pmag = np.sqrt(p3[0]*p3[0] + p3[1]*p3[1] + p3[2]*p3[2])
+
+    return pmag
+
+################################################################################
+# Assume we pass in a list of 4 numbers in either a list or array
+################################################################################
+def addp4s(p4s):
+
+    tot = [0.0, 0.0, 0.0, 0.0]
+
+    for p4 in p4s:
+        tot[0] += p4.e
+        tot[1] += p4.px
+        tot[2] += p4.py
+        tot[3] += p4.pz
+
+    return tot
+################################################################################
+# Assume we pass in a list of 4 numbers in either a list or array
+################################################################################
+def invmass(p4s):
+
+    tot = p4s
+    if type(p4s[0]) != np.float64:
+        tot = addp4s(p4s)
+
+    p3 = pmag(tot[1:4])
+    m2 = tot[0]*tot[0] - (p3*p3)
+
+    if m2 >= 0:
+        return math.sqrt(m2)
+    else:
+        return -math.sqrt(-m2)
+
+
+################################################################################
+################################################################################
+# Pass in x,y,z and return the pt, eta, and phi components of momentum
+################################################################################
+def pseudorapidity(x,y,z):
+
+    # Taken from ROOT
+    # https://root.cern.ch/doc/master/TVector3_8cxx_source.html
+    cos_theta = z/np.sqrt(x*x + y*y + z*z)
+    if (cos_theta*cos_theta < 1):
+        return -0.5* np.log( (1.0-cos_theta)/(1.0+cos_theta) )
+    if (z == 0):
+        return 0
+    # Warning("PseudoRapidity","transvers momentum = 0! return +/- 10e10");
+    if (z > 0):
+        return 10e10;
+    else:
+        return -10e10;
+
+
+################################################################################
+# Pass in x,y,z and return the pt, eta, and phi components of momentum
+################################################################################
+def xyz2etaphi(x,y,z):
+
+    pt = np.sqrt(x*x + y*y)
+    phi = np.arctan2(y,x)
+    eta = pseudorapidity(x,y,z)
+
+    return pt,eta,phi
+
+################################################################################
+# Pass in pt, eta, and phi and return the x,y,z components of momentum
+################################################################################
+def etaphipt2xyz(p4):
+
+    px = p4.pt*np.cos(p4.phi)
+    py = p4.pt*np.sin(p4.phi)
+    pz = p4.pt/np.tan(2*np.arctan(np.exp(-p4.eta)))
+
+    return px, py, pz
+
+################################################################################
+# Pass in mass,px,py, and pz and return energy
+################################################################################
+def energyfrommasspxpypz(p4):
+
+    px2 = p4.px*p4.px
+    py2 = p4.py*p4.py
+    pz2 = p4.pz*p4.pz
+    m2 = p4.mass*p4.mass
+    
+    e2 = m2+px2+py2+pz2
+
+    return np.sqrt(e2)
+
+
 ################################################################################
 def trigger_mask(triggers_choice, events_HLT):
 
@@ -112,5 +416,375 @@ def muon_mask(muons, flag='loose', isoflag=0, ptcut=10):
     mask = mask_pt & mask_id & mask_iso
 
     return mask
+
+
+################################################################################
+# https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Muon_selectors_Since_9_4_X
+def jet_mask(jets,ptcut=0):
+
+    mask = (jets.neEmEF<0.99) & \
+           (jets.neHEF <0.99) & \
+           (jets.chHEF >0.00) & \
+           (jets.chEmEF<0.99) & \
+           (jets.nConstituents>1) & \
+           (jets.pt>ptcut)
+
+    return mask
+
+################################################################################
+def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
+
+    # Return information:
+    # hadtopmass, bnvtopmass, top-angles, Wmass, leptonpt,bjetidx,nonbjetidx,lepidx,extras
+    return_vals = [[],[],[],[],[],[],[],[],[],[],[]]
+    extras = []
+
+    # We need at least 5 jets (at least 1 b jet) and 1 lepton
+    if len(jets)<5 or len(leptons)<1:
+        return return_vals
+
+    ncands = 0
+
+    njets = len(jets)
+
+    jetindices = np.arange(njets)
+
+    #print("---------")
+    # FIRST TRY TO RECONSTRUCT THE HADRONICALLY DECAYING TOP
+    # NEED TO CHECK TO SEE IF THIS WORKS IF THERE IS 1 BJET
+    # For now, we know that the signal has a b-jet on that side.
+    # Pick out 3 jets
+    for hadjetidx in combinations(jetindices,3):
+
+        hadjet = [None,None,None]
+
+        # Check to see that we have 1 and only 1 b-jet combo
+        # This is just for now. We might change this later 
+        correct_combo = 0
+        for i in range(0,3):
+            hadjet[i] = jets[hadjetidx[i]]
+            if hadjet[i].btagDeepB>=bjetcut:
+                correct_combo += 1
+
+        #'''
+        if correct_combo != 1:
+            continue
+        #'''
+
+        # If this is good so far and we have good jet combinations for the hadronic top
+        # decay, then remove these jets and figure stuff out for the BNV decay
+        tempindices = list(jetindices)
+        for i in range(3):
+            tempindices.remove(hadjetidx[i])
+
+        # Now generate the 2 jets needed for the BNV mix
+        for bnvjetidx in combinations(tempindices,2):
+
+            bnvjet = [None,None]
+
+            # Check to see that we have 1 and only 1 b-jet combo
+            # This is just for now. We might change this later 
+            correct_combo = 0
+            for i in range(0,2):
+                bnvjet[i] = jets[bnvjetidx[i]]
+                if bnvjet[i].btagDeepB>=bjetcut:
+                    correct_combo += 1
+
+            #'''
+            if correct_combo != 1:
+                continue
+            #'''
+
+            # Right now, we're not worried about which is the bjet
+            bnvjet0 = bnvjet[0]
+            bnvjet1 = bnvjet[1]
+
+            hadnonbjet0 = None
+            hadnonbjet1 = None
+            # For the had decay, we want to try to identify the W
+            if hadjet[0].btagDeepB>bjetcut:
+                hadbjet = hadjet[0]
+                hadnonbjet0 = hadjet[1]
+                hadnonbjet1 = hadjet[2]
+                newhadidx = [hadjetidx[0],hadjetidx[1],hadjetidx[2]]
+            elif hadjet[1].btagDeepB>bjetcut:
+                hadbjet = hadjet[1]
+                hadnonbjet0 = hadjet[0]
+                hadnonbjet1 = hadjet[2]
+                newhadidx = [hadjetidx[1],hadjetidx[0],hadjetidx[2]]
+            elif hadjet[2].btagDeepB>bjetcut:
+                hadbjet = hadjet[2]
+                hadnonbjet0 = hadjet[0]
+                hadnonbjet1 = hadjet[1]
+                newhadidx = [hadjetidx[2],hadjetidx[0],hadjetidx[1]]
+
+
+            if hadnonbjet0 is None or hadnonbjet1 is None: 
+                continue
+
+            # First, check the hadronic decay
+            haddR0 = deltaR(hadnonbjet0,hadnonbjet1)
+            haddR1 = deltaR(hadnonbjet0,hadbjet)
+            haddR2 = deltaR(hadnonbjet1,hadbjet)
+
+            # Make sure the jets are not so close that they're almost merged!
+            if haddR0>0.05 and haddR1>0.05 and haddR2>0.05:
+
+                hadWmass = invmass([hadnonbjet0,hadnonbjet1])
+                hadtopp4 = addp4s([hadnonbjet0,hadnonbjet1,hadbjet])
+                hadtopmass = invmass(hadtopp4)
+
+                mass = invmass([hadnonbjet0,hadbjet])
+                hadtop01 = mass#**2
+                mass = invmass([hadnonbjet1,hadbjet])
+                hadtop02 = mass#**2
+                mass = invmass([hadnonbjet0,hadnonbjet1])
+                hadtop12 = mass#**2
+
+                # Now for the BNV candidate!
+                for lepidx,lepton in enumerate(leptons):
+
+                    bnvdR0 = deltaR(bnvjet0,lepton)
+                    bnvdR1 = deltaR(bnvjet1,lepton)
+                    bnvdR2 = deltaR(bnvjet0,bnvjet1)
+
+                    # Make sure the jets are not so close that they're almost merged!
+                    # Should I also do this here for the muons?
+                    # Not doing lepton cleaning right now. Need to make sure DeltaR betwen
+                    # jets and leptons is>0.4.
+                    # https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
+                    # TRYING DIFFERENT THINGS
+                    if bnvdR0>0.20 and bnvdR1>0.20 and bnvdR2>0.05:
+
+                        mass = invmass([bnvjet0,lepton])
+                        bnvtop01 = mass#**2
+                        mass = invmass([bnvjet1,lepton])
+                        bnvtop02 = mass#**2
+                        mass = invmass([bnvjet0,bnvjet1])
+                        bnvtop12 = mass#**2
+
+                        leppt = lepton.pt
+                        leppmag = np.sqrt(lepton.px**2 + lepton.py**2 + lepton.pz**2)
+
+                        bnvtopp4 = addp4s([bnvjet0,bnvjet1,lepton])
+                        bnvtopmass = invmass(bnvtopp4)
+
+                        if hadtopp4 is not None:
+                            a = angle_between_vectors(hadtopp4,bnvtopp4,transverse=True)
+                            thetatop1top2 = np.cos(a)
+                            ##thetatop1top2 = a
+
+                            if ML_data is not None:
+                                vals_for_ML_training([hadnonbjet0,hadnonbjet1,hadbjet],ML_data,tag='had')
+                                vals_for_ML_training([bnvjet0,bnvjet1,lepton],ML_data,tag='bnv')
+                                ML_data['ttbar_angle'].append(thetatop1top2)
+                                #ML_data["had_jet_idx1"].append(idx1)
+                                #ML_data["had_jet_idx2"].append(idx2)
+                                #ML_data["had_jet_idx3"].append(idx3)
+
+                                #ML_data["bnv_jet_idx1"].append(idx4)
+                                #ML_data["bnv_jet_idx2"].append(idx5)
+                                #ML_data["bnv_lep_idx"].append(lepidx)
+
+
+
+
+
+                            # hadtopmass, bnvtopmass, top-angles, Wmass, leptonpt,bjetidx,nonbjetidx,lepidx,extras
+                            extras = [haddR0,haddR1,haddR2,bnvdR0,bnvdR1,bnvdR2,hadtop01,hadtop02,hadtop12,bnvtop01,bnvtop02,bnvtop12]
+                            return_vals[0].append(hadtopmass)
+                            return_vals[1].append(bnvtopmass)
+                            return_vals[2].append(np.sqrt(hadtopp4[1]**2+hadtopp4[2]**2))
+                            return_vals[3].append(np.sqrt(bnvtopp4[1]**2+bnvtopp4[2]**2))
+                            return_vals[4].append(thetatop1top2)
+                            return_vals[5].append(hadWmass)
+                            return_vals[6].append(leppt)
+                            return_vals[7].append(newhadidx)
+                            return_vals[8].append(bnvjetidx)
+                            return_vals[9].append(lepidx)
+                            return_vals[10].append(extras)
+
+    return return_vals
+
+
+################################################################################
+def vals_for_ML_training(jets,output_data,tag="had"):
+
+    # reco jets: e, px, py, pz, pt, eta, phi, csv2
+    # jets is a list
+    #j1,j2,j3 = [],[],[]
+    #j1 = np.array([jets[0].e, jets[0].px, jets[0].py, jets[0].pz, jets[0].pt, jets[0].eta, jets[0].phi, jets[0].btagDeepB])
+    #j2 = np.array([jets[1].e, jets[1].px, jets[1].py, jets[1].pz, jets[1].pt, jets[1].eta, jets[1].phi, jets[1].btagDeepB])
+    #j3 = np.array([jets[2].e, jets[2].px, jets[2].py, jets[2].pz, jets[2].pt, jets[2].eta, jets[2].phi, jets[2].btagDeepB])
+    j1 = jets[0]
+    j2 = jets[1]
+    j3 = jets[2]
+
+    # REST FRAME
+    #print(j1)
+    #print(j2)
+    #print(j3)
+    #topp4 = j1[0:4]+j2[0:4]+j3[0:4]
+    topp4 = addp4s([j1,j2,j3])
+    #topp4 = addp4(j1,j2,j3)
+    topmass = 172.44
+    topp4[0] = np.sqrt(topmass**2 + topp4[1]**2 + topp4[2]**2 + topp4[3]**2)
+
+    L = lorentz_boost(j1,topp4,return_matrix=True)
+
+    tmp = lorentz_boost(j1,topp4,boost_matrix=L)
+    rj1 = np.array([tmp.item(0,0),tmp.item(1,0),tmp.item(2,0),tmp.item(3,0)])
+
+    tmp = lorentz_boost(j2,topp4,boost_matrix=L)
+    rj2 = np.array([tmp.item(0,0),tmp.item(1,0),tmp.item(2,0),tmp.item(3,0)])
+
+    tmp = lorentz_boost(j3,topp4,boost_matrix=L)
+    rj3 = np.array([tmp.item(0,0),tmp.item(1,0),tmp.item(2,0),tmp.item(3,0)])
+
+    rj1pmag = pmag(rj1[1:4])
+    rj2pmag = pmag(rj2[1:4])
+    rj3pmag = pmag(rj3[1:4])
+
+    ######### DUMP SOME INFO FOR ML TRAINING ########################
+    tmpjets = [j1,j2,j3] 
+    # If it is hadronic, order 3 jets, otherwise order 2 jets
+    if tag=='had':
+        sortidx = np.argsort( [rj1pmag,rj2pmag,rj3pmag])
+        j1 = tmpjets[sortidx[2]]
+        j2 = tmpjets[sortidx[1]]
+        j3 = tmpjets[sortidx[0]]
+        #print(j1,j2,j3)
+    else:
+        sortidx = np.argsort( [rj1pmag,rj2pmag])
+        j1 = tmpjets[sortidx[1]]
+        j2 = tmpjets[sortidx[0]]
+
+    #for s in jets:
+    #print(s[4],s)
+    #j1 = jets[0]
+    #j2 = jets[1]
+    #j3 = jets[2]
+#
+    mass = invmass([j1,j2,j3])
+    output_data[tag+'_m'].append(mass)
+
+    mass = invmass([j1,j2])
+    output_data[tag+'_j12_m'].append(mass)
+    mass = invmass([j1,j3])
+    output_data[tag+'_j13_m'].append(mass)
+    mass = invmass([j2,j3])
+    output_data[tag+'_j23_m'].append(mass)
+
+    # LAB FRAME ANGLES
+    dR = deltaR(j1,j2)
+    output_data[tag+'_dR12_lab'].append(dR)
+    dR = deltaR(j1,j3)
+    output_data[tag+'_dR13_lab'].append(dR)
+    dR = deltaR(j2,j3)
+    output_data[tag+'_dR23_lab'].append(dR)
+
+    tmp = [j2.px+j3.px, j2.py+j3.py, j2.pz+j3.pz] #  j2[1:4] + j3[1:4]
+    tmppt,tmpeta,tmpphi = xyz2etaphi(tmp[0],tmp[1],tmp[2])
+    #dR = deltaR(j1,[tmpeta,tmpphi])
+    dR = deltaR(j1,{'eta':tmpeta,'phi':tmpphi})
+    output_data[tag+'_dR1_23_lab'].append(dR)
+
+    # REST FRAME
+    topp4 = addp4s([j1,j2,j3])
+    #topp4 = addp4(j1,j2,j3)
+    topmass = 172.44
+    topp4[0] = np.sqrt(topmass**2 + topp4[1]**2 + topp4[2]**2 + topp4[3]**2)
+
+    #topp4 = j1[0:4]+j2[0:4]+j3[0:4]
+    #topmass = 172.44
+    #topp4[0] = np.sqrt(topmass**2 + topp4[1]**2 + topp4[2]**2 + topp4[3]**2)
+
+    L = lorentz_boost(j1,topp4,return_matrix=True)
+    rj1 = lorentz_boost(j1,topp4,boost_matrix=L)
+    rj2 = lorentz_boost(j2,topp4,boost_matrix=L)
+    rj3 = lorentz_boost(j3,topp4,boost_matrix=L)
+
+    rj1pmag = pmag(rj1[1:4])
+    rj2pmag = pmag(rj2[1:4])
+    rj3pmag = pmag(rj3[1:4])
+
+    dTheta = angle_between_vectors(rj1,rj2)
+    output_data[tag+'_dTheta12_rest'].append(dTheta)
+    dTheta = angle_between_vectors(rj1,rj3)
+    output_data[tag+'_dTheta13_rest'].append(dTheta)
+    dTheta = angle_between_vectors(rj2,rj3)
+    output_data[tag+'_dTheta23_rest'].append(dTheta)
+
+    # DeepCSV b-tagging variable
+    output_data[tag+'_j1_btag0'].append(j1.btagCSVV2)
+    output_data[tag+'_j2_btag0'].append(j2.btagCSVV2)
+    output_data[tag+'_j1_btag1'].append(j1.btagDeepC)
+    output_data[tag+'_j2_btag1'].append(j2.btagDeepC)
+    output_data[tag+'_j1_btagsum'].append(j1.btagDeepB)
+    output_data[tag+'_j2_btagsum'].append(j2.btagDeepB)
+    if tag=="had":
+        output_data[tag+'_j3_btag0'].append(j3.btagCSVV2)
+        output_data[tag+'_j3_btag1'].append(j3.btagDeepC)
+        output_data[tag+'_j3_btagsum'].append(j3.btagDeepB)
+
+
+################################################################################
+def define_ML_output_data():
+    output_data = {}
+    output_data["had_m"] = []
+    output_data["had_j12_m"] = []
+    output_data["had_j13_m"] = []
+    output_data["had_j23_m"] = []
+    output_data["had_dR12_lab"] = []
+    output_data["had_dR13_lab"] = []
+    output_data["had_dR23_lab"] = []
+    output_data["had_dR1_23_lab"] = []
+    #output_data["had_dRPtTop"] = []
+    #output_data["had_dRPtW"] = []
+    output_data["had_dTheta12_rest"] = []
+    output_data["had_dTheta13_rest"] = []
+    output_data["had_dTheta23_rest"] = []
+    output_data["had_j1_btag0"] = []
+    output_data["had_j2_btag0"] = []
+    output_data["had_j3_btag0"] = []
+    output_data["had_j1_btag1"] = []
+    output_data["had_j2_btag1"] = []
+    output_data["had_j3_btag1"] = []
+    output_data["had_j1_btagsum"] = []
+    output_data["had_j2_btagsum"] = []
+    output_data["had_j3_btagsum"] = []
+
+    output_data["bnv_m"] = []
+    output_data["bnv_j12_m"] = []
+    output_data["bnv_j13_m"] = []
+    output_data["bnv_j23_m"] = []
+    output_data["bnv_dR12_lab"] = []
+    output_data["bnv_dR13_lab"] = []
+    output_data["bnv_dR23_lab"] = []
+    output_data["bnv_dR1_23_lab"] = []
+    #output_data["bnv_dRPtTop"] = []
+    #output_data["bnv_dRPtW"] = []
+    output_data["bnv_dTheta12_rest"] = []
+    output_data["bnv_dTheta13_rest"] = []
+    output_data["bnv_dTheta23_rest"] = []
+    output_data["bnv_j1_btag0"] = []
+    output_data["bnv_j2_btag0"] = []
+    output_data["bnv_j1_btag1"] = []
+    output_data["bnv_j2_btag1"] = []
+    output_data["bnv_j1_btagsum"] = []
+    output_data["bnv_j2_btagsum"] = []
+
+    output_data["ttbar_angle"] = []
+
+    #output_data["had_jet_idx1"] = []
+    #output_data["had_jet_idx2"] = []
+    #output_data["had_jet_idx3"] = []
+
+    #output_data["bnv_jet_idx1"] = []
+    #output_data["bnv_jet_idx2"] = []
+    #output_data["bnv_lep_idx"] = []
+
+
+    return output_data
 
 
