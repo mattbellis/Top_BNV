@@ -7,6 +7,8 @@ import matplotlib.pylab as plt
 
 df = pd.read_hdf(sys.argv[1])
 
+print(len(df))
+
 names = df.columns.values
 
 for i,name in enumerate(names):
@@ -17,9 +19,9 @@ for i,name in enumerate(names):
     plt.subplot(4,4,i%16+1)
 
     if name.find('_m')>=0:
-        df[name].hist(bins=100,range=(0,500),label=name)
+        df[name].hist(bins=50,range=(0,500),label=name)
     else:
-        df[name].hist(label=name,bins=100)
+        df[name].hist(label=name,bins=50)
 
     plt.xlabel(name)
     #plt.legend()

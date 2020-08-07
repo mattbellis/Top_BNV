@@ -2,6 +2,8 @@ import numpy as np
 from itertools import combinations
 import math
 
+import matplotlib.pylab as plt
+
 from operator import itemgetter
 
 import pandas as pd
@@ -786,5 +788,220 @@ def define_ML_output_data():
 
 
     return output_data
+
+################################################################################
+#genpart_statusflags = {0 : 'isPrompt', 1 : 'isDecayedLeptonHadron', 2 : 'isTauDecayProduct', 3 : 'isPromptTauDecayProduct', 4 : 'isDirectTauDecayProduct', 5 : 'isDirectPromptTauDecayProduct', 6 : 'isDirectHadronDecayProduct', 7 : 'isHardProcess', 8 : 'fromHardProcess', 9 : 'isHardProcessTauDecayProduct', 10 : 'isDirectHardProcessTauDecayProduct', 11 : 'fromHardProcessBeforeFSR', 12 : 'isFirstCopy', 13 : 'isLastCopy', 14 : 'isLastCopyBeforeFSR'}
+genpart_statusflags = np.array(['isPrompt','isDecayedLeptonHadron','isTauDecayProduct','isPromptTauDecayProduct','isDirectTauDecayProduct','isDirectPromptTauDecayProduct','isDirectHadronDecayProduct','isHardProcess','fromHardProcess','isHardProcessTauDecayProduct','isDirectHardProcessTauDecayProduct','fromHardProcessBeforeFSR','isFirstCopy','isLastCopy','isLastCopyBeforeFSR'])
+
+################################################################################
+# https://stackoverflow.com/questions/22227595/convert-integer-to-binary-array-with-suitable-padding
+def bin_array(num, m):
+    """Convert a positive integer num into an m-bit bit vector"""
+    return np.array(list(np.binary_repr(num).zfill(m))).astype(np.int8)
+
+
+################################################################################
+def print_statusflags(flag,verbose=False):
+    a = bin_array(flag,15)
+    if verbose:
+        print(a)
+    print(genpart_statusflags[np.flip(a).astype(bool)])
+
+
+################################################################################
+def check_jet_against_gen(jet,gen, maxdPtRel=1e9, maxdR=0.15):
+
+    # Gen: pt, eta, phi
+    # Jet: NanoAOD jet
+
+    dpT = abs(jet.pt - gen[0])
+    deta = jet.eta - gen[1]
+    dphi = jet.phi - gen[2]
+
+    dR =  math.sqrt(deta*deta + dphi*dphi)
+
+    if dR<maxdR and dpT<maxdPtRel:
+        return 1,dR
+    else:
+        return 0,None
+
+################################################################################
+def truth_matching_TESTING(events):
+
+    # Status flag seem to match up here
+    # http://home.thep.lu.se/~torbjorn/pythia81html/ParticleProperties.html
+
+    # Find partons that we will match with the jets 
+    #decays = {6:
+
+    # find index of first top
+
+    # https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookGenParticleCandidate
+    for event in events:
+        print("-------------------------")
+        print(event.GenPart.pdgId)
+        print(event.GenPart.status)
+
+        # Particles to match
+        ptms = [6,-6, 24, -24, 5, -5] 
+        # Particles for table
+        pft = [[], [], [], [], [], [], []]
+
+        for gp in event.GenPart:
+            #print("---")
+            #print(gp.pdgId, gp.status, gp.statusFlags)
+            #if gp.parent is not None:
+                #print(gp.parent.pdgId)
+            #print_statusflags(gp.statusFlags,verbose=True)
+            for i,ptm in enumerate(ptms):
+                if gp.pdgId==ptm:
+                    parentpdgId = -999
+                    parentstatus = -999
+                    if gp.parent is not None:
+                        parentpdgId = gp.parent.pdgId
+                        parentstatus = gp.parent.status
+                        #print(gp.parent)
+
+                    pft[i].append([gp.pt,gp.eta,gp.phi, gp.status, gp.statusFlags, parentpdgId, parentstatus, gp.children ])
+            '''
+            if abs(gp.pdgId)==24:
+                print("24: ",gp.pt,gp.eta,gp.phi)
+            if abs(gp.pdgId)==5:
+                print("5:  ",gp.pt,gp.eta,gp.phi)
+            '''
+            '''
+            if gp.parent is not None:
+                #print(gp.pdgId, gp.parent.pdgId, gp.parent.status)
+                # The status for the last top before the decay seems to be 62. Not sure why
+                if abs(gp.parent.pdgId)==6 and gp.parent.status==62:
+                    print("Top!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    print(gp.pdgId,gp.parent.pdgId)
+                    print(gp.pt,gp.eta)
+                # The status for the last W before the decay seems to be 52. Not sure why
+                elif abs(gp.parent.pdgId)==24 and gp.parent.status==52:
+                    print("W!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    print(gp.pdgId,gp.parent.pdgId)
+            '''
+        for pdgid,kinematics in zip(ptms,pft):
+            print(pdgid)
+            for x in kinematics:
+                print("{0:10.4f} {1:10.4f} {2:10.4f} {3:6d}".format(x[0],x[1],x[2],x[5]))
+                '''
+                for p in x[-1]:
+                    print("child: ",p.pdgId)
+                '''
+
+################################################################################
+def truth_matching(events):
+
+    # Status flag seem to match up here
+    # http://home.thep.lu.se/~torbjorn/pythia81html/ParticleProperties.html
+
+
+    # find index of first top
+
+    # https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookGenParticleCandidate
+
+    topmass = [[], [], [], []]
+    antitopmass = [[], [], [], []]
+
+    nevents = len(events)
+
+    for icount,event in enumerate(events):
+
+        if icount%10000==0:
+            print(icount,nevents)
+        #print("-------------------------")
+        #print(event.GenPart.pdgId)
+        #print(event.GenPart.status)
+
+        # Find partons that we will match with the jets 
+        # Hadronic
+        partons = {"5":None, "-5":None, "tq1":None, "tq2": None, \
+                   "atq1":None, "atq2": None}
+
+        Wpeta = None
+        Wpphi = None
+        Wmeta = None
+        Wmphi = None
+
+        for gp in event.GenPart:
+
+            # Top
+            if gp.pdgId==6 and len(gp.children)==2:
+                for child in gp.children:
+                    if child.pdgId==5:
+                        partons["5"] = [child.pt,child.eta,child.phi]
+                    if child.pdgId==24:
+                        Wpeta = child.eta
+                        Wpphi = child.phi
+
+            if gp.pdgId==24 and len(gp.children)==2 and abs(gp.eta-Wpeta)<0.1 and abs(gp.phi-Wpphi)<0.1:
+                for child in gp.children:
+                    if child.pdgId in [1,2,3,4,5]:
+                        partons["tq1"] = [child.pt,child.eta,child.phi]
+                    if child.pdgId in [-1,-2,-3,-4,-5]:
+                        partons["tq2"] = [child.pt,child.eta,child.phi]
+
+            # Anti-top
+            if gp.pdgId==-6 and len(gp.children)==2:
+                for child in gp.children:
+                    if child.pdgId==-5:
+                        partons["-5"] = [child.pt,child.eta,child.phi]
+                    if child.pdgId==-24:
+                        Wmeta = child.eta
+                        Wmphi = child.phi
+
+            if gp.pdgId==-24 and len(gp.children)==2 and abs(gp.eta-Wmeta)<0.1 and abs(gp.phi-Wmphi)<0.1:
+                for child in gp.children:
+                    if child.pdgId in [1,2,3,4,5]:
+                        partons["atq1"] = [child.pt,child.eta,child.phi]
+                    if child.pdgId in [-1,-2,-3,-4,-5]:
+                        partons["atq2"] = [child.pt,child.eta,child.phi]
+
+        #print(partons) 
+        #for key in partons.keys():
+            #print(key,partons[key])
+
+        jets = event.Jet
+        jet_matched_idx = {}
+        nidx = 0
+        for key in partons.keys():
+            if partons[key] is None:
+                continue
+            mindR = 1e9
+            #print("--------")
+            gen = partons[key]
+            #print(key, gen)
+            for idx,jet in enumerate(jets):
+                #print("    ",jet.pt,jet.eta,jet.phi,jet.btagDeepB)
+                IS_MATCH,dR = check_jet_against_gen(jet, gen, maxdPtRel=100, maxdR=0.40)
+                # Keep track of mindR because maybe two jets are matched?
+                if IS_MATCH==1 and dR<mindR: 
+                    #print(key,gen,jet.pt,jet.eta,jet.phi,jet.btagDeepB)
+                    jet_matched_idx[key] = idx 
+                    # Only increment if it is the first match
+                    if mindR == 1e9:
+                        nidx += 1
+                    mindR = dR
+
+        #print(nidx,jet_matched_idx)
+        if nidx == 6:
+            j1 = jets[jet_matched_idx['5']]
+            j2 = jets[jet_matched_idx['tq1']]
+            j3 = jets[jet_matched_idx['tq2']]
+
+            #print(j3.columns)
+            m = invmass([j1,j2,j3])
+            topmass[0].append(m)
+            m = invmass([j1,j2])
+            topmass[1].append(m)
+            m = invmass([j1,j3])
+            topmass[2].append(m)
+            m = invmass([j2,j3])
+            topmass[3].append(m)
+
+    return topmass,antitopmass
+
 
 

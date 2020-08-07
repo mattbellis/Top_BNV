@@ -40,7 +40,7 @@ muon_flag = 'loose'
 muon_mask = nat.muon_mask(allmuons,ptcut=muon_ptcut,isoflag=muon_isoflag,flag=muon_flag)
 
 print("Calculating the jet mask...")
-jet_mask = nat.jet_mask(alljets,ptcut=25)
+jet_mask = nat.jet_mask(alljets,ptcut=20)
 
 #print(len(awkward.flatten(alljets)))
 #print(len(awkward.flatten(alljets[jet_mask])))

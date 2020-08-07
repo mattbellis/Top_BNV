@@ -5,6 +5,8 @@ import matplotlib.pylab as plt
 
 import sys
 
+import nanoaod_analysis_tools as nat
+
 # https://github.com/CoffeaTeam/coffea/blob/9a29fe47fc690051be50773d262ee74e805a2f60/binder/nanoevents.ipynb
 from coffea.nanoaod import NanoEvents
 
@@ -48,12 +50,38 @@ jets[3][0].pt
 
 jets.counts
 
+'''
 for jet,muon in zip(jets,muons):
     print(len(jet))
     print(jet)
     print(len(muon))
     print(muons)
     
+'''
 
+# Learning truth matching
+print("Calculating the jet mask...")
+alljets = events.Jet
+jet_mask = nat.jet_mask(alljets,ptcut=20)
 
+print(len(alljets))
+print(len(alljets[jet_mask]))
+
+alljets['px'],alljets['py'],alljets['pz'] = nat.etaphipt2xyz(alljets)
+alljets['e'] = nat.energyfrommasspxpypz(alljets)
+
+print("------ Gen Particles ----------")
+print(events.GenPart.columns)
+# Find the tops
+events.GenPart.pdgId == 6
+
+#nat.truth_matching_TESTING(events)
+tm,atm = nat.truth_matching(events)
+
+plt.figure()
+for i in range(0,4):
+    plt.subplot(2,2,i+1)
+    plt.hist(tm[i],bins=100)
+
+plt.show()
 
