@@ -892,7 +892,7 @@ def truth_matching_TESTING(events):
                 '''
 
 ################################################################################
-def truth_matching(events):
+def truth_matching(events,max_events=1e18):
 
     # Status flag seem to match up here
     # http://home.thep.lu.se/~torbjorn/pythia81html/ParticleProperties.html
@@ -905,12 +905,22 @@ def truth_matching(events):
     topmass = [[], [], [], []]
     antitopmass = [[], [], [], []]
 
+    lowest_momentum_parton = []
+    bparton_momenta = []
+    all_parton_momenta = []
+
+    ntruths = []
+
     nevents = len(events)
 
     for icount,event in enumerate(events):
 
         if icount%10000==0:
             print(icount,nevents)
+
+        if icount>max_events:
+            break
+
         #print("-------------------------")
         #print(event.GenPart.pdgId)
         #print(event.GenPart.status)
@@ -960,8 +970,28 @@ def truth_matching(events):
                         partons["atq2"] = [child.pt,child.eta,child.phi]
 
         #print(partons) 
-        #for key in partons.keys():
+        lowest_pt = 1e9
+        ntruth = 0
+        for key in partons.keys():
             #print(key,partons[key])
+
+            if partons[key] is None:
+                continue
+
+            ntruth += 1
+            pt = partons[key][0]
+
+            all_parton_momenta.append(pt)
+
+            if key=='5' or key=='-5':
+                bparton_momenta.append(pt)
+
+            if pt<lowest_pt:
+                lowest_pt = pt
+
+        ntruths.append(ntruth)
+
+        lowest_momentum_parton.append(lowest_pt)
 
         jets = event.Jet
         jet_matched_idx = {}
@@ -1001,7 +1031,21 @@ def truth_matching(events):
             m = invmass([j2,j3])
             topmass[3].append(m)
 
-    return topmass,antitopmass
+            j1 = jets[jet_matched_idx['-5']]
+            j2 = jets[jet_matched_idx['atq1']]
+            j3 = jets[jet_matched_idx['atq2']]
+
+            #print(j3.columns)
+            m = invmass([j1,j2,j3])
+            antitopmass[0].append(m)
+            m = invmass([j1,j2])
+            antitopmass[1].append(m)
+            m = invmass([j1,j3])
+            antitopmass[2].append(m)
+            m = invmass([j2,j3])
+            antitopmass[3].append(m)
+
+    return topmass,antitopmass, lowest_momentum_parton, bparton_momenta, all_parton_momenta, ntruths
 
 
 
