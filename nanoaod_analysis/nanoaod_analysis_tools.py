@@ -436,6 +436,8 @@ def jet_mask(jets,ptcut=0):
 ################################################################################
 def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
 
+    counter = 0
+
     # Return information:
     # hadtopmass, bnvtopmass, top-angles, Wmass, leptonpt,bjetidx,nonbjetidx,lepidx,extras
     return_vals = [[],[],[],[],[],[],[],[],[],[],[]]
@@ -443,6 +445,7 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
 
     # We need at least 5 jets (at least 1 b jet) and 1 lepton
     if len(jets)<5 or len(leptons)<1:
+        ML_data["num_combos"].append(counter)
         return return_vals
 
     ncands = 0
@@ -580,6 +583,7 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
                                 vals_for_ML_training([hadnonbjet0,hadnonbjet1,hadbjet],ML_data,tag='had')
                                 vals_for_ML_training([bnvjet0,bnvjet1,lepton],ML_data,tag='bnv')
                                 ML_data['ttbar_angle'].append(thetatop1top2)
+                                counter += 1
                                 #ML_data["had_jet_idx1"].append(idx1)
                                 #ML_data["had_jet_idx2"].append(idx2)
                                 #ML_data["had_jet_idx3"].append(idx3)
@@ -606,6 +610,8 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
                             return_vals[9].append(lepidx)
                             return_vals[10].append(extras)
 
+    print('counter: ',counter)
+    ML_data["num_combos"].append(counter)
     return return_vals
 
 
@@ -733,6 +739,8 @@ def vals_for_ML_training(jets,output_data,tag="had"):
 ################################################################################
 def define_ML_output_data():
     output_data = {}
+    output_data["num_combos"] = []
+
     output_data["had_m"] = []
     output_data["had_j12_m"] = []
     output_data["had_j13_m"] = []

@@ -9,6 +9,8 @@ import nanoaod_analysis_tools as nat
 
 import pandas as pd
 
+import h5hep as hp
+
 # https://github.com/CoffeaTeam/coffea/blob/9a29fe47fc690051be50773d262ee74e805a2f60/binder/nanoevents.ipynb
 from coffea.nanoaod import NanoEvents
 
@@ -61,6 +63,11 @@ print("Calculated Cartesian 4-vectors!")
 
 output_data_ML = nat.define_ML_output_data()
 
+data = hp.initialize()
+hp.create_group(data,'ml',counter='num')
+hp.create_dataset(data,list(output_data_ML.keys()),group='ml',dtype=float)
+event = hp.create_single_event(data)
+
 # Look at the event hypotheses
 icount = 0
 for jets,muons in zip(alljets[jet_mask], allmuons[muon_mask]):
@@ -68,23 +75,40 @@ for jets,muons in zip(alljets[jet_mask], allmuons[muon_mask]):
     if icount%100==0:
         print(icount)
 
+    #print(len(jets),len(muons))
+    #print(jets.pt)
     #if icount>=6000:
     if 1:
         x = nat.event_hypothesis(jets,muons,verbose=True, ML_data=output_data_ML)
+        #for key in output_data_ML.keys():
+            #event['ml/' + key] = output_data_ML[key]
+        #event['ml/num'] = len(output_data_ML[key])
 
     #print(x)
     icount += 1
 
-    if icount>=10000:
+    hp.pack(data,event)
+
+    if icount>=1000000:
         break
 
-for key in output_data_ML.keys():
-    print(key,len(output_data_ML[key]))
-df = pd.DataFrame.from_dict(output_data_ML)
 
-outfilename = infilename.split('/')[-1].split('.root')[0] + '_MLdata.h5'
-#df.to_hdf('topMLdata.h5','df')
-df.to_hdf(outfilename,'df')
+for key in output_data_ML.keys():
+    if key != 'num_combos':
+        print(key,len(output_data_ML[key]))
+#df = pd.DataFrame.from_dict(output_data_ML)
+
+#outfilename = infilename.split('/')[-1].split('.root')[0] + '_MLdata.h5'
+##df.to_hdf('topMLdata.h5','df')
+#df.to_hdf(outfilename,'df')
+
+for key in output_data_ML.keys():
+    if key != 'num_combos':
+        data['ml/'+key] = output_data_ML[key]
+print( output_data_ML['num_combos'])
+data['ml/num'] = output_data_ML['num_combos']
+hdfile = hp.write_to_file("FOR_TESTS.hdf5", data, comp_type="gzip", comp_opts=9)
+
 
 
 
