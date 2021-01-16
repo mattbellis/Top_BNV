@@ -8,6 +8,8 @@ from operator import itemgetter
 
 import pandas as pd
 
+import time
+
 TWOPI = 2*math.pi
 PI = math.pi
 ################################################################################
@@ -97,23 +99,33 @@ pdgcodes = {6:"t", -6:"tbar"}
 ################################################################################
 def lorentz_boost(p4, rest_frame_p4, return_matrix=False, boost_matrix=None):
 
+    # Let's assume p4 will be a 4-vector and rest_frame_p4 will be
+    # a 4-element list [e,px,py,pz]
+
+    #print("HERE!")
+    #print(p4)
+    #print(type(p4))
     pmom = [0,0,0,0]
-    if type(p4) != list:
+    if type(p4) == list:
+        pmom = list(p4)
+    elif type(p4) == np.ndarray:
+        pmom = list(p4[0:4].tolist())
+    else:
         pmom[0] = p4.e
         pmom[1] = p4.pz
         pmom[2] = p4.py
         pmom[3] = p4.pz
-    else:
-        pmom = list(p4)
 
     rest_frame = [0,0,0,0]
-    if type(rest_frame_p4) != list:
+    if type(rest_frame_p4) == list:
+        rest_frame = list(rest_frame_p4)
+    elif type(rest_frame_p4) == np.ndarray:
+        rest_frame = list(rest_frame_p4[0:4].tolist())
+    else:
         rest_frame[0] = rest_frame_p4.e
         rest_frame[1] = rest_frame_p4.pz
         rest_frame[2] = rest_frame_p4.py
         rest_frame[3] = rest_frame_p4.pz
-    else:
-        rest_frame = list(rest_frame_p4)
 
     L = boost_matrix
 
@@ -294,12 +306,28 @@ def pmag(p3):
 def addp4s(p4s):
 
     tot = [0.0, 0.0, 0.0, 0.0]
-
+    #print(type(p4s[0]))
     for p4 in p4s:
         tot[0] += p4.e
         tot[1] += p4.px
         tot[2] += p4.py
         tot[3] += p4.pz
+
+    '''
+    if type(p4s[0]) == list or type(p4s[0]) == np.ndarray:
+        for p4 in p4s:
+            #print(type(p4))
+            tot[0] += p4[0]
+            tot[1] += p4[1]
+            tot[2] += p4[2]
+            tot[3] += p4[3]
+    else:
+        for p4 in p4s:
+            tot[0] += p4.e
+            tot[1] += p4.px
+            tot[2] += p4.py
+            tot[3] += p4.pz
+    '''
 
     return tot
 ################################################################################
@@ -308,7 +336,10 @@ def addp4s(p4s):
 def invmass(p4s):
 
     tot = p4s
-    if type(p4s[0]) != np.float64:
+    #print(type(p4s[0]))
+    if type(p4s[0]) == np.float64 or type(p4s[0]) == float:
+        1
+    else:
         tot = addp4s(p4s)
 
     p3 = pmag(tot[1:4])
@@ -444,7 +475,8 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
     extras = []
 
     # We need at least 5 jets (at least 1 b jet) and 1 lepton
-    if len(jets)<5 or len(leptons)<1:
+    # SHOULD WE CUT ON MANY JETS TO SAVE TIME?
+    if len(jets)<5 or len(leptons)<1 or len(jets)>=8 or len(leptons)>=8:
         ML_data["num_combos"].append(counter)
         return return_vals
 
@@ -452,7 +484,7 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
 
     njets = len(jets)
 
-    jetindices = np.arange(njets)
+    jetindices = np.arange(njets,dtype=int)
 
     #print("---------")
     # FIRST TRY TO RECONSTRUCT THE HADRONICALLY DECAYING TOP
@@ -460,14 +492,18 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
     # For now, we know that the signal has a b-jet on that side.
     # Pick out 3 jets
     for hadjetidx in combinations(jetindices,3):
+        #print("at start of loop: ",counter)
 
         hadjet = [None,None,None]
 
         # Check to see that we have 1 and only 1 b-jet combo
         # This is just for now. We might change this later 
         correct_combo = 0
+
         for i in range(0,3):
-            hadjet[i] = jets[hadjetidx[i]]
+
+            hadjet[i] = jets[int(hadjetidx[i])]
+
             if hadjet[i].btagDeepB>=bjetcut:
                 correct_combo += 1
 
@@ -491,7 +527,7 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
             # This is just for now. We might change this later 
             correct_combo = 0
             for i in range(0,2):
-                bnvjet[i] = jets[bnvjetidx[i]]
+                bnvjet[i] = jets[int(bnvjetidx[i])]
                 if bnvjet[i].btagDeepB>=bjetcut:
                     correct_combo += 1
 
@@ -531,13 +567,20 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
             haddR0 = deltaR(hadnonbjet0,hadnonbjet1)
             haddR1 = deltaR(hadnonbjet0,hadbjet)
             haddR2 = deltaR(hadnonbjet1,hadbjet)
+            #haddR0 = hadnonbjet0.delta_r(hadnonbjet1)
+            #haddR1 = hadnonbjet0.delta_r(hadbjet)
+            #haddR2 = hadnonbjet1.delta_r(hadbjet)
 
             # Make sure the jets are not so close that they're almost merged!
             if haddR0>0.05 and haddR1>0.05 and haddR2>0.05:
 
                 hadWmass = invmass([hadnonbjet0,hadnonbjet1])
                 hadtopp4 = addp4s([hadnonbjet0,hadnonbjet1,hadbjet])
+                #print(hadtopp4)
                 hadtopmass = invmass(hadtopp4)
+                #hadWmass = (hadnonbjet0 + hadnonbjet1).mass
+                #hadtopp4 = hadnonbjet0 + hadnonbjet1 + hadbjet
+                #hadtopmass = hadtopp4.mass
 
                 mass = invmass([hadnonbjet0,hadbjet])
                 hadtop01 = mass#**2
@@ -545,6 +588,9 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
                 hadtop02 = mass#**2
                 mass = invmass([hadnonbjet0,hadnonbjet1])
                 hadtop12 = mass#**2
+                #hadtop01 = (hadnonbjet0 + hadbjet).mass
+                #hadtop02 = (hadnonbjet1 + hadbjet).mass
+                #hadtop12 = (hadnonbjet0 + hadnonbjet1).mass
 
                 # Now for the BNV candidate!
                 for lepidx,lepton in enumerate(leptons):
@@ -552,6 +598,9 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
                     bnvdR0 = deltaR(bnvjet0,lepton)
                     bnvdR1 = deltaR(bnvjet1,lepton)
                     bnvdR2 = deltaR(bnvjet0,bnvjet1)
+                    #bnvdR0 = bnvjet0.delta_r(lepton)
+                    #bnvdR1 = bnvjet1.delta_r(lepton)
+                    #bnvdR2 = bnvjet0.delta_r(bnvjet1)
 
                     # Make sure the jets are not so close that they're almost merged!
                     # Should I also do this here for the muons?
@@ -567,21 +616,30 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
                         bnvtop02 = mass#**2
                         mass = invmass([bnvjet0,bnvjet1])
                         bnvtop12 = mass#**2
+                        #bnvtop01 = (bnvjet0 + lepton).mass
+                        #bnvtop02 = (bnvjet1 + lepton).mass
+                        #bnvtop12 = (bnvjet0 + bnvjet1).mass
 
                         leppt = lepton.pt
-                        leppmag = np.sqrt(lepton.px**2 + lepton.py**2 + lepton.pz**2)
+                        leppmag = lepton.rho # Mag of momentum
 
-                        bnvtopp4 = addp4s([bnvjet0,bnvjet1,lepton])
+                        bnvtopp4 = addp4s([bnvjet0, bnvjet1, lepton])
                         bnvtopmass = invmass(bnvtopp4)
+                        #bnvtopp4 = (bnvjet0 + bnvjet1 + lepton)
+                        #bnvtopmass = bnvtopp4.mass
 
                         if hadtopp4 is not None:
+                            #print(hadtopp4,bnvtopp4)
                             a = angle_between_vectors(hadtopp4,bnvtopp4,transverse=True)
                             thetatop1top2 = np.cos(a)
                             ##thetatop1top2 = a
 
                             if ML_data is not None:
+                                #start = time.time()
                                 vals_for_ML_training([hadnonbjet0,hadnonbjet1,hadbjet],ML_data,tag='had')
                                 vals_for_ML_training([bnvjet0,bnvjet1,lepton],ML_data,tag='bnv')
+                                #print("time to calc vals: ",time.time()-start)
+
                                 ML_data['ttbar_angle'].append(thetatop1top2)
                                 counter += 1
                                 #ML_data["had_jet_idx1"].append(idx1)
@@ -602,6 +660,8 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
                             return_vals[1].append(bnvtopmass)
                             return_vals[2].append(np.sqrt(hadtopp4[1]**2+hadtopp4[2]**2))
                             return_vals[3].append(np.sqrt(bnvtopp4[1]**2+bnvtopp4[2]**2))
+                            #return_vals[2].append(hadtopp4.pt)
+                            #return_vals[3].append(bnvtopp4.pt)
                             return_vals[4].append(thetatop1top2)
                             return_vals[5].append(hadWmass)
                             return_vals[6].append(leppt)
@@ -610,7 +670,7 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
                             return_vals[9].append(lepidx)
                             return_vals[10].append(extras)
 
-    print('counter: ',counter)
+    #print('counter: ',counter)
     ML_data["num_combos"].append(counter)
     return return_vals
 
@@ -633,12 +693,18 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     #print(j2)
     #print(j3)
     #topp4 = j1[0:4]+j2[0:4]+j3[0:4]
+    #topp4_temp = (j1 + j2 + j3)
     topp4 = addp4s([j1,j2,j3])
-    #topp4 = addp4(j1,j2,j3)
     topmass = 172.44
+    topmass2 = topmass * topmass
+    #print(type(topp4_temp))
+    #topp4[0] = np.sqrt(topmass2 + topp4.rho2)
     topp4[0] = np.sqrt(topmass**2 + topp4[1]**2 + topp4[2]**2 + topp4[3]**2)
+    #topp4 = [np.sqrt(topmass2 + topp4_temp.rho2), topp4_temp.x, topp4_temp.y, topp4_temp.z]
 
+    #start = time.time()
     L = lorentz_boost(j1,topp4,return_matrix=True)
+    #print("time for Lorentz boost: ",time.time()-start)
 
     tmp = lorentz_boost(j1,topp4,boost_matrix=L)
     rj1 = np.array([tmp.item(0,0),tmp.item(1,0),tmp.item(2,0),tmp.item(3,0)])
@@ -653,7 +719,9 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     rj2pmag = pmag(rj2[1:4])
     rj3pmag = pmag(rj3[1:4])
 
+
     ######### DUMP SOME INFO FOR ML TRAINING ########################
+    #start = time.time()
     tmpjets = [j1,j2,j3] 
     # If it is hadronic, order 3 jets, otherwise order 2 jets
     if tag=='had':
@@ -674,21 +742,30 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     #j3 = jets[2]
 #
     mass = invmass([j1,j2,j3])
+    #mass = (j1 + j2 + j3).mass
     output_data[tag+'_m'].append(mass)
 
     mass = invmass([j1,j2])
+    #mass = (j1 + j2).mass
     output_data[tag+'_j12_m'].append(mass)
     mass = invmass([j1,j3])
+    #mass = (j1 + j3).mass
     output_data[tag+'_j13_m'].append(mass)
     mass = invmass([j2,j3])
+    #mass = (j2 + j3).mass
     output_data[tag+'_j23_m'].append(mass)
 
     # LAB FRAME ANGLES
+    #print(j1)
+    #print(j2)
     dR = deltaR(j1,j2)
+    #dR = j1.delta_r(j2)
     output_data[tag+'_dR12_lab'].append(dR)
     dR = deltaR(j1,j3)
+    #dR = j1.delta_r(j3)
     output_data[tag+'_dR13_lab'].append(dR)
     dR = deltaR(j2,j3)
+    #dR = j2.delta_r(j3)
     output_data[tag+'_dR23_lab'].append(dR)
 
     tmp = [j2.px+j3.px, j2.py+j3.py, j2.pz+j3.pz] #  j2[1:4] + j3[1:4]
@@ -699,13 +776,19 @@ def vals_for_ML_training(jets,output_data,tag="had"):
 
     # REST FRAME
     topp4 = addp4s([j1,j2,j3])
+    #topp4_temp = (j1 + j2 + j3)
     #topp4 = addp4(j1,j2,j3)
-    topmass = 172.44
-    topp4[0] = np.sqrt(topmass**2 + topp4[1]**2 + topp4[2]**2 + topp4[3]**2)
+    #topmass = 172.44
+    #topmass2 = topmass * topmass
+    #topp4[0] = np.sqrt(topmass**2 + topp4[1]**2 + topp4[2]**2 + topp4[3]**2)
+    #print(type(topp4_temp))
+    #topp4[0] = np.sqrt(topmass2 + topp4.rho2)
+    #topp4 = [np.sqrt(topmass2 + topp4_temp.rho2), topp4_temp.x, topp4_temp.y, topp4_temp.z]
 
     #topp4 = j1[0:4]+j2[0:4]+j3[0:4]
     #topmass = 172.44
-    #topp4[0] = np.sqrt(topmass**2 + topp4[1]**2 + topp4[2]**2 + topp4[3]**2)
+    topp4[0] = np.sqrt(topmass**2 + topp4[1]**2 + topp4[2]**2 + topp4[3]**2)
+    #print("time for stuff after first Lorentz boost: ",time.time()-start)
 
     L = lorentz_boost(j1,topp4,return_matrix=True)
     rj1 = lorentz_boost(j1,topp4,boost_matrix=L)
