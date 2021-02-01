@@ -10,6 +10,8 @@ import pandas as pd
 
 import time
 
+import numba as nb
+
 TWOPI = 2*math.pi
 PI = math.pi
 ################################################################################
@@ -86,6 +88,55 @@ triggers_of_interest = [
 #]
 
 pdgcodes = {6:"t", -6:"tbar"}
+
+################################################################################
+# Generate the indices for the diferent combinations
+################################################################################
+def generate_event_topology_indices(njets,nleps,verbose=False):
+
+    index_combinations = []
+
+    if njets<5 or nleps<1:
+        return [None,None,None]
+
+    jetindices = np.arange(njets,dtype=int)
+    lepindices = np.arange(nleps,dtype=int)
+    
+    x = combinations(jetindices,3)
+    
+    #print(x)
+    for had in x:
+        #print("-------")
+        #print(had)
+        # Remove those indices
+        remaining = np.delete(jetindices, np.argwhere( (jetindices==had[0]) | (jetindices==had[1]) | (jetindices==had[2]) ))
+        bnv = combinations(remaining,2)
+        for b in bnv:
+            for lep in lepindices:
+                index_combinations.append([had,b,lep])
+                if verbose:
+                    print(had,b,lep)
+
+    return index_combinations
+################################################################################
+
+def generate_all_event_topology_indices(maxnjets=10,maxnleps=5,verbose=False):
+
+    all_indices = []
+
+    for i in range(0,maxnjets+1):
+        all_indices.append([])
+        for j in range(0,maxnleps+1):
+            idx = generate_event_topology_indices(i,j,verbose)
+            all_indices[i].append(idx)
+
+    if verbose:
+        print(all_indices)
+
+    return all_indices
+
+
+
 
 ################################################################################
 # Lorentz boost
@@ -465,6 +516,7 @@ def jet_mask(jets,ptcut=0):
     return mask
 
 ################################################################################
+#@nb.njit
 def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
 
     counter = 0
