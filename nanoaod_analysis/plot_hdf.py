@@ -5,6 +5,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pylab as plt
 
+# For CMS-style plotting
+import mplhep
+plt.style.use(mplhep.style.CMS)
+
 df = pd.read_hdf(sys.argv[1])
 
 print(len(df))

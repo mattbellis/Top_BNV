@@ -1,7 +1,6 @@
 import numpy as np
 import awkward1 as awkward
 import uproot4 as uproot
-import matplotlib.pylab as plt
 
 import sys
 
