@@ -7,6 +7,7 @@ import sys
 
 import nanoaod_analysis_tools as nat
 
+
 # https://github.com/CoffeaTeam/coffea/blob/9a29fe47fc690051be50773d262ee74e805a2f60/binder/nanoevents.ipynb
 from coffea.nanoaod import NanoEvents
 
@@ -76,12 +77,60 @@ print(events.GenPart.columns)
 events.GenPart.pdgId == 6
 
 #nat.truth_matching_TESTING(events)
-tm,atm = nat.truth_matching(events)
+tm,atm, lowest_momentum_parton, bparton_momenta, all_parton_momenta, ntruths = nat.truth_matching(events,max_events=2000000)
+
+print("Number of truth matched events")
+print(len(tm[0]),len(atm[0]))
+
+bins = [100,100,100,100]
+ranges = [(0,400), (0,250), (0,250), (0,250)]
+xlabels = [r'M($t/\overline{t}$ candidate) [GeV/c$^2$]',
+           r'M($j_1$ + $j_b$) [GeV/c$^2$]',
+           r'M($j_2$ + $j_b$) [GeV/c$^2$]',
+           r'M($j_1$ + $j_1$) [GeV/c$^2$]']
 
 plt.figure()
 for i in range(0,4):
     plt.subplot(2,2,i+1)
-    plt.hist(tm[i],bins=100)
+    plt.hist(tm[i],bins=bins[i],range=ranges[i])
+    plt.xlabel(xlabels[i])
+plt.tight_layout()
+plt.savefig('truthmatched_top_masses.png')
 
-plt.show()
+plt.figure()
+for i in range(0,4):
+    plt.subplot(2,2,i+1)
+    plt.hist(atm[i],bins=bins[i],range=ranges[i])
+    plt.xlabel(xlabels[i])
+plt.tight_layout()
+plt.savefig('truthmatched_antitop_masses.png')
 
+plt.figure()#figsize=(12,3))
+plt.subplot(2,2,1)
+plt.hist(lowest_momentum_parton,bins=100)
+
+plt.subplot(2,2,2)
+plt.hist(bparton_momenta,bins=100)
+
+plt.subplot(2,2,3)
+plt.hist(all_parton_momenta,bins=100)
+
+# See what percent have low momentum jet
+ptcut = []
+pct = []
+nentries = len(lowest_momentum_parton)
+lowest_momentum_parton = np.array(lowest_momentum_parton)
+for i in range(0,50,5):
+    ptcut.append(i)
+    y = len(lowest_momentum_parton[lowest_momentum_parton>i])
+    pct.append(y/float(nentries))
+
+plt.subplot(2,2,4)
+plt.plot(ptcut,pct,'o')
+
+plt.savefig('partons_momenta.png')
+
+plt.figure()
+plt.hist(ntruths,bins=7,range=(-0.5,6.5))
+
+#plt.show()
