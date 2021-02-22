@@ -135,6 +135,26 @@ def generate_all_event_topology_indices(maxnjets=10,maxnleps=5,verbose=False):
 
     return all_indices
 
+################################################################################
+def awk_to_my_array(awk_arrs,obj_type='jet'):
+
+    arr = []
+    for awk_arr in awk_arrs:
+        a0 = awk_arr['e']
+        a1 = awk_arr['px']
+        a2 = awk_arr['py']
+        a3 = awk_arr['pz']
+        a4 = awk_arr['pt']
+        a5 = awk_arr['eta']
+        a6 = awk_arr['phi']
+        if obj_type=='jet':
+            a7 = awk_arr['btagDeepB']
+        elif obj_type=='lepton':
+            a7 = awk_arr['charge']
+        arr.append(np.array([a0,a1,a2,a3,a4,a5,a6,a7]))
+
+    return arr
+################################################################################
 
 
 
@@ -156,27 +176,35 @@ def lorentz_boost(p4, rest_frame_p4, return_matrix=False, boost_matrix=None):
     #print("HERE!")
     #print(p4)
     #print(type(p4))
-    pmom = [0,0,0,0]
+    pmom = p4[0:4]
+    #pmom = [0,0,0,0]
+    #pmom[0] = p4['e']
+    #pmom[1] = p4['pz']
+    #pmom[2] = p4['py']
+    #pmom[3] = p4['pz']
+    '''
     if type(p4) == list:
         pmom = list(p4)
     elif type(p4) == np.ndarray:
         pmom = list(p4[0:4].tolist())
     else:
-        pmom[0] = p4.e
-        pmom[1] = p4.pz
-        pmom[2] = p4.py
-        pmom[3] = p4.pz
+        pmom[0] = p4['e']
+        pmom[1] = p4['pz']
+        pmom[2] = p4['py']
+        pmom[3] = p4['pz']
+    '''
 
-    rest_frame = [0,0,0,0]
-    if type(rest_frame_p4) == list:
-        rest_frame = list(rest_frame_p4)
-    elif type(rest_frame_p4) == np.ndarray:
-        rest_frame = list(rest_frame_p4[0:4].tolist())
-    else:
-        rest_frame[0] = rest_frame_p4.e
-        rest_frame[1] = rest_frame_p4.pz
-        rest_frame[2] = rest_frame_p4.py
-        rest_frame[3] = rest_frame_p4.pz
+    rest_frame = rest_frame_p4[0:4]
+    #rest_frame = [0,0,0,0]
+    #if type(rest_frame_p4) == list:
+        #rest_frame = list(rest_frame_p4)
+    #elif type(rest_frame_p4) == np.ndarray:
+        #rest_frame = list(rest_frame_p4[0:4].tolist())
+    #else:
+        #rest_frame[0] = rest_frame_p4['e']
+        #rest_frame[1] = rest_frame_p4['pz']
+        #rest_frame[2] = rest_frame_p4['py']
+        #rest_frame[3] = rest_frame_p4['pz']
 
     L = boost_matrix
 
@@ -269,13 +297,22 @@ def deltaR(p40, p41):
     # constrain0pi will make sure that dR is between 0 and pi, rather than
     # 0 and 2pi, if True.
 
-    deta = p40['eta'] - p41['eta']
+    eta0 = p40[5]
+    eta1 = p41[5]
+
+    phi0 = p40[6]
+    phi1 = p41[6]
+
+    #deta = p40['eta'] - p41['eta']
+    deta = eta0 - eta1
 
     # Assume phi is in the second entry
     # First make sure it is between 0 and 2pi
     # https://root.cern.ch/doc/master/TVector2_8cxx_source.html#l00101
-    phi0 = angle_mod_2pi(p40['phi'])
-    phi1 = angle_mod_2pi(p41['phi'])
+    #phi0 = angle_mod_2pi(p40['phi'])
+    #phi1 = angle_mod_2pi(p41['phi'])
+    phi0 = angle_mod_2pi(phi0)
+    phi1 = angle_mod_2pi(phi1)
 
     dphi = phi0 - phi1
     # Make sure this is between 0 and pi
@@ -291,13 +328,13 @@ def deltaR(p40, p41):
 def angle_between_vectors(p40, p41, transverse=False):
 
     if type(p40)!=list and type(p40)!=np.matrix:
-        px0 = p40.px
-        py0 = p40.py
-        pz0 = p40.pz
+        px0 = p40['px']
+        py0 = p40['py']
+        pz0 = p40['pz']
 
-        px1 = p41.px
-        py1 = p41.py
-        pz1 = p41.pz
+        px1 = p41['px']
+        py1 = p41['py']
+        pz1 = p41['pz']
     else:
         px0 = p40[1]
         py0 = p40[2]
@@ -346,6 +383,7 @@ def scalarH(p4s):
 ################################################################################
 # pmag: pass in a 3 vector
 ################################################################################
+#@nb.njit
 def pmag(p3):
     pmag = np.sqrt(p3[0]*p3[0] + p3[1]*p3[1] + p3[2]*p3[2])
 
@@ -354,15 +392,23 @@ def pmag(p3):
 ################################################################################
 # Assume we pass in a list of 4 numbers in either a list or array
 ################################################################################
+#@nb.njit
 def addp4s(p4s):
 
     tot = [0.0, 0.0, 0.0, 0.0]
-    #print(type(p4s[0]))
     for p4 in p4s:
-        tot[0] += p4.e
-        tot[1] += p4.px
-        tot[2] += p4.py
-        tot[3] += p4.pz
+        #print(type(p4))
+        #print(p4)
+        tot[0] += p4[0]
+        tot[1] += p4[1]
+        tot[2] += p4[2]
+        tot[3] += p4[3]
+    #print(type(p4s[0]))
+    #for p4 in p4s:
+        #tot[0] += p4['e']
+        #tot[1] += p4['px']
+        #tot[2] += p4['py']
+        #tot[3] += p4['pz']
 
     '''
     if type(p4s[0]) == list or type(p4s[0]) == np.ndarray:
@@ -384,14 +430,21 @@ def addp4s(p4s):
 ################################################################################
 # Assume we pass in a list of 4 numbers in either a list or array
 ################################################################################
+#@nb.njit
 def invmass(p4s):
 
-    tot = p4s
+    tot = None
+    if len(p4s)==1:
+        tot = p4s[0]
+    else:
+        tot = addp4s(p4s)
     #print(type(p4s[0]))
+    '''
     if type(p4s[0]) == np.float64 or type(p4s[0]) == float:
         1
     else:
         tot = addp4s(p4s)
+    '''
 
     p3 = pmag(tot[1:4])
     m2 = tot[0]*tot[0] - (p3*p3)
@@ -438,9 +491,9 @@ def xyz2etaphi(x,y,z):
 ################################################################################
 def etaphipt2xyz(p4):
 
-    px = p4.pt*np.cos(p4.phi)
-    py = p4.pt*np.sin(p4.phi)
-    pz = p4.pt/np.tan(2*np.arctan(np.exp(-p4.eta)))
+    px = p4['pt']*np.cos(p4['phi'])
+    py = p4['pt']*np.sin(p4['phi'])
+    pz = p4['pt']/np.tan(2*np.arctan(np.exp(-p4['eta'])))
 
     return px, py, pz
 
@@ -449,10 +502,10 @@ def etaphipt2xyz(p4):
 ################################################################################
 def energyfrommasspxpypz(p4):
 
-    px2 = p4.px*p4.px
-    py2 = p4.py*p4.py
-    pz2 = p4.pz*p4.pz
-    m2 = p4.mass*p4.mass
+    px2 = p4['px']*p4['px']
+    py2 = p4['py']*p4['py']
+    pz2 = p4['pz']*p4['pz']
+    m2 = p4['mass']*p4['mass']
     
     e2 = m2+px2+py2+pz2
 
@@ -481,7 +534,7 @@ def trigger_mask(triggers_choice, events_HLT):
 def muon_mask(muons, flag='loose', isoflag=0, ptcut=10):
 
     # Pt cut
-    mask_pt = (muons.pt > ptcut)
+    mask_pt = (muons['pt'] > ptcut)
 
     # ID flag
     mask_id = None
@@ -495,7 +548,7 @@ def muon_mask(muons, flag='loose', isoflag=0, ptcut=10):
     # Isolation
     # https://cms-nanoaod-integration.web.cern.ch/integration/master-106X/mc102X_doc.html#Muon
     # (1=PFIsoVeryLoose, 2=PFIsoLoose, 3=PFIsoMedium, 4=PFIsoTight, 5=PFIsoVeryTight, 6=PFIsoVeryVeryTight)
-    mask_iso = (muons.pfIsoId >= isoflag)
+    mask_iso = (muons['pfIsoId'] >= isoflag)
 
     mask = mask_pt & mask_id & mask_iso
 
@@ -517,7 +570,14 @@ def jet_mask(jets,ptcut=0):
 
 ################################################################################
 #@nb.njit
-def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
+def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None,maxnjets=10,maxnleps=5,event_topology_indices=None):
+
+    # Extract the information about the jets so we don't keep having to call the
+    # attr functions...I think?
+    jets = awk_to_my_array(jets_awk,obj_type='jet')
+    leptons = awk_to_my_array(leptons_awk,'lepton')
+    # These arrays will be 
+    # e, px, py, pz, pt, eta, phi, (btag/q)
 
     counter = 0
 
@@ -526,24 +586,30 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
     return_vals = [[],[],[],[],[],[],[],[],[],[],[]]
     extras = []
 
+    njets = len(jets)
+    nleps = len(leptons)
+
     # We need at least 5 jets (at least 1 b jet) and 1 lepton
     # SHOULD WE CUT ON MANY JETS TO SAVE TIME?
-    if len(jets)<5 or len(leptons)<1 or len(jets)>=8 or len(leptons)>=8:
+    if njets<5 or nleps<1 or njets>=maxnjets or nleps>=maxnleps:
         ML_data["num_combos"].append(counter)
         return return_vals
 
     ncands = 0
 
-    njets = len(jets)
+    for topology_index in event_topology_indices:
+        hadjetidx = topology_index[0]
+        bnvjetidx = topology_index[1]
+        lepidx = topology_index[2]
 
-    jetindices = np.arange(njets,dtype=int)
+        #jetindices = np.arange(njets,dtype=int)
 
-    #print("---------")
-    # FIRST TRY TO RECONSTRUCT THE HADRONICALLY DECAYING TOP
-    # NEED TO CHECK TO SEE IF THIS WORKS IF THERE IS 1 BJET
-    # For now, we know that the signal has a b-jet on that side.
-    # Pick out 3 jets
-    for hadjetidx in combinations(jetindices,3):
+        #print("---------")
+        # FIRST TRY TO RECONSTRUCT THE HADRONICALLY DECAYING TOP
+        # NEED TO CHECK TO SEE IF THIS WORKS IF THERE IS 1 BJET
+        # For now, we know that the signal has a b-jet on that side.
+        # Pick out 3 jets
+        #for hadjetidx in combinations(jetindices,3):
         #print("at start of loop: ",counter)
 
         hadjet = [None,None,None]
@@ -553,10 +619,9 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
         correct_combo = 0
 
         for i in range(0,3):
-
             hadjet[i] = jets[int(hadjetidx[i])]
-
-            if hadjet[i].btagDeepB>=bjetcut:
+            #if hadjet[i].btagDeepB>=bjetcut:
+            if hadjet[i][7]>=bjetcut:
                 correct_combo += 1
 
         #'''
@@ -566,46 +631,57 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
 
         # If this is good so far and we have good jet combinations for the hadronic top
         # decay, then remove these jets and figure stuff out for the BNV decay
+        '''
         tempindices = list(jetindices)
         for i in range(3):
             tempindices.remove(hadjetidx[i])
+        '''
 
+        # FOR NOW WE WILL NOT WORRY ABOUT IF THERE IS A B-JET ON THE
+        # BNV SIDE
+        #bnvjet[i] = jets[int(bnvjetidx[i])]
+
+        if 1:
         # Now generate the 2 jets needed for the BNV mix
-        for bnvjetidx in combinations(tempindices,2):
-
-            bnvjet = [None,None]
-
-            # Check to see that we have 1 and only 1 b-jet combo
-            # This is just for now. We might change this later 
-            correct_combo = 0
-            for i in range(0,2):
-                bnvjet[i] = jets[int(bnvjetidx[i])]
-                if bnvjet[i].btagDeepB>=bjetcut:
-                    correct_combo += 1
+        #for bnvjetidx in combinations(tempindices,2):
+#
+            #bnvjet = [None,None]
+#
+            ## Check to see that we have 1 and only 1 b-jet combo
+            ## This is just for now. We might change this later 
+            #correct_combo = 0
+            #for i in range(0,2):
+                #bnvjet[i] = jets[int(bnvjetidx[i])]
+                #if bnvjet[i].btagDeepB>=bjetcut:
+                    #correct_combo += 1
 
             #'''
-            if correct_combo != 1:
-                continue
+            #if correct_combo != 1:
+                #continue
             #'''
 
             # Right now, we're not worried about which is the bjet
-            bnvjet0 = bnvjet[0]
-            bnvjet1 = bnvjet[1]
+            # On the BNV side
+            bnvjet0 = jets[int(bnvjetidx[0])]
+            bnvjet1 = jets[int(bnvjetidx[1])]
 
             hadnonbjet0 = None
             hadnonbjet1 = None
             # For the had decay, we want to try to identify the W
-            if hadjet[0].btagDeepB>bjetcut:
+            #if hadjet[0].btagDeepB>bjetcut:
+            if hadjet[0][7]>bjetcut:
                 hadbjet = hadjet[0]
                 hadnonbjet0 = hadjet[1]
                 hadnonbjet1 = hadjet[2]
                 newhadidx = [hadjetidx[0],hadjetidx[1],hadjetidx[2]]
-            elif hadjet[1].btagDeepB>bjetcut:
+            #elif hadjet[1].btagDeepB>bjetcut:
+            elif hadjet[1][7]>bjetcut:
                 hadbjet = hadjet[1]
                 hadnonbjet0 = hadjet[0]
                 hadnonbjet1 = hadjet[2]
                 newhadidx = [hadjetidx[1],hadjetidx[0],hadjetidx[2]]
-            elif hadjet[2].btagDeepB>bjetcut:
+            #elif hadjet[2].btagDeepB>bjetcut:
+            elif hadjet[2][7]>bjetcut:
                 hadbjet = hadjet[2]
                 hadnonbjet0 = hadjet[0]
                 hadnonbjet1 = hadjet[1]
@@ -629,7 +705,7 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
                 hadWmass = invmass([hadnonbjet0,hadnonbjet1])
                 hadtopp4 = addp4s([hadnonbjet0,hadnonbjet1,hadbjet])
                 #print(hadtopp4)
-                hadtopmass = invmass(hadtopp4)
+                hadtopmass = invmass([hadtopp4])
                 #hadWmass = (hadnonbjet0 + hadnonbjet1).mass
                 #hadtopp4 = hadnonbjet0 + hadnonbjet1 + hadbjet
                 #hadtopmass = hadtopp4.mass
@@ -645,7 +721,9 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
                 #hadtop12 = (hadnonbjet0 + hadnonbjet1).mass
 
                 # Now for the BNV candidate!
-                for lepidx,lepton in enumerate(leptons):
+                #for lepidx,lepton in enumerate(leptons):
+                if 1:
+                    lepton = leptons[int(lepidx)]
 
                     bnvdR0 = deltaR(bnvjet0,lepton)
                     bnvdR1 = deltaR(bnvjet1,lepton)
@@ -672,11 +750,13 @@ def event_hypothesis(jets,leptons,bjetcut=0.5,verbose=False,ML_data=None):
                         #bnvtop02 = (bnvjet1 + lepton).mass
                         #bnvtop12 = (bnvjet0 + bnvjet1).mass
 
-                        leppt = lepton.pt
-                        leppmag = lepton.rho # Mag of momentum
+                        #leppt = lepton.pt
+                        #leppmag = lepton.rho # Mag of momentum
+                        leppt = lepton[4]
+                        leppmag = pmag(lepton[1:4]) # Mag of momentum
 
                         bnvtopp4 = addp4s([bnvjet0, bnvjet1, lepton])
-                        bnvtopmass = invmass(bnvtopp4)
+                        bnvtopmass = invmass([bnvtopp4])
                         #bnvtopp4 = (bnvjet0 + bnvjet1 + lepton)
                         #bnvtopmass = bnvtopp4.mass
 
@@ -776,17 +856,22 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     #start = time.time()
     tmpjets = [j1,j2,j3] 
     # If it is hadronic, order 3 jets, otherwise order 2 jets
+    # Order the jets so that they run from largest pt (j1) to smallest pt (j3)
     if tag=='had':
         sortidx = np.argsort( [rj1pmag,rj2pmag,rj3pmag])
         j1 = tmpjets[sortidx[2]]
         j2 = tmpjets[sortidx[1]]
         j3 = tmpjets[sortidx[0]]
         #print(j1,j2,j3)
+        #print("---------")
+        #print(rj1pmag, rj2pmag, rj3pmag)
+        #print(sortidx)
     else:
         sortidx = np.argsort( [rj1pmag,rj2pmag])
         j1 = tmpjets[sortidx[1]]
         j2 = tmpjets[sortidx[0]]
 
+    #print(rj1pmag, rj2pmag, rj3pmag)
     #for s in jets:
     #print(s[4],s)
     #j1 = jets[0]
@@ -794,17 +879,13 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     #j3 = jets[2]
 #
     mass = invmass([j1,j2,j3])
-    #mass = (j1 + j2 + j3).mass
     output_data[tag+'_m'].append(mass)
 
     mass = invmass([j1,j2])
-    #mass = (j1 + j2).mass
     output_data[tag+'_j12_m'].append(mass)
     mass = invmass([j1,j3])
-    #mass = (j1 + j3).mass
     output_data[tag+'_j13_m'].append(mass)
     mass = invmass([j2,j3])
-    #mass = (j2 + j3).mass
     output_data[tag+'_j23_m'].append(mass)
 
     # LAB FRAME ANGLES
@@ -820,10 +901,12 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     #dR = j2.delta_r(j3)
     output_data[tag+'_dR23_lab'].append(dR)
 
-    tmp = [j2.px+j3.px, j2.py+j3.py, j2.pz+j3.pz] #  j2[1:4] + j3[1:4]
+    #tmp = [j2.px+j3.px, j2.py+j3.py, j2.pz+j3.pz] #  j2[1:4] + j3[1:4]
+    tmp = [j2[1]+j3[1], j2[2]+j3[2], j2[3]+j3[3]] #  j2[1:4] + j3[1:4]
     tmppt,tmpeta,tmpphi = xyz2etaphi(tmp[0],tmp[1],tmp[2])
     #dR = deltaR(j1,[tmpeta,tmpphi])
-    dR = deltaR(j1,{'eta':tmpeta,'phi':tmpphi})
+    #dR = deltaR(j1,{'eta':tmpeta,'phi':tmpphi})
+    dR = deltaR(j1,[0,0,0,0,  0,tmpeta,tmpphi])
     output_data[tag+'_dR1_23_lab'].append(dR)
 
     # REST FRAME
@@ -859,16 +942,19 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     output_data[tag+'_dTheta23_rest'].append(dTheta)
 
     # DeepCSV b-tagging variable
-    output_data[tag+'_j1_btag0'].append(j1.btagCSVV2)
-    output_data[tag+'_j2_btag0'].append(j2.btagCSVV2)
-    output_data[tag+'_j1_btag1'].append(j1.btagDeepC)
-    output_data[tag+'_j2_btag1'].append(j2.btagDeepC)
-    output_data[tag+'_j1_btagsum'].append(j1.btagDeepB)
-    output_data[tag+'_j2_btagsum'].append(j2.btagDeepB)
+    #output_data[tag+'_j1_btag0'].append(j1.btagCSVV2)
+    #output_data[tag+'_j2_btag0'].append(j2.btagCSVV2)
+    #output_data[tag+'_j1_btag1'].append(j1.btagDeepC)
+    #output_data[tag+'_j2_btag1'].append(j2.btagDeepC)
+    #output_data[tag+'_j1_btag'].append(j1.btagDeepB)
+    #output_data[tag+'_j2_btag'].append(j2.btagDeepB)
+    output_data[tag+'_j1_btag'].append(j1[7])
+    output_data[tag+'_j2_btag'].append(j2[7])
     if tag=="had":
-        output_data[tag+'_j3_btag0'].append(j3.btagCSVV2)
-        output_data[tag+'_j3_btag1'].append(j3.btagDeepC)
-        output_data[tag+'_j3_btagsum'].append(j3.btagDeepB)
+        #output_data[tag+'_j3_btag0'].append(j3.btagCSVV2)
+        #output_data[tag+'_j3_btag1'].append(j3.btagDeepC)
+        #output_data[tag+'_j3_btag'].append(j3.btagDeepB)
+        output_data[tag+'_j3_btag'].append(j3[7])
 
 
 ################################################################################
@@ -889,15 +975,15 @@ def define_ML_output_data():
     output_data["had_dTheta12_rest"] = []
     output_data["had_dTheta13_rest"] = []
     output_data["had_dTheta23_rest"] = []
-    output_data["had_j1_btag0"] = []
-    output_data["had_j2_btag0"] = []
-    output_data["had_j3_btag0"] = []
-    output_data["had_j1_btag1"] = []
-    output_data["had_j2_btag1"] = []
-    output_data["had_j3_btag1"] = []
-    output_data["had_j1_btagsum"] = []
-    output_data["had_j2_btagsum"] = []
-    output_data["had_j3_btagsum"] = []
+    #output_data["had_j1_btag0"] = []
+    #output_data["had_j2_btag0"] = []
+    #output_data["had_j3_btag0"] = []
+    #output_data["had_j1_btag1"] = []
+    #output_data["had_j2_btag1"] = []
+    #output_data["had_j3_btag1"] = []
+    output_data["had_j1_btag"] = []
+    output_data["had_j2_btag"] = []
+    output_data["had_j3_btag"] = []
 
     output_data["bnv_m"] = []
     output_data["bnv_j12_m"] = []
@@ -912,12 +998,12 @@ def define_ML_output_data():
     output_data["bnv_dTheta12_rest"] = []
     output_data["bnv_dTheta13_rest"] = []
     output_data["bnv_dTheta23_rest"] = []
-    output_data["bnv_j1_btag0"] = []
-    output_data["bnv_j2_btag0"] = []
-    output_data["bnv_j1_btag1"] = []
-    output_data["bnv_j2_btag1"] = []
-    output_data["bnv_j1_btagsum"] = []
-    output_data["bnv_j2_btagsum"] = []
+    #output_data["bnv_j1_btag0"] = []
+    #output_data["bnv_j2_btag0"] = []
+    #output_data["bnv_j1_btag1"] = []
+    #output_data["bnv_j2_btag1"] = []
+    output_data["bnv_j1_btag"] = []
+    output_data["bnv_j2_btag"] = []
 
     output_data["ttbar_angle"] = []
 
@@ -957,9 +1043,9 @@ def check_jet_against_gen(jet,gen, maxdPtRel=1e9, maxdR=0.15):
     # Gen: pt, eta, phi
     # Jet: NanoAOD jet
 
-    dpT = abs(jet.pt - gen[0])
-    deta = jet.eta - gen[1]
-    dphi = jet.phi - gen[2]
+    dpT = abs(jet['pt'] - gen[0])
+    deta = jet['eta'] - gen[1]
+    dphi = jet['phi'] - gen[2]
 
     dR =  math.sqrt(deta*deta + dphi*dphi)
 
@@ -1044,6 +1130,7 @@ def truth_matching(events,max_events=1e18):
     # find index of first top
 
     # https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookGenParticleCandidate
+    # https://coffeateam.github.io/coffea/api/coffea.nanoevents.methods.nanoaod.GenParticle.html
 
     topmass = [[], [], [], []]
     antitopmass = [[], [], [], []]
@@ -1160,9 +1247,13 @@ def truth_matching(events,max_events=1e18):
 
         #print(nidx,jet_matched_idx)
         if nidx == 6:
-            j1 = jets[jet_matched_idx['5']]
-            j2 = jets[jet_matched_idx['tq1']]
-            j3 = jets[jet_matched_idx['tq2']]
+            tmp_jets = awk_to_my_array(jets,obj_type='jet')
+
+            j1 = tmp_jets[jet_matched_idx['5']]
+            j2 = tmp_jets[jet_matched_idx['tq1']]
+            j3 = tmp_jets[jet_matched_idx['tq2']]
+            print(jet_matched_idx)
+
 
             #print(j3.columns)
             m = invmass([j1,j2,j3])

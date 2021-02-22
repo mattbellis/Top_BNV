@@ -1,5 +1,5 @@
 import numpy as np
-import awkward1 as awkward
+import awkward1 as ak
 import uproot4 as uproot
 import matplotlib.pylab as plt
 
@@ -10,6 +10,8 @@ import nanoaod_analysis_tools as nat
 
 # https://github.com/CoffeaTeam/coffea/blob/9a29fe47fc690051be50773d262ee74e805a2f60/binder/nanoevents.ipynb
 from coffea.nanoaod import NanoEvents
+from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
+
 
 infilename = sys.argv[1]
 
@@ -24,13 +26,15 @@ infilename = sys.argv[1]
 #
 #cms_dict_ak1 = events.arrays(events.keys())
 
-events = NanoEvents.from_file(infilename)
+#events = NanoEvents.from_file(infilename)
+events = NanoEventsFactory.from_root(infilename, schemaclass=NanoAODSchema).events()
 
-a = awkward.flatten(events.Jet.pt)
 
-print(events.Jet.columns)
+a = ak.flatten(events.Jet.pt)
 
-a = awkward.flatten(events.Jet.pt[events.Jet.pt>15])
+print(events.Jet.fields)
+
+a = ak.flatten(events.Jet.pt[events.Jet.pt>15])
 
 mask = events.L1.SingleMu22==True
 
@@ -43,13 +47,22 @@ muons = events[mask].Muon
 print(len(jets))
 print(len(muons))
 
+#print("Calculating Cartesian 4-vectors...")
+#muons['px'],muons['py'],muons['pz'] = nat.etaphipt2xyz(muons)
+#muons['e'] = nat.energyfrommasspxpypz(muons)
+##
+#jets['px'],jets['py'],jets['pz'] = nat.etaphipt2xyz(jets)
+#jets['e'] = nat.energyfrommasspxpypz(jets)
+#print("Calculated Cartesian 4-vectors!")
+
+
 mask_jet = jets.btagDeepB > 0.5
 
 jets[mask_jet].pt
 
 jets[3][0].pt
 
-jets.counts
+ak.num(jets)
 
 '''
 for jet,muon in zip(jets,muons):
@@ -72,7 +85,7 @@ alljets['px'],alljets['py'],alljets['pz'] = nat.etaphipt2xyz(alljets)
 alljets['e'] = nat.energyfrommasspxpypz(alljets)
 
 print("------ Gen Particles ----------")
-print(events.GenPart.columns)
+print(events.GenPart.fields)
 # Find the tops
 events.GenPart.pdgId == 6
 

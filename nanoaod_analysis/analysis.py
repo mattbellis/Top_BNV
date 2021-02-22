@@ -1,6 +1,6 @@
 import numpy as np
-import awkward1 as awkward
-import uproot4 as uproot
+import awkward as ak
+import uproot as uproot
 
 import sys
 
@@ -14,7 +14,12 @@ import h5hep as hp
 import time
 
 # https://github.com/CoffeaTeam/coffea/blob/9a29fe47fc690051be50773d262ee74e805a2f60/binder/nanoevents.ipynb
-from coffea.nanoaod import NanoEvents
+#from coffea.nanoaod import NanoEvents
+
+maxnjets = 8
+maxnleps = 3
+all_event_topology_indices = nat.generate_all_event_topology_indices(maxnjets=maxnjets,maxnleps=maxnleps,verbose=False)
+
 
 infilename = sys.argv[1]
 
@@ -28,8 +33,8 @@ print(len(events))
 print("Applying the trigger mask...")
 HLT = events.HLT
 event_mask = nat.trigger_mask(nat.muon_triggers_of_interest['2018'], HLT)
-print(len(events))
-print(len(events[event_mask]))
+print("# events in file:                              ",len(events))
+print("# events in file passing trigger requirements: ",len(events[event_mask]))
 print("Mask is calculated!")
 
 print("Applying the trigger mask and extracting jets, muons, and electrons...")
@@ -48,8 +53,8 @@ muon_mask = nat.muon_mask(allmuons_temp,ptcut=muon_ptcut,isoflag=muon_isoflag,fl
 print("Calculating the jet mask...")
 jet_mask = nat.jet_mask(alljets_temp,ptcut=25)
 
-#print(len(awkward.flatten(alljets)))
-#print(len(awkward.flatten(alljets[jet_mask])))
+#print(len(ak.flatten(alljets)))
+#print(len(ak.flatten(alljets[jet_mask])))
 
 #print(len(alljets_temp))
 #print(len(alljets_temp[jet_mask]))
@@ -66,7 +71,14 @@ alljets['px'],alljets['py'],alljets['pz'] = nat.etaphipt2xyz(alljets)
 alljets['e'] = nat.energyfrommasspxpypz(alljets)
 print("Calculated Cartesian 4-vectors!")
 
-#print(alljets.columns)
+print("################################\n#        Jets\n################################")
+print(ak.fields(alljets))
+print()
+print("################################\n#       Muons\n################################")
+print(ak.fields(allmuons))
+#print("################################\n#   Electrons\n################################")
+#print(ak.fields(allelectrons))
+print("\n\n")
 
 output_data_ML = nat.define_ML_output_data()
 
@@ -76,17 +88,25 @@ hp.create_dataset(data,list(output_data_ML.keys()),group='ml',dtype=float)
 event = hp.create_single_event(data)
 
 # Look at the event hypotheses
+nevents = len(alljets)
 icount = 0
 for jets,muons in zip(alljets, allmuons):
 
-    if icount%10==0:
-        print(icount)
+    if icount%100==0:
+        print(icount,nevents)
 
-    print(len(jets),len(muons))
+    njets = len(jets)
+    nleps = len(muons)
+    nbjets= len(jets[jets.btagDeepB>0.5])
+    #print(njets,nleps,nbjets)
+    if nleps>maxnleps or njets>maxnjets or nbjets<1:
+        continue
+
+    event_topology_indices = all_event_topology_indices[njets][nleps]
     #print(jets.pt)
     #if icount>=6000:
     #start = time.time()
-    x = nat.event_hypothesis(jets,muons,verbose=True, ML_data=output_data_ML)
+    x = nat.event_hypothesis(jets,muons,verbose=True, ML_data=output_data_ML,maxnjets=maxnjets,maxnleps=maxnleps,event_topology_indices=event_topology_indices)
     #print("time       : ",time.time()-start)
 
     #print(x)
@@ -96,7 +116,7 @@ for jets,muons in zip(alljets, allmuons):
     hp.pack(data,event)
     #print("time to pack: ",time.time()-start)
 
-    if icount>=100:
+    if icount>=1000:
         break
 
 
