@@ -21,12 +21,14 @@ data, event = hp.load(infilename, verbose=False)  # ,subset=10000)
 names = []
 for key in event.keys():
     print(key)
-    #if key[0:2]=='ml':
-    if key[0:2]=='Mu':
+    if key[0:2]=='ml':
+    #if key[0:2]=='Mu':
         names.append(key)
 #exit()
 
 for i,name in enumerate(names):
+
+    print(i,name)
 
     if i%16==0:
         plt.figure(figsize=(12,8))

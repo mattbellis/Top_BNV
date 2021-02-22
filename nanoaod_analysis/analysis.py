@@ -16,8 +16,8 @@ import time
 # https://github.com/CoffeaTeam/coffea/blob/9a29fe47fc690051be50773d262ee74e805a2f60/binder/nanoevents.ipynb
 #from coffea.nanoaod import NanoEvents
 
-maxnjets = 8
-maxnleps = 3
+maxnjets = 7
+maxnleps = 2
 all_event_topology_indices = nat.generate_all_event_topology_indices(maxnjets=maxnjets,maxnleps=maxnleps,verbose=False)
 
 
@@ -116,7 +116,7 @@ for jets,muons in zip(alljets, allmuons):
     hp.pack(data,event)
     #print("time to pack: ",time.time()-start)
 
-    if icount>=1000:
+    if icount>=10000:
         break
 
 
