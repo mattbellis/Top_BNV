@@ -13,6 +13,7 @@ import time
 
 infilename = sys.argv[1]
 
+
 # Topology = t/tbar
 topology = ["had","had"]
 
@@ -61,6 +62,14 @@ bbarquark_from_tbar = (events.GenPart.pdgId==-5) & \
                 (events.GenPart.hasFlags(['isPrompt','isLastCopy'])) & \
                 (events.GenPart.distinctParent.pdgId==-6) 
 
+t_mask = None
+tbar_mask = None
+
+if topology[0] == 'had':
+    t_mask =    ( any_quark_mask & from_Wp_from_t) | (bquark_from_t)
+if topology[1] == 'had':
+    tbar_mask = (any_quark_mask & from_Wm_from_tbar) | (bbarquark_from_tbar)
+
 #print(mask)
 #parent_pdgId = events.GenPart[mask].distinctParent.pdgId
 #print("pdgId of parent")
@@ -71,9 +80,11 @@ bbarquark_from_tbar = (events.GenPart.pdgId==-5) & \
 #pt = events.GenPart[mask].distinctParent.pt
 
 #mask = any_quark_mask & from_Wp_from_t
-mask = any_quark_mask & from_Wm_from_tbar
+#mask = any_quark_mask & from_Wm_from_tbar
+#mask = (any_quark_mask & from_Wm_from_tbar) | ( any_quark_mask & from_Wp_from_t)
 #mask = from_Wp_from_t
 #mask = bquark_from_t | bbarquark_from_tbar 
+mask = t_mask | tbar_mask
 
 pdgId = events.GenPart[mask].pdgId
 pt = events.GenPart[mask].pt
@@ -104,22 +115,29 @@ for a,b,c,d,e in zip(pdgId,pt,eta,phi,parent):
 
 
 for partons,jets_in_event in zip(bjet_partons,jets):
-    print("Event --------------------------------------------")
+    print("Event --------------------------------------------------------------------------")
+    print(partons.pt)
+    print(jets_in_event.pt)
     if partons is None:
         continue
-    print(partons)
+    #print(partons)
     for parton in partons:
-        print("Parton ============")
         if parton is None:
             continue
-        print(parton.pt)
+        print("Parton ======== ", parton.pdgId)
+        print('parton pT', parton.pt)
         x = parton.delta_r(jets_in_event)
         y = parton.pt - jets_in_event.pt
-        print(x)
-        print(y)
-        print(jets_in_event.btagDeepB)
-        print(ak.min(x))
-        print(ak.min(abs(y)))
+        #print('dR with all jets')
+        #print(x)
+        #print('d pT with all jets')
+        #print(y)
+        #print('jets btagDeepB')
+        #print(jets_in_event.btagDeepB)
+        mindR = ak.min(x)
+        mindpT = ak.min(abs(y))
+        print('min of dR : ',mindR)
+        print('min of dPt: ',mindpT)
 #dR = jets[:].delta_r(bjet_partons)
 
 print(dR)
