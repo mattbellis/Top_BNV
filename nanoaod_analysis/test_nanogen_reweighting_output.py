@@ -11,6 +11,9 @@ import nanoaod_analysis_tools as nat
 
 import time
 
+# Info about scale factors and reweighting
+# https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookNanoAOD
+
 # https://coffeateam.github.io/coffea/api/coffea.nanoevents.methods.nanoaod.GenParticle.html
 
 infilename = sys.argv[1]
@@ -48,7 +51,7 @@ fields = ['LHEPart',
  'luminosityBlock',
  'run',
  'HTXS',
- 'GenVtx',
+ #'GenVtx',
  'GenDressedLepton',
  'GenIsolatedPhoton',
  'GenJet',
@@ -60,6 +63,8 @@ fields = ['LHEPart',
  ]
 
 print(events.fields)
+plt.figure()
+subfigure_count = 1
 for field in fields:
     print("-------------------")
     print("-------------------")
@@ -73,11 +78,14 @@ for field in fields:
             if field.find('genWeight')>=0:
                 continue
             #print(ak.size(events[field]))
-            plt.figure()
+            plt.subplot(2,2,subfigure_count)
             x = ak.to_numpy(ak.flatten(events[field]))
+            print(x[0:10])
             #x = ak.to_numpy(events[field])
-            plt.hist(x)
+            plt.hist(x,range=(0,5),bins=100)
             plt.title(field)
+
+            subfigure_count += 1
 
 plt.show()
 
