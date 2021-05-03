@@ -17,6 +17,12 @@ import time
 # https://coffeateam.github.io/coffea/api/coffea.nanoevents.methods.nanoaod.GenParticle.html
 
 infilename = sys.argv[1]
+tag = infilename
+if tag.find('/')>=0:
+    tag = tag.split('/')[-1].split('.root')[0]
+tag = tag.split('.root')[0]
+
+print(tag)
 
 
 # Topology = t/tbar
@@ -53,7 +59,7 @@ fields = ['LHEPart',
  'HTXS',
  #'GenVtx',
  'GenDressedLepton',
- 'GenIsolatedPhoton',
+ #'GenIsolatedPhoton',
  'GenJet',
  'GenVisTau',
  'PSWeight',
@@ -62,8 +68,13 @@ fields = ['LHEPart',
  'GenPart',
  ]
 
+plot_range = {'LHEScaleWeight': (0,2.5), 
+              'PSWeight': (0,4), 
+              'LHEPdfWeight': (0.5,2)
+              }
+
 print(events.fields)
-plt.figure()
+plt.figure(figsize=(12,4))
 subfigure_count = 1
 for field in fields:
     print("-------------------")
@@ -77,15 +88,20 @@ for field in fields:
         if field.find('eight')>=0:
             if field.find('genWeight')>=0:
                 continue
+            elif field.find('LHEReweightingWeight')>=0:
+                continue
             #print(ak.size(events[field]))
-            plt.subplot(2,2,subfigure_count)
+            plt.subplot(1,3,subfigure_count)
             x = ak.to_numpy(ak.flatten(events[field]))
             print(x[0:10])
             #x = ak.to_numpy(events[field])
-            plt.hist(x,range=(0,5),bins=100)
+            plt.hist(x,range=plot_range[field],bins=100)
             plt.title(field)
 
             subfigure_count += 1
+
+plt.tight_layout()
+plt.savefig(f'{tag}_SYSTEMATICS.png')
 
 plt.show()
 
