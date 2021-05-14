@@ -103,7 +103,7 @@ for field in fields:
 plt.tight_layout()
 plt.savefig(f'{tag}_SYSTEMATICS.png')
 
-plt.show()
+#plt.show()
 
 
 
