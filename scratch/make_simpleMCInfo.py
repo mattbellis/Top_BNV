@@ -14,6 +14,7 @@ first = True
 csvReader = csv.reader(open(filename), delimiter=',', quotechar='|')
 for row in csvReader:
     if not first:
+        print(row)
         info[row[0]] = {'dataset':row[1],
             'prepid':row[2],
             'requested_events':row[3],
@@ -25,4 +26,5 @@ for row in csvReader:
 
 with open('MCInfo.pkl', 'wb') as fp:
     pickle.dump(info, fp)
+
 
