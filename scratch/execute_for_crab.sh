@@ -8,4 +8,8 @@
 year=`echo $2 | awk -F"=" '{print $2}'`
 trigger=`echo $3 | awk -F"=" '{print $2}'`
 
+echo "In execute_for_crab.sh...."
+echo $year
+echo $trigger
+
 python execute_for_crab.py --year $year --trigType $trigger

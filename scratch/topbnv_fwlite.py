@@ -29,7 +29,8 @@ def topbnv_fwlite(argv):
     ROOT.gROOT.Macro("rootlogon.C")
 
     #print argv
-    #print options
+    print("OPTIONS: ")
+    print(options)
 
     jets, jetLabel = Handle("std::vector<pat::Jet>"), "slimmedJets"
     muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons"

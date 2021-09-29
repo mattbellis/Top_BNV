@@ -11,21 +11,30 @@ import pickle
 
 import myhist as mh
 
-from simple_MCinfo import mc_info
+#from simple_MCinfo import mc_info
 
 from collections import OrderedDict
 
-mcparamsnames = list(mc_info.keys())
+#mc_info = pickle.load(open('MCInfo.pkl','rb'))
+mc_info = pickle.load(open('MCInfo_2017.pkl','rb'))
+
 
 #print(mc_info)
 
 data_int_lumi = 37.* (1.0/1e-15) # 35 ifb --> inv barns
 
-print(" {1:15s} {2:12s} {3:12s} {4} {0}".format("Dataset","Weight","# gen","N","cross section"))
-for key in mc_info.keys():
+print(" {1:15s} {2:15s} {3:15s} {4:8}      {0}".format("Dataset","Weight","# gen","N","cross section"))
+keys = list(mc_info.keys())
+for key in keys:
+
+    # We need this step because we had to truncate some of the dataset names
+    newkey = key
+    if len(key)>=50:
+        newkey = key[0:50]+'_'+key[-5:]
+
     entry = mc_info[key]
-    Ngen = entry['completed_events']
-    xsec = entry['cross_section']*1e-12 # pb --> barns
+    Ngen = float(entry['completed_events'])
+    xsec = float(entry['crosssection'])*1e-12 # pb --> barns
 
     N = xsec * data_int_lumi
 
@@ -33,10 +42,15 @@ for key in mc_info.keys():
 
     mc_info[key]['weight'] = wt
 
-    print(" {1:12.3f} {2:12} {3:12d} {4:12.2e} {0}".format(key,wt,Ngen,int(N),xsec))
+    print(" {1:12.3f} {2:15} {3:15d} {4:12.2e}      {0}".format(key,wt,Ngen,int(N),xsec))
+
+    mc_info[newkey] = mc_info.pop(key)
+    #del mc_info[key]
+
+mcparamsnames = list(mc_info.keys())
+print(mc_info.keys())
 
 #exit()
-
 
 ################################################################################
 def combine_bins(h,bin_edges,n=2):
@@ -62,9 +76,17 @@ def combine_bins(h,bin_edges,n=2):
 ################################################################################
 def main(infiles=None):
 
-    colors = ['k','b','r','g','y','m','c','orange']
-    mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets"]
+    colors = ['k','b','r','g','y','m','c','orange', '#fff8dc', '#d2b48c', '#a52a2a']
+    #colors = ['k','b','r','g','y','m','c','orange', 'b', 'r', 'g', 'y']
+    mcdatasets = ["WW","ZZ","WZ","WJets","DYJetsToLL_M-50","DYJetsToLL_M-10to50","TT_Tune","TTGJets", "TTTo2L2Nu", "TTToHadronic", "TTToSemiLeptonic"]
     datadatasets = ['Data (2016)']
+    #datadatasets = ['Data (2017)']
+
+    print("# mcdatasets   {0}".format(len(mcdatasets)))
+    print("# datadatasets {0}".format(len(datadatasets)))
+    print("# colors       {0}".format(len(colors)))
+
+    #exit()
 
     # Get the information on the plots from the first infile
     infile = open(infiles[0],'r')
@@ -83,6 +105,16 @@ def main(infiles=None):
         ylabels.append(' '.join(line.split()[1:]))
         
         line = infile.readline()
+
+    #print(names)
+    #print(xlabels)
+    #print(ylabels)
+
+    # Get some info for the tag
+    infilename = infiles[0]
+    trigger = infilename.split('TRIGGER_')[1].split('_')[0]
+    year = infilename.split('YEAR_')[1].split('_')[0]
+    tag = 'TRIGGER_{0}_YEAR_{1}'.format(trigger,year)
 
 
 
@@ -119,10 +151,13 @@ def main(infiles=None):
     for i,infile in enumerate(infiles):
 
         wt = 1.0
+        #print("---------")
+        #print(infile)
         for name in mcparamsnames:
+            #print(name)
             if infile.find(name)>=0:
                 wt = mc_info[name]['weight']
-        print(wt,infile)
+        print(i,wt,infile)
 
         isData = False
 
@@ -153,6 +188,11 @@ def main(infiles=None):
         while(1):
 
             vals = f.readline().split()
+            #print("==========")
+            #print(vals)
+
+
+
             if len(vals)==0:
                 break
 
@@ -172,6 +212,10 @@ def main(infiles=None):
                 xlabels = f.readline().split()
                 ylabels = f.readline().split()
 
+                #print("-----")
+                #print(xlabels,ylabels)
+                #print(bin_edges)
+                #print(bin_vals)
                 bin_vals = np.array(bin_vals).astype(float)
                 bin_edges = np.array(bin_edges).astype(float)
 
@@ -197,7 +241,7 @@ def main(infiles=None):
     for i,name in enumerate(names):
         for j,dataset in enumerate(plots[name].keys()):
 
-            plt.subplot(7,7,1+i)
+            plt.subplot(10,10,1+i)
             
             x,y = combine_bins(plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges'],n=2)
             #x,y = plots[name][dataset]['bin_vals'],plots[name][dataset]['bin_edges']
@@ -205,6 +249,7 @@ def main(infiles=None):
             x = np.array(x); y = np.array(y)
             xbins = (y[0:-1] + y[1:])/2.
             plt.errorbar(xbins, x,yerr=np.sqrt(x),fmt='.',label=dataset,color=colors[j%len(colors)])
+            print(dataset,j,j%len(colors),colors[j%len(colors)])
 
         for j,dataset in enumerate(dataplots[name].keys()):
             x,y = combine_bins(dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges'],n=2)
@@ -244,7 +289,7 @@ def main(infiles=None):
     plt.axis('off')
     plt.legend(loc='center')#,fontsize=18)
     #plt.tight_layout()
-    plt.savefig('plots/legend.png')
+    plt.savefig('plots/legend_{0}.png'.format(tag))
 
 
     figs = []
@@ -254,7 +299,7 @@ def main(infiles=None):
     # Single plots
     single_figs = []
     single_axes = []
-    vars_to_plot = ['hadtopmass', 'bnvtopmass', 'leadmupt', 'leadelectronpt','metpt']
+    vars_to_plot = ['hadtopmass', 'bnvtopmass', 'leadmupt', 'leadelectronpt','metpt', 'leadmueta', 'leadmuphi', 'leadelectroneta', 'leadelectronphi']
     for i in range(len(cut_strings)):
         single_figs.append([])
         single_axes.append([])
@@ -269,27 +314,29 @@ def main(infiles=None):
         idx = basenames.index(basename)
         print(name,cut_string,idx)
 
-        ax = figs[cut_string].add_subplot(3,3,1+idx)
+        ax = figs[cut_string].add_subplot(7,7,1+idx)
         plt.sca(ax)
         #plt.figure(figsize=(5,4),dpi=100)
 
         heights,bins = [],[]
+        tempcolors = []
         for j,dataset in enumerate(plots[name].keys()):
             #print(dataset)
             if len(plots[name][dataset]['bin_vals'])>0:
                 heights.append(plots[name][dataset]['bin_vals'])
                 bins.append(plots[name][dataset]['bin_edges'])
+                tempcolors.append(colors[j%len(colors)])
                 plt.plot([0,0],[0,0],color=colors[j%len(colors)],label=dataset)
 
         #print(heights)
         #print(bins)
         if len(heights)>0:
-            mh.shh(heights,bins,color=colors,ax=plt.gca())
+            mh.shh(heights,bins,color=tempcolors,ax=plt.gca())
 
             # Single plots
             for k in range(len(vars_to_plot)):
                 if basename.find(vars_to_plot[k])>=0:
-                    mh.shh(heights,bins,color=colors,ax=single_axes[cut_string][k])
+                    mh.shh(heights,bins,color=tempcolors,ax=single_axes[cut_string][k])
 
         for j,dataset in enumerate(dataplots[name].keys()):
             #x,y = combine_bins(dataplots[name][dataset]['bin_vals'],dataplots[name][dataset]['bin_edges'],n=8)
@@ -311,7 +358,7 @@ def main(infiles=None):
 
         #plt.legend()
         plt.tight_layout()
-        figname = "plots/fig_{0}.png".format(name)
+        figname = "plots/fig_{0}_{1}.png".format(name,tag)
         plt.savefig(figname)
 
     for i in range(len(cut_strings)):
@@ -323,7 +370,7 @@ def main(infiles=None):
             elif j==4:
                 plt.xlim(50,)
             #figname = "plots/SINGLE_ELECTRON_fig_{0}_{1}.png".format(vars_to_plot[j],i)
-            figname = "plots/SINGLE_MUON_fig_{0}_{1}.png".format(vars_to_plot[j],i)
+            figname = "plots/SINGLE_MUON_fig_{0}_{1}_{2}.png".format(vars_to_plot[j],i,tag)
             plt.savefig(figname)
     #plt.show()
 
