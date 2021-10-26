@@ -1,6 +1,6 @@
 import numpy as np
-import awkward1 as ak
-import uproot4 as uproot
+import awkward as ak
+import uproot as uproot
 import matplotlib.pylab as plt
 
 import sys
@@ -9,7 +9,6 @@ import nanoaod_analysis_tools as nat
 
 
 # https://github.com/CoffeaTeam/coffea/blob/9a29fe47fc690051be50773d262ee74e805a2f60/binder/nanoevents.ipynb
-from coffea.nanoaod import NanoEvents
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
 
 

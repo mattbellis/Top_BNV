@@ -94,16 +94,29 @@ parent = events.GenPart[mask].distinctParent.pdgId
 
 bjet_partons = events.GenPart[mask]
 
+print("Number of events passing mask")
+print(len(bjet_partons))
+
+print("Number of events passing not mask")
+NOT_bjet_partons = events.GenPart[~mask]
+print(len(NOT_bjet_partons))
+
+#exit()
+
 print("pt")
 print(pt)
+total = 0
 for a,b,c,d,e in zip(pdgId,pt,eta,phi,parent):
-    print("-------")
+    #print("-------")
     #print(a)
     #print(b)
     for i,j,k,l,m in zip(a,b,c,d,e):
         if i is None:
             continue
-        print(f"{i:3d} {j:6.3f} {k:6.3f} {l:6.3f} {m:3d}")
+        #print(f"pdgID: {i:3d}\tpT: {j:6.3f}\teta: {k:6.3f}\tphi: {l:6.3f}\tparent pdgId: {m:3d}")
+        total += 1
+print(f"{total} events")
+exit()
 #print("pt with W parent")
 ##print(pt[mask2])
 #pt = events.GenPart[mask].pt
@@ -138,6 +151,7 @@ for partons,jets_in_event in zip(bjet_partons,jets):
         mindpT = ak.min(abs(y))
         print('min of dR : ',mindR)
         print('min of dPt: ',mindpT)
+
 #dR = jets[:].delta_r(bjet_partons)
 
 print(dR)
