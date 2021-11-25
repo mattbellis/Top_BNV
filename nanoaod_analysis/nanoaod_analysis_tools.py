@@ -511,6 +511,20 @@ def energyfrommasspxpypz(p4):
 
     return np.sqrt(e2)
 
+################################################################################
+# Pass in mass,pt,eta,phi and return e,px,py,pz
+################################################################################
+def massptetaphi2epxpypz(p4):
+
+    px,py,pz = etaphipt2xyz(p4)
+
+    px2 = px*px
+    py2 = py*py
+    pz2 = pz*pz
+    m2 = p4['mass']*p4['mass']
+    
+    e2 = m2+px2+py2+pz2
+    return np.sqrt(e2),px,py,pz
 
 ################################################################################
 def trigger_mask(triggers_choice, events_HLT):
