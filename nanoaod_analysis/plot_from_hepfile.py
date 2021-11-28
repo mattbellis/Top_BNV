@@ -88,19 +88,25 @@ elif topology == "had_TSUE":
     tm = invmass([b1,q11,q12])
     tbarm = invmass([lep2,q21,q22])
 
-    plt.figure()
+    plt.figure(figsize=(8,6))
 
     plt.subplot(2,2,1)
     plt.hist(wpm,bins=50,range=(0,300))
+    plt.xlabel(r'$M_{q\bar{q}}, t \rightarrow W \rightarrow q\bar{q}$ (GeV/c$^2$)',fontsize=12)
 
     plt.subplot(2,2,2)
     plt.hist(wmm,bins=50,range=(0,300))
+    plt.xlabel(r'$M_{\bar{q}\bar{q}}, t \rightarrow \ell \bar{q}\bar{q}$ (GeV/c$^2$)',fontsize=12)
 
     plt.subplot(2,2,3)
     plt.hist(tm,bins=50,range=(0,500))
+    plt.xlabel(r'$M_{q_b q\bar{q}}, t \rightarrow q_b W \rightarrow q\bar{q}$ (GeV/c$^2$)',fontsize=12)
 
     plt.subplot(2,2,4)
     plt.hist(tbarm,bins=50,range=(0,500))
+    plt.xlabel(r'$M_{\ell \bar{q}\bar{q}}, t \rightarrow \ell \bar{q}\bar{q}$ (GeV/c$^2$)',fontsize=12)
+
+    plt.tight_layout()
 
     plt.savefig('image_from_h5.png')
 
