@@ -41,7 +41,7 @@ print("Reading in {0}".format(infilename))
 events = NanoEventsFactory.from_root(infilename, schemaclass=NanoAODSchema).events()
 print(len(events))
 
-#events = events[0:100]
+events = events[0:1000]
 
 jets = events.Jet
 electrons = events.Electron
