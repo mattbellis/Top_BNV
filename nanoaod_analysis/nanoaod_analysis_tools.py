@@ -1069,6 +1069,184 @@ def check_jet_against_gen(jet,gen, maxdPtRel=1e9, maxdR=0.15):
         return 0,None
 
 ################################################################################
+#def truth_matching_objects(objects1,objects2,verbose=False,maxdR=0.4,maxdpTRel=4.0):
+
+
+
+################################################################################
+def truth_matching_COFFEA_TOOLS(quark_partons,jets,topology='had_had',verbose=False,maxdR=0.4,maxdpTRel=4.0):
+
+    if topology=='had_had':
+		b1s = []
+		q1s = []
+		b2s = []
+		q2s = []
+
+		print("------ Looking for W stuff ---------")
+		# Get the quarks that are quark 1-5
+		any_quark_mask =((abs(genpart.pdgId)==1) |  \
+			   (abs(genpart.pdgId)==2) |  \
+			   (abs(genpart.pdgId)==3) |  \
+			   (abs(genpart.pdgId)==4) |  \
+			   (abs(genpart.pdgId)==5)) & \
+			   (genpart.hasFlags(['isPrompt','isLastCopy']))
+
+		# Quarks from W+ that comes from a top
+		from_Wp_from_t = (genpart.distinctParent.pdgId==24) & (genpart.distinctParent.distinctParent.pdgId==6)
+		# Quarks from W- that comes from an antitop
+		from_Wm_from_tbar = (genpart.distinctParent.pdgId==-24) &  (genpart.distinctParent.distinctParent.pdgId==-6)
+
+		# b quark from a t
+		bquark_from_t = (genpart.pdgId==5) & \
+						(genpart.hasFlags(['isPrompt','isLastCopy'])) & \
+						(genpart.distinctParent.pdgId==6)
+
+		# bbar from a tbar
+		bbarquark_from_tbar = (genpart.pdgId==-5) & \
+			   				  (genpart.hasFlags(['isPrompt','isLastCopy'])) & \
+							  (genpart.distinctParent.pdgId==-6)
+
+	    t_mask =    (any_quark_mask & from_Wp_from_t) | (bquark_from_t)
+    	tbar_mask = (any_quark_mask & from_Wm_from_tbar) | (bbarquark_from_tbar)
+
+		if verbose:
+			##########################################################################
+			# Testing t_mask or tbar_mask
+			# The below works for hadronic ttbar MC
+			##########################################################################
+			e = events[0]
+			print("Quarks from t --> W+ b")
+			for i in e.GenPart[t_mask[0]].pdgId:
+				print(i)
+
+			print("Quarks from tbar --> W- bbar")
+			for i in e.GenPart[tbar_mask[0]].pdgId:
+				print(i)
+
+			print("Quarks from either t or tbar hadronic decay")
+			for i in e.GenPart[tbar_mask[0] | t_mask[0]].pdgId:
+				print(i)
+			##########################################################################
+
+		#mask = any_quark_mask & from_Wp_from_t
+		#mask = any_quark_mask & from_Wm_from_tbar
+		#mask = (any_quark_mask & from_Wm_from_tbar) | ( any_quark_mask & from_Wp_from_t)
+		#mask = from_Wp_from_t
+		#mask = bquark_from_t | bbarquark_from_tbar
+		mask = t_mask | tbar_mask
+
+		quark_partons = genpart[mask]
+
+		if verbose:
+			pdgId = genpart[mask].pdgId
+			pt = genpart[mask].pt
+			eta = genpart[mask].eta
+			phi = genpart[mask].phi
+			parent = genpart[mask].distinctParent.pdgId
+
+			total = 0
+
+			# Loop over the gen particles at the event level
+			for a,b,c,d,e in zip(pdgId,pt,eta,phi,parent):
+				for i,j,k,l,m in zip(a,b,c,d,e):
+					if i is None:
+						continue
+					#print(f"pdgID: {i:3d}\tpT: {j:6.3f}\teta: {k:6.3f}\tphi: {l:6.3f}\tparent pdgId: {m:3d}")
+					total += 1
+			print(f"{total} quarks")
+
+		nmatched_partons = 0
+		nmatched_events = 0
+
+        
+		for partons,jets_in_event in zip(quark_partons,jets):
+
+			if icount%100==0:
+				print(icount)
+
+			b1,b2 = None,None
+			q1 = []
+			q2 = []
+
+			event_p4s = []
+			nmatched_partons_in_event = 0
+			#print("Event --------------------------------------------------------------------------")
+			#print(partons.pt)
+			#print(jets_in_event.pt)
+			if partons is None:
+				continue
+			#print(partons)
+			for parton in partons:
+				if parton is None:
+					continue
+				#print("Parton ======== ", parton.pdgId)
+				#print('parton pT', parton.pt)
+				dR_between_parton_and_all_jets = parton.delta_r(jets_in_event)
+				pT_between_parton_and_all_jets = parton.pt - jets_in_event.pt
+				mindR,mindpTRel,minJetIdx = 1e6, 1e6,-1
+				for i,(dR,dpT) in enumerate(zip(dR_between_parton_and_all_jets,pT_between_parton_and_all_jets)):
+					dpT = np.abs(dpT)
+					#print(i,dR,dpT,dpT/parton.pt,dpT/jets_in_event[i].pt)
+					if mindR > dR:
+						mindR = dR
+						mindpTRel = dpT/parton.pt
+						minJetIdx = i
+				#print(f"best match: mindR: {mindR:.3f} \tmindpTRel: {mindpTRel:.3f}")
+				#print(f"pdgID: {parton.pdgId:3d}\tpT: {parton.pt:6.3f}\teta: {parton.eta:6.3f}\tphi: {parton.phi:6.3f}\tparent pdgId: {parton.distinctParent.pdgId:3d}")
+				j = jets_in_event[minJetIdx]
+				#print(f"\t\tpT: {j.pt:6.3f}\teta: {j.eta:6.3f}\tphi: {j.phi:6.3f}\tbtagDeepB: {j.btagDeepB:.5f}")
+
+				mindR = ak.min(dR_between_parton_and_all_jets)
+				mindpT = ak.min(abs(pT_between_parton_and_all_jets))
+				mindpTRel = ak.min(abs(pT_between_parton_and_all_jets))/parton.pt
+				#print('min of dR : ',mindR)
+				#print('min of dPt: ',mindpT)
+				#print('min of dPtRel: ',mindpTRel)
+
+				if mindR<=maxdR and mindpTRel<=maxdpTRel:
+					nmatched_partons += 1
+					nmatched_partons_in_event += 1
+					#p4 = nat.massptetaphi2epxpypz(jets_in_event[minJetIdx])
+					p4 = (jets_in_event[minJetIdx]['e'], jets_in_event[minJetIdx]['px'],jets_in_event[minJetIdx]['py'],jets_in_event[minJetIdx]['pz'])
+					if parton.distinctParent.pdgId == 6:
+						b1 = p4
+					elif parton.distinctParent.pdgId == -6:
+						b2 = p4
+					elif parton.distinctParent.pdgId == 24:
+						q1.append(p4)
+					elif parton.distinctParent.pdgId == -24:
+						q2.append(p4)
+
+
+		if nmatched_partons_in_event==5:
+
+			if b1 is None or b2 is None:
+				continue
+
+			good_event = True
+			b1s.append(b1)
+			b2s.append(b2)
+			q1s.append(q1)
+			q2s.append(q2)
+
+		return b1,q1,b2,q2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+################################################################################
 def truth_matching_TESTING(events):
 
     # Status flag seem to match up here

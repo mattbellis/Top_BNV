@@ -18,43 +18,51 @@ import time
 
 infilename = sys.argv[1]
 
-
 # Topology = t/tbar
 topology = ["had","had"]
-
 
 print("Reading in {0}".format(infilename))
 
 events = NanoEventsFactory.from_root(infilename, schemaclass=NanoAODSchema).events()
 print(len(events))
 
-#events = events[0:10]
+events = events[0:100]
 
 jets = events.Jet
+genpart = events.GenPart
+print("Calculating Cartesian 4-vectors...")
+jets['px'],jets['py'],jets['pz'] = nat.etaphipt2xyz(jets)
+jets['e'] = nat.energyfrommasspxpypz(jets)
+
+genpart['px'],genpart['py'],genpart['pz'] = nat.etaphipt2xyz(genpart)
+#print(genpart.fields)
+genpart['e'] = nat.energyfrommasspxpypz(genpart)
+
+print("Calculated Cartesian 4-vectors!")
 
 print("------ Looking for W stuff ---------")
 # Get the quarks that are quark 1-5
-any_quark_mask =((abs(events.GenPart.pdgId)==1) |  \
-       (abs(events.GenPart.pdgId)==2) |  \
-       (abs(events.GenPart.pdgId)==3) |  \
-       (abs(events.GenPart.pdgId)==4) |  \
-       (abs(events.GenPart.pdgId)==5)) & \
-       (events.GenPart.hasFlags(['isPrompt','isLastCopy']))
+any_quark_mask =((abs(genpart.pdgId)==1) |  \
+       (abs(genpart.pdgId)==2) |  \
+       (abs(genpart.pdgId)==3) |  \
+       (abs(genpart.pdgId)==4) |  \
+       (abs(genpart.pdgId)==5)) & \
+       (genpart.hasFlags(['isPrompt','isLastCopy']))
 
 # Quarks from W+ that comes from a top
-from_Wp_from_t = (events.GenPart.distinctParent.pdgId==24) & (events.GenPart.distinctParent.distinctParent.pdgId==6) 
+from_Wp_from_t = (genpart.distinctParent.pdgId==24) & (genpart.distinctParent.distinctParent.pdgId==6) 
 # Quarks from W- that comes from an antitop
-from_Wm_from_tbar = (events.GenPart.distinctParent.pdgId==-24) &  (events.GenPart.distinctParent.distinctParent.pdgId==-6) 
+from_Wm_from_tbar = (genpart.distinctParent.pdgId==-24) &  (genpart.distinctParent.distinctParent.pdgId==-6) 
 
 # b quark from a t
-bquark_from_t = (events.GenPart.pdgId==5) & \
-                (events.GenPart.hasFlags(['isPrompt','isLastCopy'])) & \
-                (events.GenPart.distinctParent.pdgId==6) 
+bquark_from_t = (genpart.pdgId==5) & \
+                (genpart.hasFlags(['isPrompt','isLastCopy'])) & \
+                (genpart.distinctParent.pdgId==6) 
 
 # bbar from a tbar
-bbarquark_from_tbar = (events.GenPart.pdgId==-5) & \
-                (events.GenPart.hasFlags(['isPrompt','isLastCopy'])) & \
-                (events.GenPart.distinctParent.pdgId==-6) 
+bbarquark_from_tbar = (genpart.pdgId==-5) & \
+                (genpart.hasFlags(['isPrompt','isLastCopy'])) & \
+                (genpart.distinctParent.pdgId==-6) 
 
 t_mask = None
 tbar_mask = None
@@ -86,13 +94,13 @@ for i in e.GenPart[tbar_mask[0] | t_mask[0]].pdgId:
 
 
 #print(mask)
-#parent_pdgId = events.GenPart[mask].distinctParent.pdgId
+#parent_pdgId = genpart[mask].distinctParent.pdgId
 #print("pdgId of parent")
 #print(parent_pdgId)
 #print(pdgId)
 #mask2 = (pdgId==24)
 
-#pt = events.GenPart[mask].distinctParent.pt
+#pt = genpart[mask].distinctParent.pt
 
 #mask = any_quark_mask & from_Wp_from_t
 #mask = any_quark_mask & from_Wm_from_tbar
@@ -101,27 +109,17 @@ for i in e.GenPart[tbar_mask[0] | t_mask[0]].pdgId:
 #mask = bquark_from_t | bbarquark_from_tbar 
 mask = t_mask | tbar_mask
 
-pdgId = events.GenPart[mask].pdgId
-pt = events.GenPart[mask].pt
-eta = events.GenPart[mask].eta
-phi = events.GenPart[mask].phi
-parent = events.GenPart[mask].distinctParent.pdgId
+pdgId = genpart[mask].pdgId
+pt = genpart[mask].pt
+eta = genpart[mask].eta
+phi = genpart[mask].phi
+parent = genpart[mask].distinctParent.pdgId
 
 # This is a jagged array of GenParticles that correspond to the
 # quarks that come from the masked decays
-quark_partons = events.GenPart[mask]
+quark_partons = genpart[mask]
 
 #print(quark_partons)
-
-'''
-# I don't think this is what we want
-print("Number of events passing mask")
-print(len(quark_partons))
-
-print("Number of events passing not mask")
-NOT_bjet_partons = events.GenPart[~mask]
-print(len(NOT_bjet_partons))
-'''
 
 #exit()
 
@@ -131,26 +129,13 @@ total = 0
 
 # Loop over the gen particles at the event level 
 for a,b,c,d,e in zip(pdgId,pt,eta,phi,parent):
-    #print("-------")
-    #print(a)
-    #print(b)
-    # Loop over each gen particle in the event
     for i,j,k,l,m in zip(a,b,c,d,e):
         if i is None:
             continue
         #print(f"pdgID: {i:3d}\tpT: {j:6.3f}\teta: {k:6.3f}\tphi: {l:6.3f}\tparent pdgId: {m:3d}")
         total += 1
 print(f"{total} quarks")
-#exit()
 
-#print("pt with W parent")
-##print(pt[mask2])
-#pt = events.GenPart[mask].pt
-#for p in pt[mask2]:
-    #print(p)
-#
-#eta = events.GenPart[mask].distinctParent.eta
-#phi = events.GenPart[mask].distinctParent.phi
 
 '''
 for jet in jets:
@@ -174,6 +159,7 @@ tbarmass = []
 wmmass = []
 wpmass = []
 icount = 0
+
 for partons,jets_in_event in zip(quark_partons,jets):
 
     if icount%100==0:
@@ -221,7 +207,8 @@ for partons,jets_in_event in zip(quark_partons,jets):
         if mindR<=maxdR and mindpTRel<=maxdpTRel:
             nmatched_partons += 1
             nmatched_partons_in_event += 1
-            p4 = nat.massptetaphi2epxpypz(jets_in_event[minJetIdx])
+            #p4 = nat.massptetaphi2epxpypz(jets_in_event[minJetIdx])
+            p4 = (jets_in_event[minJetIdx]['e'], jets_in_event[minJetIdx]['px'],jets_in_event[minJetIdx]['py'],jets_in_event[minJetIdx]['pz'])
             if parton.distinctParent.pdgId == 6:
                 b1 = p4
             elif parton.distinctParent.pdgId == -6:
