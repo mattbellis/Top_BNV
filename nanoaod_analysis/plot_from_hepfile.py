@@ -5,12 +5,12 @@ import matplotlib.pylab as plt
 import hepfile
 
 ################################################################################
-def get_4vecs(data,idx):
+def get_4vecs(data,idx,group='jet'):
 
-    e = data['jet/e'][idx]
-    px = data['jet/px'][idx]
-    py = data['jet/py'][idx]
-    pz = data['jet/pz'][idx]
+    e = data[f'{group}/e'][idx]
+    px = data[f'{group}/px'][idx]
+    py = data[f'{group}/py'][idx]
+    pz = data[f'{group}/pz'][idx]
 
     return (e,px,py,pz)
 ################################################################################
@@ -48,40 +48,60 @@ data,event = hepfile.load(infilename)
 
 nevents = hepfile.get_nbuckets_in_data(data)
 
-b1idx = np.arange(0,nevents*6,6)
-q11idx = np.arange(1,nevents*6,6)
-q12idx = np.arange(2,nevents*6,6)
-b2idx = np.arange(3,nevents*6,6)
-q21idx = np.arange(4,nevents*6,6)
-q22idx = np.arange(5,nevents*6,6)
+topology = "had_had"
+topology = "had_TSUE"
 
-b1 = get_4vecs(data,b1idx)
-q11 = get_4vecs(data,q11idx)
-q12 = get_4vecs(data,q12idx)
-b2 = get_4vecs(data,b2idx)
-q21 = get_4vecs(data,q21idx)
-q22 = get_4vecs(data,q22idx)
+if topology == "had_had":
+    b1idx = np.arange(0,nevents*6,6)
+    q11idx = np.arange(1,nevents*6,6)
+    q12idx = np.arange(2,nevents*6,6)
+    b2idx = np.arange(3,nevents*6,6)
+    q21idx = np.arange(4,nevents*6,6)
+    q22idx = np.arange(5,nevents*6,6)
 
-wpm = invmass([q11,q12])
-wmm = invmass([q21,q22])
+    b1 = get_4vecs(data,b1idx)
+    q11 = get_4vecs(data,q11idx)
+    q12 = get_4vecs(data,q12idx)
+    b2 = get_4vecs(data,b2idx)
+    q21 = get_4vecs(data,q21idx)
+    q22 = get_4vecs(data,q22idx)
 
-tm = invmass([b1,q11,q12])
-tbarm = invmass([b2,q21,q22])
+elif topology == "had_TSUE":
+    b1idx = np.arange(0,nevents*5,5)
+    q11idx = np.arange(1,nevents*5,5)
+    q12idx = np.arange(2,nevents*5,5)
+    q21idx = np.arange(3,nevents*5,5)
+    q22idx = np.arange(4,nevents*5,5)
+    lep2idx = np.arange(0,nevents,1)
 
-plt.figure()
+    b1 = get_4vecs(data,b1idx)
+    q11 = get_4vecs(data,q11idx)
+    q12 = get_4vecs(data,q12idx)
+    q21 = get_4vecs(data,q21idx)
+    q22 = get_4vecs(data,q22idx)
+    lep2 = get_4vecs(data,lep2idx,'lepton')
 
-plt.subplot(2,2,1)
-plt.hist(wpm,bins=50,range=(0,300))
 
-plt.subplot(2,2,2)
-plt.hist(wmm,bins=50,range=(0,300))
+    wpm = invmass([q11,q12])
+    wmm = invmass([q21,q22])
 
-plt.subplot(2,2,3)
-plt.hist(tm,bins=50,range=(0,500))
+    tm = invmass([b1,q11,q12])
+    tbarm = invmass([lep2,q21,q22])
 
-plt.subplot(2,2,4)
-plt.hist(tbarm,bins=50,range=(0,500))
+    plt.figure()
 
-plt.savefig('image_from_h5.png')
+    plt.subplot(2,2,1)
+    plt.hist(wpm,bins=50,range=(0,300))
 
-plt.show()
+    plt.subplot(2,2,2)
+    plt.hist(wmm,bins=50,range=(0,300))
+
+    plt.subplot(2,2,3)
+    plt.hist(tm,bins=50,range=(0,500))
+
+    plt.subplot(2,2,4)
+    plt.hist(tbarm,bins=50,range=(0,500))
+
+    plt.savefig('image_from_h5.png')
+
+    plt.show()
