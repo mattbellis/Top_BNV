@@ -1216,7 +1216,7 @@ def truth_matching_COFFEA_TOOLS(genpart,jets,leptons=None,topology='had_had',ver
                 if mindR<=maxdR and mindpTRel<=maxdpTRel:
                     nmatched_partons += 1
                     #p4 = nat.massptetaphi2epxpypz(jets_in_event[minJetIdx])
-                    p4 = (matched_jet['e'], matched_jet['px'],matched_jet['py'],matched_jet['pz'])
+                    p4 = (matched_jet['e'], matched_jet['px'],matched_jet['py'],matched_jet['pz'], matched_jet['pt'], matched_jet['eta'], matched_jet['phi'], matched_jet['btagDeepB'], )
                     if parton.parent_pdgId == 6:
                         b1 = p4
                         nmatched_partons_in_event += 1
@@ -1404,7 +1404,8 @@ def truth_matching_COFFEA_TOOLS(genpart,jets,leptons=None,topology='had_had',ver
                 if mindR<=maxdR and mindpTRel<=maxdpTRel:
                     nmatched_partons += 1
                     
-                    p4 = (matched_jet['e'],matched_jet['px'],matched_jet['py'],matched_jet['pz'])
+                    #p4 = (matched_jet['e'],matched_jet['px'],matched_jet['py'],matched_jet['pz'])
+                    p4 = (matched_jet['e'], matched_jet['px'],matched_jet['py'],matched_jet['pz'], matched_jet['pt'], matched_jet['eta'], matched_jet['phi'], matched_jet['btagDeepB'], )
                     if np.abs(parton.parent_pdgId) == 6 and np.abs(parton.pdgId) == 5: 
                         #print("Found the b")
                         b1 = p4
@@ -1461,7 +1462,8 @@ def truth_matching_COFFEA_TOOLS(genpart,jets,leptons=None,topology='had_had',ver
                     #print("Matched a lepton!")
                     nmatched_leptons += 1
                     
-                    p4 = (matched_lepton['e'],matched_lepton['px'],matched_lepton['py'],matched_lepton['pz'])
+                    #p4 = (matched_lepton['e'],matched_lepton['px'],matched_lepton['py'],matched_lepton['pz'])
+                    p4 = (matched_lepton['e'], matched_lepton['px'],matched_lepton['py'],matched_lepton['pz'], matched_lepton['pt'], matched_lepton['eta'], matched_lepton['phi'], matched_lepton['charge'], )
                     lep2 = p4
                     nmatched_leptons_in_event += 1
 

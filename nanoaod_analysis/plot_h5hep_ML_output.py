@@ -12,19 +12,24 @@ import hepfile
 #import mplhep
 #plt.style.use(mplhep.style.CMS)
 
+alldata = {}
+
 #df = pd.read_hdf(sys.argv[1])
-infilename = sys.argv[1]
-data, event = hepfile.load(infilename, verbose=False)  # ,subset=10000)
-
-#print(len(df))
-
-#names = df.columns.values
 names = []
-for key in event.keys():
-    print(key)
-    if key[0:2]=='ml':
-    #if key[0:2]=='Mu':
-        names.append(key)
+for i,infilename in enumerate(sys.argv[1:]):
+    #infilename = sys.argv[1]
+    data, event = hepfile.load(infilename, verbose=False)  # ,subset=10000)
+
+    for key in event.keys():
+        print(key)
+        if key[0:2]=='ml':
+            if i==0:
+                names.append(key)
+                alldata[key] = data[key].tolist()
+            else:
+                alldata[key] += data[key].tolist()
+#exit()
+
 #exit()
 
 for i,name in enumerate(names):
@@ -37,9 +42,9 @@ for i,name in enumerate(names):
     plt.subplot(4,4,i%16+1)
 
     if name.find('_m')>=0:
-        plt.hist(data[name],bins=50,range=(0,500),label=name)
+        plt.hist(alldata[name],bins=50,range=(0,500),label=name)
     else:
-        plt.hist(data[name],label=name,bins=50)
+        plt.hist(alldata[name],label=name,bins=50)
 
     plt.xlabel(name)
     #plt.legend()

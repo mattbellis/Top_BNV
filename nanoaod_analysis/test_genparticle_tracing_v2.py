@@ -17,7 +17,7 @@ import argparse
 
 # Argparse
 parser = argparse.ArgumentParser(description='Process some data.')
-parser.add_argument('--nevents', dest='maxevents', type=int, default=None,
+parser.add_argument('--nevents', dest='maxevents',  type=int, default=None,
                     help='Max events to process')
 parser.add_argument('--event-range', dest='event_range', type=str,
                     default=None, help='Range of events to process.')
@@ -44,6 +44,15 @@ hepfile.create_group(data,'lepton',counter='nlepton')
 hepfile.create_dataset(data,['e','px','py','pz','q'],group='lepton',dtype=float)
 event = hepfile.create_single_bucket(data)
 
+
+################################################################################
+ML_data = nat.define_ML_output_data()
+
+data2 = hepfile.initialize()
+hepfile.create_group(data2,'ml',counter='num')
+hepfile.create_dataset(data2,list(ML_data.keys()),group='ml',dtype=float)
+event2 = hepfile.create_single_bucket(data2)
+################################################################################
 
 #infilename = sys.argv[1]
 #infilename = "~/top_data/NANOAOD/TTToHadronic_UL_2018_SMALL_1k.root"
@@ -206,8 +215,22 @@ elif topology=="had_TSUE":
         event['lepton/pz'].append(lep2[3])
         event['lepton/q'].append(-999)
 
+        nat.vals_for_ML_training([q1[0],q1[1],b1],ML_data,'had')
+        nat.vals_for_ML_training([q2[0],q2[1],lep2],ML_data,'bnv')
+        hadtopp4 = nat.addp4s([q1[0],q1[1],b1])
+        bnvtopp4 = nat.addp4s([q2[0],q2[1],lep2])
+        a = nat.angle_between_vectors(hadtopp4,bnvtopp4,transverse=True)
+        thetatop1top2 = np.cos(a)
+        ML_data['ttbar_angle'].append(thetatop1top2)
+
+        ML_data["num_combos"].append(1)
+
         #return_value = hepfile.pack(data,event,STRICT_CHECKING=True)
         return_value = hepfile.pack(data,event)
+        if return_value != 0:
+            exit()
+
+        return_value = hepfile.pack(data2,event2)
         if return_value != 0:
             exit()
 
@@ -225,6 +248,17 @@ outfilename = f'{infilename.split("/")[-1].split(".root")[0]}{tag}.h5'
 print(f"Writing to {outfilename}")
 hdfile = hepfile.write_to_file(outfilename,data,comp_type='gzip',comp_opts=9,verbose=True)
 ################################################################################
+
+################################################################################
+
+for key in ML_data.keys():
+    if key != 'num_combos':
+        data2['ml/'+key] = ML_data[key]
+print( ML_data['num_combos'])
+data2['ml/num'] = ML_data['num_combos']
+hdfile = hepfile.write_to_file(outfilename.split('.h5')[0]+'_ML_FEATURES.h5', data2, comp_type="gzip", comp_opts=9)
+################################################################################
+
 
 
 '''
