@@ -13,6 +13,25 @@ import hepfile
 
 import time
 
+import argparse
+
+# Argparse
+parser = argparse.ArgumentParser(description='Process some data.')
+parser.add_argument('--nevents', dest='maxevents', type=int, default=None,
+                    help='Max events to process')
+parser.add_argument('--event-range', dest='event_range', type=str,
+                    default=None, help='Range of events to process.')
+parser.add_argument('infilename')
+
+args = parser.parse_args()
+print(args)
+
+if args.maxevents is not None and args.event_range is not None:
+    print("Can't set both max events and event range.")
+    exit()
+
+#exit()
+
 # https://coffeateam.github.io/coffea/api/coffea.nanoevents.methods.nanoaod.GenParticle.html
 
 # This might be helpful
@@ -26,7 +45,7 @@ hepfile.create_dataset(data,['e','px','py','pz','q'],group='lepton',dtype=float)
 event = hepfile.create_single_bucket(data)
 
 
-infilename = sys.argv[1]
+#infilename = sys.argv[1]
 #infilename = "~/top_data/NANOAOD/TTToHadronic_UL_2018_SMALL_1k.root"
 
 # Topology = t/tbar
@@ -36,16 +55,33 @@ topology = ["had","TSUE"]
 
 topology = f"{topology[0]}_{topology[1]}"
 
+infilename = args.infilename
 print("Reading in {0}".format(infilename))
 
 events = NanoEventsFactory.from_root(infilename, schemaclass=NanoAODSchema).events()
 print(len(events))
 
-events = events[0:1000]
+print(f"# of events: {len(events)}")
+#events = events[0:10000]
+if args.maxevents is not None:
+    events = events[0:args.maxevents]
+    print(f"Processing first {args.maxevents} entries...")
+
+lo,hi = None,None
+if args.event_range is not None:
+    lo = int(args.event_range.split(',')[0])
+    hi = int(args.event_range.split(',')[1])
+    events = events[lo:hi]
+    print(f"Processing entries {lo} to {hi}")
+
+print(f"# of events: {len(events)}")
 
 jets = events.Jet
 electrons = events.Electron
 genpart = events.GenPart
+
+print(f"# of jets:      {len(jets)}")
+print(f"# of electrons: {len(electrons)}")
 
 
 print("Calculating Cartesian 4-vectors...")
@@ -175,9 +211,20 @@ elif topology=="had_TSUE":
         if return_value != 0:
             exit()
 
-outfilename = f'{infilename.split("/")[-1].split(".root")[0]}.h5'
+################################################################################
+tag = ""
+if args.maxevents is not None:
+    tag = f"_Nevents_{args.maxevents}"
+
+if args.event_range is not None:
+    tag = f"_event_range_{lo}-{hi}"
+################################################################################
+
+################################################################################
+outfilename = f'{infilename.split("/")[-1].split(".root")[0]}{tag}.h5'
 print(f"Writing to {outfilename}")
 hdfile = hepfile.write_to_file(outfilename,data,comp_type='gzip',comp_opts=9,verbose=True)
+################################################################################
 
 
 '''

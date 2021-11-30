@@ -9,7 +9,8 @@ import nanoaod_analysis_tools as nat
 
 import pandas as pd
 
-import h5hep as hp
+#import h5hep as hp
+import hepfile
 
 import time
 
@@ -82,10 +83,18 @@ print("\n\n")
 
 output_data_ML = nat.define_ML_output_data()
 
-data = hp.initialize()
-hp.create_group(data,'ml',counter='num')
-hp.create_dataset(data,list(output_data_ML.keys()),group='ml',dtype=float)
-event = hp.create_single_event(data)
+################################################################################
+#data = hp.initialize()
+#hp.create_group(data,'ml',counter='num')
+#hp.create_dataset(data,list(output_data_ML.keys()),group='ml',dtype=float)
+#event = hp.create_single_event(data)
+
+data = hepfile.initialize()
+hepfile.create_group(data,'ml',counter='num')
+hepfile.create_dataset(data,list(output_data_ML.keys()),group='ml',dtype=float)
+event = hepfile.create_single_bucket(data)
+
+################################################################################
 
 # Look at the event hypotheses
 nevents = len(alljets)
@@ -113,7 +122,7 @@ for jets,muons in zip(alljets, allmuons):
     icount += 1
 
     #start = time.time()
-    hp.pack(data,event)
+    hepfile.pack(data,event)
     #print("time to pack: ",time.time()-start)
 
     if icount>=100000000:
@@ -134,7 +143,7 @@ for key in output_data_ML.keys():
         data['ml/'+key] = output_data_ML[key]
 print( output_data_ML['num_combos'])
 data['ml/num'] = output_data_ML['num_combos']
-hdfile = hp.write_to_file("FOR_TESTS.hdf5", data, comp_type="gzip", comp_opts=9)
+hdfile = hepfile.write_to_file("FOR_TESTS.hdf5", data, comp_type="gzip", comp_opts=9)
 
 
 

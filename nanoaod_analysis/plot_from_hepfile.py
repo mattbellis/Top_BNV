@@ -42,72 +42,79 @@ def invmass(p4s):
 ################################################################################
 
 
-infilename = sys.argv[1]
+infilenames = sys.argv[1:]
 
-data,event = hepfile.load(infilename)
+#b1,b2,q11,q12,q21,q22,lep2 = [],[],[],[],[],[],[]
+wpm,wmm,tm,tbarm = [], [], [], []
 
-nevents = hepfile.get_nbuckets_in_data(data)
+for infilename in infilenames:
 
-topology = "had_had"
-topology = "had_TSUE"
+    print(f"Opening {infilename}...")
 
-if topology == "had_had":
-    b1idx = np.arange(0,nevents*6,6)
-    q11idx = np.arange(1,nevents*6,6)
-    q12idx = np.arange(2,nevents*6,6)
-    b2idx = np.arange(3,nevents*6,6)
-    q21idx = np.arange(4,nevents*6,6)
-    q22idx = np.arange(5,nevents*6,6)
+    data,event = hepfile.load(infilename)
 
-    b1 = get_4vecs(data,b1idx)
-    q11 = get_4vecs(data,q11idx)
-    q12 = get_4vecs(data,q12idx)
-    b2 = get_4vecs(data,b2idx)
-    q21 = get_4vecs(data,q21idx)
-    q22 = get_4vecs(data,q22idx)
+    nevents = hepfile.get_nbuckets_in_data(data)
 
-elif topology == "had_TSUE":
-    b1idx = np.arange(0,nevents*5,5)
-    q11idx = np.arange(1,nevents*5,5)
-    q12idx = np.arange(2,nevents*5,5)
-    q21idx = np.arange(3,nevents*5,5)
-    q22idx = np.arange(4,nevents*5,5)
-    lep2idx = np.arange(0,nevents,1)
+    topology = "had_had"
+    topology = "had_TSUE"
 
-    b1 = get_4vecs(data,b1idx)
-    q11 = get_4vecs(data,q11idx)
-    q12 = get_4vecs(data,q12idx)
-    q21 = get_4vecs(data,q21idx)
-    q22 = get_4vecs(data,q22idx)
-    lep2 = get_4vecs(data,lep2idx,'lepton')
+    if topology == "had_had":
+        b1idx = np.arange(0,nevents*6,6)
+        q11idx = np.arange(1,nevents*6,6)
+        q12idx = np.arange(2,nevents*6,6)
+        b2idx = np.arange(3,nevents*6,6)
+        q21idx = np.arange(4,nevents*6,6)
+        q22idx = np.arange(5,nevents*6,6)
+
+        b1 = get_4vecs(data,b1idx)
+        q11 = get_4vecs(data,q11idx)
+        q12 = get_4vecs(data,q12idx)
+        b2 = get_4vecs(data,b2idx)
+        q21 = get_4vecs(data,q21idx)
+        q22 = get_4vecs(data,q22idx)
+
+    elif topology == "had_TSUE":
+        b1idx = np.arange(0,nevents*5,5)
+        q11idx = np.arange(1,nevents*5,5)
+        q12idx = np.arange(2,nevents*5,5)
+        q21idx = np.arange(3,nevents*5,5)
+        q22idx = np.arange(4,nevents*5,5)
+        lep2idx = np.arange(0,nevents,1)
+
+        b1 = get_4vecs(data,b1idx)
+        q11 = get_4vecs(data,q11idx)
+        q12 = get_4vecs(data,q12idx)
+        q21 = get_4vecs(data,q21idx)
+        q22 = get_4vecs(data,q22idx)
+        lep2 = get_4vecs(data,lep2idx,'lepton')
+
+        wpm += invmass([q11,q12]).tolist()
+        wmm += invmass([q21,q22]).tolist()
+
+        tm += invmass([b1,q11,q12]).tolist()
+        tbarm += invmass([lep2,q21,q22]).tolist()
 
 
-    wpm = invmass([q11,q12])
-    wmm = invmass([q21,q22])
+plt.figure(figsize=(8,6))
 
-    tm = invmass([b1,q11,q12])
-    tbarm = invmass([lep2,q21,q22])
+plt.subplot(2,2,1)
+plt.hist(wpm,bins=100,range=(0,300))
+plt.xlabel(r'$M_{q\bar{q}}, t \rightarrow W \rightarrow q\bar{q}$ (GeV/c$^2$)',fontsize=12)
 
-    plt.figure(figsize=(8,6))
+plt.subplot(2,2,2)
+plt.hist(wmm,bins=100,range=(0,300))
+plt.xlabel(r'$M_{\bar{q}\bar{q}}, t \rightarrow \ell \bar{q}\bar{q}$ (GeV/c$^2$)',fontsize=12)
 
-    plt.subplot(2,2,1)
-    plt.hist(wpm,bins=50,range=(0,300))
-    plt.xlabel(r'$M_{q\bar{q}}, t \rightarrow W \rightarrow q\bar{q}$ (GeV/c$^2$)',fontsize=12)
+plt.subplot(2,2,3)
+plt.hist(tm,bins=100,range=(0,500))
+plt.xlabel(r'$M_{q_b q\bar{q}}, t \rightarrow q_b W \rightarrow q\bar{q}$ (GeV/c$^2$)',fontsize=12)
 
-    plt.subplot(2,2,2)
-    plt.hist(wmm,bins=50,range=(0,300))
-    plt.xlabel(r'$M_{\bar{q}\bar{q}}, t \rightarrow \ell \bar{q}\bar{q}$ (GeV/c$^2$)',fontsize=12)
+plt.subplot(2,2,4)
+plt.hist(tbarm,bins=100,range=(0,500))
+plt.xlabel(r'$M_{\ell \bar{q}\bar{q}}, t \rightarrow \ell \bar{q}\bar{q}$ (GeV/c$^2$)',fontsize=12)
 
-    plt.subplot(2,2,3)
-    plt.hist(tm,bins=50,range=(0,500))
-    plt.xlabel(r'$M_{q_b q\bar{q}}, t \rightarrow q_b W \rightarrow q\bar{q}$ (GeV/c$^2$)',fontsize=12)
+plt.tight_layout()
 
-    plt.subplot(2,2,4)
-    plt.hist(tbarm,bins=50,range=(0,500))
-    plt.xlabel(r'$M_{\ell \bar{q}\bar{q}}, t \rightarrow \ell \bar{q}\bar{q}$ (GeV/c$^2$)',fontsize=12)
+plt.savefig('image_from_h5.png')
 
-    plt.tight_layout()
-
-    plt.savefig('image_from_h5.png')
-
-    plt.show()
+plt.show()

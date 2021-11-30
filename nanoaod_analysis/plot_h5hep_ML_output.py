@@ -5,7 +5,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pylab as plt
 
-import h5hep as hp
+#import h5hep as hp
+import hepfile
 
 # For CMS-style plotting
 #import mplhep
@@ -13,7 +14,7 @@ import h5hep as hp
 
 #df = pd.read_hdf(sys.argv[1])
 infilename = sys.argv[1]
-data, event = hp.load(infilename, verbose=False)  # ,subset=10000)
+data, event = hepfile.load(infilename, verbose=False)  # ,subset=10000)
 
 #print(len(df))
 

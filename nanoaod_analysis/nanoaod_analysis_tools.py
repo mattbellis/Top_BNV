@@ -1424,10 +1424,6 @@ def truth_matching_COFFEA_TOOLS(genpart,jets,leptons=None,topology='had_had',ver
             gen_leptons_in_event = gen_leptons[ii]
             leptons_in_event = leptons[ii]
 
-            if icount%100==0:
-                print(icount)
-
-            icount += 1
             nmatched_leptons_in_event = 0
 
             lep2 = None
