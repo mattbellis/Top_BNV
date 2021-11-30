@@ -13,6 +13,7 @@ import hepfile
 #plt.style.use(mplhep.style.CMS)
 
 alldata = {}
+alldata2 = {}
 
 #df = pd.read_hdf(sys.argv[1])
 names = []
@@ -27,7 +28,9 @@ for i,infilename in enumerate(sys.argv[1:]):
                 names.append(key)
                 alldata[key] = data[key].tolist()
             else:
-                alldata[key] += data[key].tolist()
+                #alldata[key] += data[key].tolist()
+                # Do this if there are two data types
+                alldata2[key] = data[key].tolist()
 #exit()
 
 #exit()
@@ -42,9 +45,15 @@ for i,name in enumerate(names):
     plt.subplot(4,4,i%16+1)
 
     if name.find('_m')>=0:
-        plt.hist(alldata[name],bins=50,range=(0,500),label=name)
+        plt.hist(alldata[name],bins=50,range=(0,500),label=name,density=True,alpha=0.5)
+        # Do this for two types of data
+        if len(sys.argv)>2:
+            plt.hist(alldata2[name],bins=50,range=(0,500),label=name,density=True,alpha=0.5)
     else:
-        plt.hist(alldata[name],label=name,bins=50)
+        plt.hist(alldata[name],label=name,bins=50,density=True,alpha=0.5)
+        # Do this for two types of data
+        if len(sys.argv)>2:
+            plt.hist(alldata2[name],label=name,bins=50,density=True,alpha=0.5)
 
     plt.xlabel(name)
     #plt.legend()
