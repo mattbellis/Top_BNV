@@ -55,7 +55,7 @@ for infilename in infilenames:
 
     nevents = hepfile.get_nbuckets_in_data(data)
 
-    topology = "had_had"
+    #topology = "had_had"
     topology = "had_TSUE"
 
     if topology == "had_had":
@@ -98,23 +98,32 @@ for infilename in infilenames:
 plt.figure(figsize=(8,6))
 
 plt.subplot(2,2,1)
-plt.hist(wpm,bins=100,range=(0,300))
-plt.xlabel(r'$M_{q\bar{q}}, t \rightarrow W \rightarrow q\bar{q}$ (GeV/c$^2$)',fontsize=12)
+plt.hist(wpm,bins=50,range=(0,200))
+plt.plot([83,83],[0,1*plt.gca().get_ylim()[1]],'k--',label=r'$W$ mass')
+plt.xlabel(r'$M_{q\bar{q}}, t \rightarrow W \rightarrow q\bar{q}$ (GeV/c$^2$)',fontsize=14)
+plt.legend(fontsize=12)
 
 plt.subplot(2,2,2)
-plt.hist(wmm,bins=100,range=(0,300))
-plt.xlabel(r'$M_{\bar{q}\bar{q}}, t \rightarrow \ell \bar{q}\bar{q}$ (GeV/c$^2$)',fontsize=12)
+plt.hist(wmm,bins=50,range=(0,200))
+plt.plot([83,83],[0,1*plt.gca().get_ylim()[1]],'k--',label=r'$W$ mass')
+plt.xlabel(r'$M_{\bar{q}\bar{q}}, t \rightarrow \ell \bar{q}\bar{q}$ (GeV/c$^2$)',fontsize=14)
+plt.legend(fontsize=12)
 
 plt.subplot(2,2,3)
-plt.hist(tm,bins=100,range=(0,500))
-plt.xlabel(r'$M_{q_b q\bar{q}}, t \rightarrow q_b W \rightarrow q\bar{q}$ (GeV/c$^2$)',fontsize=12)
+plt.hist(tm,bins=50,range=(0,300))
+plt.plot([173,173],[0,1*plt.gca().get_ylim()[1]],'k--',label=r'top-quark mass')
+plt.xlabel(r'$M_{q_b q\bar{q}}, t \rightarrow q_b W \rightarrow q\bar{q}$ (GeV/c$^2$)',fontsize=14)
+plt.legend(fontsize=12,loc='upper left')
 
 plt.subplot(2,2,4)
-plt.hist(tbarm,bins=100,range=(0,500))
-plt.xlabel(r'$M_{\ell \bar{q}\bar{q}}, t \rightarrow \ell \bar{q}\bar{q}$ (GeV/c$^2$)',fontsize=12)
+plt.hist(tbarm,bins=50,range=(0,300))
+plt.plot([173,173],[0,1*plt.gca().get_ylim()[1]],'k--',label=r'top-quark mass')
+plt.xlabel(r'$M_{\ell \bar{q}\bar{q}}, t \rightarrow \ell \bar{q}\bar{q}$ (GeV/c$^2$)',fontsize=14)
+plt.legend(fontsize=12,loc='upper left')
 
 plt.tight_layout()
 
-plt.savefig('image_from_h5.png')
+plt.savefig(f'figures/{infilenames[0].split(".")[0]}_invariant_masses.png')
+plt.savefig(f'figures/{topology}_{infilenames[0].split(".")[0]}_invariant_masses.png')
 
 plt.show()

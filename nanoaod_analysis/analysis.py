@@ -125,7 +125,7 @@ for jets,muons in zip(alljets, allmuons):
     hepfile.pack(data,event)
     #print("time to pack: ",time.time()-start)
 
-    if icount>=100000000:
+    if icount>=100000:
         break
 
 
