@@ -18,7 +18,7 @@ for s in samples['MC'].keys():
     if s in ['2016', '2017', '2018']:
         continue 
 
-    print(s,samples['MC'][s])
+    print(s,samples['MC']['208'][s])
     cmd = ['dasgoclient', '--help']
     process = subprocess.Popen(['dasgoclient', '--help'],stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True).communicate()
 
