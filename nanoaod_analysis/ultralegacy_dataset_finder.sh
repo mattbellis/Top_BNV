@@ -22,3 +22,12 @@ dasgoclient --query="dataset=/TT*Jet*/*UL*/NANOAODSIM" --format plain --limit=10
 
 dasgoclient --query="dataset=/TT*BNV*/*UL*/NANOAODSIM" --format plain --limit=100
 
+#dasgoclient -query="file dataset=/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v1/MINIAODSIM | sum(file.nevents)"
+
+
+# From here
+# https://hypernews.cern.ch/HyperNews/CMS/get/computing-tools/6072/1/2/1/1.html
+curl -k -O https://raw.githubusercontent.com/dmwm/DASMaps/master/js/das_maps_dbs_prod.js
+dasgoclient -dasmaps ./das_maps_dbs_prod.js --query="file dataset=/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/RunIISummer20UL18NanoAOD-106X_upgrade2018_realistic_v11_L1v1-v1/NANOAODSIM" --format plain
+
+
