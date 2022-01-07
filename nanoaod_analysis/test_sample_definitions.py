@@ -25,36 +25,45 @@ for key in samples['MC'].keys():
         continue 
 
 
-    s = samples['MC']['2018'][key]
-    print(s)
-    #cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '--query="dataset='+s+'"', '--format', 'plain']
+    for year in ['2016', '2017','2018']:
 
-    # To list the dataset
-    #cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '--query="dataset='+s.replace('/NANOAOD','*/NANOAOD')+'"', '--format', 'plain']
-    #cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '--query="dataset='+s+'"', '--format', 'plain']
+        s = samples['MC'][year][key]
+        #print(s)
+        #cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '--query="dataset='+s+'"', '--format', 'plain']
 
-    # To list the dataset
-    cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '-query', 'file dataset='+s, '--format', 'plain', '--verbose', '0']
+        # To list the dataset
+        #cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '--query="dataset='+s.replace('/NANOAOD','*/NANOAOD')+'"', '--format', 'plain']
+        #cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '--query="dataset='+s+'"', '--format', 'plain']
 
-    # To count the events
-    #cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '--query="file' , 'dataset='+s, '|', 'sum(file.nevents)"']
+        # To list the dataset
+        #cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '-query', 'file dataset='+s, '--format', 'plain', '--verbose', '0']
 
-    # To test
-    #cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '--help']
+        # To count the events
+        cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '--query', 'file dataset='+s+' |  sum(file.nevents)']
 
-    #process = subprocess.Popen(['eval', '`scramv1', 'runtime', '-sh`'],stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True).communicate()
-    print('\n')
+        # To test
+        #cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '--help']
 
-    process = subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True,env=my_env).communicate()
-    #subprocess.Popen(my_command, env=my_env)
-    print(process)
-    print(process[0])
-    '''
-    for p in process:
-        print(p)
-    '''
+        #process = subprocess.Popen(['eval', '`scramv1', 'runtime', '-sh`'],stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True).communicate()
+        #print('\n')
 
-    output = " ".join(cmd)
-    print(output)
-    print(cmd)
-    #cmd = ['dasgoclient', '--help']
+        process = subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True,env=my_env).communicate()
+        #subprocess.Popen(my_command, env=my_env)
+        #print(process)
+        #print(process[0])
+
+        # For number of events
+        #nevents = float(process[0].split()[-1])
+        #print("{0:16.0f} {1}".format(nevents,s))
+        nevents = process[0]
+        print(nevents, s,year)
+        '''
+        for p in process:
+            print(p)
+        '''
+
+        #output = " ".join(cmd)
+        #print(output)
+        #print(cmd)
+
+        #cmd = ['dasgoclient', '--help']
