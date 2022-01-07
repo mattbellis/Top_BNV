@@ -20,12 +20,15 @@ for p in process:
 
 print("\n---------------------\n")
 
-for key in samples['MC'].keys():
-    if key in ['2016', '2017', '2018']:
-        continue 
+for year in ['2016', '2017','2018']:
+        
+    print("------ "+year+" ------\n")
 
-
-    for year in ['2016', '2017','2018']:
+    sorted_keys = list(samples['MC'].keys())
+    sorted_keys.sort()
+    for key in sorted_keys:
+        if key in ['2016', '2017', '2018']:
+            continue 
 
         s = samples['MC'][year][key]
         #print(s)
@@ -55,8 +58,14 @@ for key in samples['MC'].keys():
         # For number of events
         #nevents = float(process[0].split()[-1])
         #print("{0:16.0f} {1}".format(nevents,s))
-        nevents = process[0]
-        print(nevents, s,year)
+        nevents = process[0].split()
+        if len(nevents)>1:
+            nevents = nevents[-1]
+        else:
+            nevents = '0'
+        nevents = float(nevents)
+        #print(nevents, s,year)
+        print("{0:10.0f} {1:18s} {2}".format(nevents,key,s))
         '''
         for p in process:
             print(p)
