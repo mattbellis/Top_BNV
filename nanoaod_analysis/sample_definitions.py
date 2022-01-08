@@ -31,12 +31,24 @@ samples['MC']['ST_s_channel'] = '/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-mad
 samples['MC']['ST_t_channel'] = '/ST_t-channel_top_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8/'
 samples['MC']['ST_tbar_channel'] = '/ST_t-channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8/'
 samples['MC']['ST_tW_channel'] = '/ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8/'
-samples['MC']['ST_tbarW_channel'] = '/ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8/'
+
+samples['MC']['ST_tW_antitop_5f_NoFullyHadronicDecays'] = '/ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia/'
+samples['MC']['ST_tW_top_5f_NoFullyHadronicDecays'] = '/ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8/'
+
+# Are these v2?
+samples['MC']['ST_tW_antitop_5f_inclusiveDecays'] = '/ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8/'
+samples['MC']['ST_tW_top_5f_inclusiveDecays'] = '/ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8/'
+
+samples['MC']['ST_tW_antitop_5f_NoFullyHadronicDecays'] = '/ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8/'
 
 samples['MC']['TTGJets'] = '/TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/'
 samples['MC']['TTJets'] = '/TTJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/'
 samples['MC']['TTWJetsToLNu'] = '/TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/'
 samples['MC']['TTWJetsToQQ'] = '/TTWJetsToQQ_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/'
+
+samples['MC']['TTZToNuNu'] = '/TTZToNuNu_TuneCP5_13TeV-amcatnlo-pythia8/'
+samples['MC']['TTZToLLNuNu_M-10'] = '/TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8/'
+samples['MC']['TTZToQQ'] = '/TTZToQQ_TuneCP5_13TeV-amcatnlo-pythia8/'
 
 samples['MC']['WJetsToLNu'] = '/WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8/'
 samples['MC']['WJetsToQQ'] = '/WJetsToQQ_TuneCP5_13TeV-madgraphMLM-pythia8/'
@@ -46,6 +58,12 @@ samples['MC']['ZJetsToQQ_HT-200to400'] = '/ZJetsToQQ_HT-200to400_TuneCP5_13TeV-m
 samples['MC']['ZJetsToQQ_HT-400to600'] = '/ZJetsToQQ_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8/'
 samples['MC']['ZJetsToQQ_HT-600to800'] = '/ZJetsToQQ_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8/'
 samples['MC']['ZJetsToQQ_HT-800toInf'] = '/ZJetsToQQ_HT-800toInf_TuneCP5_13TeV-madgraphMLM-pythia8/'
+
+# Might need to be v2 for Global Tag?
+samples['MC']['WJetsToQQ_HT-200to400'] = '/WJetsToQQ_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8/'
+samples['MC']['WJetsToQQ_HT-400to600'] = '/WJetsToQQ_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8/'
+samples['MC']['WJetsToQQ_HT-600to800'] = '/WJetsToQQ_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8/'
+samples['MC']['WJetsToQQ_HT-800toInf'] = '/WJetsToQQ_HT-800toInf_TuneCP5_13TeV-madgraphMLM-pythia8/'
 
 # Might want to look at Mu and EM enriched as well. Those might be -v2
 samples['MC']['QCD_Pt_15to30'] = '/QCD_Pt_15to30_TuneCP5_13TeV_pythia8/'
@@ -58,6 +76,9 @@ samples['MC']['QCD_Pt_300to470'] = '/QCD_Pt_300to470_TuneCP5_13TeV_pythia8/'
 samples['MC']['QCD_Pt_470to600'] = '/QCD_Pt_470to600_TuneCP5_13TeV_pythia8/'
 samples['MC']['QCD_Pt_600to800'] = '/QCD_Pt_600to800_TuneCP5_13TeV_pythia8/'
 samples['MC']['QCD_Pt_800to1000'] = '/QCD_Pt_800to1000_TuneCP5_13TeV_pythia8/'
+
+samples['MC']['DYJetsToLL_M-10to50'] = '/DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8/'
+samples['MC']['DYJetsToLL_M-50'] = '/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/'
 
 
 ################################################################################
@@ -73,7 +94,12 @@ for s in samples['MC'].keys():
     val = samples['MC'][s]
     for year in ['2016','2017','2018']:
     #for year in ['2017','2018']:
-        samples['MC'][year][s] = val + mc_type[year]['Run'] + "-" + mc_type[year]['GT'] + "/" + mc_tier
+        name = val + mc_type[year]['Run'] + "-" + mc_type[year]['GT'] + "/" + mc_tier
+        if name.find('inclusiveDecays')>=0 or \
+           name.find('ZJetsToQQ_HT')>=0 or \
+           name.find('WJetsToQQ_HT')>=0:
+            name = name.replace('-v1','-v2')
+        samples['MC'][year][s] = name
     #print(samples['MC']['2018'][s])
 
 

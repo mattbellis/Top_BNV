@@ -39,10 +39,10 @@ for year in ['2016', '2017','2018']:
         #cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '--query="dataset='+s+'"', '--format', 'plain']
 
         # To list the dataset
-        #cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '-query', 'file dataset='+s, '--format', 'plain', '--verbose', '0']
+        cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '-query', 'file dataset='+s, '--format', 'plain', '--verbose', '0']
 
         # To count the events
-        cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '--query', 'file dataset='+s+' |  sum(file.nevents)']
+        #cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '--query', 'file dataset='+s+' |  sum(file.nevents)']
 
         # To test
         #cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '--help']
@@ -56,6 +56,7 @@ for year in ['2016', '2017','2018']:
         #print(process[0])
 
         # For number of events
+        '''
         #nevents = float(process[0].split()[-1])
         #print("{0:16.0f} {1}".format(nevents,s))
         nevents = process[0].split()
@@ -66,7 +67,14 @@ for year in ['2016', '2017','2018']:
             nevents = '0'
         nevents = float(nevents)
         #print(nevents, s,year)
-        print("{0:10.0f} {1:18s} {2}".format(nevents,key,s))
+        print("{0:16.0f} {1:18s} {2}".format(nevents,key,s))
+        '''
+
+        # To list the dataset
+        #print(process)
+        files = process[0].split('\n')
+        print(len(files),files[0])
+
         '''
         for p in process:
             print(p)
