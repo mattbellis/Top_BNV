@@ -33,7 +33,34 @@ samples['MC']['ST_tbar_channel'] = '/ST_t-channel_antitop_4f_InclusiveDecays_Tun
 samples['MC']['ST_tW_channel'] = '/ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8/'
 samples['MC']['ST_tbarW_channel'] = '/ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8/'
 
+samples['MC']['TTGJets'] = '/TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/'
+samples['MC']['TTJets'] = '/TTJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/'
+samples['MC']['TTWJetsToLNu'] = '/TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/'
+samples['MC']['TTWJetsToQQ'] = '/TTWJetsToQQ_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/'
 
+samples['MC']['WJetsToLNu'] = '/WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8/'
+samples['MC']['WJetsToQQ'] = '/WJetsToQQ_TuneCP5_13TeV-madgraphMLM-pythia8/'
+
+# Might need to be v2 for Global Tag?
+samples['MC']['ZJetsToQQ_HT-200to400'] = '/ZJetsToQQ_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8/'
+samples['MC']['ZJetsToQQ_HT-400to600'] = '/ZJetsToQQ_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8/'
+samples['MC']['ZJetsToQQ_HT-600to800'] = '/ZJetsToQQ_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8/'
+samples['MC']['ZJetsToQQ_HT-800toInf'] = '/ZJetsToQQ_HT-800toInf_TuneCP5_13TeV-madgraphMLM-pythia8/'
+
+# Might want to look at Mu and EM enriched as well. Those might be -v2
+samples['MC']['QCD_Pt_15to30'] = '/QCD_Pt_15to30_TuneCP5_13TeV_pythia8/'
+samples['MC']['QCD_Pt_30to50'] = '/QCD_Pt_30to50_TuneCP5_13TeV_pythia8/'
+samples['MC']['QCD_Pt_50to80'] = '/QCD_Pt_50to80_TuneCP5_13TeV_pythia8/'
+samples['MC']['QCD_Pt_80to120'] = '/QCD_Pt_80to120_TuneCP5_13TeV_pythia8/'
+samples['MC']['QCD_Pt_120to170'] = '/QCD_Pt_120to170_TuneCP5_13TeV_pythia8/'
+samples['MC']['QCD_Pt_170to300'] = '/QCD_Pt_170to300_TuneCP5_13TeV_pythia8/'
+samples['MC']['QCD_Pt_300to470'] = '/QCD_Pt_300to470_TuneCP5_13TeV_pythia8/'
+samples['MC']['QCD_Pt_470to600'] = '/QCD_Pt_470to600_TuneCP5_13TeV_pythia8/'
+samples['MC']['QCD_Pt_600to800'] = '/QCD_Pt_600to800_TuneCP5_13TeV_pythia8/'
+samples['MC']['QCD_Pt_800to1000'] = '/QCD_Pt_800to1000_TuneCP5_13TeV_pythia8/'
+
+
+################################################################################
 samples['MC']['2018'] = {}
 samples['MC']['2017'] = {}
 samples['MC']['2016'] = {}
