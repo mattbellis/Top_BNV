@@ -5,15 +5,18 @@ import ROOT
 
 import sys
 
-infile = sys.argv[1]
+tag = sys.argv[1]
+year = sys.argv[2]
+infile = sys.argv[3]
 infile = "root://cmsxrootd.fnal.gov//"+infile
 
-#outfile = infile.split('/')[-1].split('.root')[0] + '_SMALL_1k.root'
-outfile = "root://cmseos.fnal.gov//store/user/mbellis/test/"+infile.split('/')[-1].split('.root')[0] + '_SMALL_1k.root'
-#outfile = infile.split('.root')[0] + '_SMALL_1k.root'
-#outfile = infile.split('.root')[0] + '_SMALL_100k.root'
+#outfile = "root://cmseos.fnal.gov//store/user/mbellis/small_skims_1k/"+infile.split('/')[-1].split('.root')[0] + '_SMALL_1k.root'
+outfile = "root://cmseos.fnal.gov//store/user/mbellis/small_skims_1k/"+tag+"_"+year+"_SMALL_1k.root"
 
+print("Opening...")
 print(infile)
+
+print("\nWriting to....")
 print(outfile)
 
 #exit()
@@ -23,6 +26,7 @@ oldfile = ROOT.TFile.Open(infile)
 oldfile.ls()
 oldtree = oldfile.Get("Events");
 nentries = oldtree.GetEntries();
+print("\nNentries: "+str(nentries)+"\n\n")
 #Event *event   = 0;
 #oldtree.SetBranchAddress("event",&event);
 
