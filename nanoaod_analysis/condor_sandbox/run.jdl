@@ -1,0 +1,15 @@
+universe = vanilla
+Executable = simplest_example.sh
+
+use_x509userproxy = true
+should_transfer_files = YES
+WhenToTransferOutput  = ON_EXIT_OR_EVICT
+notification = never
+
+
+# Don't forget to make the logs directory ahead of time!
+Output = logs/$(Executable)_$(cluster)_$(process).stdout
+Error  = logs/$(Executable)_$(cluster)_$(process).stderr
+Log    = logs/$(Executable)_$(cluster)_$(process).condor
+
+Queue 1

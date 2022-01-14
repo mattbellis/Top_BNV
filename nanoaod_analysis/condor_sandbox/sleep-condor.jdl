@@ -1,0 +1,9 @@
+universe = vanilla
+Executable = sleep.sh
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+Output = sleep_$(Cluster)_$(Process).stdout
+Error = sleep_$(Cluster)_$(Process).stderr
+Log = sleep_$(Cluster)_$(Process).log
+Arguments = 60
+Queue 2
