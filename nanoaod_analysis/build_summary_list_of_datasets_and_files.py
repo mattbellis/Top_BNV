@@ -32,7 +32,7 @@ for year in ['2016', '2017', '2018']:
 
          # Prepend the full dataset info
         #output = str(totalevents) + " " + str(totalsize) + " " + dataset + " " + fulldatasetname + "\n" + output
-        output = "dataset: " + str(totalevents) + " " + dataset + " " + fulldatasetname
+        output = "dataset: " + "{0:10d}  {1}".format(totalevents, dataset) #+ " " + fulldatasetname
         print output
 
 
