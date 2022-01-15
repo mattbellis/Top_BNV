@@ -30,4 +30,10 @@ dasgoclient --query="dataset=/TT*BNV*/*UL*/NANOAODSIM" --format plain --limit=10
 curl -k -O https://raw.githubusercontent.com/dmwm/DASMaps/master/js/das_maps_dbs_prod.js
 dasgoclient -dasmaps ./das_maps_dbs_prod.js --query="file dataset=/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/RunIISummer20UL18NanoAOD-106X_upgrade2018_realistic_v11_L1v1-v1/NANOAODSIM" --format plain
 
+# Helpful. Dumps some summary output to a json-esqe output. Dictionary?
+dasgoclient -query="summary dataset=/ZMM/Summer11-DESIGN42_V11_428_SLHC1-v1/GEN-SIM"
 
+# Get all the info about datasets, including files and file entries
+dasgoclient -dasmaps ./das_maps_dbs_prod.js -query="file dataset=/ZMM/Summer11-DESIGN42_V11_428_SLHC1-v1/GEN-SIM" -json
+
+dasgoclient -dasmaps ./das_maps_dbs_prod.js -query=file dataset=/QCD_Pt_50to80_TuneCP5_13TeV_pythia8/RunIISummer20UL16NanoAODv9-106X_mcRun2_asymptotic_v17-v1/NANOAODSIM -json
