@@ -37,3 +37,15 @@ dasgoclient -query="summary dataset=/ZMM/Summer11-DESIGN42_V11_428_SLHC1-v1/GEN-
 dasgoclient -dasmaps ./das_maps_dbs_prod.js -query="file dataset=/ZMM/Summer11-DESIGN42_V11_428_SLHC1-v1/GEN-SIM" -json
 
 dasgoclient -dasmaps ./das_maps_dbs_prod.js -query=file dataset=/QCD_Pt_50to80_TuneCP5_13TeV_pythia8/RunIISummer20UL16NanoAODv9-106X_mcRun2_asymptotic_v17-v1/NANOAODSIM -json
+
+######################
+# Signal
+######################
+dasgoclient -dasmaps ./das_maps_dbs_prod.js -query="dataset=/*BNV*/RunII*/NANOAODSIM" --format plain
+
+######################
+# Data
+######################
+dasgoclient -dasmaps ./das_maps_dbs_prod.js -query="dataset=/SingleMuon/Run2016*UL*NanoAODv2*/NANOAOD" --format plain
+dasgoclient -dasmaps ./das_maps_dbs_prod.js -query="dataset=/SingleMuon/Run2017*UL*NanoAODv2*/NANOAOD" --format plain
+dasgoclient -dasmaps ./das_maps_dbs_prod.js -query="dataset=/SingleMuon/Run2018*UL*NanoAODv2*/NANOAOD" --format plain
