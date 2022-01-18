@@ -125,7 +125,7 @@ for jets,muons in zip(alljets, allmuons):
     hepfile.pack(data,event)
     #print("time to pack: ",time.time()-start)
 
-    if icount>=100000:
+    if icount>=2000:
         break
 
 
@@ -143,7 +143,9 @@ for key in output_data_ML.keys():
         data['ml/'+key] = output_data_ML[key]
 print( output_data_ML['num_combos'])
 data['ml/num'] = output_data_ML['num_combos']
-hdfile = hepfile.write_to_file("FOR_TESTS.hdf5", data, comp_type="gzip", comp_opts=9)
+outfilename = f"{infilename.split('/')[-1].split('.root')[0]}_MLinputvariables.h5" 
+#hdfile = hepfile.write_to_file("FOR_TESTS.hdf5", data, comp_type="gzip", comp_opts=9)
+hdfile = hepfile.write_to_file(outfilename, data, comp_type="gzip", comp_opts=9)
 
 
 
