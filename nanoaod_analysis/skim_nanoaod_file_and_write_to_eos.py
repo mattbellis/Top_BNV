@@ -46,7 +46,7 @@ for i in range(nentries):
 
     newtree.Fill();
     
-newtree.Print();
+#newtree.Print();
 newtree.Write();
 #newtree.AutoSave();
 oldfile.Close()
