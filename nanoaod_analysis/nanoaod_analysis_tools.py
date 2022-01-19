@@ -1246,7 +1246,7 @@ def truth_matching_COFFEA_TOOLS(genpart,jets,leptons=None,topology='had_had',ver
         return b1s,q1s,b2s,q2s
 
     ############################################################################
-    elif topology=='had_TSUE':
+    elif topology=='had_TSUE' or topology=='had_TDUMu':
 
         print("------ Looking for W stuff ---------")
         # Get the quarks that are quark 1-5

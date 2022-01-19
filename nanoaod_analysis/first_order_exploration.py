@@ -95,7 +95,7 @@ plt.tight_layout()
 
 plt.figure()
 plt.subplot(2,2,1)
-plt.hist(met.pt,bins=100,range=(0,100))
+plt.hist(met.pt,bins=25,range=(0,100))
 plt.xlabel('MET pt')
 
 plt.tight_layout()
