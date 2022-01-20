@@ -23,6 +23,7 @@ samples = {"MC":{}, "data":{}}
 samples['data'] = {'2016':{}, '2017':{}, '2018':{}}
 for key in samples['data'].keys():
     samples['data'][key]['SingleMuon'] = {}
+    samples['data'][key]['SingleElectron'] = {}
 
 
 #/SingleMuon/Run2018A-UL2018_MiniAODv1_NanoAODv2-v3/NANOAOD
@@ -33,7 +34,15 @@ for key in samples['data'].keys():
 samples['data']['2018']['SingleMuon']['Run2018A'] = '/SingleMuon/Run2018A-UL2018_MiniAODv2_NanoAODv9-v2/NANOAOD'
 samples['data']['2018']['SingleMuon']['Run2018B'] = '/SingleMuon/Run2018B-UL2018_MiniAODv2_NanoAODv9-v2/NANOAOD'
 samples['data']['2018']['SingleMuon']['Run2018C'] = '/SingleMuon/Run2018C-UL2018_MiniAODv2_NanoAODv9-v2/NANOAOD'
-samples['data']['2018']['SingleMuon']['Run2018D'] = '/SingleMuon/Run2018D-UL2018_MiniAODv2_NanoAODv9-v2/NANOAOD'
+samples['data']['2018']['SingleMuon']['Run2018D'] = '/SingleMuon/Run2018D-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD'
+
+samples['data']['2018']['SingleElectron']['Run2018A'] = '/EGamma/Run2018A-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD'
+samples['data']['2018']['SingleElectron']['Run2018B'] = '/EGamma/Run2018B-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD'
+samples['data']['2018']['SingleElectron']['Run2018C'] = '/EGamma/Run2018C-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD'
+samples['data']['2018']['SingleElectron']['Run2018D'] = '/EGamma/Run2018D-UL2018_MiniAODv2_NanoAODv9-v3/NANOAOD'
+
+
+
 
 #/SingleMuon/Run2017B-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD
 #/SingleMuon/Run2017C-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD
@@ -42,13 +51,21 @@ samples['data']['2018']['SingleMuon']['Run2018D'] = '/SingleMuon/Run2018D-UL2018
 #/SingleMuon/Run2017F-UL2017_MiniAODv1_NanoAODv2-v2/NANOAOD
 #/SingleMuon/Run2017G-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD
 #/SingleMuon/Run2017H-UL2017_LowPU_MiniAODv1_NanoAODv2-v1/NANOAOD
-samples['data']['2017']['SingleMuon']['Run2017B'] = '/SingleMuon/Run2017B-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
-samples['data']['2017']['SingleMuon']['Run2017C'] = '/SingleMuon/Run2017C-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
-samples['data']['2017']['SingleMuon']['Run2017D'] = '/SingleMuon/Run2017D-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
-samples['data']['2017']['SingleMuon']['Run2017E'] = '/SingleMuon/Run2017E-UL2017_MiniAODv1_NanoAODv2-v2/NANOAOD'
-samples['data']['2017']['SingleMuon']['Run2017F'] = '/SingleMuon/Run2017F-UL2017_MiniAODv1_NanoAODv2-v2/NANOAOD'
-samples['data']['2017']['SingleMuon']['Run2017G'] = '/SingleMuon/Run2017G-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
-samples['data']['2017']['SingleMuon']['Run2017H'] = '/SingleMuon/Run2017H-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
+samples['data']['2017']['SingleMuon']['Run2017B'] = '/SingleMuon/Run2017B-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
+samples['data']['2017']['SingleMuon']['Run2017C'] = '/SingleMuon/Run2017C-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
+samples['data']['2017']['SingleMuon']['Run2017D'] = '/SingleMuon/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
+samples['data']['2017']['SingleMuon']['Run2017E'] = '/SingleMuon/Run2017E-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
+samples['data']['2017']['SingleMuon']['Run2017F'] = '/SingleMuon/Run2017F-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
+samples['data']['2017']['SingleMuon']['Run2017G'] = '/SingleMuon/Run2017G-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
+samples['data']['2017']['SingleMuon']['Run2017H'] = '/SingleMuon/Run2017H-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
+
+samples['data']['2017']['SingleElectron']['Run2017B'] = '/SingleElectron/Run2017B-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
+samples['data']['2017']['SingleElectron']['Run2017C'] = '/SingleElectron/Run2017C-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
+samples['data']['2017']['SingleElectron']['Run2017D'] = '/SingleElectron/Run2017D-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
+samples['data']['2017']['SingleElectron']['Run2017E'] = '/SingleElectron/Run2017E-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
+samples['data']['2017']['SingleElectron']['Run2017F'] = '/SingleElectron/Run2017F-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
+samples['data']['2017']['SingleElectron']['Run2017G'] = '/SingleElectron/Run2017G-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
+samples['data']['2017']['SingleElectron']['Run2017H'] = '/SingleElectron/Run2017H-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
 
 #/SingleMuon/Run2016B-ver1_HIPM_UL2016_MiniAODv1_NanoAODv2-v1/NANOAOD
 #/SingleMuon/Run2016B-ver2_HIPM_UL2016_MiniAODv1_NanoAODv2-v1/NANOAOD
@@ -69,6 +86,15 @@ samples['data']['2016']['SingleMuon']['Run2016F'] = '/SingleMuon/Run2016F-UL2016
 samples['data']['2016']['SingleMuon']['Run2016G'] = '/SingleMuon/Run2016G-UL2016_MiniAODv1_NanoAODv2-v1/NANOAOD'
 samples['data']['2016']['SingleMuon']['Run2016H'] = '/SingleMuon/Run2016H-UL2016_MiniAODv1_NanoAODv2-v1/NANOAOD'
 
+samples['data']['2016']['SingleElectron']['Run2016B-ver1_HIPM'] = '/SingleElectron/Run2016B-ver1_HIPM_UL2016_MiniAODv1_NanoAODv2-v1/NANOAOD'
+samples['data']['2016']['SingleElectron']['Run2016B-ver2_HIPM'] = '/SingleElectron/Run2016B-ver2_HIPM_UL2016_MiniAODv1_NanoAODv2-v1/NANOAOD'
+samples['data']['2016']['SingleElectron']['Run2016C'] = '/SingleElectron/Run2016C-UL2016_MiniAODv1_NanoAODv2-v1/NANOAOD'
+samples['data']['2016']['SingleElectron']['Run2016D'] = '/SingleElectron/Run2016D-UL2016_MiniAODv1_NanoAODv2-v1/NANOAOD'
+samples['data']['2016']['SingleElectron']['Run2016E'] = '/SingleElectron/Run2016E-UL2016_MiniAODv1_NanoAODv2-v1/NANOAOD'
+samples['data']['2016']['SingleElectron']['Run2016F-HIPM'] = '/SingleElectron/Run2016F-HIPM_UL2016_MiniAODv1_NanoAODv2-v4/NANOAOD'
+samples['data']['2016']['SingleElectron']['Run2016F'] = '/SingleElectron/Run2016F-UL2016_MiniAODv1_NanoAODv2-v4/NANOAOD'
+samples['data']['2016']['SingleElectron']['Run2016G'] = '/SingleElectron/Run2016G-UL2016_MiniAODv1_NanoAODv2-v1/NANOAOD'
+samples['data']['2016']['SingleElectron']['Run2016H'] = '/SingleElectron/Run2016H-UL2016_MiniAODv1_NanoAODv2-v1/NANOAOD'
 
 
 
