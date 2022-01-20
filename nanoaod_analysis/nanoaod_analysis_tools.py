@@ -27,69 +27,62 @@ PI = math.pi
 ################################################################################
 
 # MC values are for the 2016 data
-muon_triggers_of_interest = {}
-muon_triggers_of_interest['2016'] = ['IsoMu24']
-muon_triggers_of_interest['2017'] = ['IsoMu24_eta2p1']
-muon_triggers_of_interest['2018'] = ['IsoMu24']
+muon_hlt_paths = {}
+muon_hlt_paths['2016'] = ['IsoMu24']
+muon_hlt_paths['2017'] = ['IsoMu24_eta2p1']
+muon_hlt_paths['2018'] = ['IsoMu24']
 
-electron_triggers_of_interest = {}
-electron_triggers_of_interest['2016'] = ['Ele32_WPTight_Gsf','Ele27_WPTight_Gsf']
-electron_triggers_of_interest['2017'] = ['Ele32_WPTight_Gsf_L1DoubleEG', 'Ele35_WPTight_Gsf','Ele38_WPTight_Gsf','Ele40_WPTight_Gsf']
-electron_triggers_of_interest['2018'] = ['Ele32_WPTight_Gsf','Ele35_WPTight_Gsf','Ele38_WPTight_Gsf']
+electron_hlt_paths = {}
+electron_hlt_paths['2016'] = ['Ele32_WPTight_Gsf','Ele27_WPTight_Gsf']
+electron_hlt_paths['2017'] = ['Ele32_WPTight_Gsf_L1DoubleEG', 'Ele35_WPTight_Gsf','Ele38_WPTight_Gsf','Ele40_WPTight_Gsf']
+electron_hlt_paths['2018'] = ['Ele32_WPTight_Gsf','Ele35_WPTight_Gsf','Ele38_WPTight_Gsf']
 
-
-'''
-muon_triggers_of_interest = [
-    ["HLT_IsoMu24_v", "v4"], # 2016 and 2018
-    ["HLT_IsoTkMu24_v","v4"],
-    ["HLT_IsoMu22_eta2p1_v","v4"],
-    ["HLT_IsoTkMu22_eta2p1_v","v4"],
-    ["HLT_IsoMu24_eta2p1_v","v"], # Maybe for 2017 data?
-    ["HLT_IsoMu27_v","v"] # Maybe for 2017 data?
-    ]
-
-electron_triggers_of_interest = [
-    ["HLT_Ele32_eta2p1_WPTight_Gsf_v", "v8"],
-    ["HLT_Ele27_WPTight_Gsf_v", "v7"],
-    ["HLT_Ele25_eta2p1_WPTight_Gsf_v", "v7"],
-    ["HLT_Ele35_WPTight_Gsf_v", "v"], # 2017
-    ["HLT_Ele32_WPTight_Gsf_v", "v"] # 2017
-    ]
-
-dilepmue_triggers_of_interest = [
-    ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v", "v9"],
-    ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "v4"]
+hlt_paths = [
+["SingleMuon",muon_hlt_paths],
+["SingleElectron",electron_hlt_paths],
 ]
-
-dilepemu_triggers_of_interest = [
-    ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "v9"],
-    ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v", ""],
-    ["HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "v3"],
-    ["HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v", "v4"]
-]
-
-dilepmumu_triggers_of_interest = [
-    ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v", "v7"],
-    ["HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v", "v6"]
-    ]
-
-dilepee_triggers_of_interest = [
-    ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "v9"],
-    ["HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v", "v8"]
-    ]
-'''
-
-triggers_of_interest = [
-["SingleMuon",muon_triggers_of_interest],
-["SingleElectron",electron_triggers_of_interest],
-]
-#["DileptonMuE",dilepmue_triggers_of_interest],
-#["DileptonEMu",dilepemu_triggers_of_interest],
-#["DileptonMuMu",dilepmumu_triggers_of_interest],
-#["DileptonEE",dilepee_triggers_of_interest]
-#]
 
 pdgcodes = {6:"t", -6:"tbar"}
+
+################################################################################
+# Generate the indices for the diferent combinations
+################################################################################
+def extract_dataset_type_and_trigger_from_filename(filename):
+
+    dataset_type = 'MC'
+    if filename.find('Run20')>=0:
+        dataset_type = 'data'
+
+    mc_type = None
+    if dataset_type=='MC':
+        if filename.find('BNV')>=0:
+            mc_type = 'sig'
+        else:
+            mc_type = 'bkg'
+
+    trigger = None
+    if mc_type=='sig':
+        if filename.find('CMu')>=0 or filename.find('UMu')>=0:
+            trigger = 'SingleMuon'
+        elif filename.find('CE')>=0 or filename.find('UE')>=0:
+            trigger = 'SingleElectron'
+
+    if dataset_type=='data':
+        if filename.find('SingleMuon')>=0:
+            trigger = 'SingleMuon'
+        elif filename.find('SingleElectron')>=0 or filename.find('EGamma')>=0:
+            trigger = 'SingleElectron'
+
+    topology = None
+    if mc_type=='sig':
+        if filename.find('TTo')<=0:
+            print("Can't find a signal topology that is coded up for truth matching")
+        else:
+            idx = filename.find('TTo')
+            topology = filename[idx:].split('_')[0]
+
+
+    return dataset_type, mc_type, trigger, topology
 
 ################################################################################
 # Generate the indices for the diferent combinations
@@ -529,17 +522,23 @@ def massptetaphi2epxpypz(p4):
     return np.sqrt(e2),px,py,pz
 
 ################################################################################
-def trigger_mask(triggers_choice, events_HLT):
+def trigger_mask(events_HLT, trigger='SingleMuon', year='2018'):
+
+    hlt_paths = None
+    if trigger=='SingleMuon':
+        hlt_paths = muon_hlt_paths[str(year)]
+    elif trigger=='SingleElectron':
+        hlt_paths = electron_hlt_paths[str(year)]
 
     mask = None
-    for i,trigger in enumerate(triggers_choice):
-        print(trigger)
+    for i,hlt_path in enumerate(hlt_paths):
+        print(hlt_path)
 
         if i==0:
             # Convert these to numpy so that we can use the bitwise |= operator
-            mask = ak.to_numpy((events_HLT[trigger] == True))
+            mask = ak.to_numpy((events_HLT[hlt_path] == True))
         else:
-            mask |= ak.to_numpy((events_HLT[trigger] == True))
+            mask |= ak.to_numpy((events_HLT[hlt_path] == True))
 
     return mask
 
@@ -1121,6 +1120,9 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
     elif topology.find('Mu')>=0:
         lepton_pdgId = 13
 
+    if verbose:
+        print("\nSearching for the BNV decay...")
+        print(f"6 --> {lepton_pdgId} {down_type_quark_pdgId} {up_type_quark_pdgId}\n")
     ############################################################################
     if 1:#topology=='had_ToTSUE' or topology=='had_TDUMu':
 

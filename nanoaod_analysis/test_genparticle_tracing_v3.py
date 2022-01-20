@@ -38,6 +38,8 @@ if args.maxevents is not None and args.event_range is not None:
 # https://github.com/CoffeaTeam/coffea/blob/master/binder/nanoevents.ipynb
 
 
+
+
 ################################################################################
 
 #infilename = sys.argv[1]
@@ -46,12 +48,14 @@ if args.maxevents is not None and args.event_range is not None:
 # Topology = t/tbar
 #topology = ["had","had"]
 #topology = ["had","had"]
-topology = ["had","TToSUE"]
+#topology = ["had","TToSUE"]
 
-topology = f"{topology[0]}_{topology[1]}"
+#topology = f"{topology[0]}_{topology[1]}"
 
 infilename = args.infilename
 print("Reading in {0}".format(infilename))
+dataset_type, mc_type, trigger, topology = nat.extract_dataset_type_and_trigger_from_filename(infilename)
+print(f"input file information:   {dataset_type} {mc_type} {trigger} {topology}")
 
 events = NanoEventsFactory.from_root(infilename, schemaclass=NanoAODSchema).events()
 print(len(events))
@@ -66,14 +70,16 @@ elif infilename.find('2018')>=0:
 
 print(f"Applying the trigger mask...assume year {year}")
 HLT = events.HLT
+event_mask = None
+event_mask = nat.trigger_mask(HLT, trigger=trigger, year=year)
 #event_mask = nat.trigger_mask(nat.muon_triggers_of_interest[str(year)], HLT)
-event_mask = nat.trigger_mask(nat.electron_triggers_of_interest[str(year)], HLT)
+#event_mask = nat.trigger_mask(nat.electron_triggers_of_interest[str(year)], HLT)
 print("# events in file:                              ",len(events))
 print("# events in file passing trigger requirements: ",len(events[event_mask]))
 print("Mask is calculated!")
 
 # If we want a mask with everything
-event_mask = np.ones(len(events),dtype=bool)
+#event_mask = np.ones(len(events),dtype=bool)
 ################################################################################
 
 
@@ -122,7 +128,8 @@ print("Calculated parent pdgID")
 
 verbose = True
 
-if topology=="had_TToSUE":
+if topology is not None:
+    topology = f"had_{topology}"
     b1s,q1s,lep2s,q2s = nat.truth_matching_identify_genpart(genpart,topology=topology,verbose=verbose)
 
 exit()
