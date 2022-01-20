@@ -59,13 +59,13 @@ samples['data']['2017']['SingleMuon']['Run2017F'] = '/SingleMuon/Run2017F-UL2017
 samples['data']['2017']['SingleMuon']['Run2017G'] = '/SingleMuon/Run2017G-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
 samples['data']['2017']['SingleMuon']['Run2017H'] = '/SingleMuon/Run2017H-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
 
-samples['data']['2017']['SingleElectron']['Run2017B'] = '/SingleElectron/Run2017B-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
-samples['data']['2017']['SingleElectron']['Run2017C'] = '/SingleElectron/Run2017C-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
-samples['data']['2017']['SingleElectron']['Run2017D'] = '/SingleElectron/Run2017D-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
-samples['data']['2017']['SingleElectron']['Run2017E'] = '/SingleElectron/Run2017E-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
-samples['data']['2017']['SingleElectron']['Run2017F'] = '/SingleElectron/Run2017F-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
-samples['data']['2017']['SingleElectron']['Run2017G'] = '/SingleElectron/Run2017G-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
-samples['data']['2017']['SingleElectron']['Run2017H'] = '/SingleElectron/Run2017H-UL2017_MiniAODv1_NanoAODv2-v1/NANOAOD'
+samples['data']['2017']['SingleElectron']['Run2017B'] = '/SingleElectron/Run2017B-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
+samples['data']['2017']['SingleElectron']['Run2017C'] = '/SingleElectron/Run2017C-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
+samples['data']['2017']['SingleElectron']['Run2017D'] = '/SingleElectron/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
+samples['data']['2017']['SingleElectron']['Run2017E'] = '/SingleElectron/Run2017E-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
+samples['data']['2017']['SingleElectron']['Run2017F'] = '/SingleElectron/Run2017F-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
+samples['data']['2017']['SingleElectron']['Run2017G'] = '/SingleElectron/Run2017G-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
+samples['data']['2017']['SingleElectron']['Run2017H'] = '/SingleElectron/Run2017H-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD'
 
 #/SingleMuon/Run2016B-ver1_HIPM_UL2016_MiniAODv1_NanoAODv2-v1/NANOAOD
 #/SingleMuon/Run2016B-ver2_HIPM_UL2016_MiniAODv1_NanoAODv2-v1/NANOAOD
