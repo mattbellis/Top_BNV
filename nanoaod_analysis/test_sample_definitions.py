@@ -7,16 +7,6 @@ my_env = os.environ.copy()
 
 # Use subrocess.run for python>3.5
 # Use subrocess.Popen for python<2.8
-'''
-process = subprocess.Popen(['dasgoclient', '--help'],stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True).communicate()
-
-print("here")
-print(process)
-print("\n")
-for p in process:
-    print(p)
-    print("\n")
-'''
 
 print("\n---------------------\n")
 
@@ -24,13 +14,22 @@ for year in ['2016', '2017','2018']:
         
     print("------ "+year+" ------\n")
 
+    # MC
     sorted_keys = list(samples['MC'].keys())
+    # Data
+    #sorted_keys = list(samples['data'][year]['SingleMuon'].keys())
+
     sorted_keys.sort()
     for key in sorted_keys:
         if key in ['2016', '2017', '2018']:
             continue 
 
+        # MC
         s = samples['MC'][year][key]
+        # Data
+        #s = samples['data'][year]['SingleMuon'][key]
+
+
         #print(s)
         #cmd = ['dasgoclient', '-dasmaps', './das_maps_dbs_prod.js',  '--query="dataset='+s+'"', '--format', 'plain']
 
