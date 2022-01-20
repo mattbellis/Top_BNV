@@ -533,11 +533,13 @@ def trigger_mask(triggers_choice, events_HLT):
 
     mask = None
     for i,trigger in enumerate(triggers_choice):
+        print(trigger)
 
         if i==0:
-            mask = (events_HLT[trigger] == True)
+            # Convert these to numpy so that we can use the bitwise |= operator
+            mask = ak.to_numpy((events_HLT[trigger] == True))
         else:
-            mask &= (events_HLT[trigger] == True)
+            mask |= ak.to_numpy((events_HLT[trigger] == True))
 
     return mask
 
@@ -1075,6 +1077,202 @@ def check_jet_against_gen(jet,gen, maxdPtRel=1e9, maxdR=0.15):
 
 
 
+################################################################################
+def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
+
+    if topology.find('had_')<=0:
+        0
+
+    ############################################################################
+    # These are the id's for the lepton and partons coming from the BNV-decay
+    ############################################################################
+    lepton_pdgId = 11
+    down_type_quark_pdgId = 1
+    up_type_quark_pdgId = 2
+
+    if verbose:
+        print(f"Topology is {topology}")
+
+    # BNV quarks
+    if topology.find('TToSU')>=0:
+        print("here!!!!!!!")
+        down_type_quark_pdgId = 3
+        up_type_quark_pdgId = 2
+    elif topology.find('TToSC')>=0:
+        down_type_quark_pdgId = 3
+        up_type_quark_pdgId = 4
+    elif topology.find('TToDU')>=0:
+        down_type_quark_pdgId = 1
+        up_type_quark_pdgId = 2
+    elif topology.find('TToDC')>=0:
+        down_type_quark_pdgId = 1
+        up_type_quark_pdgId = 4
+    elif topology.find('TToBU')>=0:
+        down_type_quark_pdgId = 5
+        up_type_quark_pdgId = 2
+    elif topology.find('TToBC')>=0:
+        down_type_quark_pdgId = 5
+        up_type_quark_pdgId = 4
+
+    # BNV leptons
+    if topology.find('E')>=0:
+        print("Also here!")
+        lepton_pdgId = 11
+    elif topology.find('Mu')>=0:
+        lepton_pdgId = 13
+
+    ############################################################################
+    if 1:#topology=='had_ToTSUE' or topology=='had_TDUMu':
+
+        if verbose:
+            print("------ Looking for W stuff ---------")
+        # Get the quarks that are quark 1-5
+        any_quark_mask =((abs(genpart.pdgId)==1) |  \
+               (abs(genpart.pdgId)==2) |  \
+               (abs(genpart.pdgId)==3) |  \
+               (abs(genpart.pdgId)==4) |  \
+               (abs(genpart.pdgId)==5)) & \
+               (genpart.hasFlags(['isPrompt','isLastCopy']))
+
+
+        # Quarks from W+ that comes from a top
+        from_Wp_from_t = (genpart.distinctParent.pdgId==24) & (genpart.distinctParent.distinctParent.pdgId==6)
+        # Quarks from W- that comes from an antitop
+        from_Wm_from_tbar = (genpart.distinctParent.pdgId==-24) &  (genpart.distinctParent.distinctParent.pdgId==-6)
+
+        # b quark from a t
+        bquark_from_t = (genpart.pdgId==5) & \
+                        (genpart.hasFlags(['isPrompt','isLastCopy'])) & \
+                        (genpart.distinctParent.pdgId==6)
+
+        # bbar from a tbar
+        bbarquark_from_tbar = (genpart.pdgId==-5) & \
+                                 (genpart.hasFlags(['isPrompt','isLastCopy'])) & \
+                              (genpart.distinctParent.pdgId==-6)
+
+        t_mask =    (any_quark_mask & from_Wp_from_t) | (bquark_from_t)
+        tbar_mask = (any_quark_mask & from_Wm_from_tbar) | (bbarquark_from_tbar)
+
+        # Quarks from t-BNV
+        #from_Wp_from_t = (genpart.distinctParent.pdgId==24) & (genpart.distinctParent.distinctParent.pdgId==6)
+
+        ###############################################################
+        # leptons from t-BNV
+        gen_lepton_mask =(((genpart.pdgId==-lepton_pdgId) & (genpart.distinctParent.pdgId==6)) | \
+                            ((genpart.pdgId==lepton_pdgId) & (genpart.distinctParent.pdgId==-6)))  & \
+                           (genpart.hasFlags(['isPrompt','isLastCopy']))
+
+        # Down-type quark from BNV
+        d_tbnv_mask =(((genpart.pdgId==-down_type_quark_pdgId) & (genpart.distinctParent.pdgId==6))  | \
+                      ((genpart.pdgId==down_type_quark_pdgId) & (genpart.distinctParent.pdgId==-6)))  & \
+                           (genpart.hasFlags(['isPrompt','isLastCopy']))
+
+        # Up-type quark from BNV
+        u_tbnv_mask = (((genpart.pdgId==-up_type_quark_pdgId) & (genpart.distinctParent.pdgId==6)) | \
+                       ((genpart.pdgId==up_type_quark_pdgId) & (genpart.distinctParent.pdgId==-6))) & \
+                           (genpart.hasFlags(['isPrompt','isLastCopy']))
+
+        tbnv_quark_mask =    (d_tbnv_mask | u_tbnv_mask)
+
+        if verbose:
+            ##########################################################################
+            # Testing t_mask or tbar_mask
+            # The below works for hadronic ttbar MC
+            ##########################################################################
+            print("Quarks from t --> W+ b")
+            for i in genpart[0][t_mask[0]].pdgId:
+                print(i)
+
+            print("Quarks from tbar --> W- bbar")
+            for i in genpart[0][tbar_mask[0]].pdgId:
+                print(i)
+
+            print("Quarks from either t or tbar hadronic decay")
+            for i in genpart[0][tbar_mask[0] | t_mask[0]].pdgId:
+                print(i)
+
+            print("Quarks from either t or tbar BNV decay")
+            for i in genpart[0][tbnv_quark_mask[0]].pdgId:
+                print(i)
+
+            print("Leptons from either t or tbar BNV decay")
+            for i in genpart[0][gen_lepton_mask[0]].pdgId:
+                print(i)
+            ##########################################################################
+
+        tsm_mask = t_mask | tbar_mask
+        tbnv_mask = tbnv_quark_mask | gen_lepton_mask
+        mask = tsm_mask | tbnv_mask 
+        print("Calculated the masks!")
+
+        #quark_partons = genpart[mask]
+        #gen_leptons = genpart[gen_lepton_mask]
+
+        if verbose:
+            print("Some verbose output!")
+            pdgId = genpart[mask].pdgId
+            pt = genpart[mask].pt
+            eta = genpart[mask].eta
+            phi = genpart[mask].phi
+            parent = genpart[mask].distinctParent.pdgId
+
+            total = 0
+
+            # Loop over the gen particles at the event level
+            ev_idx = 0
+            for a,b,c,d,e in zip(pdgId,pt,eta,phi,parent):
+                # Indices are for the genparts mapping on to
+                # hadronic b
+                # hadronic q1
+                # hadronic q1
+                # bnv lep
+                # bnv downtype
+                # bnv uptype
+                indices = [None, None, None, None, None, None]
+                print("-----------------------")
+                idx = -1
+                idx_count = 0
+                for i,j,k,l,m in zip(a,b,c,d,e):
+                    idx += 1
+                    if i is None:
+                        continue
+                    print(f"idx: {idx}    pdgID: {i:3d}\tpT: {j:6.3f}\teta: {k:6.3f}\tphi: {l:6.3f}\tparent pdgId: {m:3d}")
+                    if abs(i)==5 and abs(m)==6:
+                        indices[0] = idx
+                    elif abs(i) in [1,2,3,4] and abs(m)==24:
+                        if indices[1] is None:
+                            indices[1] = idx
+                        else:
+                            indices[2] = idx
+                    elif abs(i)==lepton_pdgId and abs(m)==6:
+                        indices[3] = idx
+                    elif abs(i)==down_type_quark_pdgId and abs(m)==6:
+                        indices[4] = idx
+                    elif abs(i)==up_type_quark_pdgId and abs(m)==6:
+                        indices[5] = idx
+
+                    idx_count += 1
+
+                if idx_count==6:
+                    print(ev_idx,indices)
+                    total += 1
+                ev_idx += 1
+
+            print(f"{total} proper topology identified")
+
+        nmatched_partons = 0
+        nmatched_leptons = 0
+        nmatched_events = 0
+
+        b1s = []
+        q1s = []
+        lep2s = []
+        q2s = []
+
+        icount = 0
+        nevents = len(genpart)
+        
+        return b1s,q1s,lep2s,q2s
 ################################################################################
 def truth_matching_COFFEA_TOOLS(genpart,jets,leptons=None,topology='had_had',verbose=False,maxdR=0.4,maxdpTRel=4.0):
 
