@@ -12,12 +12,10 @@ import nanoaod_analysis_tools as nat
 import time
 
 infilename = sys.argv[1]
-
 print("Reading in {0}".format(infilename))
-
-events = NanoEventsFactory.from_root(infilename, schemaclass=NanoAODSchema).events()
-print(len(events))
-
+dataset_type, mc_type, trigger, topology = nat.extract_dataset_type_and_trigger_from_filename(infilename)
+print(f"input file information:   {dataset_type} {mc_type} {trigger} {topology}")
+################################################################################
 # For MC only for now
 year = 2016
 if infilename.find('2017')>=0:
@@ -25,10 +23,26 @@ if infilename.find('2017')>=0:
 elif infilename.find('2018')>=0:
     year = 2018
 
+
+
+if len(sys.argv)>2:
+    print(sys.argv[2])
+    data = np.load(sys.argv[2],allow_pickle=False)
+    event_truth_indices = data['event_truth_indices']
+    truth_indices = data['truth_indices']
+
+print("Reading in {0}".format(infilename))
+
+events = NanoEventsFactory.from_root(infilename, schemaclass=NanoAODSchema).events()
+print(len(events))
+
+if len(sys.argv)>2:
+    print("# events in file passing truth requirements: ",len(events[event_truth_indices]))
+    events = events[event_truth_indices]
+
 print(f"Applying the trigger mask...assume year {year}")
 HLT = events.HLT
-event_mask = nat.trigger_mask(nat.muon_triggers_of_interest[str(year)], HLT)
-
+event_mask = nat.trigger_mask(HLT, trigger=trigger, year=year)
 print("# events in file:                              ",len(events))
 print("# events in file passing trigger requirements: ",len(events[event_mask]))
 print("Mask is calculated!")

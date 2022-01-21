@@ -71,7 +71,7 @@ elif infilename.find('2018')>=0:
 print(f"Applying the trigger mask...assume year {year}")
 HLT = events.HLT
 event_mask = None
-event_mask = nat.trigger_mask(HLT, trigger=trigger, year=year)
+#event_mask = nat.trigger_mask(HLT, trigger=trigger, year=year)
 #event_mask = nat.trigger_mask(nat.muon_triggers_of_interest[str(year)], HLT)
 #event_mask = nat.trigger_mask(nat.electron_triggers_of_interest[str(year)], HLT)
 print("# events in file:                              ",len(events))
@@ -79,7 +79,7 @@ print("# events in file passing trigger requirements: ",len(events[event_mask]))
 print("Mask is calculated!")
 
 # If we want a mask with everything
-#event_mask = np.ones(len(events),dtype=bool)
+event_mask = np.ones(len(events),dtype=bool)
 ################################################################################
 
 
@@ -130,7 +130,9 @@ verbose = True
 
 if topology is not None:
     topology = f"had_{topology}"
-    b1s,q1s,lep2s,q2s = nat.truth_matching_identify_genpart(genpart,topology=topology,verbose=verbose)
+    event_truth_indices, truth_indices = nat.truth_matching_identify_genpart(genpart,topology=topology,verbose=verbose)
+    outfilename = f"TRUTH_INFORMATION_{infilename.split('/')[-1].split('.root')[0]}.npz"
+    np.savez(outfilename,event_truth_indices=event_truth_indices,truth_indices=truth_indices,allow_pickle=False)
 
 exit()
 ################################################################################

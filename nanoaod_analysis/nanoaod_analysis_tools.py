@@ -1222,6 +1222,8 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
 
             # Loop over the gen particles at the event level
             ev_idx = 0
+            truth_indices = []
+            event_truth_indices = []
             for a,b,c,d,e in zip(pdgId,pt,eta,phi,parent):
                 # Indices are for the genparts mapping on to
                 # hadronic b
@@ -1230,7 +1232,7 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
                 # bnv lep
                 # bnv downtype
                 # bnv uptype
-                indices = [None, None, None, None, None, None]
+                indices = np.array([-999, -999, -999, -999, -999, -999])
                 print("-----------------------")
                 idx = -1
                 idx_count = 0
@@ -1242,7 +1244,7 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
                     if abs(i)==5 and abs(m)==6:
                         indices[0] = idx
                     elif abs(i) in [1,2,3,4] and abs(m)==24:
-                        if indices[1] is None:
+                        if indices[1] < 0:
                             indices[1] = idx
                         else:
                             indices[2] = idx
@@ -1257,24 +1259,16 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
 
                 if idx_count==6:
                     print(ev_idx,indices)
+                    truth_indices.append(np.array(indices))
+                    event_truth_indices.append(ev_idx)
                     total += 1
                 ev_idx += 1
 
             print(f"{total} proper topology identified")
 
-        nmatched_partons = 0
-        nmatched_leptons = 0
-        nmatched_events = 0
-
-        b1s = []
-        q1s = []
-        lep2s = []
-        q2s = []
-
-        icount = 0
-        nevents = len(genpart)
-        
-        return b1s,q1s,lep2s,q2s
+        event_truth_indices = np.array(event_truth_indices)
+        truth_indices = np.array(truth_indices)
+        return event_truth_indices,truth_indices
 ################################################################################
 def truth_matching_COFFEA_TOOLS(genpart,jets,leptons=None,topology='had_had',verbose=False,maxdR=0.4,maxdpTRel=4.0):
 
