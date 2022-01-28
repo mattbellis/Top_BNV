@@ -29,6 +29,8 @@ print("Reading in {0}".format(infilename))
 #events = NanoEvents.from_file(infilename)
 events = NanoEventsFactory.from_root(infilename, schemaclass=NanoAODSchema).events()
 print(len(events))
+#events = events[0:10000]
+#print(len(events))
 
 
 print("Applying the trigger mask...")
@@ -143,7 +145,8 @@ for key in output_data_ML.keys():
         data['ml/'+key] = output_data_ML[key]
 print( output_data_ML['num_combos'])
 data['ml/num'] = output_data_ML['num_combos']
-hdfile = hepfile.write_to_file("FOR_TESTS.hdf5", data, comp_type="gzip", comp_opts=9)
+name = f"{infilename.split('.root')[0]}_ML_FEATURES.h5"
+hdfile = hepfile.write_to_file(name, data, comp_type="gzip", comp_opts=9)
 
 
 
