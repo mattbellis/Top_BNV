@@ -18,16 +18,21 @@ for year in ['2016', '2017','2018']:
     sorted_keys = list(samples['MC'].keys())
     # Data
     #sorted_keys = list(samples['data'][year]['SingleMuon'].keys())
+    #sorted_keys = list(samples['data'][year]['SingleElectron'].keys())
 
     sorted_keys.sort()
     for key in sorted_keys:
         if key in ['2016', '2017', '2018']:
             continue 
 
+        if key.find('BNV')<0:
+            continue
+
         # MC
         s = samples['MC'][year][key]
         # Data
         #s = samples['data'][year]['SingleMuon'][key]
+        #s = samples['data'][year]['SingleElectron'][key]
 
 
         #print(s)
