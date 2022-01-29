@@ -1,0 +1,25 @@
+universe = vanilla
+Executable = coffea_EXAMPLE_1.sh
++SingularityImage = "/cvmfs/unpacked.cern.ch/registry.hub.docker.com/coffeateam/coffea-dask:latest"
+
+use_x509userproxy = true
+should_transfer_files = YES
+WhenToTransferOutput  = ON_EXIT_OR_EVICT
+notification = never
+
+#Transfer_Input_Files = root://cmsxrootd.fnal.gov///store/mc/RunIISummer20UL18NanoAODv9/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/130000/44187D37-0301-3942-A6F7-C723E9F4813D.root coffea_EXAMPLE_1.py
+#Transfer_Input_Files = coffea_EXAMPLE_1.py, myenv/
+Transfer_Input_Files = coffea_EXAMPLE_1.py, myenv.tgz
+#Transfer_Input_Files = coffea_EXAMPLE_1.py 
+
+# Don't forget to make the logs directory ahead of time!
+Output = logs/$(Executable)_$(cluster)_$(process).stdout
+Error  = logs/$(Executable)_$(cluster)_$(process).stderr
+Log    = logs/$(Executable)_$(cluster)_$(process).condor
+
+#request_cpus = 4
+#request_memory = 8000
+
+#Arguments = root://cmsxrootd.fnal.gov///store/mc/RunIISummer20UL18NanoAODv9/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/130000/44187D37-0301-3942-A6F7-C723E9F4813D.root
+
+Queue 1

@@ -1,0 +1,17 @@
+universe = vanilla
+Executable = singularity_bespoke_demo.sh
++SingularityImage = "/cvmfs/unpacked.cern.ch/registry.hub.docker.com/coffeateam/coffea-dask:latest"
+
+use_x509userproxy = true
+should_transfer_files = YES
+WhenToTransferOutput  = ON_EXIT_OR_EVICT
+notification = never
+
+Transfer_Input_Files = singularity_bespoke_demo.py, myenv.tgz
+
+# Don't forget to make the logs directory ahead of time!
+Output = logs/$(Executable)_$(cluster)_$(process).stdout
+Error  = logs/$(Executable)_$(cluster)_$(process).stderr
+Log    = logs/$(Executable)_$(cluster)_$(process).condor
+
+Queue 1

@@ -70,6 +70,23 @@ print("Reading in {0}".format(infilename))
 events = NanoEventsFactory.from_root(infilename, schemaclass=NanoAODSchema).events()
 print(len(events))
 
+################################################################################
+# For MC only for now
+year = 2016
+if infilename.find('2017')>=0:
+    year = 2017
+elif infilename.find('2018')>=0:
+    year = 2018
+
+print(f"Applying the trigger mask...assume year {year}")
+HLT = events.HLT
+event_mask = nat.trigger_mask(nat.muon_triggers_of_interest[str(year)], HLT)
+print("# events in file:                              ",len(events))
+print("# events in file passing trigger requirements: ",len(events[event_mask]))
+print("Mask is calculated!")
+################################################################################
+
+
 print(f"# of events: {len(events)}")
 #events = events[0:10000]
 if args.maxevents is not None:
@@ -85,9 +102,10 @@ if args.event_range is not None:
 
 print(f"# of events: {len(events)}")
 
-jets = events.Jet
-electrons = events.Electron
-genpart = events.GenPart
+print("Applying the trigger mask and extracting jets, muons, and electrons...")
+jets = events[event_mask].Jet
+electrons = events[event_mask].Electron
+genpart = events[event_mask].GenPart
 
 print(f"# of jets:      {len(jets)}")
 print(f"# of electrons: {len(electrons)}")

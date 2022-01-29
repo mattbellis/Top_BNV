@@ -27,69 +27,70 @@ PI = math.pi
 ################################################################################
 
 # MC values are for the 2016 data
-muon_triggers_of_interest = {}
-muon_triggers_of_interest['2016'] = ['IsoMu24']
-muon_triggers_of_interest['2017'] = ['IsoMu24_eta2p1']
-muon_triggers_of_interest['2018'] = ['IsoMu24']
+muon_hlt_paths = {}
+muon_hlt_paths['2016'] = ['IsoMu24']
+muon_hlt_paths['2017'] = ['IsoMu24_eta2p1']
+muon_hlt_paths['2018'] = ['IsoMu24']
 
-electron_triggers_of_interest = {}
-electron_triggers_of_interest['2016'] = ['Ele32_WPTight_Gsf','Ele27_WPTight_Gsf']
-electron_triggers_of_interest['2017'] = ['Ele32_WPTight_Gsf_L1DoubleEG', 'Ele35_WPTight_Gsf','Ele38_WPTight_Gsf','Ele40_WPTight_Gsf']
-electron_triggers_of_interest['2018'] = ['Ele32_WPTight_Gsf','Ele35_WPTight_Gsf','Ele38_WPTight_Gsf']
+electron_hlt_paths = {}
+electron_hlt_paths['2016'] = ['Ele32_WPTight_Gsf','Ele27_WPTight_Gsf']
+electron_hlt_paths['2017'] = ['Ele32_WPTight_Gsf_L1DoubleEG', 'Ele35_WPTight_Gsf','Ele38_WPTight_Gsf','Ele40_WPTight_Gsf']
+electron_hlt_paths['2018'] = ['Ele32_WPTight_Gsf','Ele35_WPTight_Gsf','Ele38_WPTight_Gsf']
 
-
-'''
-muon_triggers_of_interest = [
-    ["HLT_IsoMu24_v", "v4"], # 2016 and 2018
-    ["HLT_IsoTkMu24_v","v4"],
-    ["HLT_IsoMu22_eta2p1_v","v4"],
-    ["HLT_IsoTkMu22_eta2p1_v","v4"],
-    ["HLT_IsoMu24_eta2p1_v","v"], # Maybe for 2017 data?
-    ["HLT_IsoMu27_v","v"] # Maybe for 2017 data?
-    ]
-
-electron_triggers_of_interest = [
-    ["HLT_Ele32_eta2p1_WPTight_Gsf_v", "v8"],
-    ["HLT_Ele27_WPTight_Gsf_v", "v7"],
-    ["HLT_Ele25_eta2p1_WPTight_Gsf_v", "v7"],
-    ["HLT_Ele35_WPTight_Gsf_v", "v"], # 2017
-    ["HLT_Ele32_WPTight_Gsf_v", "v"] # 2017
-    ]
-
-dilepmue_triggers_of_interest = [
-    ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v", "v9"],
-    ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "v4"]
+hlt_paths = [
+["SingleMuon",muon_hlt_paths],
+["SingleElectron",electron_hlt_paths],
 ]
-
-dilepemu_triggers_of_interest = [
-    ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "v9"],
-    ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v", ""],
-    ["HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v", "v3"],
-    ["HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v", "v4"]
-]
-
-dilepmumu_triggers_of_interest = [
-    ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v", "v7"],
-    ["HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v", "v6"]
-    ]
-
-dilepee_triggers_of_interest = [
-    ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "v9"],
-    ["HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v", "v8"]
-    ]
-'''
-
-triggers_of_interest = [
-["SingleMuon",muon_triggers_of_interest],
-["SingleElectron",electron_triggers_of_interest],
-]
-#["DileptonMuE",dilepmue_triggers_of_interest],
-#["DileptonEMu",dilepemu_triggers_of_interest],
-#["DileptonMuMu",dilepmumu_triggers_of_interest],
-#["DileptonEE",dilepee_triggers_of_interest]
-#]
 
 pdgcodes = {6:"t", -6:"tbar"}
+
+################################################################################
+# Generate the indices for the diferent combinations
+################################################################################
+def extract_dataset_type_and_trigger_from_filename(filename):
+
+    dataset_type = 'MC'
+    if filename.find('Run20')>=0:
+        dataset_type = 'data'
+
+    mc_type = None
+    if dataset_type=='MC':
+        if filename.find('BNV')>=0:
+            mc_type = 'sig'
+        else:
+            mc_type = 'bkg'
+
+    trigger = None
+    if mc_type=='sig':
+        if filename.find('CMu')>=0 or filename.find('UMu')>=0:
+            trigger = 'SingleMuon'
+        elif filename.find('CE')>=0 or filename.find('UE')>=0:
+            trigger = 'SingleElectron'
+
+    if dataset_type=='data':
+        if filename.find('SingleMuon')>=0:
+            trigger = 'SingleMuon'
+        elif filename.find('SingleElectron')>=0 or filename.find('EGamma')>=0:
+            trigger = 'SingleElectron'
+
+    year = None
+    if filename.find('_2016_')>=0 or filename.find('UL16')>=0:
+        year = '2016'
+    elif filename.find('_2017_')>=0 or filename.find('UL17')>=0:
+        year = '2017'
+    elif filename.find('_2018_')>=0 or filename.find('UL18')>=0:
+        year = '2018'
+
+    topology = None
+    if mc_type=='sig':
+        if filename.find('TTo')<=0:
+            print("Can't find a signal topology that is coded up for truth matching")
+        else:
+            idx = filename.find('TTo')
+            topology = filename[idx:].split('_')[0]
+
+
+    return dataset_type, mc_type, trigger, topology, year
 
 ################################################################################
 # Generate the indices for the diferent combinations
@@ -529,15 +530,23 @@ def massptetaphi2epxpypz(p4):
     return np.sqrt(e2),px,py,pz
 
 ################################################################################
-def trigger_mask(triggers_choice, events_HLT):
+def trigger_mask(events_HLT, trigger='SingleMuon', year='2018'):
+
+    hlt_paths = None
+    if trigger=='SingleMuon':
+        hlt_paths = muon_hlt_paths[str(year)]
+    elif trigger=='SingleElectron':
+        hlt_paths = electron_hlt_paths[str(year)]
 
     mask = None
-    for i,trigger in enumerate(triggers_choice):
+    for i,hlt_path in enumerate(hlt_paths):
+        print(hlt_path)
 
         if i==0:
-            mask = (events_HLT[trigger] == True)
+            # Convert these to numpy so that we can use the bitwise |= operator
+            mask = ak.to_numpy((events_HLT[hlt_path] == True))
         else:
-            mask &= (events_HLT[trigger] == True)
+            mask |= ak.to_numpy((events_HLT[hlt_path] == True))
 
     return mask
 
@@ -1076,6 +1085,199 @@ def check_jet_against_gen(jet,gen, maxdPtRel=1e9, maxdR=0.15):
 
 
 ################################################################################
+def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
+
+    if topology.find('had_')<=0:
+        0
+
+    ############################################################################
+    # These are the id's for the lepton and partons coming from the BNV-decay
+    ############################################################################
+    lepton_pdgId = 11
+    down_type_quark_pdgId = 1
+    up_type_quark_pdgId = 2
+
+    if verbose:
+        print(f"Topology is {topology}")
+
+    # BNV quarks
+    if topology.find('TToSU')>=0:
+        print("here!!!!!!!")
+        down_type_quark_pdgId = 3
+        up_type_quark_pdgId = 2
+    elif topology.find('TToSC')>=0:
+        down_type_quark_pdgId = 3
+        up_type_quark_pdgId = 4
+    elif topology.find('TToDU')>=0:
+        down_type_quark_pdgId = 1
+        up_type_quark_pdgId = 2
+    elif topology.find('TToDC')>=0:
+        down_type_quark_pdgId = 1
+        up_type_quark_pdgId = 4
+    elif topology.find('TToBU')>=0:
+        down_type_quark_pdgId = 5
+        up_type_quark_pdgId = 2
+    elif topology.find('TToBC')>=0:
+        down_type_quark_pdgId = 5
+        up_type_quark_pdgId = 4
+
+    # BNV leptons
+    if topology.find('E')>=0:
+        print("Also here!")
+        lepton_pdgId = 11
+    elif topology.find('Mu')>=0:
+        lepton_pdgId = 13
+
+    if verbose:
+        print("\nSearching for the BNV decay...")
+        print(f"6 --> {lepton_pdgId} {down_type_quark_pdgId} {up_type_quark_pdgId}\n")
+    ############################################################################
+    if 1:#topology=='had_ToTSUE' or topology=='had_TDUMu':
+
+        if verbose:
+            print("------ Looking for W stuff ---------")
+        # Get the quarks that are quark 1-5
+        any_quark_mask =((abs(genpart.pdgId)==1) |  \
+               (abs(genpart.pdgId)==2) |  \
+               (abs(genpart.pdgId)==3) |  \
+               (abs(genpart.pdgId)==4) |  \
+               (abs(genpart.pdgId)==5)) & \
+               (genpart.hasFlags(['isPrompt','isLastCopy']))
+
+
+        # Quarks from W+ that comes from a top
+        from_Wp_from_t = (genpart.distinctParent.pdgId==24) & (genpart.distinctParent.distinctParent.pdgId==6)
+        # Quarks from W- that comes from an antitop
+        from_Wm_from_tbar = (genpart.distinctParent.pdgId==-24) &  (genpart.distinctParent.distinctParent.pdgId==-6)
+
+        # b quark from a t
+        bquark_from_t = (genpart.pdgId==5) & \
+                        (genpart.hasFlags(['isPrompt','isLastCopy'])) & \
+                        (genpart.distinctParent.pdgId==6)
+
+        # bbar from a tbar
+        bbarquark_from_tbar = (genpart.pdgId==-5) & \
+                                 (genpart.hasFlags(['isPrompt','isLastCopy'])) & \
+                              (genpart.distinctParent.pdgId==-6)
+
+        t_mask =    (any_quark_mask & from_Wp_from_t) | (bquark_from_t)
+        tbar_mask = (any_quark_mask & from_Wm_from_tbar) | (bbarquark_from_tbar)
+
+        # Quarks from t-BNV
+        #from_Wp_from_t = (genpart.distinctParent.pdgId==24) & (genpart.distinctParent.distinctParent.pdgId==6)
+
+        ###############################################################
+        # leptons from t-BNV
+        gen_lepton_mask =(((genpart.pdgId==-lepton_pdgId) & (genpart.distinctParent.pdgId==6)) | \
+                            ((genpart.pdgId==lepton_pdgId) & (genpart.distinctParent.pdgId==-6)))  & \
+                           (genpart.hasFlags(['isPrompt','isLastCopy']))
+
+        # Down-type quark from BNV
+        d_tbnv_mask =(((genpart.pdgId==-down_type_quark_pdgId) & (genpart.distinctParent.pdgId==6))  | \
+                      ((genpart.pdgId==down_type_quark_pdgId) & (genpart.distinctParent.pdgId==-6)))  & \
+                           (genpart.hasFlags(['isPrompt','isLastCopy']))
+
+        # Up-type quark from BNV
+        u_tbnv_mask = (((genpart.pdgId==-up_type_quark_pdgId) & (genpart.distinctParent.pdgId==6)) | \
+                       ((genpart.pdgId==up_type_quark_pdgId) & (genpart.distinctParent.pdgId==-6))) & \
+                           (genpart.hasFlags(['isPrompt','isLastCopy']))
+
+        tbnv_quark_mask =    (d_tbnv_mask | u_tbnv_mask)
+
+        if verbose:
+            ##########################################################################
+            # Testing t_mask or tbar_mask
+            # The below works for hadronic ttbar MC
+            ##########################################################################
+            print("Quarks from t --> W+ b")
+            for i in genpart[0][t_mask[0]].pdgId:
+                print(i)
+
+            print("Quarks from tbar --> W- bbar")
+            for i in genpart[0][tbar_mask[0]].pdgId:
+                print(i)
+
+            print("Quarks from either t or tbar hadronic decay")
+            for i in genpart[0][tbar_mask[0] | t_mask[0]].pdgId:
+                print(i)
+
+            print("Quarks from either t or tbar BNV decay")
+            for i in genpart[0][tbnv_quark_mask[0]].pdgId:
+                print(i)
+
+            print("Leptons from either t or tbar BNV decay")
+            for i in genpart[0][gen_lepton_mask[0]].pdgId:
+                print(i)
+            ##########################################################################
+
+        tsm_mask = t_mask | tbar_mask
+        tbnv_mask = tbnv_quark_mask | gen_lepton_mask
+        mask = tsm_mask | tbnv_mask 
+        print("Calculated the masks!")
+
+        #quark_partons = genpart[mask]
+        #gen_leptons = genpart[gen_lepton_mask]
+
+        if verbose:
+            print("Some verbose output!")
+            pdgId = genpart[mask].pdgId
+            pt = genpart[mask].pt
+            eta = genpart[mask].eta
+            phi = genpart[mask].phi
+            parent = genpart[mask].distinctParent.pdgId
+
+            total = 0
+
+            # Loop over the gen particles at the event level
+            ev_idx = 0
+            truth_indices = []
+            event_truth_indices = []
+            for a,b,c,d,e in zip(pdgId,pt,eta,phi,parent):
+                # Indices are for the genparts mapping on to
+                # hadronic b
+                # hadronic q1
+                # hadronic q1
+                # bnv lep
+                # bnv downtype
+                # bnv uptype
+                indices = np.array([-999, -999, -999, -999, -999, -999])
+                print("-----------------------")
+                idx = -1
+                idx_count = 0
+                for i,j,k,l,m in zip(a,b,c,d,e):
+                    idx += 1
+                    if i is None:
+                        continue
+                    print(f"idx: {idx}    pdgID: {i:3d}\tpT: {j:6.3f}\teta: {k:6.3f}\tphi: {l:6.3f}\tparent pdgId: {m:3d}")
+                    if abs(i)==5 and abs(m)==6:
+                        indices[0] = idx
+                    elif abs(i) in [1,2,3,4] and abs(m)==24:
+                        if indices[1] < 0:
+                            indices[1] = idx
+                        else:
+                            indices[2] = idx
+                    elif abs(i)==lepton_pdgId and abs(m)==6:
+                        indices[3] = idx
+                    elif abs(i)==down_type_quark_pdgId and abs(m)==6:
+                        indices[4] = idx
+                    elif abs(i)==up_type_quark_pdgId and abs(m)==6:
+                        indices[5] = idx
+
+                    idx_count += 1
+
+                if idx_count==6:
+                    print(ev_idx,indices)
+                    truth_indices.append(np.array(indices))
+                    event_truth_indices.append(ev_idx)
+                    total += 1
+                ev_idx += 1
+
+            print(f"{total} proper topology identified")
+
+        event_truth_indices = np.array(event_truth_indices)
+        truth_indices = np.array(truth_indices)
+        return event_truth_indices,truth_indices
+################################################################################
 def truth_matching_COFFEA_TOOLS(genpart,jets,leptons=None,topology='had_had',verbose=False,maxdR=0.4,maxdpTRel=4.0):
 
     if topology=='had_had':
@@ -1246,7 +1448,7 @@ def truth_matching_COFFEA_TOOLS(genpart,jets,leptons=None,topology='had_had',ver
         return b1s,q1s,b2s,q2s
 
     ############################################################################
-    elif topology=='had_TSUE':
+    elif topology=='had_TSUE' or topology=='had_TDUMu':
 
         print("------ Looking for W stuff ---------")
         # Get the quarks that are quark 1-5
