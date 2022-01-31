@@ -29,6 +29,8 @@ print("Reading in {0}".format(infilename))
 #events = NanoEvents.from_file(infilename)
 events = NanoEventsFactory.from_root(infilename, schemaclass=NanoAODSchema).events()
 print(len(events))
+#events = events[0:10000]
+#print(len(events))
 
 
 print("Applying the trigger mask...")

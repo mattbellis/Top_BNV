@@ -54,19 +54,13 @@ if args.maxevents is not None and args.event_range is not None:
 
 infilename = args.infilename
 print("Reading in {0}".format(infilename))
-dataset_type, mc_type, trigger, topology = nat.extract_dataset_type_and_trigger_from_filename(infilename)
+dataset_type, mc_type, trigger, topology, year = nat.extract_dataset_type_and_trigger_from_filename(infilename)
 print(f"input file information:   {dataset_type} {mc_type} {trigger} {topology}")
 
 events = NanoEventsFactory.from_root(infilename, schemaclass=NanoAODSchema).events()
 print(len(events))
 
 ################################################################################
-# For MC only for now
-year = 2016
-if infilename.find('2017')>=0:
-    year = 2017
-elif infilename.find('2018')>=0:
-    year = 2018
 
 print(f"Applying the trigger mask...assume year {year}")
 HLT = events.HLT

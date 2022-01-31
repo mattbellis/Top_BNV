@@ -73,6 +73,14 @@ def extract_dataset_type_and_trigger_from_filename(filename):
         elif filename.find('SingleElectron')>=0 or filename.find('EGamma')>=0:
             trigger = 'SingleElectron'
 
+    year = None
+    if filename.find('_2016_')>=0 or filename.find('UL16')>=0:
+        year = '2016'
+    elif filename.find('_2017_')>=0 or filename.find('UL17')>=0:
+        year = '2017'
+    elif filename.find('_2018_')>=0 or filename.find('UL18')>=0:
+        year = '2018'
+
     topology = None
     if mc_type=='sig':
         if filename.find('TTo')<=0:
@@ -82,7 +90,7 @@ def extract_dataset_type_and_trigger_from_filename(filename):
             topology = filename[idx:].split('_')[0]
 
 
-    return dataset_type, mc_type, trigger, topology
+    return dataset_type, mc_type, trigger, topology, year
 
 ################################################################################
 # Generate the indices for the diferent combinations
