@@ -85,6 +85,15 @@ print(len(alljets))
 allmuons = allmuons_temp[muon_mask]
 
 ################################################################################
+# Numbers cut
+################################################################################
+print(len(alljets), len(allmuons))
+mask_num = (ak.num(alljets)>=5) & (ak.num(allmuons)==1)
+alljets = alljets[mask_num]
+allmuons = allmuons[mask_num]
+print(len(alljets), len(allmuons))
+
+################################################################################
 data['muon/nmuon'] = ak.to_numpy(ak.num(allmuons.pt))
 data['muon/pt'] = ak.to_numpy(ak.flatten(allmuons.pt))
 data['jet/njet'] = ak.to_numpy(ak.num(alljets.pt))
