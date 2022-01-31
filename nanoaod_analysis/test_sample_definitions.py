@@ -25,8 +25,10 @@ for year in ['2016', '2017','2018']:
         if key in ['2016', '2017', '2018']:
             continue 
 
+        '''
         if key.find('BNV')<0:
             continue
+        '''
 
         # MC
         s = samples['MC'][year][key]
