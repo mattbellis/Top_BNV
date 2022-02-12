@@ -595,7 +595,7 @@ def jet_mask(jets,ptcut=0):
 
 ################################################################################
 #@nb.njit
-def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None,maxnjets=10,maxnleps=5,event_topology_indices=None):
+def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None,maxnjets=10,maxnleps=5,event_topology_indices=None,keep_order=False):
 
     # Extract the information about the jets so we don't keep having to call the
     # attr functions...I think?
