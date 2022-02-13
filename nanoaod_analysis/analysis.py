@@ -132,8 +132,8 @@ for jets,muons in zip(alljets, allmuons):
         continue
 
     event_topology_indices = all_event_topology_indices[njets][nleps]
-    print(event_topology_indices)
-    event_topology_indices = [[(0, 1, 2), (3, 4), 0]]
+    #print(event_topology_indices)
+    #event_topology_indices = [[(0, 1, 2), (3, 4), 0]]
     x = nat.event_hypothesis(jets,muons,verbose=True, ML_data=output_data_ML,maxnjets=maxnjets,maxnleps=maxnleps,event_topology_indices=event_topology_indices)
 
     icount += 1

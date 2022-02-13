@@ -95,7 +95,8 @@ print(f"# of events: {len(events)}")
 print("Applying the trigger mask and extracting jets, muons, and electrons...")
 jets = events[event_mask].Jet
 electrons = events[event_mask].Electron
-genpart = events[event_mask].GenPart
+#genpart = events[event_mask].GenPart
+genpart = events.GenPart
 
 print(f"# of jets:      {len(jets)}")
 print(f"# of electrons: {len(electrons)}")
