@@ -35,6 +35,8 @@ for i,infilename in enumerate(sys.argv[1:]):
 
 #exit()
 
+print(f"# of plots: {len(names)}")
+
 for i,name in enumerate(names):
 
     print(i,name)
@@ -44,7 +46,17 @@ for i,name in enumerate(names):
 
     plt.subplot(4,4,i%16+1)
 
-    if name.find('_m')>=0:
+    if name.find('bnv_m')>=0 or name.find('had_m')>=0:
+        plt.hist(alldata[name],bins=50,range=(125,200),density=True,alpha=0.5,label=r'$t\bar{t}$ BNV')
+        # Do this for two types of data
+        if len(sys.argv)>2:
+            plt.hist(alldata2[name],bins=50,range=(125,200),density=True,alpha=0.5,label=r'$t\bar{t}$ semileptonic')
+    elif name.find('had_j23_m')>=0:
+        plt.hist(alldata[name],bins=50,range=(40,120),density=True,alpha=0.5,label=r'$t\bar{t}$ BNV')
+        # Do this for two types of data
+        if len(sys.argv)>2:
+            plt.hist(alldata2[name],bins=50,range=(40,120),density=True,alpha=0.5,label=r'$t\bar{t}$ semileptonic')
+    elif name.find('_m')>=0:
         plt.hist(alldata[name],bins=50,range=(0,500),density=True,alpha=0.5,label=r'$t\bar{t}$ BNV')
         # Do this for two types of data
         if len(sys.argv)>2:

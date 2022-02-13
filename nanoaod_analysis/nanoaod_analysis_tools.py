@@ -873,7 +873,7 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     #topp4 = j1[0:4]+j2[0:4]+j3[0:4]
     #topp4_temp = (j1 + j2 + j3)
     topp4 = addp4s([j1,j2,j3])
-    topmass = 172.44
+    topmass = 172.5
     topmass2 = topmass * topmass
     #print(type(topp4_temp))
     #topp4[0] = np.sqrt(topmass2 + topp4.rho2)
@@ -986,6 +986,8 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     output_data[tag+'_dTheta13_rest'].append(dTheta)
     dTheta = angle_between_vectors(rj2,rj3)
     output_data[tag+'_dTheta23_rest'].append(dTheta)
+    dTheta = angle_between_vectors(rj1,rj2+rj3)
+    output_data[tag+'_dTheta1_23_rest'].append(dTheta)
 
     # DeepCSV b-tagging variable
     #output_data[tag+'_j1_btag0'].append(j1.btagCSVV2)
@@ -1021,6 +1023,7 @@ def define_ML_output_data():
     output_data["had_dTheta12_rest"] = []
     output_data["had_dTheta13_rest"] = []
     output_data["had_dTheta23_rest"] = []
+    output_data["had_dTheta1_23_rest"] = []
     #output_data["had_j1_btag0"] = []
     #output_data["had_j2_btag0"] = []
     #output_data["had_j3_btag0"] = []
@@ -1044,6 +1047,7 @@ def define_ML_output_data():
     output_data["bnv_dTheta12_rest"] = []
     output_data["bnv_dTheta13_rest"] = []
     output_data["bnv_dTheta23_rest"] = []
+    output_data["bnv_dTheta1_23_rest"] = []
     #output_data["bnv_j1_btag0"] = []
     #output_data["bnv_j2_btag0"] = []
     #output_data["bnv_j1_btag1"] = []
