@@ -1110,7 +1110,7 @@ def check_jet_against_gen(jet,gen, maxdPtRel=1e9, maxdR=0.15):
 
 
 ################################################################################
-def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
+def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, match_first=True):
 
     if topology.find('had_')<=0:
         0
