@@ -125,7 +125,7 @@ verbose = True
 
 if topology is not None:
     topology = f"had_{topology}"
-    event_truth_indices, truth_indices = nat.truth_matching_identify_genpart(genpart,topology=topology,verbose=verbose)
+    event_truth_indices, truth_indices = nat.truth_matching_identify_genpart(genpart,topology=topology,verbose=verbose, match_first=False)
     outfilename = f"TRUTH_INFORMATION_{infilename.split('/')[-1].split('.root')[0]}.npz"
     np.savez(outfilename,event_truth_indices=event_truth_indices,truth_indices=truth_indices,allow_pickle=False)
 

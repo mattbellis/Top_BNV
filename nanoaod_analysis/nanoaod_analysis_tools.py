@@ -1169,9 +1169,11 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, ma
                (abs(genpart.pdgId)==2) |  \
                (abs(genpart.pdgId)==3) |  \
                (abs(genpart.pdgId)==4) |  \
-               (abs(genpart.pdgId)==5)) & \
-               (genpart.status==23) # Trying this out to get the first copy, not the last
-               #(genpart.hasFlags(['isPrompt','isLastCopy']))
+               (abs(genpart.pdgId)==5))
+        if match_first is True:
+               any_quark_mask = any_quark_mask * (genpart.status==23) # Trying this out to get the first copy, not the last
+        else:
+               any_quark_mask = any_quark_mask * (genpart.hasFlags(['isPrompt','isLastCopy'])) # Last copy
 
 
         # Quarks from W+ that comes from a top
@@ -1181,15 +1183,19 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, ma
 
         # b quark from a t
         bquark_from_t = (genpart.pdgId==5) & \
-                        (genpart.status==23) & \
-                        (genpart.distinctParent.pdgId==6) # Trying this to get the first, not the last copy
-                        #(genpart.hasFlags(['isPrompt','isLastCopy'])) & \
+                        (genpart.status==23)
+        if match_first is True:
+            bquark_from_t = bquark_from_t * (genpart.distinctParent.pdgId==6) # Trying this to get the first, not the last copy
+        else:
+            bquark_from_t = bquark_from_t * (genpart.hasFlags(['isPrompt','isLastCopy']))
 
         # bbar from a tbar
         bbarquark_from_tbar = (genpart.pdgId==-5) & \
-                              (genpart.distinctParent.pdgId==-6) & \
-                       (genpart.status==23) # Trying this to get the first, not the last copy
-                        #(genpart.hasFlags(['isPrompt','isLastCopy'])) 
+                              (genpart.distinctParent.pdgId==-6) 
+        if match_first is True:
+           bbarquark_from_tbar = bbarquark_from_tbar * (genpart.status==23) # Trying this to get the first, not the last copy
+        else:
+           bbarquark_from_tbar = bbarquark_from_tbar * (genpart.hasFlags(['isPrompt','isLastCopy'])) 
 
         t_mask =    (any_quark_mask & from_Wp_from_t) | (bquark_from_t)
         tbar_mask = (any_quark_mask & from_Wm_from_tbar) | (bbarquark_from_tbar)
@@ -1200,21 +1206,27 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, ma
         ###############################################################
         # leptons from t-BNV
         gen_lepton_mask =(((genpart.pdgId==-lepton_pdgId) & (genpart.distinctParent.pdgId==6)) | \
-                            ((genpart.pdgId==lepton_pdgId) & (genpart.distinctParent.pdgId==-6)))  & \
-                       (genpart.status==1) # Trying this part to get the first copy, not the last
-                           #(genpart.hasFlags(['isPrompt','isLastCopy']))
+                            ((genpart.pdgId==lepton_pdgId) & (genpart.distinctParent.pdgId==-6)))
+        if match_first is True:
+            gen_lepton_mask = gen_lepton_mask * (genpart.status==1) # Trying this part to get the first copy, not the last
+        else:
+            gen_lepton_mask = gen_lepton_mask * (genpart.hasFlags(['isPrompt','isLastCopy']))
 
         # Down-type quark from BNV
         d_tbnv_mask =(((genpart.pdgId==-down_type_quark_pdgId) & (genpart.distinctParent.pdgId==6))  | \
-                      ((genpart.pdgId==down_type_quark_pdgId) & (genpart.distinctParent.pdgId==-6)))  & \
-                       (genpart.status==23) # Trying this part to get the first copy, not the last
-                           #(genpart.hasFlags(['isPrompt','isLastCopy']))
+                      ((genpart.pdgId==down_type_quark_pdgId) & (genpart.distinctParent.pdgId==-6)))
+        if match_first is True:
+            d_tbnv_mask = d_tbnv_mask * (genpart.status==23) # Trying this part to get the first copy, not the last
+        else: 
+            d_tbnv_mask = d_tbnv_mask * (genpart.hasFlags(['isPrompt','isLastCopy']))
 
         # Up-type quark from BNV
         u_tbnv_mask = (((genpart.pdgId==-up_type_quark_pdgId) & (genpart.distinctParent.pdgId==6)) | \
-                       ((genpart.pdgId==up_type_quark_pdgId) & (genpart.distinctParent.pdgId==-6))) & \
-                       (genpart.status==23) # Trying this part to get the first copy, not the last
-                           #(genpart.hasFlags(['isPrompt','isLastCopy']))
+                       ((genpart.pdgId==up_type_quark_pdgId) & (genpart.distinctParent.pdgId==-6)))
+        if match_first is True:
+           u_tbnv_mask = u_tbnv_mask * (genpart.status==23) # Trying this part to get the first copy, not the last
+        else:
+           u_tbnv_mask = u_tbnv_mask * (genpart.hasFlags(['isPrompt','isLastCopy']))
 
         tbnv_quark_mask =    (d_tbnv_mask | u_tbnv_mask)
 
