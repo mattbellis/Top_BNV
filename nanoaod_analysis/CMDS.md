@@ -1,0 +1,3 @@
+python test_genparticle_tracing_v3.py /home/bellis/top_data/NANOAOD/small_skims_1k/TT_TToSUE_TuneCP5_BNV_2018_SMALL_1k.root
+python first_order_exploration.py /home/bellis/top_data/NANOAOD/small_skims_1k/TT_TToSUE_TuneCP5_BNV_2018_SMALL_1k.root TRUTH_INFORMATION_TT_TToSUE_TuneCP5_BNV_2018_SMALL_1k.npz
+python plot_h5hep_ML_output.py FIRST_LOOK_TT_TToSUE_TuneCP5_BNV_2018_SMALL_1k.h5
