@@ -53,6 +53,18 @@ if len(sys.argv)>2:
 
 ################################################################################
 
+# Before we mask everything, we create an index for each of the GenPart
+print("Making the GenPart idx....")
+num = ak.num(genpart)
+all_idx = []
+
+for n in num:
+    idx = np.arange(0,n,dtype=int)
+    all_idx.append(idx)
+genpart['idx'] = all_idx
+print("Made the GenPart idx....")
+
+
 print(f"Applying the trigger mask...assume year {year}")
 HLT = events.HLT
 event_mask = None
@@ -67,6 +79,7 @@ event_mask = np.ones(len(events),dtype=bool)
 
 print("Applying the trigger mask and extracting jets, muons, and electrons...")
 alljets_temp = events[event_mask].Jet
+allgenjets_temp = events[event_mask].GenJet
 allmuons_temp = events[event_mask].Muon
 allelectrons_temp = events[event_mask].Electron
 met = events[event_mask].MET
@@ -99,14 +112,27 @@ for truth in truth_indices:
 #genpart = ak.flatten(genpart)[truth_indices]
 #print(genpart)
 
-print(len(genpart), len(truth_indices))
+print(len(genpart), len(truth_indices), len(alljets_temp))
 # Do jet matching
-for gens,idx in zip(genpart,truth_indices):
+#'''
+matched_jet_indices = []
+for alljets,allgenjets,gens,idx in zip(alljets_temp,allgenjets_temp,genpart,truth_indices):
 
-    pdgId = gens[idx]
-    for p in pdgId:
-        for jet in alljets_temp:
-            if jet.genJetIdx
+    matched_jet_idx = [-999,-999,-999,-999,-999,-999]
+    pdgId = gens[idx].pdgId
+    #print(pdgId)
+    for i,p in enumerate(pdgId):
+        for j,jet in enumerate(alljets[alljets.partonFlavour==p]):
+            print(jet,jet.partonFlavour,allgenjets[jet.genJetIdx].partonFlavour)
+            if jet.partonFlavour == p:
+                dR = gens[idx][i].delta_r(jet)
+                #print(dR)
+                if dR<0.4:
+                    matched_jet_idx[i] = j
+    print(matched_jet_idx)
+
+
+#'''
 
 
 
