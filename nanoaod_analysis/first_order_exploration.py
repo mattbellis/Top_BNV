@@ -100,6 +100,15 @@ for truth in truth_indices:
 #print(genpart)
 
 print(len(genpart), len(truth_indices))
+# Do jet matching
+for gens,idx in zip(genpart,truth_indices):
+
+    pdgId = gens[idx]
+    for p in pdgId:
+        for jet in alljets_temp:
+            if jet.genJetIdx
+
+
 
 icount = 0
 for gens,idx in zip(genpart,truth_indices):
