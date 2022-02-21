@@ -1284,8 +1284,6 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, ma
         genpart['idx'] = all_idx
         print("Made the GenPart idx....")
     
-
-
         if verbose:
             print("Some verbose output!")
             pdgId = genpart[mask].pdgId
@@ -1328,11 +1326,11 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, ma
                             indices[1] = idx
                         else:
                             indices[2] = idx
-                    elif abs(i)==lepton_pdgId and abs(m)==6:
-                        indices[3] = idx
                     elif abs(i)==down_type_quark_pdgId and abs(m)==6:
-                        indices[4] = idx
+                        indices[3] = idx
                     elif abs(i)==up_type_quark_pdgId and abs(m)==6:
+                        indices[4] = idx
+                    elif abs(i)==lepton_pdgId and abs(m)==6:
                         indices[5] = idx
 
                     idx_count += 1

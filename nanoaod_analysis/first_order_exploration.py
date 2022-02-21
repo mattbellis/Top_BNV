@@ -52,17 +52,25 @@ if len(sys.argv)>2:
     events = events[event_truth_indices]
 
 ################################################################################
-
-# Before we mask everything, we create an index for each of the GenPart
-print("Making the GenPart idx....")
-num = ak.num(genpart)
-all_idx = []
-
-for n in num:
-    idx = np.arange(0,n,dtype=int)
-    all_idx.append(idx)
-genpart['idx'] = all_idx
-print("Made the GenPart idx....")
+# Before we mask everything, we create an index for each of the GenPart, and Jets,
+# and Muons, and GenJets
+print("Making the Indices field idx....")
+print("Applying the trigger mask and extracting jets, muons, and electrons...")
+jets = events.Jet
+genjets = events.GenJet
+muons = events.Muon
+electrons = events.Electron
+genparts = events.GenPart
+for pat in [jets, genjets, muons, electrons]:
+    print(pat)
+    num = ak.num(pat)
+    all_idx = []
+    for n in num:
+        idx = np.arange(0,n,dtype=int)
+        all_idx.append(idx)
+    pat['idx'] = all_idx
+    print("Made the pat idx....")
+print("Made all the idx fields...")
 
 ################################################################################
 
@@ -79,30 +87,33 @@ event_mask = np.ones(len(events),dtype=bool)
 ################################################################################
 
 print("Applying the trigger mask and extracting jets, muons, and electrons...")
-alljets_temp = events[event_mask].Jet
-allgenjets_temp = events[event_mask].GenJet
-allmuons_temp = events[event_mask].Muon
-allelectrons_temp = events[event_mask].Electron
+#alljets_temp = events[event_mask].Jet
+#allgenjets_temp = events[event_mask].GenJet
+#allmuons_temp = events[event_mask].Muon
+#allelectrons_temp = events[event_mask].Electron
+#allgenparts = events[event_mask].GenPart
+alljets_temp = jets
+allgenjets_temp = genjets
+allmuons_temp = muons
+allelectrons_temp = electrons
+allgenparts = genparts
 met = events[event_mask].MET
 print("Extracted jets, muons, and electrons!")
 
 ################################################################################
-# Gen Part stuff
-genpart = events[event_mask].GenPart
 
 print("Calculating Cartesian 4-vectors...")
-genpart['px'],genpart['py'],genpart['pz'] = nat.etaphipt2xyz(genpart)
-genpart['e'] = nat.energyfrommasspxpypz(genpart)
-genpart['btagDeepB'] = genpart['e'] # This is just a placeholder, since genPart doesn't have the b-tagging variable
-genpart['charge'] = genpart['pdgId'] # This is just a placeholder, since genPart doesn't have the b-tagging variable
-print(genpart['mass'])
+allgenparts['px'],allgenparts['py'],allgenparts['pz'] = nat.etaphipt2xyz(allgenparts)
+allgenparts['e'] = nat.energyfrommasspxpypz(allgenparts)
+allgenparts['btagDeepB'] = allgenparts['e'] # This is just a placeholder, since genPart doesn't have the b-tagging variable
+allgenparts['charge'] = allgenparts['pdgId'] # This is just a placeholder, since genPart doesn't have the b-tagging variable
+print(allgenparts['mass'])
 
 maxnjets = 7
 #maxnleps = 2
 # For gen part stuff
 maxnleps = 7
 
-event_topology_indices = [[(0, 1, 2), (4, 5), 3]]
 '''
 event_topology_indices = []
 for truth in truth_indices:
@@ -113,32 +124,55 @@ for truth in truth_indices:
 #genpart = ak.flatten(genpart)[truth_indices]
 #print(genpart)
 
-print(len(genpart), len(truth_indices), len(alljets_temp))
+print(len(allgenparts), len(truth_indices), len(alljets_temp))
 # Do jet matching
 #'''
 matched_jet_indices = []
-for alljets,allgenjets,gens,idx in zip(alljets_temp,allgenjets_temp,genpart,truth_indices):
+for alljets,allgenjets,allleptons,genparts,idx in zip(alljets_temp,allgenjets_temp,allelectrons_temp,allgenparts,truth_indices):
 
-    matched_jet_idx = [-999,-999,-999,-999,-999,-999]
-    pdgId = gens[idx].pdgId
+    # First 5 are jets and the last is the lepton
+    matched_final_state_idx = [-999,-999,-999,-999,-999,-999]
+    gp = genparts[idx]
+    pdgId = gp.pdgId
     #print(pdgId)
+    #print("----------------------------")
     for i,p in enumerate(pdgId):
+        if i==5:
+            continue # Skip the lepton matching
+        #print("----")
+        #print(i,p)
         for j,jet in enumerate(alljets[alljets.partonFlavour==p]):
-            print(jet,jet.partonFlavour,allgenjets[jet.genJetIdx].partonFlavour)
+            #print(jet.idx, jet,jet.partonFlavour, allgenjets[allgenjets.idx==jet.genJetIdx].partonFlavour)
             if jet.partonFlavour == p:
-                dR = gens[idx][i].delta_r(jet)
+                dR = gp[i].delta_r(jet)
                 #print(dR)
                 if dR<0.4:
-                    matched_jet_idx[i] = j
-    print(matched_jet_idx)
+                    matched_final_state_idx[i] = jet.idx
 
+    # Match the leptons
+    #'''
+    i = 5
+    p = gp[i].pdgId # pdgId for the electron, do we need this?
+    for j,lep in enumerate(allleptons):
+        #print(p,j,lep,lep.pdgId)
+        if lep.matched_gen.pdgId == p:
+            matched_final_state_idx[i] = lep.idx
+            #dR = gp[i].delta_r(lep)
+            ##print(dR)
+            #if dR<0.4:
+                #matched_final_state_idx[i] = lep.idx
+    #'''
+
+    print(matched_final_state_idx)
 
 #'''
 
 
 
+event_topology_indices = [[(0, 1, 2), (3 ,4), 5]]
+
 icount = 0
-for gens,idx in zip(genpart,truth_indices):
+for gens,idx in zip(allgenparts,truth_indices):
     #print(gens.pdgId)
     #print(len(gens.pdgId))
     #print(idx)
