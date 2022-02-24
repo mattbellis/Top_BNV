@@ -11,7 +11,7 @@ infile = sys.argv[3]
 infile = "root://cmsxrootd.fnal.gov//"+infile
 
 #outfile = "root://cmseos.fnal.gov//store/user/mbellis/small_skims_1k/"+infile.split('/')[-1].split('.root')[0] + '_SMALL_1k.root'
-outfile = "root://cmseos.fnal.gov//store/user/mbellis/small_skims_1k/"+tag+"_"+year+"_SMALL_1k.root"
+outfile = "root://cmseos.fnal.gov//store/user/mbellis/small_skims_10k/"+tag+"_"+year+"_SMALL_10k.root"
 
 print("Opening...")
 print(infile)
@@ -38,8 +38,8 @@ for i in range(nentries):
     if i%10000==0:
         print(i)
 
-    #if i>=100000:
-    if i>=1000:
+    if i>=100000:
+    if i>=10000:
         break
 
     oldtree.GetEntry(i);
