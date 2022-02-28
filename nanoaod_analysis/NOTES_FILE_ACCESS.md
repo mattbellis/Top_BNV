@@ -19,3 +19,9 @@ BEWARE: do not use the apparently equivalent syntax, which is known not to work 
 TFile("root://cmsxrootd.fnal.gov//store/foo/bar")
 BEWARE: This syntax also will fail a large percentage of the time for files accessed through xrootd:
 root root://cmsxrootd.fnal.gov//store/foo/bar
+
+
+# Getting extra data out of ROOT files
+# https://uproot.readthedocs.io/en/latest/basic.html#inspecting-a-tbranches-of-a-ttree
+t = uproot.open('/home/bellis/top_data/NANOAOD/small_skims_10k/TT_TToBCE_TuneCP5_BNV_2018_SMALL_10k.root')
+ t['Runs']['genEventCount'].array()[0]

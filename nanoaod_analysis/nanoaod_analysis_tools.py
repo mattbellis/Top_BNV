@@ -558,7 +558,7 @@ def trigger_mask(events_HLT, trigger='SingleMuon', year='2018'):
 
 
 ################################################################################
-def electron_mask(electrons, flag='loose', isoflag=0, ptcut=10, nelectrons=(1,2):
+def electron_mask(electrons, flag='loose', isoflag=0, ptcut=10, nelectrons=(1,2)):
 
     # Pt cut
     mask_pt = (electrons['pt'] > ptcut)
@@ -583,7 +583,7 @@ def electron_mask(electrons, flag='loose', isoflag=0, ptcut=10, nelectrons=(1,2)
 
 ################################################################################
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Muon_selectors_Since_9_4_X
-def muon_mask(muons, flag='loose', isoflag=0, ptcut=10, nmuons=(1,2):
+def muon_mask(muons, flag='loose', isoflag=0, ptcut=10, nmuons=(1,2)):
 
     # Pt cut
     mask_pt = (muons['pt'] > ptcut)

@@ -69,10 +69,10 @@ print("Calculating the muon mask...")
 muon_ptcut = 20
 muon_isoflag = 1
 muon_flag = 'loose'
-muon_mask = nat.muon_mask(allmuons_temp,ptcut=muon_ptcut,isoflag=muon_isoflag,flag=muon_flag)
+muon_mask,muon_event_mask = nat.muon_mask(allmuons_temp,ptcut=muon_ptcut,isoflag=muon_isoflag,flag=muon_flag)
 
 print("Calculating the jet mask...")
-jet_mask = nat.jet_mask(alljets_temp,ptcut=25)
+jet_mask,jet_event_mask = nat.jet_mask(alljets_temp,ptcut=25)
 
 #print(len(ak.flatten(alljets)))
 #print(len(ak.flatten(alljets[jet_mask])))
