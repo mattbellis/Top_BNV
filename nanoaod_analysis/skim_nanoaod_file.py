@@ -32,7 +32,6 @@ oldtree3 = oldfile.Get("MetaData");
 #oldtree4 = oldfile.Get("ParameterSets");
 #Event *event   = 0;
 #oldtree.SetBranchAddress("event",&event);
-print("nentries: "+str(nentries))
 
 # Create a new file + a clone of old tree in new file
 newfile = ROOT.TFile.Open(outfile,"recreate");
@@ -42,6 +41,7 @@ newtree2 = oldtree2.CloneTree(0);
 newtree3 = oldtree3.CloneTree(0);
 
 nentries = oldtree.GetEntries();
+print("nentries: "+str(nentries))
 for i in range(nentries):
     if i%10000==0:
         print(i)
@@ -74,7 +74,7 @@ for i in range(nentries):
 #newtree.Print();
 newtree.Write();
 newtree1.Write();
-newtrea2.Write();
+newtree2.Write();
 newtree3.Write();
 
 #newtree.AutoSave();
