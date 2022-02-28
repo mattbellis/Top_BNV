@@ -20,12 +20,20 @@ jetpt = []
 nmuon = []
 muonpt = []
 
+labels = []
+
 for infilename in infilenames:
+
+    if infilename.find('BNV')>=0:
+        continue 
+
     print("Reading in {0}".format(infilename))
     dataset_type, mc_type, trigger, topology, year = nat.extract_dataset_type_and_trigger_from_filename(infilename)
     if trigger==None:
         trigger = 'SingleMuon'
     print(f"input file information:   {dataset_type} {mc_type} {trigger} {topology} {year}")
+
+    labels.append(infilename)
 ################################################################################
 
     data,event = hepfile.load(infilename)
@@ -36,12 +44,15 @@ for infilename in infilenames:
     nmuon.append(data['muon/nmuon'])
     muonpt.append(data['muon/pt'])
 
+    print(len(data['muon/nmuon']))
+
 ################################################################################
 
 plt.figure()
 plt.subplot(2,2,1)
-plt.hist(njet,bins=20,range=(0,20),stacked=True)
+plt.hist(njet,bins=20,range=(0,20),stacked=True,label=labels)
 plt.xlabel('# of jets')
+plt.legend()
 
 plt.subplot(2,2,2)
 plt.hist(jetpt,bins=25,range=(0,300),stacked=True)
@@ -59,14 +70,3 @@ plt.tight_layout()
 ##########################################################
 
 plt.show()
-
-
-
-
-
-
-
-
-
-
-

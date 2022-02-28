@@ -103,10 +103,6 @@ samples['MC']['TTbarPowheg_Dilepton'] = '/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8
 samples['MC']['TTbarPowheg_Hadronic'] = '/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/'
 samples['MC']['TTbarPowheg_Semilept'] = '/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/'
 
-samples['MC']['WW'] = '/WW_TuneCP5_13TeV-pythia8/'
-samples['MC']['WZ'] = '/WZ_TuneCP5_13TeV-pythia8/'
-samples['MC']['ZZ'] = '/ZZ_TuneCP5_13TeV-pythia8/'
-
 samples['MC']['ST_s_channel'] = '/ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-madgraph-pythia8/'
 samples['MC']['ST_t_channel'] = '/ST_t-channel_top_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8/'
 samples['MC']['ST_tbar_channel'] = '/ST_t-channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8/'
@@ -129,6 +125,10 @@ samples['MC']['TTWJetsToQQ'] = '/TTWJetsToQQ_TuneCP5_13TeV-amcatnloFXFX-madspin-
 samples['MC']['TTZToNuNu'] = '/TTZToNuNu_TuneCP5_13TeV-amcatnlo-pythia8/'
 samples['MC']['TTZToLLNuNu_M-10'] = '/TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8/'
 samples['MC']['TTZToQQ'] = '/TTZToQQ_TuneCP5_13TeV-amcatnlo-pythia8/'
+
+samples['MC']['WW'] = '/WW_TuneCP5_13TeV-pythia8/'
+samples['MC']['WZ'] = '/WZ_TuneCP5_13TeV-pythia8/'
+samples['MC']['ZZ'] = '/ZZ_TuneCP5_13TeV-pythia8/'
 
 samples['MC']['WJetsToLNu'] = '/WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8/'
 samples['MC']['WJetsToQQ'] = '/WJetsToQQ_TuneCP5_13TeV-madgraphMLM-pythia8/'

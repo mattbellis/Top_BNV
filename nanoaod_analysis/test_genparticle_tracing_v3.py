@@ -55,7 +55,7 @@ if args.maxevents is not None and args.event_range is not None:
 infilename = args.infilename
 print("Reading in {0}".format(infilename))
 dataset_type, mc_type, trigger, topology, year = nat.extract_dataset_type_and_trigger_from_filename(infilename)
-print(f"input file information:   {dataset_type} {mc_type} {trigger} {topology}")
+print(f"input file information:  dataset type: {dataset_type}   MC type: {mc_type}  trigger: {trigger}  topology: {topology}")
 
 events = NanoEventsFactory.from_root(infilename, schemaclass=NanoAODSchema).events()
 print(len(events))
@@ -95,7 +95,8 @@ print(f"# of events: {len(events)}")
 print("Applying the trigger mask and extracting jets, muons, and electrons...")
 jets = events[event_mask].Jet
 electrons = events[event_mask].Electron
-genpart = events[event_mask].GenPart
+#genpart = events[event_mask].GenPart
+genpart = events.GenPart
 
 print(f"# of jets:      {len(jets)}")
 print(f"# of electrons: {len(electrons)}")
@@ -122,10 +123,17 @@ print("Calculated parent pdgID")
 
 verbose = True
 
+match_first = True
+#match_first = False
+match_first_tag = ""
+if match_first:
+    match_first_tag = "_FIRST_MATCH"
+
 if topology is not None:
+    print("Processing data...")
     topology = f"had_{topology}"
-    event_truth_indices, truth_indices = nat.truth_matching_identify_genpart(genpart,topology=topology,verbose=verbose)
-    outfilename = f"TRUTH_INFORMATION_{infilename.split('/')[-1].split('.root')[0]}.npz"
+    event_truth_indices, truth_indices = nat.truth_matching_identify_genpart(genpart,topology=topology,verbose=verbose, match_first=match_first)
+    outfilename = f"TRUTH_INFORMATION{match_first_tag}_{infilename.split('/')[-1].split('.root')[0]}.npz"
     np.savez(outfilename,event_truth_indices=event_truth_indices,truth_indices=truth_indices,allow_pickle=False)
 
 exit()

@@ -141,6 +141,9 @@ def generate_all_event_topology_indices(maxnjets=10,maxnleps=5,verbose=False):
 ################################################################################
 def awk_to_my_array(awk_arrs,obj_type='jet'):
 
+    if len(awk_arrs)==1:
+        alk_arrs = [awk_arrs]
+
     arr = []
     for awk_arr in awk_arrs:
         a0 = awk_arr['e']
@@ -555,8 +558,32 @@ def trigger_mask(events_HLT, trigger='SingleMuon', year='2018'):
 
 
 ################################################################################
+def electron_mask(electrons, flag='loose', isoflag=0, ptcut=10, nelectrons=(1,2):
+
+    # Pt cut
+    mask_pt = (electrons['pt'] > ptcut)
+
+    # ID flag
+    mask_id = None
+    if flag == 'loose':
+        mask_id = (electrons.looseId==True)
+    elif flag == 'medium':
+        mask_id = (electrons.mediumId==True)
+    elif flag == 'tight':
+        mask_id = (electrons.tightId==True)
+
+    mask_iso = (electrons['pfIsoId'] >= isoflag)
+
+    mask_electron_num = (ak.num(electrons)>=nelectrons[0]) & (ak.num(electrons)<=nelectrons[1])
+
+    mask = mask_pt & mask_id & mask_iso
+
+    return mask,mask_electron_num
+
+
+################################################################################
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Muon_selectors_Since_9_4_X
-def muon_mask(muons, flag='loose', isoflag=0, ptcut=10):
+def muon_mask(muons, flag='loose', isoflag=0, ptcut=10, nmuons=(1,2):
 
     # Pt cut
     mask_pt = (muons['pt'] > ptcut)
@@ -575,14 +602,16 @@ def muon_mask(muons, flag='loose', isoflag=0, ptcut=10):
     # (1=PFIsoVeryLoose, 2=PFIsoLoose, 3=PFIsoMedium, 4=PFIsoTight, 5=PFIsoVeryTight, 6=PFIsoVeryVeryTight)
     mask_iso = (muons['pfIsoId'] >= isoflag)
 
+    mask_muon_num = (ak.num(muons)>=nmuons[0]) & (ak.num(muons)<=nmuons[1])
+
     mask = mask_pt & mask_id & mask_iso
 
-    return mask
+    return mask,mask_muon_num
 
 
 ################################################################################
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Muon_selectors_Since_9_4_X
-def jet_mask(jets,ptcut=0):
+def jet_mask(jets,ptcut=0,njets=(5,10)):
 
     mask = (jets.neEmEF<0.99) & \
            (jets.neHEF <0.99) & \
@@ -591,11 +620,13 @@ def jet_mask(jets,ptcut=0):
            (jets.nConstituents>1) & \
            (jets.pt>ptcut)
 
-    return mask
+    mask_jet_num = (ak.num(jets)>=njets[0]) & (ak.num(jets)<=njets[1])
+
+    return mask,mask_jet_num
 
 ################################################################################
 #@nb.njit
-def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None,maxnjets=10,maxnleps=5,event_topology_indices=None):
+def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.0,verbose=False,ML_data=None,maxnjets=10,maxnleps=5,event_topology_indices=None,keep_order=False):
 
     # Extract the information about the jets so we don't keep having to call the
     # attr functions...I think?
@@ -603,6 +634,8 @@ def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None
     leptons = awk_to_my_array(leptons_awk,'lepton')
     # These arrays will be 
     # e, px, py, pz, pt, eta, phi, (btag/q)
+
+    #print(jets)
 
     counter = 0
 
@@ -613,6 +646,8 @@ def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None
 
     njets = len(jets)
     nleps = len(leptons)
+
+    #print(f"njets: {njets}   nleps: {nleps}")
 
     # We need at least 5 jets (at least 1 b jet) and 1 lepton
     # SHOULD WE CUT ON MANY JETS TO SAVE TIME?
@@ -626,6 +661,8 @@ def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None
         hadjetidx = topology_index[0]
         bnvjetidx = topology_index[1]
         lepidx = topology_index[2]
+
+        #print(f"idxs: {hadjetidx} {bnvjetidx} {lepidx}")
 
         #jetindices = np.arange(njets,dtype=int)
 
@@ -642,17 +679,22 @@ def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None
         # Check to see that we have 1 and only 1 b-jet combo
         # This is just for now. We might change this later 
         correct_combo = 0
-
         for i in range(0,3):
             hadjet[i] = jets[int(hadjetidx[i])]
             #if hadjet[i].btagDeepB>=bjetcut:
             if hadjet[i][7]>=bjetcut:
                 correct_combo += 1
 
-        #'''
-        if correct_combo != 1:
+        #print("Had jets")
+        #print(hadjet)
+
+        '''
+        # If keep order is True, then we don't care how many b-jets there are
+        if correct_combo != 1 and keep_order is False:
             continue
-        #'''
+        '''
+        if correct_combo == 0:
+            continue
 
         # If this is good so far and we have good jet combinations for the hadronic top
         # decay, then remove these jets and figure stuff out for the BNV decay
@@ -690,28 +732,37 @@ def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None
             bnvjet0 = jets[int(bnvjetidx[0])]
             bnvjet1 = jets[int(bnvjetidx[1])]
 
+            #print("bnv jets")
+            #print(bnvjet0)
+            #print(bnvjet1)
+
             hadnonbjet0 = None
             hadnonbjet1 = None
             # For the had decay, we want to try to identify the W
             #if hadjet[0].btagDeepB>bjetcut:
-            if hadjet[0][7]>bjetcut:
+            if keep_order is False:
+                if hadjet[0][7]>bjetcut:
+                    hadbjet = hadjet[0]
+                    hadnonbjet0 = hadjet[1]
+                    hadnonbjet1 = hadjet[2]
+                    newhadidx = [hadjetidx[0],hadjetidx[1],hadjetidx[2]]
+                #elif hadjet[1].btagDeepB>bjetcut:
+                elif hadjet[1][7]>bjetcut:
+                    hadbjet = hadjet[1]
+                    hadnonbjet0 = hadjet[0]
+                    hadnonbjet1 = hadjet[2]
+                    newhadidx = [hadjetidx[1],hadjetidx[0],hadjetidx[2]]
+                #elif hadjet[2].btagDeepB>bjetcut:
+                elif hadjet[2][7]>bjetcut:
+                    hadbjet = hadjet[2]
+                    hadnonbjet0 = hadjet[0]
+                    hadnonbjet1 = hadjet[1]
+                    newhadidx = [hadjetidx[2],hadjetidx[0],hadjetidx[1]]
+            else: # keep_order is true
                 hadbjet = hadjet[0]
                 hadnonbjet0 = hadjet[1]
                 hadnonbjet1 = hadjet[2]
                 newhadidx = [hadjetidx[0],hadjetidx[1],hadjetidx[2]]
-            #elif hadjet[1].btagDeepB>bjetcut:
-            elif hadjet[1][7]>bjetcut:
-                hadbjet = hadjet[1]
-                hadnonbjet0 = hadjet[0]
-                hadnonbjet1 = hadjet[2]
-                newhadidx = [hadjetidx[1],hadjetidx[0],hadjetidx[2]]
-            #elif hadjet[2].btagDeepB>bjetcut:
-            elif hadjet[2][7]>bjetcut:
-                hadbjet = hadjet[2]
-                hadnonbjet0 = hadjet[0]
-                hadnonbjet1 = hadjet[1]
-                newhadidx = [hadjetidx[2],hadjetidx[0],hadjetidx[1]]
-
 
             if hadnonbjet0 is None or hadnonbjet1 is None: 
                 continue
@@ -781,7 +832,13 @@ def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None
                         leppmag = pmag(lepton[1:4]) # Mag of momentum
 
                         bnvtopp4 = addp4s([bnvjet0, bnvjet1, lepton])
+                        #print("here ---------")
+                        #print(bnvtopp4)
+                        #print(bnvjet0)
+                        #print(bnvjet1)
+                        #print(lepton)
                         bnvtopmass = invmass([bnvtopp4])
+                        #print(bnvtopmass)
                         #bnvtopp4 = (bnvjet0 + bnvjet1 + lepton)
                         #bnvtopmass = bnvtopp4.mass
 
@@ -793,8 +850,9 @@ def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None
 
                             if ML_data is not None:
                                 #start = time.time()
-                                vals_for_ML_training([hadnonbjet0,hadnonbjet1,hadbjet],ML_data,tag='had')
-                                vals_for_ML_training([bnvjet0,bnvjet1,lepton],ML_data,tag='bnv')
+                                # Here we are passing in the hadronic b-jet last
+                                vals_for_ML_training([hadnonbjet0,hadnonbjet1,hadbjet],ML_data,tag='had',keep_order=keep_order)
+                                vals_for_ML_training([bnvjet0,bnvjet1,lepton],ML_data,tag='bnv',keep_order=keep_order)
                                 #print("time to calc vals: ",time.time()-start)
 
                                 ML_data['ttbar_angle'].append(thetatop1top2)
@@ -833,7 +891,7 @@ def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None
 
 
 ################################################################################
-def vals_for_ML_training(jets,output_data,tag="had"):
+def vals_for_ML_training(jets,output_data,tag="had",keep_order=False):
 
     # reco jets: e, px, py, pz, pt, eta, phi, csv2
     # jets is a list
@@ -852,7 +910,7 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     #topp4 = j1[0:4]+j2[0:4]+j3[0:4]
     #topp4_temp = (j1 + j2 + j3)
     topp4 = addp4s([j1,j2,j3])
-    topmass = 172.44
+    topmass = 172.5
     topmass2 = topmass * topmass
     #print(type(topp4_temp))
     #topp4[0] = np.sqrt(topmass2 + topp4.rho2)
@@ -882,19 +940,20 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     tmpjets = [j1,j2,j3] 
     # If it is hadronic, order 3 jets, otherwise order 2 jets
     # Order the jets so that they run from largest pt (j1) to smallest pt (j3)
-    if tag=='had':
-        sortidx = np.argsort( [rj1pmag,rj2pmag,rj3pmag])
-        j1 = tmpjets[sortidx[2]]
-        j2 = tmpjets[sortidx[1]]
-        j3 = tmpjets[sortidx[0]]
-        #print(j1,j2,j3)
-        #print("---------")
-        #print(rj1pmag, rj2pmag, rj3pmag)
-        #print(sortidx)
-    else:
-        sortidx = np.argsort( [rj1pmag,rj2pmag])
-        j1 = tmpjets[sortidx[1]]
-        j2 = tmpjets[sortidx[0]]
+    if keep_order is False:
+        if tag=='had':
+            sortidx = np.argsort( [rj1pmag,rj2pmag,rj3pmag])
+            j1 = tmpjets[sortidx[2]]
+            j2 = tmpjets[sortidx[1]]
+            j3 = tmpjets[sortidx[0]]
+            #print(j1,j2,j3)
+            #print("---------")
+            #print(rj1pmag, rj2pmag, rj3pmag)
+            #print(sortidx)
+        else:
+            sortidx = np.argsort( [rj1pmag,rj2pmag])
+            j1 = tmpjets[sortidx[1]]
+            j2 = tmpjets[sortidx[0]]
 
     #print(rj1pmag, rj2pmag, rj3pmag)
     #for s in jets:
@@ -965,6 +1024,8 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     output_data[tag+'_dTheta13_rest'].append(dTheta)
     dTheta = angle_between_vectors(rj2,rj3)
     output_data[tag+'_dTheta23_rest'].append(dTheta)
+    dTheta = angle_between_vectors(rj1,rj2+rj3)
+    output_data[tag+'_dTheta1_23_rest'].append(dTheta)
 
     # DeepCSV b-tagging variable
     #output_data[tag+'_j1_btag0'].append(j1.btagCSVV2)
@@ -980,6 +1041,8 @@ def vals_for_ML_training(jets,output_data,tag="had"):
         #output_data[tag+'_j3_btag1'].append(j3.btagDeepC)
         #output_data[tag+'_j3_btag'].append(j3.btagDeepB)
         output_data[tag+'_j3_btag'].append(j3[7])
+    elif tag=="bnv":
+        output_data[tag+'_lep_pt'].append(j3[4])
 
 
 ################################################################################
@@ -1000,6 +1063,7 @@ def define_ML_output_data():
     output_data["had_dTheta12_rest"] = []
     output_data["had_dTheta13_rest"] = []
     output_data["had_dTheta23_rest"] = []
+    output_data["had_dTheta1_23_rest"] = []
     #output_data["had_j1_btag0"] = []
     #output_data["had_j2_btag0"] = []
     #output_data["had_j3_btag0"] = []
@@ -1023,12 +1087,15 @@ def define_ML_output_data():
     output_data["bnv_dTheta12_rest"] = []
     output_data["bnv_dTheta13_rest"] = []
     output_data["bnv_dTheta23_rest"] = []
+    output_data["bnv_dTheta1_23_rest"] = []
     #output_data["bnv_j1_btag0"] = []
     #output_data["bnv_j2_btag0"] = []
     #output_data["bnv_j1_btag1"] = []
     #output_data["bnv_j2_btag1"] = []
     output_data["bnv_j1_btag"] = []
     output_data["bnv_j2_btag"] = []
+
+    output_data["bnv_lep_pt"] = []
 
     output_data["ttbar_angle"] = []
 
@@ -1085,10 +1152,13 @@ def check_jet_against_gen(jet,gen, maxdPtRel=1e9, maxdR=0.15):
 
 
 ################################################################################
-def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
+def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, match_first=True):
 
     if topology.find('had_')<=0:
         0
+
+    #for i,p in enumerate(genpart[7].pdgId):
+    #    print(i,p)
 
     ############################################################################
     # These are the id's for the lepton and partons coming from the BNV-decay
@@ -1141,8 +1211,11 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
                (abs(genpart.pdgId)==2) |  \
                (abs(genpart.pdgId)==3) |  \
                (abs(genpart.pdgId)==4) |  \
-               (abs(genpart.pdgId)==5)) & \
-               (genpart.hasFlags(['isPrompt','isLastCopy']))
+               (abs(genpart.pdgId)==5))
+        if match_first is True:
+               any_quark_mask = any_quark_mask * (genpart.status==23) # Trying this out to get the first copy, not the last
+        else:
+               any_quark_mask = any_quark_mask * (genpart.hasFlags(['isPrompt','isLastCopy'])) # Last copy
 
 
         # Quarks from W+ that comes from a top
@@ -1152,13 +1225,19 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
 
         # b quark from a t
         bquark_from_t = (genpart.pdgId==5) & \
-                        (genpart.hasFlags(['isPrompt','isLastCopy'])) & \
                         (genpart.distinctParent.pdgId==6)
+        if match_first is True:
+            bquark_from_t = bquark_from_t * (genpart.distinctParent.pdgId==6) # Trying this to get the first, not the last copy
+        else:
+            bquark_from_t = bquark_from_t * (genpart.hasFlags(['isPrompt','isLastCopy']))
 
         # bbar from a tbar
         bbarquark_from_tbar = (genpart.pdgId==-5) & \
-                                 (genpart.hasFlags(['isPrompt','isLastCopy'])) & \
-                              (genpart.distinctParent.pdgId==-6)
+                              (genpart.distinctParent.pdgId==-6) 
+        if match_first is True:
+           bbarquark_from_tbar = bbarquark_from_tbar * (genpart.status==23) # Trying this to get the first, not the last copy
+        else:
+           bbarquark_from_tbar = bbarquark_from_tbar * (genpart.hasFlags(['isPrompt','isLastCopy'])) 
 
         t_mask =    (any_quark_mask & from_Wp_from_t) | (bquark_from_t)
         tbar_mask = (any_quark_mask & from_Wm_from_tbar) | (bbarquark_from_tbar)
@@ -1169,18 +1248,27 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
         ###############################################################
         # leptons from t-BNV
         gen_lepton_mask =(((genpart.pdgId==-lepton_pdgId) & (genpart.distinctParent.pdgId==6)) | \
-                            ((genpart.pdgId==lepton_pdgId) & (genpart.distinctParent.pdgId==-6)))  & \
-                           (genpart.hasFlags(['isPrompt','isLastCopy']))
+                            ((genpart.pdgId==lepton_pdgId) & (genpart.distinctParent.pdgId==-6)))
+        if match_first is True:
+            gen_lepton_mask = gen_lepton_mask * (genpart.status==1) # Trying this part to get the first copy, not the last
+        else:
+            gen_lepton_mask = gen_lepton_mask * (genpart.hasFlags(['isPrompt','isLastCopy']))
 
         # Down-type quark from BNV
         d_tbnv_mask =(((genpart.pdgId==-down_type_quark_pdgId) & (genpart.distinctParent.pdgId==6))  | \
-                      ((genpart.pdgId==down_type_quark_pdgId) & (genpart.distinctParent.pdgId==-6)))  & \
-                           (genpart.hasFlags(['isPrompt','isLastCopy']))
+                      ((genpart.pdgId==down_type_quark_pdgId) & (genpart.distinctParent.pdgId==-6)))
+        if match_first is True:
+            d_tbnv_mask = d_tbnv_mask * (genpart.status==23) # Trying this part to get the first copy, not the last
+        else: 
+            d_tbnv_mask = d_tbnv_mask * (genpart.hasFlags(['isPrompt','isLastCopy']))
 
         # Up-type quark from BNV
         u_tbnv_mask = (((genpart.pdgId==-up_type_quark_pdgId) & (genpart.distinctParent.pdgId==6)) | \
-                       ((genpart.pdgId==up_type_quark_pdgId) & (genpart.distinctParent.pdgId==-6))) & \
-                           (genpart.hasFlags(['isPrompt','isLastCopy']))
+                       ((genpart.pdgId==up_type_quark_pdgId) & (genpart.distinctParent.pdgId==-6)))
+        if match_first is True:
+           u_tbnv_mask = u_tbnv_mask * (genpart.status==23) # Trying this part to get the first copy, not the last
+        else:
+           u_tbnv_mask = u_tbnv_mask * (genpart.hasFlags(['isPrompt','isLastCopy']))
 
         tbnv_quark_mask =    (d_tbnv_mask | u_tbnv_mask)
 
@@ -1218,6 +1306,26 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
         #quark_partons = genpart[mask]
         #gen_leptons = genpart[gen_lepton_mask]
 
+        print(len(genpart[0].pdgId))
+        for j,p in enumerate(genpart[0].pdgId):
+            print(j,p)
+
+        print("--------------")
+        print(len(genpart[0][mask[0]].pdgId))
+        for j,p in enumerate(genpart[0][mask[0]].pdgId):
+            print(j,p)
+
+        # Before we mask everything, we create an index for each of the GenPart
+        print("Making the GenPart idx....")
+        num = ak.num(genpart)
+        all_idx = []
+
+        for n in num:
+            idx = np.arange(0,n,dtype=int)
+            all_idx.append(idx)
+        genpart['idx'] = all_idx
+        print("Made the GenPart idx....")
+    
         if verbose:
             print("Some verbose output!")
             pdgId = genpart[mask].pdgId
@@ -1225,6 +1333,7 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
             eta = genpart[mask].eta
             phi = genpart[mask].phi
             parent = genpart[mask].distinctParent.pdgId
+            all_idx = genpart[mask].idx
 
             total = 0
 
@@ -1232,7 +1341,9 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
             ev_idx = 0
             truth_indices = []
             event_truth_indices = []
-            for a,b,c,d,e in zip(pdgId,pt,eta,phi,parent):
+            print("-----------------------------------------------##################################")
+            print(genpart[mask].pdgId)
+            for a,b,c,d,e,f in zip(pdgId,pt,eta,phi,parent,all_idx):
                 # Indices are for the genparts mapping on to
                 # hadronic b
                 # hadronic q1
@@ -1242,10 +1353,11 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
                 # bnv uptype
                 indices = np.array([-999, -999, -999, -999, -999, -999])
                 print("-----------------------")
-                idx = -1
+                #idx = -1
                 idx_count = 0
-                for i,j,k,l,m in zip(a,b,c,d,e):
-                    idx += 1
+                for i,j,k,l,m,idx in zip(a,b,c,d,e,f):
+                    #idx += 1
+                    #print(idx,i,j,k,l,m)
                     if i is None:
                         continue
                     print(f"idx: {idx}    pdgID: {i:3d}\tpT: {j:6.3f}\teta: {k:6.3f}\tphi: {l:6.3f}\tparent pdgId: {m:3d}")
@@ -1256,16 +1368,16 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False):
                             indices[1] = idx
                         else:
                             indices[2] = idx
-                    elif abs(i)==lepton_pdgId and abs(m)==6:
-                        indices[3] = idx
                     elif abs(i)==down_type_quark_pdgId and abs(m)==6:
-                        indices[4] = idx
+                        indices[3] = idx
                     elif abs(i)==up_type_quark_pdgId and abs(m)==6:
+                        indices[4] = idx
+                    elif abs(i)==lepton_pdgId and abs(m)==6:
                         indices[5] = idx
 
                     idx_count += 1
 
-                if idx_count==6:
+                if idx_count==6 and -999 not in indices:
                     print(ev_idx,indices)
                     truth_indices.append(np.array(indices))
                     event_truth_indices.append(ev_idx)

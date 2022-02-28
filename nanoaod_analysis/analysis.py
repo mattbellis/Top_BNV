@@ -22,33 +22,51 @@ maxnleps = 2
 all_event_topology_indices = nat.generate_all_event_topology_indices(maxnjets=maxnjets,maxnleps=maxnleps,verbose=False)
 
 
+################################################################################
 infilename = sys.argv[1]
+print("Reading in {0}".format(infilename))
+dataset_type, mc_type, trigger, topology, year = nat.extract_dataset_type_and_trigger_from_filename(infilename)
+if trigger==None:
+    trigger = 'SingleMuon'
+print(f"input file information:   {dataset_type} {mc_type} {trigger} {topology} {year}")
+
+if len(sys.argv)>2:
+    print(sys.argv[2])
+    data = np.load(sys.argv[2],allow_pickle=False)
+    event_truth_indices = data['event_truth_indices']
+    truth_indices = data['truth_indices']
 
 print("Reading in {0}".format(infilename))
+################################################################################
 
-#events = NanoEvents.from_file(infilename)
+################################################################################
 events = NanoEventsFactory.from_root(infilename, schemaclass=NanoAODSchema).events()
 print(len(events))
-#events = events[0:10000]
-#print(len(events))
+if len(sys.argv)>2:
+    print("# events in file passing truth requirements: ",len(events[event_truth_indices]))
+    events = events[event_truth_indices]
 
+################################################################################
 
-print("Applying the trigger mask...")
+print(f"Applying the trigger mask...assume year {year}")
 HLT = events.HLT
-event_mask = nat.trigger_mask(nat.muon_triggers_of_interest['2018'], HLT)
+event_mask = nat.trigger_mask(HLT, trigger=trigger, year=year)
 print("# events in file:                              ",len(events))
 print("# events in file passing trigger requirements: ",len(events[event_mask]))
 print("Mask is calculated!")
+
+################################################################################
 
 print("Applying the trigger mask and extracting jets, muons, and electrons...")
 alljets_temp = events[event_mask].Jet
 allmuons_temp = events[event_mask].Muon
 allelectrons_temp = events[event_mask].Electron
+met = events[event_mask].MET
 print("Extracted jets, muons, and electrons!")
 
 print("Calculating the muon mask...")
 # Muon processing
-muon_ptcut = 25
+muon_ptcut = 20
 muon_isoflag = 1
 muon_flag = 'loose'
 muon_mask = nat.muon_mask(allmuons_temp,ptcut=muon_ptcut,isoflag=muon_isoflag,flag=muon_flag)
@@ -114,31 +132,24 @@ for jets,muons in zip(alljets, allmuons):
         continue
 
     event_topology_indices = all_event_topology_indices[njets][nleps]
-    #print(jets.pt)
-    #if icount>=6000:
-    #start = time.time()
+    #print(event_topology_indices)
+    #event_topology_indices = [[(0, 1, 2), (3, 4), 0]]
     x = nat.event_hypothesis(jets,muons,verbose=True, ML_data=output_data_ML,maxnjets=maxnjets,maxnleps=maxnleps,event_topology_indices=event_topology_indices)
-    #print("time       : ",time.time()-start)
 
-    #print(x)
     icount += 1
 
-    #start = time.time()
     hepfile.pack(data,event)
-    #print("time to pack: ",time.time()-start)
 
     if icount>=2000:
         break
 
+################################################################################
 
 for key in output_data_ML.keys():
     if key != 'num_combos':
         print(key,len(output_data_ML[key]))
-#df = pd.DataFrame.from_dict(output_data_ML)
 
 outfilename = infilename.split('/')[-1].split('.root')[0] + '_MLdata.h5'
-##df.to_hdf('topMLdata.h5','df')
-#df.to_hdf(outfilename,'df')
 
 for key in output_data_ML.keys():
     if key != 'num_combos':
