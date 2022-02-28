@@ -141,6 +141,9 @@ def generate_all_event_topology_indices(maxnjets=10,maxnleps=5,verbose=False):
 ################################################################################
 def awk_to_my_array(awk_arrs,obj_type='jet'):
 
+    if len(awk_arrs)==1:
+        alk_arrs = [awk_arrs]
+
     arr = []
     for awk_arr in awk_arrs:
         a0 = awk_arr['e']
@@ -555,8 +558,32 @@ def trigger_mask(events_HLT, trigger='SingleMuon', year='2018'):
 
 
 ################################################################################
+def electron_mask(electrons, flag='loose', isoflag=0, ptcut=10, nelectrons=(1,2):
+
+    # Pt cut
+    mask_pt = (electrons['pt'] > ptcut)
+
+    # ID flag
+    mask_id = None
+    if flag == 'loose':
+        mask_id = (electrons.looseId==True)
+    elif flag == 'medium':
+        mask_id = (electrons.mediumId==True)
+    elif flag == 'tight':
+        mask_id = (electrons.tightId==True)
+
+    mask_iso = (electrons['pfIsoId'] >= isoflag)
+
+    mask_electron_num = (ak.num(electrons)>=nelectrons[0]) & (ak.num(electrons)<=nelectrons[1])
+
+    mask = mask_pt & mask_id & mask_iso
+
+    return mask,mask_electron_num
+
+
+################################################################################
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Muon_selectors_Since_9_4_X
-def muon_mask(muons, flag='loose', isoflag=0, ptcut=10):
+def muon_mask(muons, flag='loose', isoflag=0, ptcut=10, nmuons=(1,2):
 
     # Pt cut
     mask_pt = (muons['pt'] > ptcut)
@@ -575,14 +602,16 @@ def muon_mask(muons, flag='loose', isoflag=0, ptcut=10):
     # (1=PFIsoVeryLoose, 2=PFIsoLoose, 3=PFIsoMedium, 4=PFIsoTight, 5=PFIsoVeryTight, 6=PFIsoVeryVeryTight)
     mask_iso = (muons['pfIsoId'] >= isoflag)
 
+    mask_muon_num = (ak.num(muons)>=nmuons[0]) & (ak.num(muons)<=nmuons[1])
+
     mask = mask_pt & mask_id & mask_iso
 
-    return mask
+    return mask,mask_muon_num
 
 
 ################################################################################
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Muon_selectors_Since_9_4_X
-def jet_mask(jets,ptcut=0):
+def jet_mask(jets,ptcut=0,njets=(5,10)):
 
     mask = (jets.neEmEF<0.99) & \
            (jets.neHEF <0.99) & \
@@ -591,11 +620,13 @@ def jet_mask(jets,ptcut=0):
            (jets.nConstituents>1) & \
            (jets.pt>ptcut)
 
-    return mask
+    mask_jet_num = (ak.num(jets)>=njets[0]) & (ak.num(jets)<=njets[1])
+
+    return mask,mask_jet_num
 
 ################################################################################
 #@nb.njit
-def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None,maxnjets=10,maxnleps=5,event_topology_indices=None,keep_order=False):
+def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.0,verbose=False,ML_data=None,maxnjets=10,maxnleps=5,event_topology_indices=None,keep_order=False):
 
     # Extract the information about the jets so we don't keep having to call the
     # attr functions...I think?
@@ -648,8 +679,6 @@ def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None
         # Check to see that we have 1 and only 1 b-jet combo
         # This is just for now. We might change this later 
         correct_combo = 0
-
-
         for i in range(0,3):
             hadjet[i] = jets[int(hadjetidx[i])]
             #if hadjet[i].btagDeepB>=bjetcut:
@@ -659,12 +688,13 @@ def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None
         #print("Had jets")
         #print(hadjet)
 
-
-        #'''
+        '''
         # If keep order is True, then we don't care how many b-jets there are
         if correct_combo != 1 and keep_order is False:
             continue
-        #'''
+        '''
+        if correct_combo == 0:
+            continue
 
         # If this is good so far and we have good jet combinations for the hadronic top
         # decay, then remove these jets and figure stuff out for the BNV decay
@@ -710,23 +740,29 @@ def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None
             hadnonbjet1 = None
             # For the had decay, we want to try to identify the W
             #if hadjet[0].btagDeepB>bjetcut:
-            if hadjet[0][7]>bjetcut:
+            if keep_order is False:
+                if hadjet[0][7]>bjetcut:
+                    hadbjet = hadjet[0]
+                    hadnonbjet0 = hadjet[1]
+                    hadnonbjet1 = hadjet[2]
+                    newhadidx = [hadjetidx[0],hadjetidx[1],hadjetidx[2]]
+                #elif hadjet[1].btagDeepB>bjetcut:
+                elif hadjet[1][7]>bjetcut:
+                    hadbjet = hadjet[1]
+                    hadnonbjet0 = hadjet[0]
+                    hadnonbjet1 = hadjet[2]
+                    newhadidx = [hadjetidx[1],hadjetidx[0],hadjetidx[2]]
+                #elif hadjet[2].btagDeepB>bjetcut:
+                elif hadjet[2][7]>bjetcut:
+                    hadbjet = hadjet[2]
+                    hadnonbjet0 = hadjet[0]
+                    hadnonbjet1 = hadjet[1]
+                    newhadidx = [hadjetidx[2],hadjetidx[0],hadjetidx[1]]
+            else: # keep_order is true
                 hadbjet = hadjet[0]
                 hadnonbjet0 = hadjet[1]
                 hadnonbjet1 = hadjet[2]
                 newhadidx = [hadjetidx[0],hadjetidx[1],hadjetidx[2]]
-            #elif hadjet[1].btagDeepB>bjetcut:
-            elif hadjet[1][7]>bjetcut:
-                hadbjet = hadjet[1]
-                hadnonbjet0 = hadjet[0]
-                hadnonbjet1 = hadjet[2]
-                newhadidx = [hadjetidx[1],hadjetidx[0],hadjetidx[2]]
-            #elif hadjet[2].btagDeepB>bjetcut:
-            elif hadjet[2][7]>bjetcut:
-                hadbjet = hadjet[2]
-                hadnonbjet0 = hadjet[0]
-                hadnonbjet1 = hadjet[1]
-                newhadidx = [hadjetidx[2],hadjetidx[0],hadjetidx[1]]
 
             if hadnonbjet0 is None or hadnonbjet1 is None: 
                 continue
@@ -814,8 +850,9 @@ def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None
 
                             if ML_data is not None:
                                 #start = time.time()
-                                vals_for_ML_training([hadnonbjet0,hadnonbjet1,hadbjet],ML_data,tag='had')
-                                vals_for_ML_training([bnvjet0,bnvjet1,lepton],ML_data,tag='bnv')
+                                # Here we are passing in the hadronic b-jet last
+                                vals_for_ML_training([hadnonbjet0,hadnonbjet1,hadbjet],ML_data,tag='had',keep_order=keep_order)
+                                vals_for_ML_training([bnvjet0,bnvjet1,lepton],ML_data,tag='bnv',keep_order=keep_order)
                                 #print("time to calc vals: ",time.time()-start)
 
                                 ML_data['ttbar_angle'].append(thetatop1top2)
@@ -854,7 +891,7 @@ def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.5,verbose=False,ML_data=None
 
 
 ################################################################################
-def vals_for_ML_training(jets,output_data,tag="had"):
+def vals_for_ML_training(jets,output_data,tag="had",keep_order=False):
 
     # reco jets: e, px, py, pz, pt, eta, phi, csv2
     # jets is a list
@@ -903,19 +940,20 @@ def vals_for_ML_training(jets,output_data,tag="had"):
     tmpjets = [j1,j2,j3] 
     # If it is hadronic, order 3 jets, otherwise order 2 jets
     # Order the jets so that they run from largest pt (j1) to smallest pt (j3)
-    if tag=='had':
-        sortidx = np.argsort( [rj1pmag,rj2pmag,rj3pmag])
-        j1 = tmpjets[sortidx[2]]
-        j2 = tmpjets[sortidx[1]]
-        j3 = tmpjets[sortidx[0]]
-        #print(j1,j2,j3)
-        #print("---------")
-        #print(rj1pmag, rj2pmag, rj3pmag)
-        #print(sortidx)
-    else:
-        sortidx = np.argsort( [rj1pmag,rj2pmag])
-        j1 = tmpjets[sortidx[1]]
-        j2 = tmpjets[sortidx[0]]
+    if keep_order is False:
+        if tag=='had':
+            sortidx = np.argsort( [rj1pmag,rj2pmag,rj3pmag])
+            j1 = tmpjets[sortidx[2]]
+            j2 = tmpjets[sortidx[1]]
+            j3 = tmpjets[sortidx[0]]
+            #print(j1,j2,j3)
+            #print("---------")
+            #print(rj1pmag, rj2pmag, rj3pmag)
+            #print(sortidx)
+        else:
+            sortidx = np.argsort( [rj1pmag,rj2pmag])
+            j1 = tmpjets[sortidx[1]]
+            j2 = tmpjets[sortidx[0]]
 
     #print(rj1pmag, rj2pmag, rj3pmag)
     #for s in jets:
@@ -1003,6 +1041,8 @@ def vals_for_ML_training(jets,output_data,tag="had"):
         #output_data[tag+'_j3_btag1'].append(j3.btagDeepC)
         #output_data[tag+'_j3_btag'].append(j3.btagDeepB)
         output_data[tag+'_j3_btag'].append(j3[7])
+    elif tag=="bnv":
+        output_data[tag+'_lep_pt'].append(j3[4])
 
 
 ################################################################################
@@ -1054,6 +1094,8 @@ def define_ML_output_data():
     #output_data["bnv_j2_btag1"] = []
     output_data["bnv_j1_btag"] = []
     output_data["bnv_j2_btag"] = []
+
+    output_data["bnv_lep_pt"] = []
 
     output_data["ttbar_angle"] = []
 
@@ -1183,7 +1225,7 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, ma
 
         # b quark from a t
         bquark_from_t = (genpart.pdgId==5) & \
-                        (genpart.status==23)
+                        (genpart.distinctParent.pdgId==6)
         if match_first is True:
             bquark_from_t = bquark_from_t * (genpart.distinctParent.pdgId==6) # Trying this to get the first, not the last copy
         else:

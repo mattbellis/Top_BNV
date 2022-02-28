@@ -66,7 +66,7 @@ print("Extracted jets, muons, and electrons!")
 
 print("Calculating the muon mask...")
 # Muon processing
-muon_ptcut = 25
+muon_ptcut = 20
 muon_isoflag = 1
 muon_flag = 'loose'
 muon_mask = nat.muon_mask(allmuons_temp,ptcut=muon_ptcut,isoflag=muon_isoflag,flag=muon_flag)
