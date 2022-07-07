@@ -15,6 +15,7 @@ infilename = sys.argv[1]
 infile = uproot.open(infilename)
 
 
+'''
 muon_branch_arrays = infile["Events"].arrays(filter_name="Muon_*")
 electron_branch_arrays = infile["Events"].arrays(filter_name="Electron_*")
 
@@ -40,3 +41,4 @@ plt.hist(ak.flatten((mu1 + mu2 + mu3 + mu4).mass), bins=100, range=(0, 200));
 
 
 plt.show()
+'''
