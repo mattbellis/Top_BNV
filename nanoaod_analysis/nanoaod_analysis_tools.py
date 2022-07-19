@@ -55,7 +55,7 @@ def extract_dataset_type_and_trigger_from_filename(filename):
 
     mc_type = None
     if dataset_type=='MC':
-        if filename.find('BNV')>=0:
+        if filename.find('BNV')>=0 or filename.find('signal'):
             mc_type = 'sig'
         else:
             mc_type = 'bkg'
@@ -83,11 +83,14 @@ def extract_dataset_type_and_trigger_from_filename(filename):
 
     topology = None
     if mc_type=='sig':
-        if filename.find('TTo')<=0:
+        if filename.find('TTo')<=0 and filename.find('TT_')<=0:
             print("Can't find a signal topology that is coded up for truth matching")
-        else:
+        elif filename.find('TTo')>=0:
             idx = filename.find('TTo')
             topology = filename[idx:].split('_')[0]
+        elif filename.find('TT_')>=0:
+            idx = filename.find('TT_')
+            topology = 'TTo' + filename[idx:].split('_')[1][1:3]
 
 
     return dataset_type, mc_type, trigger, topology, year
