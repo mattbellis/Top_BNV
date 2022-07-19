@@ -1175,6 +1175,7 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, ma
 
     # BNV quarks
     if topology.find('TToSU')>=0:
+        print(topology)
         print("here!!!!!!!")
         down_type_quark_pdgId = 3
         up_type_quark_pdgId = 2
@@ -1281,24 +1282,24 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, ma
             # The below works for hadronic ttbar MC
             ##########################################################################
             print("Quarks from t --> W+ b")
-            for i in genpart[0][t_mask[0]].pdgId:
-                print(i)
+            #for i in genpart[0][t_mask[0]].pdgId:
+            #    print(i)
 
             print("Quarks from tbar --> W- bbar")
-            for i in genpart[0][tbar_mask[0]].pdgId:
-                print(i)
+            #for i in genpart[0][tbar_mask[0]].pdgId:
+            #    print(i)
 
             print("Quarks from either t or tbar hadronic decay")
-            for i in genpart[0][tbar_mask[0] | t_mask[0]].pdgId:
-                print(i)
+            #for i in genpart[0][tbar_mask[0] | t_mask[0]].pdgId:
+            #    print(i)
 
             print("Quarks from either t or tbar BNV decay")
-            for i in genpart[0][tbnv_quark_mask[0]].pdgId:
-                print(i)
+            #for i in genpart[0][tbnv_quark_mask[0]].pdgId:
+            #    print(i)
 
             print("Leptons from either t or tbar BNV decay")
-            for i in genpart[0][gen_lepton_mask[0]].pdgId:
-                print(i)
+            #for i in genpart[0][gen_lepton_mask[0]].pdgId:
+            #    print(i)
             ##########################################################################
 
         tsm_mask = t_mask | tbar_mask
@@ -1310,13 +1311,13 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, ma
         #gen_leptons = genpart[gen_lepton_mask]
 
         print(len(genpart[0].pdgId))
-        for j,p in enumerate(genpart[0].pdgId):
-            print(j,p)
+        #for j,p in enumerate(genpart[0].pdgId):
+        #    print(j,p)
 
         print("--------------")
         print(len(genpart[0][mask[0]].pdgId))
-        for j,p in enumerate(genpart[0][mask[0]].pdgId):
-            print(j,p)
+        #for j,p in enumerate(genpart[0][mask[0]].pdgId):
+        #    print(j,p)
 
         # Before we mask everything, we create an index for each of the GenPart
         print("Making the GenPart idx....")
@@ -1344,8 +1345,8 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, ma
             ev_idx = 0
             truth_indices = []
             event_truth_indices = []
-            print("-----------------------------------------------##################################")
-            print(genpart[mask].pdgId)
+            #print("-----------------------------------------------##################################")
+            #print(genpart[mask].pdgId)
             for a,b,c,d,e,f in zip(pdgId,pt,eta,phi,parent,all_idx):
                 # Indices are for the genparts mapping on to
                 # hadronic b
@@ -1355,7 +1356,7 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, ma
                 # bnv downtype
                 # bnv uptype
                 indices = np.array([-999, -999, -999, -999, -999, -999])
-                print("-----------------------")
+                #print("-----------------------")
                 #idx = -1
                 idx_count = 0
                 for i,j,k,l,m,idx in zip(a,b,c,d,e,f):
@@ -1363,7 +1364,7 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, ma
                     #print(idx,i,j,k,l,m)
                     if i is None:
                         continue
-                    print(f"idx: {idx}    pdgID: {i:3d}\tpT: {j:6.3f}\teta: {k:6.3f}\tphi: {l:6.3f}\tparent pdgId: {m:3d}")
+                    #print(f"idx: {idx}    pdgID: {i:3d}\tpT: {j:6.3f}\teta: {k:6.3f}\tphi: {l:6.3f}\tparent pdgId: {m:3d}")
                     if abs(i)==5 and abs(m)==6:
                         indices[0] = idx
                     elif abs(i) in [1,2,3,4] and abs(m)==24:
@@ -1381,7 +1382,7 @@ def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, ma
                     idx_count += 1
 
                 if idx_count==6 and -999 not in indices:
-                    print(ev_idx,indices)
+                    #print(ev_idx,indices)
                     truth_indices.append(np.array(indices))
                     event_truth_indices.append(ev_idx)
                     total += 1
