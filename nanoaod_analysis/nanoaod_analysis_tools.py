@@ -110,22 +110,42 @@ def generate_event_topology_indices(njets,nleps,verbose=False):
     
     x = combinations(jetindices,3)
     
-    #print(x)
     for had in x:
-        #print("-------")
-        #print(had)
         # Remove those indices
         remaining = np.delete(jetindices, np.argwhere( (jetindices==had[0]) | (jetindices==had[1]) | (jetindices==had[2]) ))
         bnv = combinations(remaining,2)
         for b in bnv:
             for lep in lepindices:
-                index_combinations.append([had,b,lep])
+                #index_combinations.append([had,b,lep])
+                index_combinations.append([had[0],had[1],had[2],b[0],b[1],lep])
+
                 if verbose:
                     print(had,b,lep)
 
-    return index_combinations
+    #return index_combinations
+    return np.array(index_combinations)
 ################################################################################
+def generate_genpart_decay_chain_indices(genpart, infilename, verbose=False, match_first=True):
+    dataset_type, mc_type, trigger, topology, year = extract_dataset_type_and_trigger_from_filename(infilename)
 
+    topology = f"had_{topology}"
+
+    match_first_tag = ""
+    if match_first:
+        match_first_tag = "_FIRST_MATCH"
+
+    event_decay_chain_indices, decay_chain_indices = identify_genpart_decay_chain(genpart,topology=topology,verbose=verbose, match_first=match_first) 
+
+    # Assume that input file has .root at the end
+    decay_chain_filename = f"GENPART_DECAY_CHAIN_INFORMATION{match_first_tag}_{infilename.split('/')[-1].split('.root')[0]}.npz" 
+
+    print(f"Saving decay chain (genpart) information to {decay_chain_filename}")
+
+    np.savez(decay_chain_filename,event_decay_chain_indices=event_decay_chain_indices,decay_chain_indices=decay_chain_indices,allow_pickle=False)
+
+    return event_decay_chain_indices, decay_chain_indices, decay_chain_filename
+
+################################################################################
 def generate_all_event_topology_indices(maxnjets=10,maxnleps=5,verbose=False):
 
     all_indices = []
@@ -1155,7 +1175,7 @@ def check_jet_against_gen(jet,gen, maxdPtRel=1e9, maxdR=0.15):
 
 
 ################################################################################
-def truth_matching_identify_genpart(genpart,topology='had_had',verbose=False, match_first=True):
+def identify_genpart_decay_chain(genpart,topology='had_had',verbose=False, match_first=True):
 
     if topology.find('had_')<=0:
         0
