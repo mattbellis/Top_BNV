@@ -103,7 +103,7 @@ def generate_event_topology_indices(njets,nleps,verbose=False):
     index_combinations = []
 
     if njets<5 or nleps<1:
-        return [None,None,None]
+        return [None,None,None,None,None,None,None]
 
     jetindices = np.arange(njets,dtype=int)
     lepindices = np.arange(nleps,dtype=int)
@@ -648,8 +648,184 @@ def jet_mask(jets,ptcut=0,njets=(5,10)):
     return mask,mask_jet_num
 
 ################################################################################
+def top_variables(jets, decay_type='had', do_sort=True):    
+
+    jet1 = jets[0]
+    jet2 = jets[1]
+    jet3 = jets[2]
+    
+    # btag
+    var1 = jet1.btagDeepB
+    var2 = jet2.btagDeepB
+    var3 = None
+    if decay_type == 'had':
+        var3 = jet3.btagDeepB
+    elif decay_type == 'bnv':
+        var3 = jet3.charge
+        
+    # Boost to CM of 3-jet (or 2-jet + lepton) system
+    top_p4 = jet1 + jet2 + jet3
+    boost_p4 = top_p4
+    
+    boost_p4 = ak.with_field(boost_p4, 173.0, "tau")
+
+    jet1_boosted = jet1.boostCM_of(boost_p4)
+    jet2_boosted = jet2.boostCM_of(boost_p4)
+    jet3_boosted = jet3.boostCM_of(boost_p4)
+
+    # Need to do this so we only sort the 2 jets for bnv decays
+    if decay_type=='had' and do_sort==True:
+
+        # Sort things by the magnitude of momentum in the top-CM frame    
+        sort_by = np.array([jet1_boosted.mag, jet2_boosted.mag, jet3_boosted.mag]).transpose()
+        idx = np.argsort(sort_by)            
+            
+        # Sort these "backward" because we want the highest momentum first
+        #array_to_sort = sort_by
+        #jet3_boosted_mag,jet2_boosted_mag,jet1_boosted_mag = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
+
+        # Sort these "backward" because we want the highest momentum first
+        array_to_sort = np.array([jet1, jet2, jet3]).transpose()
+        jet3,jet2,jet1 = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
+
+        # Sort these "backward" because we want the highest momentum first
+        array_to_sort = np.array([jet1_boosted, jet2_boosted, jet3_boosted]).transpose()
+        jet3_boosted,jet2_boosted,jet1_boosted = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
+
+        # Sort these "backward" because we want the highest momentum first
+        array_to_sort = np.array([var1, var2, var3]).transpose()
+        var3, var2, var1 = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
+       
+    elif decay_type=='bnv' and do_sort==True:
+   
+        # Sort things by the magnitude of momentum in the top-CM frame    
+        sort_by = np.array([jet1_boosted.mag, jet2_boosted.mag]).transpose()
+        idx = np.argsort(sort_by)
+
+        # Sort these "backward" because we want the highest momentum first
+        #array_to_sort = sort_by
+        #jet2_boosted_mag,jet1_boosted_mag = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
+        #jet3_boosted_mag = jet3_boosted.mag
+
+        # Sort these "backward" because we want the highest momentum first
+        array_to_sort = np.array([jet1, jet2]).transpose()
+        jet2,jet1 = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
+        jet3 = jets[2]
+
+        # Sort these "backward" because we want the highest momentum first
+        array_to_sort = np.array([jet1_boosted, jet2_boosted]).transpose()
+        jet2_boosted,jet1_boosted = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
+
+        # Sort these "backward" because we want the highest momentum first
+        array_to_sort = np.array([var1, var2]).transpose()
+        var2, var1 = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
+
+    # Convert back to awkward
+    jet1 = ak.Array(jet1,with_name="Momentum4D")
+    jet2 = ak.Array(jet2,with_name="Momentum4D")
+    jet3 = ak.Array(jet3,with_name="Momentum4D")
+
+    jet1_boosted = ak.Array(jet1_boosted,with_name="Momentum4D")
+    jet2_boosted = ak.Array(jet2_boosted,with_name="Momentum4D")
+    jet3_boosted = ak.Array(jet3_boosted,with_name="Momentum4D")
+
+    #jet1_pt,jet2_pt,jet3_pt = jet1.pt,jet2.pt,jet3.pt
+    #print(type(jet1))
+    #print(jet1.fields)
+    jet1_pt = jet1.rho # This is pt
+    jet2_pt = jet1.rho
+    jet3_pt = jet1.rho
+    #array_to_sort = np.array([jet1_boosted.pt, jet2_boosted.pt,jet3_boosted.pt]).transpose()
+    jet1_boosted_pt,jet2_boosted_pt,jet3_boosted_pt = jet1_boosted.pt, jet2_boosted.pt,jet3_boosted.pt
+    jet1_boosted_mag,jet2_boosted_mag,jet3_boosted_mag = jet1_boosted.mag, jet2_boosted.mag,jet3_boosted.mag
+    
+    dR12 = jet1.deltaR(jet2)
+    dR13 = jet1.deltaR(jet3)
+    dR23 = jet2.deltaR(jet3)
+    dR1_23 = jet1.deltaR(jet2 + jet3)
+    dR3_12 = jet3.deltaR(jet1 + jet2)
+
+
+    p12 = jet1 + jet2
+    p13 = jet1 + jet3
+    p23 = jet2 + jet3
+
+    dThetaCM12 = jet1_boosted.deltaangle(jet2_boosted)
+    dThetaCM13 = jet1_boosted.deltaangle(jet3_boosted)
+    dThetaCM23 = jet2_boosted.deltaangle(jet3_boosted)
+    dThetaCM1_23 = jet1_boosted.deltaangle(jet2_boosted + jet3_boosted)
+    dThetaCM3_12 = jet3_boosted.deltaangle(jet1_boosted + jet2_boosted)
+
+    #xsorted,ysorted,zsorted = xsort.transpose()
+    
+    results = {}
+    results[decay_type + '_top_p4_mass'] = top_p4.mass
+    results[decay_type + '_j12_m'] = p12.mass
+    results[decay_type + '_j13_m'] = p13.mass
+    results[decay_type + '_j23_m'] = p23.mass
+    results[decay_type + '_dR12_lab'] = dR12
+    results[decay_type + '_dR13_lab'] = dR13
+    results[decay_type + '_dR23_lab'] = dR23
+    results[decay_type + '_dR1_23_lab'] = dR1_23
+    results[decay_type + '_dR3_12_lab'] = dR3_12
+    results[decay_type + '_dTheta12_CM'] = dThetaCM12
+    results[decay_type + '_dTheta13_CM'] = dThetaCM13
+    results[decay_type + '_dTheta23_CM'] = dThetaCM23
+    results[decay_type + '_dTheta1_23_CM'] = dThetaCM1_23
+    results[decay_type + '_dTheta3_12_CM'] = dThetaCM3_12
+    results[decay_type + '_j1_pt_CM'] = jet1_boosted_pt
+    results[decay_type + '_j2_pt_CM'] = jet2_boosted_pt
+    results[decay_type + '_j3_pt_CM'] = jet3_boosted_pt
+    results[decay_type + '_j1_mag_CM'] = jet1_boosted_mag
+    results[decay_type + '_j2_mag_CM'] = jet2_boosted_mag
+    results[decay_type + '_j3_mag_CM'] = jet3_boosted_mag
+    results[decay_type + '_j1_btag'] = var1
+    results[decay_type + '_j2_btag'] = var2
+    if decay_type == 'had':
+        results[decay_type + '_j3_btag'] = var3
+    elif decay_type == 'bnv':
+        results[decay_type + '_lep_q'] = var3
+
+    
+    return results#top_p4.mass, p12.mass, p13.mass, p23.mass, \
+           #dR12, dR13, dR23, dR1_23, dR3_12,\
+           #dThetaCM12, dThetaCM13, dThetaCM23, dThetaCM1_23, dThetaCM3_12, \
+           #jet1_boosted_pt, jet2_boosted_pt, jet3_boosted_pt, \
+           #jet1_boosted_mag, jet2_boosted_mag, jet3_boosted_mag, \
+           #var1, var2, var3
+
+#########################################################################
+
+def event_hypothesis(jets, lepton):
+    
+    results = {}
+    
+    had_p4 = jets[0] + jets[1] + jets[2]
+    bnv_p4 = jets[3] + jets[4] + lepton
+    
+    # Calculate the cos of the transverse angle between the two tops
+    mag1 = np.sqrt(had_p4.x*had_p4.x + had_p4.y*had_p4.y)
+    mag2 = np.sqrt(bnv_p4.x*bnv_p4.x + bnv_p4.y*bnv_p4.y)
+    dot = had_p4.x*bnv_p4.x + had_p4.y*bnv_p4.y
+    cosangle = dot/(mag1*mag2)
+    results['ttbar_cosangle'] = cosangle
+    
+    had_variables = top_variables([jets[0], jets[1], jets[2]], decay_type='had')
+    print("Calculated the hadronic variables")
+    #print(type(jets[3]))
+    bnv_variables = top_variables([jets[3], jets[4], lepton], decay_type='bnv')
+    print("Calculated the BNV variables")
+
+    for d in [had_variables, bnv_variables]:
+        for key in d.keys():
+            results[key] = d[key]
+    
+    return results#had_variables, bnv_variables, angle
+
+
+################################################################################
 #@nb.njit
-def event_hypothesis(jets_awk,leptons_awk,bjetcut=0.0,verbose=False,ML_data=None,maxnjets=10,maxnleps=5,event_topology_indices=None,keep_order=False):
+def event_hypothesis_BACKUP(jets_awk,leptons_awk,bjetcut=0.0,verbose=False,ML_data=None,maxnjets=10,maxnleps=5,event_topology_indices=None,keep_order=False):
 
     # Extract the information about the jets so we don't keep having to call the
     # attr functions...I think?
