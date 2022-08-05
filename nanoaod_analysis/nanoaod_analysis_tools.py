@@ -677,13 +677,13 @@ def top_variables(jets, decay_type='had', do_sort=True):
     if decay_type=='had' and do_sort==True:
 
         # Sort things by the magnitude of momentum in the top-CM frame    
-        sort_by = np.array([jet1_boosted.mag, jet2_boosted.mag, jet3_boosted.mag]).transpose()
+        #sort_by = np.array([jet1_boosted.mag, jet2_boosted.mag, jet3_boosted.mag]).transpose()
+        #idx = np.argsort(sort_by)            
+
+        # Sort things by the b-tag
+        sort_by = np.array([jet1.btagDeepB, jet2.btagDeepB, jet3.btagDeepB]).transpose()
         idx = np.argsort(sort_by)            
             
-        # Sort these "backward" because we want the highest momentum first
-        #array_to_sort = sort_by
-        #jet3_boosted_mag,jet2_boosted_mag,jet1_boosted_mag = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
-
         # Sort these "backward" because we want the highest momentum first
         array_to_sort = np.array([jet1, jet2, jet3]).transpose()
         jet3,jet2,jet1 = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
@@ -701,11 +701,6 @@ def top_variables(jets, decay_type='had', do_sort=True):
         # Sort things by the magnitude of momentum in the top-CM frame    
         sort_by = np.array([jet1_boosted.mag, jet2_boosted.mag]).transpose()
         idx = np.argsort(sort_by)
-
-        # Sort these "backward" because we want the highest momentum first
-        #array_to_sort = sort_by
-        #jet2_boosted_mag,jet1_boosted_mag = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
-        #jet3_boosted_mag = jet3_boosted.mag
 
         # Sort these "backward" because we want the highest momentum first
         array_to_sort = np.array([jet1, jet2]).transpose()
