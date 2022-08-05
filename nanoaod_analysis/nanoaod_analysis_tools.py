@@ -796,7 +796,7 @@ def top_variables(jets, decay_type='had', do_sort=True):
 
 #########################################################################
 
-def event_hypothesis(jets, lepton):
+def event_hypothesis(jets, lepton, do_sort=True):
     
     results = {}
     
@@ -810,10 +810,10 @@ def event_hypothesis(jets, lepton):
     cosangle = dot/(mag1*mag2)
     results['ttbar_cosangle'] = cosangle
     
-    had_variables = top_variables([jets[0], jets[1], jets[2]], decay_type='had')
+    had_variables = top_variables([jets[0], jets[1], jets[2]], decay_type='had', do_sort=do_sort)
     print("Calculated the hadronic variables")
     #print(type(jets[3]))
-    bnv_variables = top_variables([jets[3], jets[4], lepton], decay_type='bnv')
+    bnv_variables = top_variables([jets[3], jets[4], lepton], decay_type='bnv', do_sort=do_sort)
     print("Calculated the BNV variables")
 
     for d in [had_variables, bnv_variables]:
