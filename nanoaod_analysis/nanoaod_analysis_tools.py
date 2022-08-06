@@ -727,19 +727,18 @@ def top_variables(jets, decay_type='had', do_sort=True):
     #jet1_pt,jet2_pt,jet3_pt = jet1.pt,jet2.pt,jet3.pt
     #print(type(jet1))
     #print(jet1.fields)
-    jet1_pt = jet1.rho # This is pt
-    jet2_pt = jet1.rho
-    jet3_pt = jet1.rho
+    #jet1_pt = jet1.rho # This is pt
+    #jet2_pt = jet2.rho
+    #jet3_pt = jet3.rho
     #array_to_sort = np.array([jet1_boosted.pt, jet2_boosted.pt,jet3_boosted.pt]).transpose()
-    jet1_boosted_pt,jet2_boosted_pt,jet3_boosted_pt = jet1_boosted.pt, jet2_boosted.pt,jet3_boosted.pt
-    jet1_boosted_mag,jet2_boosted_mag,jet3_boosted_mag = jet1_boosted.mag, jet2_boosted.mag,jet3_boosted.mag
+    #jet1_boosted_pt,jet2_boosted_pt,jet3_boosted_pt = jet1_boosted.pt, jet2_boosted.pt,jet3_boosted.pt
+    #jet1_boosted_mag,jet2_boosted_mag,jet3_boosted_mag = jet1_boosted.mag, jet2_boosted.mag,jet3_boosted.mag
     
     dR12 = jet1.deltaR(jet2)
     dR13 = jet1.deltaR(jet3)
     dR23 = jet2.deltaR(jet3)
     dR1_23 = jet1.deltaR(jet2 + jet3)
     dR3_12 = jet3.deltaR(jet1 + jet2)
-
 
     p12 = jet1 + jet2
     p13 = jet1 + jet3
@@ -754,7 +753,9 @@ def top_variables(jets, decay_type='had', do_sort=True):
     #xsorted,ysorted,zsorted = xsort.transpose()
     
     results = {}
-    results[decay_type + '_top_p4_mass'] = top_p4.mass
+    results[decay_type + '_top_m'] = top_p4.mass
+    results[decay_type + '_top_pt'] = top_p4.rho
+    results[decay_type + '_top_mag'] = top_p4.mag
     results[decay_type + '_j12_m'] = p12.mass
     results[decay_type + '_j13_m'] = p13.mass
     results[decay_type + '_j23_m'] = p23.mass
@@ -763,17 +764,23 @@ def top_variables(jets, decay_type='had', do_sort=True):
     results[decay_type + '_dR23_lab'] = dR23
     results[decay_type + '_dR1_23_lab'] = dR1_23
     results[decay_type + '_dR3_12_lab'] = dR3_12
-    results[decay_type + '_dTheta12_CM'] = dThetaCM12
-    results[decay_type + '_dTheta13_CM'] = dThetaCM13
-    results[decay_type + '_dTheta23_CM'] = dThetaCM23
-    results[decay_type + '_dTheta1_23_CM'] = dThetaCM1_23
-    results[decay_type + '_dTheta3_12_CM'] = dThetaCM3_12
-    results[decay_type + '_j1_pt_CM'] = jet1_boosted_pt
-    results[decay_type + '_j2_pt_CM'] = jet2_boosted_pt
-    results[decay_type + '_j3_pt_CM'] = jet3_boosted_pt
-    results[decay_type + '_j1_mag_CM'] = jet1_boosted_mag
-    results[decay_type + '_j2_mag_CM'] = jet2_boosted_mag
-    results[decay_type + '_j3_mag_CM'] = jet3_boosted_mag
+    results[decay_type + '_j1_pt_lab'] = jet1.rho
+    results[decay_type + '_j2_pt_lab'] = jet2.rho
+    results[decay_type + '_j3_pt_lab'] = jet3.rho
+    results[decay_type + '_j1_mag_lab'] = jet1.mag
+    results[decay_type + '_j2_mag_lab'] = jet2.mag
+    results[decay_type + '_j3_mag_lab'] = jet3.mag
+    results[decay_type + '_dTheta12_CMtop'] = dThetaCM12
+    results[decay_type + '_dTheta13_CMtop'] = dThetaCM13
+    results[decay_type + '_dTheta23_CMtop'] = dThetaCM23
+    results[decay_type + '_dTheta1_23_CMtop'] = dThetaCM1_23
+    results[decay_type + '_dTheta3_12_CMtop'] = dThetaCM3_12
+    results[decay_type + '_j1_pt_CMtop'] = jet1_boosted.rho
+    results[decay_type + '_j2_pt_CMtop'] = jet2_boosted.rho
+    results[decay_type + '_j3_pt_CMtop'] = jet3_boosted.rho
+    results[decay_type + '_j1_mag_CMtop'] = jet1_boosted.mag
+    results[decay_type + '_j2_mag_CMtop'] = jet2_boosted.mag
+    results[decay_type + '_j3_mag_CMtop'] = jet3_boosted.mag
     results[decay_type + '_j1_btag'] = var1
     results[decay_type + '_j2_btag'] = var2
     if decay_type == 'had':
