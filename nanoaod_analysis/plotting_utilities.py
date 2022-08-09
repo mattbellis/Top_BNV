@@ -74,8 +74,8 @@ plot_defs['ttbar_cosangle'] = {"xlabel":r"$\cos\theta_T$ $t\bar{t}$ candidates",
 ################################################################################
 
 ################################################################################
-def plot_some_variables(values, keys, axes=None, nrows=1, ncols=1, figsize=None, label=None, mask=None, do_unique=False):
-    
+def plot_some_variables(values, keys, axes=None, nrows=1, ncols=1, figsize=None, label=None, mask=None, do_unique=False, ml_prepend=True):
+
     if axes is None:
         if figsize is None:
             figsize = (6,6)
@@ -86,6 +86,12 @@ def plot_some_variables(values, keys, axes=None, nrows=1, ncols=1, figsize=None,
         if key=='SKIP':
             continue
 
+        plot_def_key = str(key)
+        if key[0:3] != 'ml/':
+            key = f"ml/{key}"
+
+        #print(key,plot_def_key)
+
         x = values[key]
 
         if type(x) == ak.highlevel.Array:
@@ -93,10 +99,10 @@ def plot_some_variables(values, keys, axes=None, nrows=1, ncols=1, figsize=None,
         x[x==-np.inf] = -999
         x[x==np.inf] = -999
 
-        nbins = plot_defs[key]['nbins']
-        xlabel = plot_defs[key]['xlabel']
-        ylabel = f"#/bin" #plot_defs[key]['ylabel']
-        prange = plot_defs[key]['range']
+        nbins = plot_defs[plot_def_key]['nbins']
+        xlabel = plot_defs[plot_def_key]['xlabel']
+        ylabel = f"#/bin" #plot_defs[plot_def_key]['ylabel']
+        prange = plot_defs[plot_def_key]['range']
 
         row,col = 1,1
         ax = None
