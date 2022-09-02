@@ -35,7 +35,7 @@ muon_hlt_paths['2018'] = ['IsoMu24']
 electron_hlt_paths = {}
 electron_hlt_paths['2016'] = ['Ele32_WPTight_Gsf','Ele27_WPTight_Gsf']
 electron_hlt_paths['2017'] = ['Ele32_WPTight_Gsf_L1DoubleEG', 'Ele35_WPTight_Gsf','Ele38_WPTight_Gsf','Ele40_WPTight_Gsf']
-electron_hlt_paths['2018'] = ['Ele32_WPTight_Gsf','Ele35_WPTight_Gsf','Ele38_WPTight_Gsf']
+electron_hlt_paths['2018'] = ['Ele32_WPTight_Gsf']#,'Ele35_WPTight_Gsf','Ele38_WPTight_Gsf']
 
 hlt_paths = [
 ["SingleMuon",muon_hlt_paths],
@@ -555,6 +555,8 @@ def massptetaphi2epxpypz(p4):
     e2 = m2+px2+py2+pz2
     return np.sqrt(e2),px,py,pz
 
+################################################################################
+# We pass in events['HLT']
 ################################################################################
 def trigger_mask(events_HLT, trigger='SingleMuon', year='2018'):
 
