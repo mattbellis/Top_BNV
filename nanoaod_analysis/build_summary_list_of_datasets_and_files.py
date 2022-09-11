@@ -14,6 +14,8 @@ for year in ['2016', '2017', '2018']:
     sorted_keys = list(keys)
     sorted_keys.sort()
 
+    #print(keys)
+
     for dataset in sorted_keys:
         totalevents = 0
         totalsize = 0
@@ -33,7 +35,7 @@ for year in ['2016', '2017', '2018']:
          # Prepend the full dataset info
         #output = str(totalevents) + " " + str(totalsize) + " " + dataset + " " + fulldatasetname + "\n" + output
         output = "dataset: " + "{0:10d}  {1}".format(totalevents, dataset) #+ " " + fulldatasetname
-        print output
+        print(output)
 
 
 
