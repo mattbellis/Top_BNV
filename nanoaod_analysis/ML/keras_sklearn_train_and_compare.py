@@ -155,7 +155,7 @@ print()
 y = df.pop('Class') # all class values become 'y'
 X = df
 
-print("Lenth of X and y!")
+print("Length of X and y!")
 print(len(X))
 print(len(y))
 
@@ -164,10 +164,12 @@ X = X.astype('float32')
 # encode strings to integer
 y = LabelEncoder().fit_transform(y)
 # split into train and test datasets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.05)
 
 #.shape returns the dimensions of the dataset. So (48778, 18) means 48778 rows and 18 columns
-print(X_train.shape, X_test.shape, y_train.shape, y_test.shape) 
+#print(X_train.shape, X_test.shape, y_train.shape, y_test.shape) 
+print(f"# of training: {X_train.shape[0]}")
+print(f"# of testing:  {X_test.shape[0]}\n")
 
 # determine the number of input features
 n_features = X_train.shape[1] # 2nd item returned by ".shape" is the # of columns/features
