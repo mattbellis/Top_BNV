@@ -74,7 +74,7 @@ plot_defs['ttbar_cosangle'] = {"xlabel":r"$\cos\theta_T$ $t\bar{t}$ candidates",
 ################################################################################
 
 ################################################################################
-def plot_some_variables(values, keys, axes=None, nrows=1, ncols=1, figsize=None, label=None, mask=None, do_unique=False, ml_prepend=True):
+def plot_some_variables(values, keys, axes=None, nrows=1, ncols=1, figsize=None, label=None, mask=None, do_unique=False, ml_prepend=True, density=True, weights=1.0):
 
     if axes is None:
         if figsize is None:
@@ -128,7 +128,8 @@ def plot_some_variables(values, keys, axes=None, nrows=1, ncols=1, figsize=None,
             xvar = np.unique(xvar)
         #print(f"{key}   {len(xvar)}")#  {len(x)}")
 
-        ax.hist(xvar[xvar==xvar],bins=nbins,range=prange, density=True, alpha=0.5, label=label)
+        data_values = xvar[xvar==xvar]
+        ax.hist(data_values,bins=nbins,range=prange, density=density, alpha=0.5, label=label)
         ax.set_xlabel(xlabel,fontsize=18)
         ax.set_ylabel(ylabel,fontsize=18)
 

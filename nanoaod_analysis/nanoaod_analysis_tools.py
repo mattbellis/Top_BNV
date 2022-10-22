@@ -669,7 +669,10 @@ def top_variables(jets, decay_type='had', do_sort=True):
     top_p4 = jet1 + jet2 + jet3
     boost_p4 = top_p4
     
-    boost_p4 = ak.with_field(boost_p4, 173.0, "tau")
+    # Should we make the boost vector set to the mass of the top?
+    # Or the mass of the 3-vector stuff
+    boost_p4 = ak.with_field(boost_p4, 172.25, "tau")
+    #boost_p4 = ak.with_field(boost_p4, 100.00, "tau")
 
     jet1_boosted = jet1.boostCM_of(boost_p4)
     jet2_boosted = jet2.boostCM_of(boost_p4)
@@ -686,15 +689,15 @@ def top_variables(jets, decay_type='had', do_sort=True):
         sort_by = np.array([jet1.btagDeepB, jet2.btagDeepB, jet3.btagDeepB]).transpose()
         idx = np.argsort(sort_by)            
             
-        # Sort these "backward" because we want the highest momentum first
+        # Sort these "backward" because we want the highest momentum/btag first
         array_to_sort = np.array([jet1, jet2, jet3]).transpose()
         jet3,jet2,jet1 = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
 
-        # Sort these "backward" because we want the highest momentum first
+        # Sort these "backward" because we want the highest momentum/btag first
         array_to_sort = np.array([jet1_boosted, jet2_boosted, jet3_boosted]).transpose()
         jet3_boosted,jet2_boosted,jet1_boosted = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
 
-        # Sort these "backward" because we want the highest momentum first
+        # Sort these "backward" because we want the highest momentum/btag first
         array_to_sort = np.array([var1, var2, var3]).transpose()
         var3, var2, var1 = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
        
@@ -704,16 +707,16 @@ def top_variables(jets, decay_type='had', do_sort=True):
         sort_by = np.array([jet1_boosted.mag, jet2_boosted.mag]).transpose()
         idx = np.argsort(sort_by)
 
-        # Sort these "backward" because we want the highest momentum first
+        # Sort these "backward" because we want the highest momentum/btag first
         array_to_sort = np.array([jet1, jet2]).transpose()
         jet2,jet1 = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
         jet3 = jets[2]
 
-        # Sort these "backward" because we want the highest momentum first
+        # Sort these "backward" because we want the highest momentum/btag first
         array_to_sort = np.array([jet1_boosted, jet2_boosted]).transpose()
         jet2_boosted,jet1_boosted = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
 
-        # Sort these "backward" because we want the highest momentum first
+        # Sort these "backward" because we want the highest momentum/btag first
         array_to_sort = np.array([var1, var2]).transpose()
         var2, var1 = np.take_along_axis(array_to_sort, idx, axis=1).transpose()
 
