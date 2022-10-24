@@ -2,6 +2,7 @@ import numpy as np
 import awkward as ak
 
 import matplotlib.pylab as plt
+import matplotlib
 
 plot_defs = {}
 
@@ -74,7 +75,7 @@ plot_defs['ttbar_cosangle'] = {"xlabel":r"$\cos\theta_T$ $t\bar{t}$ candidates",
 ################################################################################
 
 ################################################################################
-def plot_some_variables(values, keys, axes=None, nrows=1, ncols=1, figsize=None, label=None, mask=None, do_unique=False, ml_prepend=True, density=True, weights=1.0):
+def plot_some_variables(values, keys, axes=None, nrows=1, ncols=1, figsize=None, label=None, mask=None, do_unique=False, ml_prepend=True, density=True, weights=1.0, color=None):
 
     if axes is None:
         if figsize is None:
@@ -106,7 +107,9 @@ def plot_some_variables(values, keys, axes=None, nrows=1, ncols=1, figsize=None,
 
         row,col = 1,1
         ax = None
-        if nrows==1 or ncols==1:
+        if type(axes) == matplotlib.axes._subplots.Subplot:
+            ax = axes
+        elif nrows==1 or ncols==1:
             ax = axes[i]
         else:
             row = int(np.floor(i/ncols))
@@ -129,7 +132,7 @@ def plot_some_variables(values, keys, axes=None, nrows=1, ncols=1, figsize=None,
         #print(f"{key}   {len(xvar)}")#  {len(x)}")
 
         data_values = xvar[xvar==xvar]
-        ax.hist(data_values,bins=nbins,range=prange, density=density, alpha=0.5, label=label)
+        ax.hist(data_values,bins=nbins,range=prange, density=density, alpha=0.5, label=label, color=color)
         ax.set_xlabel(xlabel,fontsize=18)
         ax.set_ylabel(ylabel,fontsize=18)
 
